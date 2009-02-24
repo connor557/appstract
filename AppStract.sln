@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.UI", "AppStract.UI\AppStract.UI.csproj", "{9497B6D7-48A2-4B3F-B0A3-880A2A8724C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Utilities", "AppStract.Utilities\AppStract.Utilities.csproj", "{29578947-FFF4-4A0A-9C75-AE3C5E03F746}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Core", "AppStract.Core\AppStract.Core.csproj", "{73CC3214-9CAD-4723-BBBB-79BE7482E639}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Server", "AppStract.Server\AppStract.Server.csproj", "{4944058E-49BF-4CF8-968D-D905731EC728}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Inject", "AppStract.Inject\AppStract.Inject.csproj", "{35F16113-D3A5-4D1A-AFCB-F778D5197D4E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{04537DA2-B27B-4B63-A793-AB0EE064CD6B}"
+	ProjectSection(SolutionItems) = preProject
+		Assets\Known Bugs.txt = Assets\Known Bugs.txt
+		Assets\Notes.txt = Assets\Notes.txt
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9497B6D7-48A2-4B3F-B0A3-880A2A8724C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9497B6D7-48A2-4B3F-B0A3-880A2A8724C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9497B6D7-48A2-4B3F-B0A3-880A2A8724C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9497B6D7-48A2-4B3F-B0A3-880A2A8724C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29578947-FFF4-4A0A-9C75-AE3C5E03F746}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29578947-FFF4-4A0A-9C75-AE3C5E03F746}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29578947-FFF4-4A0A-9C75-AE3C5E03F746}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29578947-FFF4-4A0A-9C75-AE3C5E03F746}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73CC3214-9CAD-4723-BBBB-79BE7482E639}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73CC3214-9CAD-4723-BBBB-79BE7482E639}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73CC3214-9CAD-4723-BBBB-79BE7482E639}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73CC3214-9CAD-4723-BBBB-79BE7482E639}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4944058E-49BF-4CF8-968D-D905731EC728}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4944058E-49BF-4CF8-968D-D905731EC728}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4944058E-49BF-4CF8-968D-D905731EC728}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4944058E-49BF-4CF8-968D-D905731EC728}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35F16113-D3A5-4D1A-AFCB-F778D5197D4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35F16113-D3A5-4D1A-AFCB-F778D5197D4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35F16113-D3A5-4D1A-AFCB-F778D5197D4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35F16113-D3A5-4D1A-AFCB-F778D5197D4E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
