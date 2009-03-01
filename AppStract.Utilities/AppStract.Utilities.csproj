@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Observables\ItemChanged.cs" />
     <Compile Include="Observables\ObservableDictionary.cs" />
     <Compile Include="Path\PathHelper.cs" />
