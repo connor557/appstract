@@ -21,28 +21,49 @@
 
 #endregion
 
-
-namespace AppStract.Server.Registry
+namespace AppStract.Server.Providers.Registry
 {
-  public interface IRegistryProvider
+  public struct VirtualRegistryValue
   {
 
-    //RegistryValue QueryValue(string valueName, uint hKey);
+    #region Variables
 
-    //void SetValue(RegistryValue value);
+    private object _data;
+    private ValueType _type;
+
+    #endregion
+
+    #region Properties
 
     /// <summary>
-    /// 
+    /// The data associated to the value.
     /// </summary>
-    /// <param name="hkey">A handle to an open registry key.</param>
-    /// <param name="subkey">
-    /// The name of the registry subkey to be opened. 
-    /// Key names are not case sensitive.
-    /// If this parameter is NULL or a pointer to an empty string, the function will open a new handle to the key identified by the hKey parameter.
-    /// </param>
-    /// <param name="phkResult"></param>
-    /// <returns></returns>
-    //uint? OpenKey(uint hkey, string subkey, out uint phkResult);
+    public object Data
+    {
+      get { return _data; }
+      set { _data = value; }
+    }
+
+    /// <summary>
+    /// The type of data stored by the current value.
+    /// </summary>
+    public ValueType Type
+    {
+      get { return _type; }
+      set { _type = value; }
+    }
+
+    #endregion
+
+    #region Constructors
+
+    public VirtualRegistryValue(object data, ValueType type)
+    {
+      _data = data;
+      _type = type;
+    }
+
+    #endregion
 
   }
 }

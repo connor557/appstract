@@ -21,28 +21,13 @@
 
 #endregion
 
-
-namespace AppStract.Server.Registry
+namespace AppStract.Server.Providers.Registry
 {
-  public interface IRegistryProvider
+  public enum StateCode
   {
-
-    //RegistryValue QueryValue(string valueName, uint hKey);
-
-    //void SetValue(RegistryValue value);
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="hkey">A handle to an open registry key.</param>
-    /// <param name="subkey">
-    /// The name of the registry subkey to be opened. 
-    /// Key names are not case sensitive.
-    /// If this parameter is NULL or a pointer to an empty string, the function will open a new handle to the key identified by the hKey parameter.
-    /// </param>
-    /// <param name="phkResult"></param>
-    /// <returns></returns>
-    //uint? OpenKey(uint hkey, string subkey, out uint phkResult);
-
+    Succes = 0,
+    InvalidHandle = 1,
+    AccessDenied = 2,
+    NotFound = 3
   }
 }

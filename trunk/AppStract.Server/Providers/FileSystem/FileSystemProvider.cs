@@ -21,7 +21,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -37,11 +36,25 @@ namespace AppStract.Server.Providers.FileSystem
 
     #region Variables
 
-    private readonly Random _randomGenerator;
+    /// <summary>
+    /// The file table of the current <see cref="FileSystemProvider"/>.
+    /// The keys are the paths of the real file system,
+    /// the values are the replacement paths relative to <see cref="_root"/>.
+    /// </summary>
     private readonly IDictionary<string, string> _fileTable;
+    /// <summary>
+    /// Manages the synchronization between multiple threads accessing the file table.
+    /// </summary>
     private readonly ReaderWriterLockSlim _fileTableLock;
+    /// <summary>
+    /// The synchronization context of the current <see cref="FileSystemProvider"/>.
+    /// </summary>
     private readonly IResourceSynchronizer _resourceSynchronizer;
-    private readonly string _rootDirectory;
+    /// <summary>
+    /// The root of the filesystem,
+    /// which is a path to a directory in the real file system.
+    /// </summary>
+    private readonly string _root;
 
     #endregion
 
@@ -52,7 +65,7 @@ namespace AppStract.Server.Providers.FileSystem
     /// </summary>
     public string CurrentDirectory
     {
-      get { return _rootDirectory; }
+      get { return _root; }
     }
 
     #endregion
@@ -63,19 +76,29 @@ namespace AppStract.Server.Providers.FileSystem
     {
       _fileTable = new ObservableDictionary<string, string>();
       _fileTableLock = new ReaderWriterLockSlim();
-      _randomGenerator = new Random(DateTime.Now.Millisecond);
       _resourceSynchronizer = resourceSynchronizer;
       if (!Path.IsPathRooted(rootDirectory))
-        _rootDirectory = Path.GetFullPath(rootDirectory);
+        _root = Path.GetFullPath(rootDirectory);
     }
 
     #endregion
 
     #region Public Methods
 
+    /// <summary>
+    /// Loads the underlying filetable of the current <see cref="FileSystemProvider"/>.
+    /// </summary>
     public void LoadFileTable()
     {
-      _resourceSynchronizer.LoadFileSystemTo(this);
+      _fileTableLock.EnterWriteLock();
+      try
+      {
+        _resourceSynchronizer.LoadFileSystemTo(_fileTable);
+      }
+      finally
+      {
+        _fileTableLock.ExitWriteLock();
+      }
     }
 
     #endregion
@@ -123,14 +146,13 @@ namespace AppStract.Server.Providers.FileSystem
         if (TryGetFile(fullLibraryPath, out result))
           return result;
       }
-      
-      /// Still not found, redirect the request and see if the library is found.
+      /// Still not found? Redirect the request and see if then the library can be found.
       string redirectedPath = FileAccessRedirector.Redirect(libraryPath);
       if (File.Exists(redirectedPath))
         /// The file exists in the virtual file system, return it.
         return redirectedPath;
       /// Still not found?
-      /// We're sure the virtual folders don't contain the dll (because of TryGetFile).
+      /// We're sure the virtual folders don't contain the dll (because of TryGetFile and the redirection).
       /// ToDo: Are we sure? Need to debug this!
       /// Return the parameter and let Windows handle the search.
       return libraryPath;
@@ -144,16 +166,17 @@ namespace AppStract.Server.Providers.FileSystem
     private FileTableEntry AddNewEntryToFileTable(string keyFilename)
     {
       string fileEntryValue = FileAccessRedirector.Redirect(keyFilename);
-      string fullPath = Path.Combine(_rootDirectory, fileEntryValue);
+      string fullPath = Path.Combine(_root, fileEntryValue);
+      int cnt = 0;
       while (File.Exists(fullPath))
       {
         string filename = Path.GetFileName(fileEntryValue);
         string newFilename = string.Format("{0}{1}{2}",
                                            Path.GetFileNameWithoutExtension(filename),
-                                           _randomGenerator.Next(10000, 999999),
+                                           cnt++,
                                            Path.GetExtension(filename));
         fileEntryValue = fileEntryValue.Replace(filename, newFilename);
-        fullPath = Path.Combine(_rootDirectory, fileEntryValue);
+        fullPath = Path.Combine(_root, fileEntryValue);
       }
       return WriteEntryToTable(keyFilename, fileEntryValue, false);
     }
@@ -165,7 +188,7 @@ namespace AppStract.Server.Providers.FileSystem
     /// <returns>The full path to the temporary file.</returns>
     private string GetTemporaryFile(bool createFileOnDisk)
     {
-      string tempFolder = Path.Combine(_rootDirectory,
+      string tempFolder = Path.Combine(_root,
                                        VirtualEnvironment.GetFolderPath(VirtualFolder.Temporary));
       return VirtualEnvironment.GetUniqueFile(tempFolder, createFileOnDisk);
     }
@@ -213,7 +236,7 @@ namespace AppStract.Server.Providers.FileSystem
           /// Can the file be found in the virtual file table?
           && TryGetFile(fileRequest.FileName, out filename))
         /// The file is found, return its full path.
-        return new FileTableEntry(fileRequest.FileName, Path.Combine(_rootDirectory, filename));
+        return new FileTableEntry(fileRequest.FileName, Path.Combine(_root, filename));
 
       /// The requested resource doesn't exist yet... How will the requester handle this?
       if (fileRequest.CreationDisposition == CreationDisposition.CREATE_ALWAYS

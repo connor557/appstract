@@ -21,6 +21,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using AppStract.Server.FileSystem;
 using AppStract.Server.Registry;
 
@@ -30,21 +31,21 @@ namespace AppStract.Server.Communication
   public interface IResourceSynchronizer
   {
 
-    void AddRegistryValue(RegistryValue registryValue);
+    //void AddRegistryValue(RegistryValue registryValue);
 
-    void DeleteRegistryValue(RegistryValue registryValue);
+    //void DeleteRegistryValue(RegistryValue registryValue);
 
-    void AddRegistryKey(RegistryKey registryKey);
+    //void AddRegistryKey(VirtualRegistryHive registryKey);
 
-    void DeleteRegistryKey(RegistryKey registryKey);
+    //void DeleteRegistryKey(VirtualRegistryHive registryKey);
 
     void AddItemToFileTable(FileTableEntry item);
 
     void DeleteItemFromFileTable(FileTableEntry item);
 
-    void LoadRegistryTo(IRegistryProvider registryProvider);
+    //void LoadRegistryTo(IList<VirtualRegistryHive> registryKeys);
 
-    void LoadFileSystemTo(IFileSystemProvider fileSystemProvider);
+    void LoadFileSystemTo(IDictionary<string, string> fileSystemTable);
 
   }
 }
