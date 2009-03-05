@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using AppStract.Utilities.Extensions;
 
 
 namespace AppStract.Server.Providers.FileSystem
@@ -61,20 +62,14 @@ namespace AppStract.Server.Providers.FileSystem
     /// Returns the replacement path for the specified <paramref name="path"/>.
     /// The result is relative to the requesting application's working directory.
     /// </summary>
-    /// <param name="path"></param>
-    /// <returns></returns>
+    /// <param name="path">The path to redirect.</param>
+    /// <returns>The replacement path, used for redirection.</returns>
     public static string Redirect(string path)
     {
-      path = path.ToLowerInvariant();
-      foreach (string key in _systemVariables.Keys)
-      {
-        if (path.StartsWith(key))
-        {
-          string newPath = _systemVariables[key];
-          return newPath + path.Substring(newPath.Length);
-        }
-      }
-      return RedirectToDefaultFolder(path);
+      string newPath;
+      if (path.StartsWithAny(_systemVariables.Keys, out newPath, true))
+        return (newPath + path.Substring(newPath.Length)).ToLowerInvariant();
+      return RedirectToDefaultFolder(path).ToLowerInvariant();
     }
 
     #endregion

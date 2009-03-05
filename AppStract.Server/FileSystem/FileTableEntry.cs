@@ -26,6 +26,11 @@ using System.Runtime.Serialization;
 
 namespace AppStract.Server.FileSystem
 {
+
+  /// <summary>
+  /// FileTableEntry is a key/value pair used to link a path used in the real file system
+  /// to a path used in the virtual file system.
+  /// </summary>
   public sealed class FileTableEntry : ISerializable
   {
 
@@ -60,8 +65,22 @@ namespace AppStract.Server.FileSystem
 
     private FileTableEntry(SerializationInfo info, StreamingContext context)
     {
-      _key = info.GetString("key");
-      _value = info.GetString("value");
+      try
+      {
+        _key = info.GetString("key");
+      }
+      catch (SerializationException)
+      {
+        /// ToDo: Log the exception.
+      }
+      try
+      {
+        _value = info.GetString("value");        
+      }
+      catch(SerializationException)
+      {
+        /// ToDo: Log the exception.
+      }
     }
 
     #endregion

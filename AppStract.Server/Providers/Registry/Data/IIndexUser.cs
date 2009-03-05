@@ -21,28 +21,18 @@
 
 #endregion
 
-
-namespace AppStract.Server.Registry
+namespace AppStract.Server.Providers.Registry.Data
 {
-  public interface IRegistryProvider
+  /// <summary>
+  /// Represents a class using one or more instances of <see cref="IndexGenerator"/>.
+  /// </summary>
+  public interface IIndexUser
   {
-
-    //RegistryValue QueryValue(string valueName, uint hKey);
-
-    //void SetValue(RegistryValue value);
-
     /// <summary>
-    /// 
+    /// Returns whether the specified <paramref name="index"/> is used by the current <see cref="IIndexUser"/>.
     /// </summary>
-    /// <param name="hkey">A handle to an open registry key.</param>
-    /// <param name="subkey">
-    /// The name of the registry subkey to be opened. 
-    /// Key names are not case sensitive.
-    /// If this parameter is NULL or a pointer to an empty string, the function will open a new handle to the key identified by the hKey parameter.
-    /// </param>
-    /// <param name="phkResult"></param>
-    /// <returns></returns>
-    //uint? OpenKey(uint hkey, string subkey, out uint phkResult);
-
+    /// <param name="index">The index to check the usage for.</param>
+    /// <returns>True if the index is used by the current <see cref="IIndexUser"/>; otherwise, false.</returns>
+    bool IsUsedIndex(uint index);
   }
 }

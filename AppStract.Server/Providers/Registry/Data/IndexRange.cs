@@ -21,57 +21,54 @@
 
 #endregion
 
-using System.Runtime.Serialization;
+using System;
 
-
-namespace AppStract.Server.Registry
+namespace AppStract.Server.Providers.Registry.Data
 {
-  public sealed class RegistryKey : ISerializable
+  public class IndexRange
   {
 
     #region Variables
 
-    private readonly int _key;
-    private readonly string _name;
+    private uint _start;
+    private uint _end;
 
     #endregion
 
     #region Properties
 
-    public int Key
+    public uint Start
     {
-      get { return _key; }
+      get { return _start; }
+      set { _start = value; }
     }
 
-    public string Name
+    public uint End
     {
-      get { return _name; }
-    }
-
-    #endregion
-
-    #region Constructors
-
-    public RegistryKey(int key, string name)
-    {
-      _key = key;
-      _name = name;
-    }
-
-    private RegistryKey(SerializationInfo info, StreamingContext context)
-    {
-      _key = info.GetInt32("key");
-      _name = info.GetString("name");
+      get { return _end; }
+      set { _end = value; }
     }
 
     #endregion
 
-    #region ISerializable Members
+    #region Constructor
 
-    public void GetObjectData(SerializationInfo info, StreamingContext context)
+    public IndexRange(uint start, uint end)
     {
-      info.AddValue("key", _key);
-      info.AddValue("name", _name);
+      if (end < start)
+        throw new ArgumentException("Parameter \"end\" must be greater then \"start\"", "end");
+      _start = start;
+      _end = end;
+    }
+
+    #endregion
+
+    #region Public Methods
+
+    public bool IsInRange(uint value)
+    {
+      return value >= _start
+             && value <= _end;
     }
 
     #endregion

@@ -21,28 +21,26 @@
 
 #endregion
 
-
-namespace AppStract.Server.Registry
+namespace AppStract.Server.Providers.Registry
 {
-  public interface IRegistryProvider
+  /// <summary>
+  /// The required access mechanism on a key.
+  /// </summary>
+  public enum AccessMechanism
   {
-
-    //RegistryValue QueryValue(string valueName, uint hKey);
-
-    //void SetValue(RegistryValue value);
-
     /// <summary>
-    /// 
+    /// All read and write actions are passed to the host's registry.
     /// </summary>
-    /// <param name="hkey">A handle to an open registry key.</param>
-    /// <param name="subkey">
-    /// The name of the registry subkey to be opened. 
-    /// Key names are not case sensitive.
-    /// If this parameter is NULL or a pointer to an empty string, the function will open a new handle to the key identified by the hKey parameter.
-    /// </param>
-    /// <param name="phkResult"></param>
-    /// <returns></returns>
-    //uint? OpenKey(uint hkey, string subkey, out uint phkResult);
-
+    Transparent,
+    /// <summary>
+    /// Read actions are transparant on unknown keys,
+    /// write actions are always performed on the virtual registry.
+    /// </summary>
+    TransparentRead,
+    /// <summary>
+    /// The first read action copies the requested values of the key from the host's registry.
+    /// Write actions are always performed on the virtual registry.
+    /// </summary>
+    CreateAndCopy
   }
 }

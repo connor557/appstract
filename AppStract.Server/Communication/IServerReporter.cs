@@ -35,5 +35,7 @@ namespace AppStract.Server.Communication
 
     void ReportException(int processId, Exception exception);
 
+    void ReportException(int processId, Exception exception, string message);
+
   }
 }

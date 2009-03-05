@@ -56,13 +56,25 @@
     <Compile Include="Providers\FileSystem\VirtualEnvironment.cs" />
     <Compile Include="Providers\FileSystem\VirtualFolder.cs" />
     <Compile Include="Providers\FileSystem\FileSystemProvider.cs" />
+    <Compile Include="Providers\Registry\Data\IIndexUser.cs" />
+    <Compile Include="Providers\Registry\Data\IndexGenerator.cs" />
+    <Compile Include="Providers\Registry\Data\IndexRange.cs" />
+    <Compile Include="Providers\Registry\Data\TransparentRegistry.cs" />
+    <Compile Include="Providers\Registry\Data\RegistryDatabase.cs" />
+    <Compile Include="Providers\Registry\Data\RegistryTranslator.cs" />
+    <Compile Include="Providers\Registry\Data\VirtualRegistryDatabase.cs" />
+    <Compile Include="Providers\Registry\AccessMechanism.cs" />
+    <Compile Include="Providers\Registry\RegistryHelper.cs" />
     <Compile Include="Providers\Registry\RegistryProvider.cs" />
+    <Compile Include="Providers\Registry\StateCode.cs" />
+    <Compile Include="Providers\Registry\ValueType.cs" />
+    <Compile Include="Providers\Registry\VirtualRegistryKey.cs" />
+    <Compile Include="Providers\Registry\VirtualRegistryValue.cs" />
     <Compile Include="Registry\IRegistryProvider.cs" />
     <Compile Include="Communication\IResourceSynchronizer.cs" />
     <Compile Include="Communication\IServerReporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Registry\RegistryKey.cs" />
-    <Compile Include="Registry\RegistryValue.cs" />
+    <Compile Include="Providers\Registry\VirtualRegistry.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppStract.Utilities\AppStract.Utilities.csproj">
