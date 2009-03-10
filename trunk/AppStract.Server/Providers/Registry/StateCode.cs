@@ -23,11 +23,26 @@
 
 namespace AppStract.Server.Providers.Registry
 {
+  /// <summary>
+  /// Static error codes for registry actions.
+  /// </summary>
   public enum StateCode
   {
+    /// <summary>
+    /// The operation completed successfully.
+    /// </summary>
     Succes = 0,
+    /// <summary>
+    /// The handle is invalid.
+    /// </summary>
     InvalidHandle = 1,
+    /// <summary>
+    /// Access is denied.
+    /// </summary>
     AccessDenied = 2,
+    /// <summary>
+    /// The system can not find the specified resource.
+    /// </summary>
     NotFound = 3
   }
 }

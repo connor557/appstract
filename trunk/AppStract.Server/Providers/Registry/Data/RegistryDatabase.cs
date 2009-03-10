@@ -183,8 +183,21 @@ namespace AppStract.Server.Providers.Registry.Data
     /// <returns></returns>
     public abstract StateCode QueryValue(uint hKey, string valueName, out VirtualRegistryValue value);
 
+    /// <summary>
+    /// Sets a value for the key with the specified handle.
+    /// </summary>
+    /// <param name="hKey">Handle of the key to set a value for.</param>
+    /// <param name="valueName">Name of the value to set.</param>
+    /// <param name="value">The data to set for the value.</param>
+    /// <returns></returns>
     public abstract StateCode SetValue(uint hKey, string valueName, VirtualRegistryValue value);
 
+    /// <summary>
+    /// Deletes a value from the key with the specified handle.
+    /// </summary>
+    /// <param name="hKey">Key to delete a value from.</param>
+    /// <param name="valueName">The name of the value to delete.</param>
+    /// <returns></returns>
     public abstract StateCode DeleteValue(uint hKey, string valueName);
 
     #endregion

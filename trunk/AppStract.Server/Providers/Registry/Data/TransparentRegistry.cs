@@ -23,7 +23,6 @@
 
 using System;
 using Microsoft.Win32;
-using Microsoft.Win32.Interop;
 
 namespace AppStract.Server.Providers.Registry.Data
 {
