@@ -48,6 +48,10 @@ namespace AppStract.Server.Providers.Registry
 
     #region Constructors
 
+    /// <summary>
+    /// Static constructor of <see cref="RegistryHelper"/>,
+    /// initializes the <see cref="_hiveHandles"/> variable.
+    /// </summary>
     static RegistryHelper()
     {
       _hiveHandles = new Dictionary<uint, RegistryHive>(7)
@@ -69,9 +73,19 @@ namespace AppStract.Server.Providers.Registry
     /// <summary>
     /// Returns whether the specified handle is predefined for a hive.
     /// </summary>
-    /// <param name="hKey"></param>
-    /// <param name="registryHive"></param>
-    /// <returns></returns>
+    /// <param name="hKey">The handle to check.</param>
+    /// <returns>True if <paramref name="hKey"/> is a predefined handle.</returns>
+    public static bool IsHiveHandle(uint hKey)
+    {
+      return _hiveHandles.ContainsKey(hKey);
+    }
+
+    /// <summary>
+    /// Returns whether the specified handle is predefined for a hive.
+    /// </summary>
+    /// <param name="hKey">The handle to check.</param>
+    /// <param name="registryHive">The <see cref="RegistryHive"/> matching the handle.</param>
+    /// <returns>True if <paramref name="hKey"/> is a predefined handle.</returns>
     public static bool IsHiveHandle(uint hKey, out RegistryHive registryHive)
     {
       registryHive = RegistryHive.PerformanceData;
@@ -84,20 +98,56 @@ namespace AppStract.Server.Providers.Registry
     }
 
     /// <summary>
-    /// Returns whether the specified handle is predefined for a hive.
+    /// Returns a string representation of the specified <see cref="RegistryHive"/>.
     /// </summary>
-    /// <param name="hKey"></param>
-    /// <returns></returns>
-    public static bool IsHiveHandle(uint hKey)
+    /// <param name="registryHive">Hive to get the string representation for.</param>
+    /// <returns>The name of the hive matching the <see cref="RegistryHive"/>.</returns>
+    public static string GetHiveAsString(RegistryHive registryHive)
     {
-      return _hiveHandles.ContainsKey(hKey);
+      switch (registryHive)
+      {
+        case RegistryHive.ClassesRoot:
+          return "hkey_classes_root";
+        case RegistryHive.CurrentConfig:
+          return "hkey_current_config";
+        case RegistryHive.CurrentUser:
+          return "hkey_current_user";
+        case RegistryHive.Users:
+          return "hkey_users";
+        case RegistryHive.LocalMachine:
+          return "hkey_local_machine";
+        case RegistryHive.DynData:
+          return "hkey_dyn_data";
+        case RegistryHive.PerformanceData:
+          return "hkey_performance_data";
+        default:
+          return null;
+      }
+    }
+
+    /// <summary>
+    /// Returns a string representation of the registry hive with the specified handle.
+    /// If the handle is not pre-defined by the system, returns null.
+    /// </summary>
+    /// <param name="hKey">The pre-defined handle of the hive.</param>
+    /// <returns>The name of the hive matching the handle if the handle is predefined; Else, null.</returns>
+    public static string GetHiveAsString(uint hKey)
+    {
+      RegistryHive hive;
+      if (!IsHiveHandle(hKey, out hive))
+        return null;
+      return GetHiveAsString(hive);
     }
 
     /// <summary>
     /// Returns the hive of which the specified <paramref name="key"/> belongs to.
     /// </summary>
-    /// <param name="key"></param>
-    /// <returns></returns>
+    /// <exception cref="ApplicationException">
+    /// An <see cref="ApplicationException"/> is thrown if the <see cref="RegistryHive"/>
+    /// can't be extracted from the specified <paramref name="key"/>.
+    /// </exception>
+    /// <param name="key">Key to extract and return the <see cref="RegistryHive"/> for.</param>
+    /// <returns>The <see cref="RegistryHive"/> to which the <paramref name="key"/> belongs.</returns>
     public static RegistryHive GetHive(string key)
     {
       /// Get the hive as string
@@ -134,52 +184,11 @@ namespace AppStract.Server.Providers.Registry
     }
 
     /// <summary>
-    /// Returns a string representation of the specified registry hive.
-    /// </summary>
-    /// <param name="registryHive"></param>
-    /// <returns></returns>
-    public static string GetHiveAsString(RegistryHive registryHive)
-    {
-      switch (registryHive)
-      {
-        case RegistryHive.ClassesRoot:
-          return "hkey_classes_root";
-        case RegistryHive.CurrentConfig:
-          return "hkey_current_config";
-        case RegistryHive.CurrentUser:
-          return "hkey_current_user";
-        case RegistryHive.Users:
-          return "hkey_users";
-        case RegistryHive.LocalMachine:
-          return "hkey_local_machine";
-        case RegistryHive.DynData:
-          return "hkey_dyn_data";
-        case RegistryHive.PerformanceData:
-          return "hkey_performance_data";
-        default:
-          return null;
-      }
-    }
-
-    /// <summary>
-    /// Returns a string representation of the registry hive with the specified handle.
-    /// </summary>
-    /// <param name="hKey"></param>
-    /// <returns></returns>
-    public static string GetHiveAsString(uint hKey)
-    {
-      RegistryHive hive;
-      if (!IsHiveHandle(hKey, out hive))
-        return null;
-      return GetHiveAsString(hive);
-    }
-
-    /// <summary>
     /// Returns the hive containing the specified <paramref name="key"/> as a <see cref="RegistryKey"/>.
     /// </summary>
-    /// <param name="key"></param>
+    /// <param name="key">The full key. Used to extract the rootkey from.</param>
     /// <param name="subKeyName">The name of the subkey, extracted from <paramref name="key"/>.</param>
-    /// <returns></returns>
+    /// <returns>The top-level <see cref="RegistryKey"/> of which <paramref name="key"/> is a member.</returns>
     public static RegistryKey GetHiveAsKey(string key, out string subKeyName)
     {
       /// Get the name of the key.
@@ -198,8 +207,8 @@ namespace AppStract.Server.Providers.Registry
     /// <summary>
     /// Returns the hive, specified by <see cref="RegistryHive"/>, as a key.
     /// </summary>
-    /// <param name="registryHive"></param>
-    /// <returns></returns>
+    /// <param name="registryHive">Indicator of the top-level key to return.</param>
+    /// <returns>The root <see cref="RegistryKey"/> matching the <see cref="RegistryHive"/>.</returns>
     public static RegistryKey GetHiveAsKey(RegistryHive registryHive)
     {
       switch (registryHive)
@@ -226,8 +235,8 @@ namespace AppStract.Server.Providers.Registry
     /// <summary>
     /// Returns the required access mechanism to use on a key.
     /// </summary>
-    /// <param name="keyName"></param>
-    /// <returns></returns>
+    /// <param name="keyName">The key to return the <see cref="AccessMechanism"/> for.</param>
+    /// <returns>The <see cref="AccessMechanism"/>, indicating how the hive should be accessed.</returns>
     public static AccessMechanism DetermineAccessMechanism(string keyName)
     {
       return DetermineAccessMechanism(GetHive(keyName));
@@ -236,8 +245,8 @@ namespace AppStract.Server.Providers.Registry
     /// <summary>
     /// Returns the required access mechanism to use on a key.
     /// </summary>
-    /// <param name="registryHive"></param>
-    /// <returns></returns>
+    /// <param name="registryHive">The registry hive to return the <see cref="AccessMechanism"/> for.</param>
+    /// <returns>The <see cref="AccessMechanism"/>, indicating how the hive should be accessed.</returns>
     public static AccessMechanism DetermineAccessMechanism(RegistryHive registryHive)
     {
       if (registryHive == RegistryHive.Users
@@ -254,11 +263,11 @@ namespace AppStract.Server.Providers.Registry
     }
 
     /// <summary>
-    /// Combines to keynames to one key.
+    /// Combines two keynames to one key.
     /// </summary>
-    /// <param name="keyName"></param>
-    /// <param name="subKeyName"></param>
-    /// <returns></returns>
+    /// <param name="keyName">First part of the keyname.</param>
+    /// <param name="subKeyName">Name of the subkey, the second part of the keyname.</param>
+    /// <returns>The combined keyname.</returns>
     public static string CombineKeys(string keyName, string subKeyName)
     {
       if (keyName == null)

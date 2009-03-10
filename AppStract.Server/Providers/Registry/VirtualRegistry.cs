@@ -21,13 +21,14 @@
 
 #endregion
 
-using Microsoft.Win32;
-using Microsoft.Win32.Interop;
 using System.Collections.Generic;
 using AppStract.Server.Providers.Registry.Data;
 
 namespace AppStract.Server.Providers.Registry
 {
+  /// <summary>
+  /// Implementation of a virtualized Windows registry.
+  /// </summary>
   public class VirtualRegistry
   {
 
@@ -46,6 +47,10 @@ namespace AppStract.Server.Providers.Registry
 
     #region Constructors
 
+    /// <summary>
+    /// Initializes a new instance of a virtual Windows registry.
+    /// </summary>
+    /// <param name="keys">The already known registry keys.</param>
     public VirtualRegistry(IEnumerable<VirtualRegistryKey> keys)
     {
       IndexGenerator indexGenerator = new IndexGenerator();
