@@ -41,25 +41,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Providers\FileSystem\DynamicFileSystemProvider.cs" />
-    <Compile Include="Providers\FileSystem\EnvironmentExtender.cs" />
-    <Compile Include="Providers\FileSystem\FileAccessRedirector.cs" />
-    <Compile Include="Providers\FileSystem\VirtualEnvironment.cs" />
-    <Compile Include="Providers\FileSystem\VirtualFolder.cs" />
-    <Compile Include="Providers\FileSystem\VirtualFileSystem.cs" />
-    <Compile Include="Providers\Registry\Data\IIndexUser.cs" />
-    <Compile Include="Providers\Registry\Data\IndexGenerator.cs" />
-    <Compile Include="Providers\Registry\Data\IndexRange.cs" />
-    <Compile Include="Providers\Registry\Data\TransparentRegistry.cs" />
-    <Compile Include="Providers\Registry\Data\RegistryDatabase.cs" />
-    <Compile Include="Providers\Registry\Data\RegistryTranslator.cs" />
-    <Compile Include="Providers\Registry\Data\VirtualRegistryDatabase.cs" />
-    <Compile Include="Providers\Registry\AccessMechanism.cs" />
-    <Compile Include="Providers\Registry\RegistryHelper.cs" />
-    <Compile Include="Providers\Registry\RegistryProvider.cs" />
-    <Compile Include="Providers\Registry\StateCode.cs" />
+    <Compile Include="FileSystem\DynamicFileSystemProvider.cs" />
+    <Compile Include="FileSystem\EnvironmentExtender.cs" />
+    <Compile Include="FileSystem\FileAccessRedirector.cs" />
+    <Compile Include="FileSystem\VirtualEnvironment.cs" />
+    <Compile Include="FileSystem\VirtualFolder.cs" />
+    <Compile Include="FileSystem\VirtualFileSystem.cs" />
+    <Compile Include="Registry\Data\IIndexUser.cs" />
+    <Compile Include="Registry\Data\IndexGenerator.cs" />
+    <Compile Include="Registry\Data\IndexRange.cs" />
+    <Compile Include="Registry\Data\TransparentRegistry.cs" />
+    <Compile Include="Registry\Data\RegistryDatabase.cs" />
+    <Compile Include="Registry\Data\RegistryTranslator.cs" />
+    <Compile Include="Registry\Data\VirtualRegistryDatabase.cs" />
+    <Compile Include="Registry\AccessMechanism.cs" />
+    <Compile Include="Registry\RegistryHelper.cs" />
+    <Compile Include="Registry\RegistryProvider.cs" />
+    <Compile Include="Registry\StateCode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Providers\Registry\VirtualRegistry.cs" />
+    <Compile Include="Registry\VirtualRegistry.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppStract.Core\AppStract.Core.csproj">
