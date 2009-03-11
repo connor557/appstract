@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace AppStract.Server.Providers.Registry
+namespace AppStract.Core.Virtualization.Registry
 {
   /// <summary>
   /// The codes indicating the type of data stored in a specified value.

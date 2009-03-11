@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace AppStract.Server.FileSystem
+namespace AppStract.Core.Virtualization.FileSystem
 {
   public struct FileRequest
   {

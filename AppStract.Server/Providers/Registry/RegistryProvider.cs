@@ -22,8 +22,8 @@
 #endregion
 
 using System.Collections.Generic;
-using AppStract.Server.Communication;
-using AppStract.Server.Registry;
+using AppStract.Core.Synchronization;
+using AppStract.Core.Virtualization.Registry;
 
 
 namespace AppStract.Server.Providers.Registry
@@ -34,13 +34,13 @@ namespace AppStract.Server.Providers.Registry
     #region Variables
 
     private VirtualRegistry _virtualRegistry;
-    private IResourceSynchronizer _resourceSynchronizer;
+    private ResourceSynchronizer _resourceSynchronizer;
 
     #endregion
 
     #region Constructors
 
-    public RegistryProvider(IResourceSynchronizer resourceSynchronizer)
+    public RegistryProvider(ResourceSynchronizer resourceSynchronizer)
     {
       _resourceSynchronizer = resourceSynchronizer;
     }

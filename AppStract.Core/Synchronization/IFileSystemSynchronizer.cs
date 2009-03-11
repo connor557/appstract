@@ -21,20 +21,19 @@
 
 #endregion
 
-namespace AppStract.Server.FileSystem
+using AppStract.Core.Virtualization.FileSystem;
+using AppStract.Utilities.Observables;
+
+namespace AppStract.Core.Synchronization
 {
-  /// <summary>
-  /// The type of the requested resource.
-  /// </summary>
-  public enum ResourceKind
+  public interface IFileSystemSynchronizer
   {
-    /// <summary>
-    /// Request for a file or directory.
-    /// </summary>
-    FileOrDirectory,
-    /// <summary>
-    /// Request for a library.
-    /// </summary>
-    Library
+
+    void LoadFileSystemTableTo(ObservableDictionary<string, string> fileTable);
+
+    void AddItemToFileTable(FileTableEntry item);
+
+    void DeleteItemFromFileTable(FileTableEntry item);
+
   }
 }

@@ -21,21 +21,21 @@
 
 #endregion
 
-using System;
+using System.Collections.Generic;
+using AppStract.Core.Virtualization.Registry;
 
-
-namespace AppStract.Server.Communication
+namespace AppStract.Core.Synchronization
 {
-  public interface IServerReporter
+  public interface IRegistrySynchronizer
   {
 
-    void Ping();
+    void LoadRegistryTo(IDictionary<uint, VirtualRegistryKey> keyList);
 
-    void Ping(int processId);
+    void SetRegistryKey(VirtualRegistryKey virtualRegistryKey);
 
-    void ReportException(int processId, Exception exception);
+    void SetRegistryKey(VirtualRegistryKey virtualRegistryKey, bool overwriteAllValues);
 
-    void ReportException(int processId, Exception exception, string message);
+    void DeleteRegistryKey(uint keyIndex);
 
   }
 }

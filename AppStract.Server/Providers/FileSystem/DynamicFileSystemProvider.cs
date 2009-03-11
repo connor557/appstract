@@ -22,8 +22,8 @@
 #endregion
 
 using System.Timers;
-using AppStract.Server.Communication;
-using AppStract.Server.FileSystem;
+using AppStract.Core.Synchronization;
+using AppStract.Core.Virtualization.FileSystem;
 
 
 namespace AppStract.Server.Providers.FileSystem
@@ -32,7 +32,7 @@ namespace AppStract.Server.Providers.FileSystem
   /// <see cref="DynamicFileSystemProvider"/> extends <see cref="FileSystemProvider"/>
   /// by having the ability to release the virtual filesystem after a specified time interval.
   /// </summary>
-  public class DynamicFileSystemProvider : FileSystemProvider
+  public class DynamicFileSystemProvider : VirtualFileSystem
   {
 
     #region Variables
@@ -54,7 +54,7 @@ namespace AppStract.Server.Providers.FileSystem
 
     #region Constructors
 
-    public DynamicFileSystemProvider(string currentDirectory, IResourceSynchronizer resourceSynchronizer)
+    public DynamicFileSystemProvider(string currentDirectory, IFileSystemSynchronizer resourceSynchronizer)
       : base(currentDirectory, resourceSynchronizer)
     {
       _released = false;

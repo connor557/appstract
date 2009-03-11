@@ -21,49 +21,19 @@
 
 #endregion
 
-namespace AppStract.Server.Providers.Registry
+using System;
+using System.IO;
+using System.Data.SQLite;
+using System.Threading;
+using AppStract.Core;
+using AppStract.Core.Logging;
+using System.Data.Common;
+using System.Collections.Generic;
+
+namespace AppStract.Core.Data
 {
-  public struct VirtualRegistryValue
+  public abstract class Database
   {
-
-    #region Variables
-
-    private object _data;
-    private ValueType _type;
-
-    #endregion
-
-    #region Properties
-
-    /// <summary>
-    /// The data associated to the value.
-    /// </summary>
-    public object Data
-    {
-      get { return _data; }
-      set { _data = value; }
-    }
-
-    /// <summary>
-    /// The type of data stored by the current value.
-    /// </summary>
-    public ValueType Type
-    {
-      get { return _type; }
-      set { _type = value; }
-    }
-
-    #endregion
-
-    #region Constructors
-
-    public VirtualRegistryValue(object data, ValueType type)
-    {
-      _data = data;
-      _type = type;
-    }
-
-    #endregion
 
   }
 }

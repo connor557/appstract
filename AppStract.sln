@@ -17,6 +17,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{04537D
 		Assets\Notes.txt = Assets\Notes.txt
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External Libraries", "External Libraries", "{C9EEAB48-D05C-45EA-86A5-761C9289796B}"
+	ProjectSection(SolutionItems) = preProject
+		External Libraries\System.Data.SQLite.dll = External Libraries\System.Data.SQLite.dll
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

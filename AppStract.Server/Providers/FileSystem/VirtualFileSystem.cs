@@ -24,32 +24,31 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using AppStract.Server.Communication;
-using AppStract.Server.FileSystem;
+using AppStract.Core.Synchronization;
+using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Utilities.Observables;
-
 
 namespace AppStract.Server.Providers.FileSystem
 {
-  public class FileSystemProvider : IFileSystemProvider
+  public class VirtualFileSystem : IFileSystemProvider
   {
 
     #region Variables
 
     /// <summary>
-    /// The file table of the current <see cref="FileSystemProvider"/>.
+    /// The file table of the current <see cref="VirtualFileSystem"/>.
     /// The keys are the paths of the real file system,
     /// the values are the replacement paths relative to <see cref="_root"/>.
     /// </summary>
-    private readonly IDictionary<string, string> _fileTable;
+    private readonly ObservableDictionary<string, string> _fileTable;
     /// <summary>
     /// Manages the synchronization between multiple threads accessing the file table.
     /// </summary>
     private readonly ReaderWriterLockSlim _fileTableLock;
     /// <summary>
-    /// The synchronization context of the current <see cref="FileSystemProvider"/>.
+    /// The synchronization context of the current <see cref="VirtualFileSystem"/>.
     /// </summary>
-    private readonly IResourceSynchronizer _resourceSynchronizer;
+    private readonly IFileSystemSynchronizer _fileSystemSynchronizer;
     /// <summary>
     /// The root of the filesystem,
     /// which is a path to a directory in the real file system.
@@ -72,11 +71,11 @@ namespace AppStract.Server.Providers.FileSystem
 
     #region Constructors
 
-    public FileSystemProvider(string rootDirectory, IResourceSynchronizer resourceSynchronizer)
+    public VirtualFileSystem(string rootDirectory, IFileSystemSynchronizer fileSystemSynchronizer)
     {
       _fileTable = new ObservableDictionary<string, string>();
       _fileTableLock = new ReaderWriterLockSlim();
-      _resourceSynchronizer = resourceSynchronizer;
+      _fileSystemSynchronizer = fileSystemSynchronizer;
       if (!Path.IsPathRooted(rootDirectory))
         _root = Path.GetFullPath(rootDirectory);
     }
@@ -86,14 +85,14 @@ namespace AppStract.Server.Providers.FileSystem
     #region Public Methods
 
     /// <summary>
-    /// Loads the underlying filetable of the current <see cref="FileSystemProvider"/>.
+    /// Loads the underlying filetable of the current <see cref="VirtualFileSystem"/>.
     /// </summary>
     public void LoadFileTable()
     {
       _fileTableLock.EnterWriteLock();
       try
       {
-        _resourceSynchronizer.LoadFileSystemTo(_fileTable);
+        _fileSystemSynchronizer.LoadFileSystemTableTo(_fileTable);
       }
       finally
       {
