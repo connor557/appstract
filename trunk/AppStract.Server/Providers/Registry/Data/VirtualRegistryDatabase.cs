@@ -23,6 +23,8 @@
 
 using System;
 using System.Collections.Generic;
+using AppStract.Core.Virtualization.Registry;
+using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
 
 namespace AppStract.Server.Providers.Registry.Data
 {

@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace AppStract.Server.FileSystem
+namespace AppStract.Core.Virtualization.FileSystem
 {
   /// <summary>
   /// An action to take on a file or device that exists or does not exist. 

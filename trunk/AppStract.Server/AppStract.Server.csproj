@@ -38,24 +38,15 @@
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FileSystem\CreationDisposition.cs" />
-    <Compile Include="FileSystem\FileRequest.cs" />
-    <Compile Include="FileSystem\ResourceType.cs" />
-    <Compile Include="FileSystem\FileTableEntry.cs" />
-    <Compile Include="FileSystem\IFileSystemProvider.cs" />
     <Compile Include="Providers\FileSystem\DynamicFileSystemProvider.cs" />
     <Compile Include="Providers\FileSystem\EnvironmentExtender.cs" />
     <Compile Include="Providers\FileSystem\FileAccessRedirector.cs" />
     <Compile Include="Providers\FileSystem\VirtualEnvironment.cs" />
     <Compile Include="Providers\FileSystem\VirtualFolder.cs" />
-    <Compile Include="Providers\FileSystem\FileSystemProvider.cs" />
+    <Compile Include="Providers\FileSystem\VirtualFileSystem.cs" />
     <Compile Include="Providers\Registry\Data\IIndexUser.cs" />
     <Compile Include="Providers\Registry\Data\IndexGenerator.cs" />
     <Compile Include="Providers\Registry\Data\IndexRange.cs" />
@@ -67,16 +58,14 @@
     <Compile Include="Providers\Registry\RegistryHelper.cs" />
     <Compile Include="Providers\Registry\RegistryProvider.cs" />
     <Compile Include="Providers\Registry\StateCode.cs" />
-    <Compile Include="Providers\Registry\ValueType.cs" />
-    <Compile Include="Providers\Registry\VirtualRegistryKey.cs" />
-    <Compile Include="Providers\Registry\VirtualRegistryValue.cs" />
-    <Compile Include="Registry\IRegistryProvider.cs" />
-    <Compile Include="Communication\IResourceSynchronizer.cs" />
-    <Compile Include="Communication\IServerReporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\Registry\VirtualRegistry.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AppStract.Core\AppStract.Core.csproj">
+      <Project>{73CC3214-9CAD-4723-BBBB-79BE7482E639}</Project>
+      <Name>AppStract.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AppStract.Utilities\AppStract.Utilities.csproj">
       <Project>{29578947-FFF4-4A0A-9C75-AE3C5E03F746}</Project>
       <Name>AppStract.Utilities</Name>

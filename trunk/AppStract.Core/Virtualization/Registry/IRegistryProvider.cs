@@ -22,7 +22,7 @@
 #endregion
 
 
-namespace AppStract.Server.Registry
+namespace AppStract.Core.Virtualization.Registry
 {
   public interface IRegistryProvider
   {

@@ -23,6 +23,7 @@
 
 using System.Collections.Generic;
 using AppStract.Server.Providers.Registry.Data;
+using AppStract.Core.Virtualization.Registry;
 
 namespace AppStract.Server.Providers.Registry
 {

@@ -21,31 +21,20 @@
 
 #endregion
 
-using System.Collections.Generic;
-using AppStract.Server.FileSystem;
-using AppStract.Server.Registry;
-
-
-namespace AppStract.Server.Communication
+namespace AppStract.Core.Virtualization.FileSystem
 {
-  public interface IResourceSynchronizer
+  /// <summary>
+  /// The type of the requested resource.
+  /// </summary>
+  public enum ResourceKind
   {
-
-    //void AddRegistryValue(RegistryValue registryValue);
-
-    //void DeleteRegistryValue(RegistryValue registryValue);
-
-    //void AddRegistryKey(VirtualRegistryHive registryKey);
-
-    //void DeleteRegistryKey(VirtualRegistryHive registryKey);
-
-    void AddItemToFileTable(FileTableEntry item);
-
-    void DeleteItemFromFileTable(FileTableEntry item);
-
-    //void LoadRegistryTo(IList<VirtualRegistryHive> registryKeys);
-
-    void LoadFileSystemTo(IDictionary<string, string> fileSystemTable);
-
+    /// <summary>
+    /// Request for a file or directory.
+    /// </summary>
+    FileOrDirectory,
+    /// <summary>
+    /// Request for a library.
+    /// </summary>
+    Library
   }
 }

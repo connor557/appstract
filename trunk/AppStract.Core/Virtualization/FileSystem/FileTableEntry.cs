@@ -24,7 +24,7 @@
 using System.Runtime.Serialization;
 
 
-namespace AppStract.Server.FileSystem
+namespace AppStract.Core.Virtualization.FileSystem
 {
 
   /// <summary>

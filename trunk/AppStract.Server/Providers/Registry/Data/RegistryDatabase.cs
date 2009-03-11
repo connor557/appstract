@@ -24,6 +24,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using AppStract.Core.Virtualization.Registry;
 using Microsoft.Win32.Interop;
 
 namespace AppStract.Server.Providers.Registry.Data
