@@ -38,9 +38,9 @@ namespace AppStract.Utilities.Observables
     #region Variables
 
     private readonly IDictionary<TKey, TValue> _dictionary;
-    private ItemChanged<KeyValuePair<TKey, TValue>> _added;
-    private ItemChanged<KeyValuePair<TKey, TValue>> _changed;
-    private ItemChanged<KeyValuePair<TKey, TValue>> _removed;
+    private NotifyCollectionItem<KeyValuePair<TKey, TValue>> _added;
+    private NotifyCollectionItem<KeyValuePair<TKey, TValue>> _changed;
+    private NotifyCollectionItem<KeyValuePair<TKey, TValue>> _removed;
     private ReaderWriterLockSlim _addedSync;
     private ReaderWriterLockSlim _changedSync;
     private ReaderWriterLockSlim _removedSync;
@@ -49,7 +49,7 @@ namespace AppStract.Utilities.Observables
 
     #region Events
 
-    public event ItemChanged<KeyValuePair<TKey, TValue>> ItemAdded
+    public event NotifyCollectionItem<KeyValuePair<TKey, TValue>> ItemAdded
     {
       add
       {
@@ -77,7 +77,7 @@ namespace AppStract.Utilities.Observables
       }
     }
 
-    public event ItemChanged<KeyValuePair<TKey, TValue>> ItemChanged
+    public event NotifyCollectionItem<KeyValuePair<TKey, TValue>> ItemChanged
     {
       add
       {
@@ -105,7 +105,7 @@ namespace AppStract.Utilities.Observables
       }
     }
 
-    public event ItemChanged<KeyValuePair<TKey, TValue>> ItemRemoved
+    public event NotifyCollectionItem<KeyValuePair<TKey, TValue>> ItemRemoved
     {
       add
       {
