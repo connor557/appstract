@@ -27,6 +27,6 @@ using System.Collections.Generic;
 namespace AppStract.Utilities.Observables
 {
 
-  public delegate void ItemChanged<T>(ICollection<T> sender, T item);
+  public delegate void NotifyCollectionItem<T>(ICollection<T> sender, T item);
 
 }
