@@ -33,7 +33,7 @@ namespace AppStract.Server.Registry.Data
   /// <summary>
   /// Base class for all classes functioning as databases in the virtual registry.
   /// </summary>
-  public abstract class RegistryDatabase : IIndexUser
+  public abstract class RegistryBase : IIndexUser
   {
 
     #region Variables
@@ -59,7 +59,7 @@ namespace AppStract.Server.Registry.Data
     /// Initializes <see cref="_indexGenerator"/>, <see cref="_keys"/>, and <see cref="_keysSynchronizationLock"/>.
     /// </summary>
     /// <param name="indexGenerator">The <see cref="IndexGenerator"/> to use for the new instance.</param>
-    protected RegistryDatabase(IndexGenerator indexGenerator)
+    protected RegistryBase(IndexGenerator indexGenerator)
     {
       _indexGenerator = indexGenerator;
       _keys = new Dictionary<uint, VirtualRegistryKey>();

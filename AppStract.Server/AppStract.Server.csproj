@@ -48,9 +48,9 @@
     <Compile Include="FileSystem\VirtualFolder.cs" />
     <Compile Include="FileSystem\VirtualFileSystem.cs" />
     <Compile Include="Registry\Data\TransparentRegistry.cs" />
-    <Compile Include="Registry\Data\RegistryDatabase.cs" />
+    <Compile Include="Registry\Data\RegistryBase.cs" />
     <Compile Include="Registry\Data\RegistryTranslator.cs" />
-    <Compile Include="Registry\Data\VirtualRegistryDatabase.cs" />
+    <Compile Include="Registry\Data\VirtualRegistryData.cs" />
     <Compile Include="Registry\AccessMechanism.cs" />
     <Compile Include="Registry\RegistryHelper.cs" />
     <Compile Include="Registry\RegistryProvider.cs" />
