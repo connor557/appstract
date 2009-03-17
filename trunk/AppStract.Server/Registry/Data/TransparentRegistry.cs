@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using AppStract.Core.Data;
 using AppStract.Core.Virtualization.Registry;
 using Microsoft.Win32;
 using ValueType = AppStract.Core.Virtualization.Registry.ValueType;

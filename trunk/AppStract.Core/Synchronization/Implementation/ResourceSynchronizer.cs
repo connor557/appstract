@@ -23,20 +23,34 @@
 
 using System;
 using System.Collections.Generic;
+using AppStract.Core.Data;
 using AppStract.Core.Data.FileSystem;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Core.Virtualization.Registry;
-using AppStract.Core;
 using AppStract.Utilities.Observables;
 
-namespace AppStract.Core.Synchronization
+namespace AppStract.Core.Synchronization.Implementation
 {
   public class ResourceSynchronizer : IFileSystemSynchronizer, IRegistrySynchronizer
   {
 
     #region Variables
 
-    private FileSystemDatabase _fileSystemDatabase;
+    private readonly FileSystemDatabase _fileSystemDatabase;
+
+    #endregion
+
+    #region Constructors
+
+    public ResourceSynchronizer()
+    {
+      throw new NotImplementedException();
+    }
+
+    public ResourceSynchronizer(FileSystemDatabase fileSystemDatabase)
+    {
+      _fileSystemDatabase = fileSystemDatabase;
+    }
 
     #endregion
 
@@ -47,23 +61,13 @@ namespace AppStract.Core.Synchronization
       if (fileTable == null)
         throw new ArgumentNullException("fileTable");
       fileTable.Clear();
-      IDictionary<string, string> table = _fileSystemDatabase.ReadAll();
-      foreach (KeyValuePair<string, string> pair in table)
-        fileTable.Add(pair);
+      IEnumerable<FileTableEntry> entries = _fileSystemDatabase.ReadAll();
+      foreach (FileTableEntry entry in entries)
+        fileTable.Add(entry.Key, entry.Value);
       /// Add the events after filling the table.
       fileTable.ItemAdded += FileTable_ItemAdded;
       fileTable.ItemChanged += FileTable_ItemChanged;
       fileTable.ItemRemoved += FileTable_ItemRemoved;
-    }
-
-    public void AddItemToFileTable(FileTableEntry item)
-    {
-      _fileSystemDatabase.UpdateEntry(item.Key, item.Value);
-    }
-
-    public void DeleteItemFromFileTable(FileTableEntry item)
-    {
-
     }
 
     #endregion
@@ -96,17 +100,17 @@ namespace AppStract.Core.Synchronization
 
     private void FileTable_ItemAdded(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item)
     {
-      throw new NotImplementedException();
+      _fileSystemDatabase.EnqueueAction(new DatabaseAction<FileTableEntry>(new FileTableEntry(item), DatabaseActionType.Add));
     }
 
     private void FileTable_ItemChanged(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item)
     {
-      throw new NotImplementedException();
+      _fileSystemDatabase.EnqueueAction(new DatabaseAction<FileTableEntry>(new FileTableEntry(item), DatabaseActionType.Update));
     }
 
     private void FileTable_ItemRemoved(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item)
     {
-      throw new NotImplementedException();
+      _fileSystemDatabase.EnqueueAction(new DatabaseAction<FileTableEntry>(new FileTableEntry(item), DatabaseActionType.Remove));
     }
 
     #endregion

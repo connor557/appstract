@@ -21,41 +21,39 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
-using System.Text;
-using System.Threading;
+using AppStract.Core.Virtualization.FileSystem;
 
 namespace AppStract.Core.Data.FileSystem
 {
-  public class FileSystemDatabase
+  public sealed class FileSystemDatabase : Database<FileTableEntry>
   {
 
     #region Constants
 
+    /// <summary>
+    /// The name of the table in the database containing all key/values for the Filetable.
+    /// </summary>
     private const string _DatabaseFileTable = "filetable";
+    /// <summary>
+    /// The name of the column in <see cref="_DatabaseFileTable"/> holding all the keys.
+    /// </summary>
     private const string _DatabaseFileTableKey = "key";
+    /// <summary>
+    /// The name of the column in <see cref="_DatabaseFileTable"/> holding all the values.
+    /// </summary>
     private const string _DatabaseFileTableValue = "value";
-    private const string _DatabaseFileTableKeyParameter = "*key";
-    private const string _DatabaseFileTableValueParameter = "*value";
-
-    #endregion
-
-    #region Variables
-
-    private readonly string _connectionString;
-    private readonly ReaderWriterLockSlim _sqliteLock;
 
     #endregion
 
     #region Constructors
 
     public FileSystemDatabase(string connectionString)
+      : base(connectionString)
     {
-      _connectionString = connectionString;
-      _sqliteLock = new ReaderWriterLockSlim();
+
     }
 
     #endregion
@@ -66,29 +64,14 @@ namespace AppStract.Core.Data.FileSystem
     /// Reads the full database.
     /// </summary>
     /// <returns></returns>
-    public IDictionary<string, string> ReadAll()
+    public override IEnumerable<FileTableEntry> ReadAll()
     {
-      Dictionary<string, string> result = new Dictionary<string, string>();
-      try
-      {
-        _sqliteLock.EnterReadLock();
-        using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
-        {
-          SQLiteCommand command = new SQLiteCommand("SELECT " + _DatabaseFileTableKey + ", " + _DatabaseFileTableValue + " FROM " + _DatabaseFileTable);
-          command.Connection = connection;
-          connection.Open();
-          SQLiteDataReader reader = command.ExecuteReader();
-          while (reader.Read())
-            result.Add(reader.GetString(0), reader.GetString(1));
-        }
-      }
-      finally
-      {
-        _sqliteLock.ExitReadLock();
-      }
-      return result;
+      return ReadAll(new[] {_DatabaseFileTable},
+                     new[] {_DatabaseFileTableKey, _DatabaseFileTableValue},
+                     BuildItemFromReadAllQuery);
     }
 
+    /*
     /// <summary>
     /// Reads a single entry.
     /// </summary>
@@ -252,18 +235,60 @@ namespace AppStract.Core.Data.FileSystem
       }
       return result.ToArray();
     }
+    */
+
+    #endregion
+
+    #region Protected Methods
+
+    protected override void AppendDeleteCommand(SQLiteCommand command, ParameterGenerator seed, FileTableEntry item)
+    {
+      string paramKey = seed.Next();
+      command.CommandText += string.Format("DELETE FROM {0} WHERE {1} = {2};",
+                                           _DatabaseFileTable, _DatabaseFileTableKey, paramKey);
+      command.Parameters.AddWithValue(paramKey, item.Key);
+    }
+
+    protected override void AppendInsertCommand(SQLiteCommand command, ParameterGenerator seed, FileTableEntry item)
+    {
+      string paramKey = seed.Next();
+      string paramValue = seed.Next();
+      command.CommandText += string.Format("INSERT INTO [{0}] ({1}, {2}) VALUES ({3}, {4});",
+                                           _DatabaseFileTable, _DatabaseFileTableKey, _DatabaseFileTableValue,
+                                           paramKey, paramValue);
+      command.Parameters.AddWithValue(paramKey, item.Key);
+      command.Parameters.AddWithValue(paramValue, item.Value);
+    }
+
+    protected override void AppendUpdateCommand(SQLiteCommand command, ParameterGenerator seed, FileTableEntry item)
+    {
+      string paramKey = seed.Next();
+      string paramValue = seed.Next();
+      command.CommandText += string.Format("UPDATE {0} SET {1} = {2} WHERE {3} = {4});",
+                                           _DatabaseFileTable,
+                                           _DatabaseFileTableValue, paramValue,
+                                           _DatabaseFileTableKey, paramKey);
+      command.Parameters.AddWithValue(paramKey, item.Key);
+      command.Parameters.AddWithValue(paramValue, item.Value);
+    }
 
     #endregion
 
     #region Private Methods
 
+    private static FileTableEntry BuildItemFromReadAllQuery(IDataRecord dataRecord)
+    {
+      return new FileTableEntry(dataRecord.GetString(0), dataRecord.GetString(1));
+    }
+
+    /*
     private static SQLiteCommand BuildDeleteCommand(string key)
     {
       SQLiteCommand command = new SQLiteCommand(
         string.Format("DELETE FROM {0} WHERE {1} = {2}",
                       _DatabaseFileTable,
-                      _DatabaseFileTableKey, _DatabaseFileTableKeyParameter));
-      command.Parameters.AddWithValue(_DatabaseFileTableKeyParameter, key);
+                      _DatabaseFileTableKey, "*key"));
+      command.Parameters.AddWithValue("*key", key);
       return command;
     }
 
@@ -273,8 +298,8 @@ namespace AppStract.Core.Data.FileSystem
         string.Format("SELECT {0} FROM {1} WHERE {2} = {3}",
                       _DatabaseFileTableValue,
                       _DatabaseFileTable,
-                      _DatabaseFileTableKey, _DatabaseFileTableKeyParameter));
-      command.Parameters.AddWithValue(_DatabaseFileTableKeyParameter, key);
+                      _DatabaseFileTableKey, "*key"));
+      command.Parameters.AddWithValue("*key", key);
       return command;
     }
 
@@ -289,8 +314,8 @@ namespace AppStract.Core.Data.FileSystem
       commandText.AppendFormat("SELECT {0} FROM {1} WHERE ", _DatabaseFileTableValue, _DatabaseFileTable);
       for (int i = 0; i < keys.Length; i++)
       {
-        commandText.AppendFormat("{0} = {1} OR ", _DatabaseFileTableKey, _DatabaseFileTableValueParameter + i);
-        command.Parameters.AddWithValue(_DatabaseFileTableValueParameter + i, keys[i]);
+        commandText.AppendFormat("{0} = {1} OR ", _DatabaseFileTableKey, "*key" + i);
+        command.Parameters.AddWithValue("*key" + i, keys[i]);
       }
       commandText.Remove(commandText.Length - 4, 4);
       command.CommandText = commandText.ToString();
@@ -302,9 +327,9 @@ namespace AppStract.Core.Data.FileSystem
       SQLiteCommand command = new SQLiteCommand(
         string.Format("INSERT INTO [{0}] ({1}, {2}) VALUES ({3}, {4})",
                       _DatabaseFileTable, _DatabaseFileTableKey, _DatabaseFileTableValue,
-                      _DatabaseFileTableKeyParameter, _DatabaseFileTableValueParameter));
-      command.Parameters.AddWithValue(_DatabaseFileTableKeyParameter, key);
-      command.Parameters.AddWithValue(_DatabaseFileTableValueParameter, value);
+                      "*key", "*value"));
+      command.Parameters.AddWithValue("*key", key);
+      command.Parameters.AddWithValue("*value", value);
       return command;
     }
 
@@ -313,12 +338,13 @@ namespace AppStract.Core.Data.FileSystem
       SQLiteCommand command = new SQLiteCommand(
         string.Format("UPDATE {0} SET {1} = {2} WHERE {3} = {4})",
                       _DatabaseFileTable,
-                      _DatabaseFileTableValue, _DatabaseFileTableValueParameter,
-                      _DatabaseFileTableKey, _DatabaseFileTableKeyParameter));
-      command.Parameters.AddWithValue(_DatabaseFileTableKeyParameter, key);
-      command.Parameters.AddWithValue(_DatabaseFileTableValueParameter, value);
+                      _DatabaseFileTableValue, "*value",
+                      _DatabaseFileTableKey, "*key"));
+      command.Parameters.AddWithValue("*key", key);
+      command.Parameters.AddWithValue("*value", value);
       return command;
     }
+    */
 
     #endregion
 

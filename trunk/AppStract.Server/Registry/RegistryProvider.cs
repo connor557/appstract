@@ -34,13 +34,13 @@ namespace AppStract.Server.Registry
     #region Variables
 
     private VirtualRegistry _virtualRegistry;
-    private ResourceSynchronizer _resourceSynchronizer;
+    private IRegistrySynchronizer _resourceSynchronizer;
 
     #endregion
 
     #region Constructors
 
-    public RegistryProvider(ResourceSynchronizer resourceSynchronizer)
+    public RegistryProvider(IRegistrySynchronizer resourceSynchronizer)
     {
       _resourceSynchronizer = resourceSynchronizer;
     }

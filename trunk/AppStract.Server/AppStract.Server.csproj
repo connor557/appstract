@@ -47,9 +47,6 @@
     <Compile Include="FileSystem\VirtualEnvironment.cs" />
     <Compile Include="FileSystem\VirtualFolder.cs" />
     <Compile Include="FileSystem\VirtualFileSystem.cs" />
-    <Compile Include="Registry\Data\IIndexUser.cs" />
-    <Compile Include="Registry\Data\IndexGenerator.cs" />
-    <Compile Include="Registry\Data\IndexRange.cs" />
     <Compile Include="Registry\Data\TransparentRegistry.cs" />
     <Compile Include="Registry\Data\RegistryDatabase.cs" />
     <Compile Include="Registry\Data\RegistryTranslator.cs" />

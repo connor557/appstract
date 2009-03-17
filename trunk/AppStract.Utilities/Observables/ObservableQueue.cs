@@ -21,11 +21,16 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 
 namespace AppStract.Utilities.Observables
 {
+  /// <summary>
+  /// A queue that provides notifications when items get added or removed.
+  /// </summary>
+  /// <typeparam name="TItem"></typeparam>
   public class ObservableQueue<TItem>
   {
 
@@ -67,6 +72,15 @@ namespace AppStract.Utilities.Observables
 
     #endregion
 
+    #region Properties
+
+    public int Count
+    {
+      get { return _queue.Count; }
+    }
+
+    #endregion
+
     #region Constructors
 
     public ObservableQueue()
@@ -80,12 +94,22 @@ namespace AppStract.Utilities.Observables
 
     #region Public Methods
 
+    /// <summary>
+    /// Adds an object to the end of the <see cref="ObservableDictionary{TKey,TValue}"/>.
+    /// </summary>
+    /// <remarks>The value can be null for reference types.</remarks>
+    /// <param name="item">The object to add to the <see cref="ObservableQueue{TItem}"/>.</param>
     public void Enqueue(TItem item)
     {
       _queue.Enqueue(item);
       RaiseEvent(_itemEnqueued, item, _eventEnqueueLock);
     }
 
+    /// <summary>
+    /// Removes and returns the object at the beginning of the <see cref="ObservableQueue{TItem}"/>.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The <see cref="ObservableQueue{TItem}"/> is empty.</exception>
+    /// <returns>The object that is removed from the beginning of the <see cref="ObservableQueue{TItem}"/>.</returns>
     public TItem Dequeue()
     {
       TItem item = _queue.Dequeue();

@@ -23,7 +23,6 @@
 
 using System.Collections.Generic;
 
-
 namespace AppStract.Utilities.Observables
 {
 

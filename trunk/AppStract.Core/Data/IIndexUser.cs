@@ -21,15 +21,18 @@
 
 #endregion
 
-using AppStract.Core.Virtualization.FileSystem;
-using AppStract.Utilities.Observables;
-
-namespace AppStract.Core.Synchronization
+namespace AppStract.Core.Data
 {
-  public interface IFileSystemSynchronizer
+  /// <summary>
+  /// Represents a class using one or more instances of <see cref="IndexGenerator"/>.
+  /// </summary>
+  public interface IIndexUser
   {
-
-    void LoadFileSystemTableTo(ObservableDictionary<string, string> fileTable);
-
+    /// <summary>
+    /// Returns whether the specified <paramref name="index"/> is used by the current <see cref="IIndexUser"/>.
+    /// </summary>
+    /// <param name="index">The index to check the usage for.</param>
+    /// <returns>True if the index is used by the current <see cref="IIndexUser"/>; otherwise, false.</returns>
+    bool IsUsedIndex(uint index);
   }
 }
