@@ -39,7 +39,7 @@ namespace AppStract.Server.Registry
     /// <summary>
     /// The virtual registry.
     /// </summary>
-    private readonly VirtualRegistryDatabase _virtualRegistry;
+    private readonly VirtualRegistryData _virtualRegistry;
     /// <summary>
     /// Contains the open keys leading to hives that are not portable.
     /// </summary>
@@ -60,7 +60,7 @@ namespace AppStract.Server.Registry
       indexGenerator.ExcludedRanges.Add(new IndexRange(0, 20));
       /// Reserved indices for registry rootkeys.
       indexGenerator.ExcludedRanges.Add(new IndexRange(0x80000000, 0x80000006));
-      _virtualRegistry = new VirtualRegistryDatabase(indexGenerator, keys);
+      _virtualRegistry = new VirtualRegistryData(indexGenerator, keys);
       _transparantRegistry = new TransparentRegistry(indexGenerator);
     }
 

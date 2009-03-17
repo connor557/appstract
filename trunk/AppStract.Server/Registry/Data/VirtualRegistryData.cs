@@ -32,12 +32,12 @@ namespace AppStract.Server.Registry.Data
   /// <summary>
   /// Database for all the keys known by the virtual registry.
   /// </summary>
-  public class VirtualRegistryDatabase : RegistryDatabase
+  public class VirtualRegistryData : RegistryBase
   {
 
     #region Constructors
 
-    public VirtualRegistryDatabase(IndexGenerator indexGenerator, IEnumerable<VirtualRegistryKey> keys)
+    public VirtualRegistryData(IndexGenerator indexGenerator, IEnumerable<VirtualRegistryKey> keys)
       : base(indexGenerator)
     {
       foreach (VirtualRegistryKey key in keys)

@@ -33,7 +33,7 @@ namespace AppStract.Server.Registry.Data
   /// Buffers keys that are read from the host's registry
   /// without being saved to the virtual registry.
   /// </summary>
-  public class TransparentRegistry : RegistryDatabase
+  public class TransparentRegistry : RegistryBase
   {
 
     #region Variables
