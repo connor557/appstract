@@ -21,54 +21,35 @@
 
 #endregion
 
-using System;
-
-namespace AppStract.Server.Registry.Data
+namespace AppStract.Core.Data
 {
-  public class IndexRange
+  public class ParameterGenerator
   {
 
     #region Variables
 
-    private uint _start;
-    private uint _end;
+    private uint _index;
+    private readonly object _indexLock;
 
     #endregion
 
-    #region Properties
+    #region Constructors
 
-    public uint Start
+    public ParameterGenerator()
     {
-      get { return _start; }
-      set { _start = value; }
-    }
-
-    public uint End
-    {
-      get { return _end; }
-      set { _end = value; }
-    }
-
-    #endregion
-
-    #region Constructor
-
-    public IndexRange(uint start, uint end)
-    {
-      if (end < start)
-        throw new ArgumentException("Parameter \"end\" must be greater then \"start\"", "end");
-      _start = start;
-      _end = end;
+      _indexLock = new object();
+      _index = 0;
     }
 
     #endregion
 
     #region Public Methods
 
-    public bool IsInRange(uint value)
+    public string Next()
     {
-      return value >= _start
-             && value <= _end;
+      lock (_indexLock)
+        _index++;
+      return "*param" + _index;
     }
 
     #endregion

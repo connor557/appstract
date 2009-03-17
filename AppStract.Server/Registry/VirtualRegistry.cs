@@ -23,6 +23,7 @@
 
 using System.Collections.Generic;
 using AppStract.Server.Registry.Data;
+using AppStract.Core.Data;
 using AppStract.Core.Virtualization.Registry;
 
 namespace AppStract.Server.Registry

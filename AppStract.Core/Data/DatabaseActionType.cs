@@ -21,15 +21,12 @@
 
 #endregion
 
-using AppStract.Core.Virtualization.FileSystem;
-using AppStract.Utilities.Observables;
-
-namespace AppStract.Core.Synchronization
+namespace AppStract.Core.Data
 {
-  public interface IFileSystemSynchronizer
+  public enum DatabaseActionType
   {
-
-    void LoadFileSystemTableTo(ObservableDictionary<string, string> fileTable);
-
+    Update,
+    Add,
+    Remove
   }
 }

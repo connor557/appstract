@@ -21,15 +21,17 @@
 
 #endregion
 
-using AppStract.Core.Virtualization.FileSystem;
-using AppStract.Utilities.Observables;
+using System.Data;
 
-namespace AppStract.Core.Synchronization
+namespace AppStract.Core.Data
 {
-  public interface IFileSystemSynchronizer
-  {
 
-    void LoadFileSystemTableTo(ObservableDictionary<string, string> fileTable);
+  /// <summary>
+  /// Represents the method that will build a {TItem} from an <see cref="IDataRecord"/>.
+  /// </summary>
+  /// <typeparam name="TItem">The type that will be built by the method.</typeparam>
+  /// <param name="dataRecord">The <see cref="IDataRecord"/> to read the values from.</param>
+  /// <returns></returns>
+  public delegate TItem BuildItemFromQuery<TItem>(IDataRecord dataRecord);
 
-  }
 }

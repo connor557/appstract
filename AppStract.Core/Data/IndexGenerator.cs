@@ -24,10 +24,11 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace AppStract.Server.Registry.Data
+namespace AppStract.Core.Data
 {
   /// <summary>
-  /// Generates indices to be used for registry keys.
+  /// Generates indices to be used in a database.
+  /// Users must first register before being able to acquire indices.
   /// </summary>
   public class IndexGenerator
   {

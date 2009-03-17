@@ -21,8 +21,9 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
-
 
 namespace AppStract.Core.Virtualization.FileSystem
 {
@@ -31,7 +32,7 @@ namespace AppStract.Core.Virtualization.FileSystem
   /// FileTableEntry is a key/value pair used to link a path used in the real file system
   /// to a path used in the virtual file system.
   /// </summary>
-  public sealed class FileTableEntry : ISerializable
+  public struct FileTableEntry : ISerializable, IEquatable<FileTableEntry>
   {
 
     #region Variables
@@ -63,6 +64,9 @@ namespace AppStract.Core.Virtualization.FileSystem
       _value = value;
     }
 
+    public FileTableEntry(KeyValuePair<string, string> pair)
+      : this(pair.Key, pair.Value) { }
+
     private FileTableEntry(SerializationInfo info, StreamingContext context)
     {
       try
@@ -71,6 +75,7 @@ namespace AppStract.Core.Virtualization.FileSystem
       }
       catch (SerializationException)
       {
+        _key = null;
         /// ToDo: Log the exception.
       }
       try
@@ -79,6 +84,7 @@ namespace AppStract.Core.Virtualization.FileSystem
       }
       catch(SerializationException)
       {
+        _value = null;
         /// ToDo: Log the exception.
       }
     }
@@ -91,6 +97,15 @@ namespace AppStract.Core.Virtualization.FileSystem
     {
       info.AddValue("key", _key);
       info.AddValue("value", _value);
+    }
+
+    #endregion
+
+    #region IEquatable<FileTableEntry> Members
+
+    public bool Equals(FileTableEntry other)
+    {
+      return _key == other.Key;
     }
 
     #endregion

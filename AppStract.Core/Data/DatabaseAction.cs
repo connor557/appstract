@@ -21,18 +21,41 @@
 
 #endregion
 
-namespace AppStract.Server.Registry.Data
+namespace AppStract.Core.Data
 {
-  /// <summary>
-  /// Represents a class using one or more instances of <see cref="IndexGenerator"/>.
-  /// </summary>
-  public interface IIndexUser
+  public class DatabaseAction<TItem>
   {
-    /// <summary>
-    /// Returns whether the specified <paramref name="index"/> is used by the current <see cref="IIndexUser"/>.
-    /// </summary>
-    /// <param name="index">The index to check the usage for.</param>
-    /// <returns>True if the index is used by the current <see cref="IIndexUser"/>; otherwise, false.</returns>
-    bool IsUsedIndex(uint index);
+
+    #region Variables
+
+    private readonly DatabaseActionType _actionType;
+    private readonly TItem _item;
+
+    #endregion
+
+    #region Properties
+
+    public DatabaseActionType ActionType
+    {
+      get { return _actionType; }
+    }
+
+    public TItem Item
+    {
+      get { return _item; }
+    }
+
+    #endregion
+
+    #region Constructors
+
+    public DatabaseAction(TItem item, DatabaseActionType actionType)
+    {
+      _item = item;
+      _actionType = actionType;
+    }
+
+    #endregion
+
   }
 }

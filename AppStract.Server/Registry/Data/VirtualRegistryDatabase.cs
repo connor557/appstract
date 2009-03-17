@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using AppStract.Core.Data;
 using AppStract.Core.Virtualization.Registry;
 using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
 
