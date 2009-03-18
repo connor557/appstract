@@ -46,9 +46,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Observables\EventRaiser.cs" />
+    <Compile Include="Observables\IObservableItem.cs" />
+    <Compile Include="Observables\IObservableCollection.cs" />
     <Compile Include="Observables\NotifyCollectionItem.cs" />
+    <Compile Include="Observables\NotifyCollectionItemEventRaiser.cs" />
     <Compile Include="Observables\NotifyItem.cs" />
+    <Compile Include="Observables\NotifyItemEventRaiser.cs" />
     <Compile Include="Observables\ObservableDictionary.cs" />
+    <Compile Include="Observables\ObservableList.cs" />
     <Compile Include="Observables\ObservableQueue.cs" />
     <Compile Include="Path\PathHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
