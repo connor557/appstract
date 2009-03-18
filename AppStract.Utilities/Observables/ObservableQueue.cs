@@ -23,7 +23,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace AppStract.Utilities.Observables
 {
@@ -123,34 +122,8 @@ namespace AppStract.Utilities.Observables
 
     private static void RaiseEvent(NotifyItem<TItem> dlg, TItem itemToNotify, object syncLock)
     {
-      if (dlg == null)
-        return;
-      ThreadPool.QueueUserWorkItem(RaiseEvent, new EventData<TItem>(dlg, itemToNotify, syncLock));
-    }
-
-    public static void RaiseEvent(object eventData)
-    {
-      EventData<TItem> data = (EventData<TItem>)eventData;
-      lock (data.SyncLock)
-        data.Delegate(data.ItemToNotify);
-    }
-
-    #endregion
-
-    #region Private Structs
-
-    private struct EventData<TEventItem>
-    {
-      public NotifyItem<TEventItem> Delegate;
-      public TEventItem ItemToNotify;
-      public object SyncLock;
-
-      public EventData(NotifyItem<TEventItem> dlg, TEventItem itemToNotify, object syncLock)
-      {
-        Delegate = dlg;
-        ItemToNotify = itemToNotify;
-        SyncLock = syncLock;
-      }
+      if (dlg != null)
+        new NotifyItemEventRaiser<TItem>(dlg, itemToNotify, syncLock).RaiseAsync();
     }
 
     #endregion

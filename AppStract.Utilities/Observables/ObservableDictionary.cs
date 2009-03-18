@@ -22,17 +22,17 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Threading;
-
+using System.Linq;
 
 namespace AppStract.Utilities.Observables
 {
   /// <summary>
-  /// Observable wrapper class for <see cref="Dictionary{TKey,TValue}"/>.
+  /// Observable wrapper class for <see cref="IDictionary{TKey,TValue}"/>,
+  /// all events are raised in an asynchronous way.
   /// </summary>
   /// <typeparam name="TKey"></typeparam>
   /// <typeparam name="TValue"></typeparam>
-  public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
+  public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IObservableCollection<KeyValuePair<TKey, TValue>>
   {
 
     #region Variables
@@ -41,97 +41,11 @@ namespace AppStract.Utilities.Observables
     private NotifyCollectionItem<KeyValuePair<TKey, TValue>> _added;
     private NotifyCollectionItem<KeyValuePair<TKey, TValue>> _changed;
     private NotifyCollectionItem<KeyValuePair<TKey, TValue>> _removed;
-    private ReaderWriterLockSlim _addedSync;
-    private ReaderWriterLockSlim _changedSync;
-    private ReaderWriterLockSlim _removedSync;
-
-    #endregion
-
-    #region Events
-
-    public event NotifyCollectionItem<KeyValuePair<TKey, TValue>> ItemAdded
-    {
-      add
-      {
-        _addedSync.EnterWriteLock();
-        try
-        {
-          _added += value;
-        }
-        finally
-        {
-          _addedSync.ExitWriteLock();
-        }
-      }
-      remove
-      {
-        _addedSync.EnterWriteLock();
-        try
-        {
-          _added -= value;
-        }
-        finally
-        {
-          _addedSync.ExitWriteLock();
-        }
-      }
-    }
-
-    public event NotifyCollectionItem<KeyValuePair<TKey, TValue>> ItemChanged
-    {
-      add
-      {
-        _changedSync.EnterWriteLock();
-        try
-        {
-          _changed += value;
-        }
-        finally
-        {
-          _changedSync.ExitWriteLock();
-        }
-      }
-      remove
-      {
-        _changedSync.EnterWriteLock();
-        try
-        {
-          _changed -= value;
-        }
-        finally
-        {
-          _changedSync.ExitWriteLock();
-        }
-      }
-    }
-
-    public event NotifyCollectionItem<KeyValuePair<TKey, TValue>> ItemRemoved
-    {
-      add
-      {
-        _removedSync.EnterWriteLock();
-        try
-        {
-          _removed += value;
-        }
-        finally
-        {
-          _removedSync.ExitWriteLock();
-        }
-      }
-      remove
-      {
-        _removedSync.EnterWriteLock();
-        try
-        {
-          _removed -= value;
-        }
-        finally
-        {
-          _removedSync.ExitWriteLock();
-        }
-      }
-    }
+    private object _addLock;
+    private object _changeLock;
+    private object _removeLock;
+    private bool _keyTypeIsObservable;
+    private bool _valueTypeIsObservable;
 
     #endregion
 
@@ -179,51 +93,63 @@ namespace AppStract.Utilities.Observables
 
     private void InitializeGlobalSyncVariables()
     {
-      _addedSync = new ReaderWriterLockSlim();
-      _changedSync = new ReaderWriterLockSlim();
-      _removedSync = new ReaderWriterLockSlim();
+      _addLock = new object();
+      _changeLock = new object();
+      _removeLock = new object();
+      _keyTypeIsObservable = typeof(IObservableItem<TKey>).IsAssignableFrom(typeof(TKey));
+      _valueTypeIsObservable = typeof(IObservableItem<TValue>).IsAssignableFrom(typeof(TValue));
     }
 
-    private void RaiseAddedItemEvent(KeyValuePair<TKey, TValue> item)
+    private void AttachEvents(TKey key)
     {
-      _addedSync.EnterReadLock();
-      try
-      {
-        if (_added != null)
-          _added(this, item);
-      }
-      finally
-      {
-        _addedSync.ExitReadLock();
-      }
+      if (_keyTypeIsObservable)
+        ((IObservableItem<TKey>)key).Changed += Key_Changed;
     }
 
-    private void RaiseChangedItemEvent(KeyValuePair<TKey, TValue> item)
+    private void AttachEvents(TValue value)
     {
-      _changedSync.EnterReadLock();
-      try
-      {
-        if (_changed != null)
-          _changed(this, item);
-      }
-      finally
-      {
-        _changedSync.ExitReadLock();
-      }
+      if (_valueTypeIsObservable)
+        ((IObservableItem<TValue>)value).Changed += Value_Changed;
     }
 
-    private void RaiseRemovedItemEvent(KeyValuePair<TKey, TValue> item)
+    private void DettachEvents(TKey key)
     {
-      _removedSync.EnterReadLock();
-      try
+      if (_keyTypeIsObservable)
+        ((IObservableItem<TKey>)key).Changed -= Key_Changed;
+    }
+
+    private void DettachEvents(TValue value)
+    {
+      if (_valueTypeIsObservable)
+        ((IObservableItem<TValue>)value).Changed -= Value_Changed;
+    }
+
+    private void Key_Changed(TKey item)
+    {
+      TValue value;
+      /// Check if the key exists, if not: detach the event and return quietly.
+      if (!_dictionary.TryGetValue(item, out value))
+        ((IObservableItem<TKey>) item).Changed -= Key_Changed;
+      else
+        new NotifyCollectionItemEventRaiser<KeyValuePair<TKey, TValue>>
+          (_changed, this, new KeyValuePair<TKey, TValue>(item, value), _changeLock).RaiseAsync();
+    }
+
+    private void Value_Changed(TValue item)
+    {
+      /// Find the key.
+      var key = from pair in _dictionary
+                where pair.Value.Equals(item)
+                select pair.Key;
+      /// Check if the key exists, if not: detach the event and return quietly.
+      if (key.Count() == 0)
       {
-        if (_removed != null)
-          _removed(this, item);
+        ((IObservableItem<TValue>)item).Changed -= Value_Changed;
+        return;
       }
-      finally
-      {
-        _removedSync.ExitReadLock();
-      }
+      /// Raise the event.
+      new NotifyCollectionItemEventRaiser<KeyValuePair<TKey, TValue>>
+        (_changed, this, new KeyValuePair<TKey, TValue>(key.First(), item), _changeLock).RaiseAsync();
     }
 
     #endregion
@@ -238,6 +164,7 @@ namespace AppStract.Utilities.Observables
     public void Add(TKey key, TValue value)
     {
       KeyValuePair<TKey, TValue> item = new KeyValuePair<TKey, TValue>(key, value);
+      /// Pass this item to the ICollection implementation of Add()
       Add(item);
     }
 
@@ -307,8 +234,14 @@ namespace AppStract.Utilities.Observables
       get { return _dictionary[key]; }
       set
       {
+        TValue oldValue = _dictionary[key];
+        if (oldValue.Equals(value))
+          return;
         _dictionary[key] = value;
-        RaiseChangedItemEvent(new KeyValuePair<TKey, TValue>(key, value));
+        DettachEvents(oldValue);
+        AttachEvents(value);
+        new NotifyCollectionItemEventRaiser<KeyValuePair<TKey, TValue>>
+          (_changed, this, new KeyValuePair<TKey, TValue>(key, value), _changeLock).RaiseAsync();
       }
     }
 
@@ -323,7 +256,9 @@ namespace AppStract.Utilities.Observables
     public void Add(KeyValuePair<TKey, TValue> item)
     {
       _dictionary.Add(item);
-      RaiseAddedItemEvent(item);
+      AttachEvents(item.Key);
+      AttachEvents(item.Value);
+      new NotifyCollectionItemEventRaiser<KeyValuePair<TKey, TValue>>(_added, this, item, _addLock).RaiseAsync();
     }
 
     /// <summary>
@@ -331,7 +266,12 @@ namespace AppStract.Utilities.Observables
     /// </summary>
     public void Clear()
     {
+      var array = new KeyValuePair<TKey, TValue>[_dictionary.Count];
+      _dictionary.CopyTo(array, 0);
       _dictionary.Clear();
+      foreach (var item in array)
+        new NotifyCollectionItemEventRaiser<KeyValuePair<TKey, TValue>>
+          (_removed, this, item, _removeLock).RaiseAsync();
     }
 
     /// <summary>
@@ -383,7 +323,9 @@ namespace AppStract.Utilities.Observables
     {
       if (!_dictionary.Remove(item))
         return false;
-      RaiseRemovedItemEvent(item);
+      DettachEvents(item.Key);
+      DettachEvents(item.Value);
+      new NotifyCollectionItemEventRaiser<KeyValuePair<TKey, TValue>>(_removed, this, item, _removeLock).RaiseAsync();
       return true;
     }
 
@@ -411,6 +353,34 @@ namespace AppStract.Utilities.Observables
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
     {
       return _dictionary.GetEnumerator();
+    }
+
+    #endregion
+
+    #region IObservableItem<KeyValuePair<TKey,TValue>> Members
+
+    public event NotifyItem<KeyValuePair<TKey, TValue>> Changed;
+
+    #endregion
+
+    #region IObservableCollection<KeyValuePair<TKey,TValue>> Members
+
+    public event NotifyCollectionItem<KeyValuePair<TKey, TValue>> ItemAdded
+    {
+      add { lock(_addLock) _added += value; }
+      remove { lock (_addLock) _added -= value; }
+    }
+
+    public event NotifyCollectionItem<KeyValuePair<TKey, TValue>> ItemChanged
+    {
+      add { lock (_changeLock) _changed += value; }
+      remove { lock (_changeLock) _changed -= value; }
+    }
+
+    public event NotifyCollectionItem<KeyValuePair<TKey, TValue>> ItemRemoved
+    {
+      add { lock (_removeLock) _removed += value; }
+      remove { lock (_removeLock) _removed -= value; }
     }
 
     #endregion
