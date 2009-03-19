@@ -41,9 +41,9 @@ namespace AppStract.Core.Virtualization.Registry
     #region Properties
 
     /// <summary>
-    /// The index of the key, as used in the virtual registry.
+    /// The handle of the key, an index used in the virtual registry.
     /// </summary>
-    public uint Index
+    public uint Handle
     {
       get { return _keyIndex; }
       protected set { _keyIndex = value;}

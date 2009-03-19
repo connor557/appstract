@@ -22,9 +22,10 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using AppStract.Core.Data;
+using AppStract.Core.Synchronization;
 using AppStract.Core.Virtualization.Registry;
+using AppStract.Utilities.Observables;
 using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
 
 namespace AppStract.Server.Registry.Data
@@ -37,16 +38,27 @@ namespace AppStract.Server.Registry.Data
 
     #region Constructors
 
-    public VirtualRegistryData(IndexGenerator indexGenerator, IEnumerable<VirtualRegistryKey> keys)
-      : base(indexGenerator)
+    public VirtualRegistryData(IndexGenerator indexGenerator)
+      : base(indexGenerator, new ObservableDictionary<uint, VirtualRegistryKey>())
     {
-      foreach (VirtualRegistryKey key in keys)
-        _keys.Add(key.Index, key);
     }
 
     #endregion
 
     #region Public Methods
+
+    public void LoadData(IRegistrySynchronizer dataSource)
+    {
+      _keysSynchronizationLock.EnterWriteLock();
+      try
+      {
+        dataSource.LoadRegistryTo((ObservableDictionary<uint, VirtualRegistryKey>) _keys);
+      }
+      finally
+      {
+        _keysSynchronizationLock.ExitWriteLock();
+      }
+    }
 
     public override uint? OpenKey(string keyFullPath)
     {
@@ -62,7 +74,7 @@ namespace AppStract.Server.Registry.Data
 
     public override StateCode QueryValue(uint hkey, string valueName, out VirtualRegistryValue value)
     {
-      value = new VirtualRegistryValue(null, ValueType.INVALID);
+      value = new VirtualRegistryValue(valueName, null, ValueType.INVALID);
       VirtualRegistryKey key;
       _keysSynchronizationLock.EnterReadLock();
       try
@@ -88,7 +100,7 @@ namespace AppStract.Server.Registry.Data
         object o = Microsoft.Win32.Registry.GetValue(key.Path, valueName, null);
         if (o == null)
           return StateCode.NotFound;
-        value = new VirtualRegistryValue(o, ValueType.REG_NONE);
+        value = new VirtualRegistryValue(valueName, o, ValueType.REG_NONE);
       }
       catch
       {

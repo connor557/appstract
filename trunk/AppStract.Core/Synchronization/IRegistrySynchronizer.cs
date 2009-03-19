@@ -21,15 +21,15 @@
 
 #endregion
 
-using System.Collections.Generic;
 using AppStract.Core.Virtualization.Registry;
+using AppStract.Utilities.Observables;
 
 namespace AppStract.Core.Synchronization
 {
   public interface IRegistrySynchronizer
   {
 
-    void LoadRegistryTo(IDictionary<uint, VirtualRegistryKey> keyList);
+    void LoadRegistryTo(ObservableDictionary<uint, VirtualRegistryKey> keyList);
 
     void SetRegistryKey(VirtualRegistryKey virtualRegistryKey);
 

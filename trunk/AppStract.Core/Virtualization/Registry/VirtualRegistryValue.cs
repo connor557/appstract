@@ -28,6 +28,7 @@ namespace AppStract.Core.Virtualization.Registry
 
     #region Variables
 
+    private string _name;
     private object _data;
     private ValueType _type;
 
@@ -36,7 +37,16 @@ namespace AppStract.Core.Virtualization.Registry
     #region Properties
 
     /// <summary>
-    /// The data associated to the value.
+    /// Gets or sets the name of the value.
+    /// </summary>
+    public string Name
+    {
+      get { return _name; }
+      set { _name = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the data associated to the value.
     /// </summary>
     public object Data
     {
@@ -45,7 +55,7 @@ namespace AppStract.Core.Virtualization.Registry
     }
 
     /// <summary>
-    /// The type of data stored by the current value.
+    /// Gets or sets the type of data stored by the current value.
     /// </summary>
     public ValueType Type
     {
@@ -57,8 +67,9 @@ namespace AppStract.Core.Virtualization.Registry
 
     #region Constructors
 
-    public VirtualRegistryValue(object data, ValueType type)
+    public VirtualRegistryValue(string name, object data, ValueType type)
     {
+      _name = name;
       _data = data;
       _type = type;
     }

@@ -39,7 +39,7 @@ namespace AppStract.Server.Registry.Data
     #region Variables
 
     /// <summary>
-    /// Generates the indices used by the current <see cref="RegistryDatabase"/>.
+    /// Generates the indices used by the current <see cref="RegistryBase"/>.
     /// </summary>
     protected readonly IndexGenerator _indexGenerator;
     /// <summary>
@@ -47,7 +47,7 @@ namespace AppStract.Server.Registry.Data
     /// </summary>
     protected readonly IDictionary<uint, VirtualRegistryKey> _keys;
     /// <summary>
-    /// Monitor used for synchronization on the current <see cref="RegistryDatabase"/>.
+    /// Monitor used for synchronization on the current <see cref="RegistryBase"/>.
     /// </summary>
     protected readonly ReaderWriterLockSlim _keysSynchronizationLock;
 
@@ -60,9 +60,19 @@ namespace AppStract.Server.Registry.Data
     /// </summary>
     /// <param name="indexGenerator">The <see cref="IndexGenerator"/> to use for the new instance.</param>
     protected RegistryBase(IndexGenerator indexGenerator)
+      : this(indexGenerator, new Dictionary<uint, VirtualRegistryKey>())
+    {
+    }
+
+    /// <summary>
+    /// Initializes <see cref="_indexGenerator"/>, <see cref="_keys"/>, and <see cref="_keysSynchronizationLock"/>.
+    /// </summary>
+    /// <param name="indexGenerator">The <see cref="IndexGenerator"/> to use for the new instance.</param>
+    /// <param name="keys">The <see cref="IDictionary{TKey,TValue}"/> to use for the new instance.</param>
+    protected RegistryBase(IndexGenerator indexGenerator, IDictionary<uint, VirtualRegistryKey> keys)
     {
       _indexGenerator = indexGenerator;
-      _keys = new Dictionary<uint, VirtualRegistryKey>();
+      _keys = keys;
       _keysSynchronizationLock = new ReaderWriterLockSlim();
     }
 
@@ -145,7 +155,7 @@ namespace AppStract.Server.Registry.Data
           virtualRegistryKey = ConstructRegistryKey(keyFullPath);
           WriteKey(virtualRegistryKey, false);
         }
-        return virtualRegistryKey.Index;
+        return virtualRegistryKey.Handle;
       }
       finally
       {
@@ -170,7 +180,7 @@ namespace AppStract.Server.Registry.Data
       {
         VirtualRegistryKey key = ConstructRegistryKey(keyFullPath);
         WriteKey(key, false);
-        hKey = key.Index;
+        hKey = key.Handle;
       }
       return StateCode.Succes;
     }
@@ -257,9 +267,9 @@ namespace AppStract.Server.Registry.Data
         _keysSynchronizationLock.EnterReadLock();
       try
       {
-        if (!_keys.ContainsKey(registryKey.Index))
+        if (!_keys.ContainsKey(registryKey.Handle))
           return registryKey;
-        VirtualRegistryKey loadedKey = _keys[registryKey.Index];
+        VirtualRegistryKey loadedKey = _keys[registryKey.Handle];
         foreach (var valuePair in registryKey.Values)
         {
           if (!loadedKey.Values.ContainsKey(valuePair.Key))
@@ -293,10 +303,10 @@ namespace AppStract.Server.Registry.Data
           Thread.CurrentThread, registryKey.Path));
       try
       {
-        if (_keys.ContainsKey(registryKey.Index))
-          _keys[registryKey.Index] = registryKey;
+        if (_keys.ContainsKey(registryKey.Handle))
+          _keys[registryKey.Handle] = registryKey;
         else
-          _keys.Add(registryKey.Index, registryKey);
+          _keys.Add(registryKey.Handle, registryKey);
       }
       finally
       {

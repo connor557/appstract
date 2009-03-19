@@ -21,10 +21,8 @@
 
 #endregion
 
-using System.Collections.Generic;
 using AppStract.Core.Synchronization;
 using AppStract.Core.Virtualization.Registry;
-
 
 namespace AppStract.Server.Registry
 {
@@ -33,8 +31,8 @@ namespace AppStract.Server.Registry
 
     #region Variables
 
-    private VirtualRegistry _virtualRegistry;
-    private IRegistrySynchronizer _resourceSynchronizer;
+    private readonly VirtualRegistry _virtualRegistry;
+    private readonly IRegistrySynchronizer _resourceSynchronizer;
 
     #endregion
 
@@ -42,6 +40,7 @@ namespace AppStract.Server.Registry
 
     public RegistryProvider(IRegistrySynchronizer resourceSynchronizer)
     {
+      _virtualRegistry = new VirtualRegistry();
       _resourceSynchronizer = resourceSynchronizer;
     }
 
@@ -51,7 +50,7 @@ namespace AppStract.Server.Registry
 
     public void LoadRegistry()
     {
-      //_resourceSynchronizer.LoadRegistryTo(registryKeys);
+      _virtualRegistry.Initialize(_resourceSynchronizer);
     }
 
     #endregion
@@ -100,5 +99,6 @@ namespace AppStract.Server.Registry
     //}
 
     #endregion
+
   }
 }

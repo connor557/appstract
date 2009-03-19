@@ -21,7 +21,6 @@
 
 #endregion
 
-using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Utilities.Observables;
 
 namespace AppStract.Core.Synchronization

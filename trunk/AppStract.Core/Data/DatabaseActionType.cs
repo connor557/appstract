@@ -23,10 +23,22 @@
 
 namespace AppStract.Core.Data
 {
+  /// <summary>
+  /// Specifies the type of action to take for the database-call.
+  /// </summary>
   public enum DatabaseActionType
   {
+    /// <summary>
+    /// Update the existing value.
+    /// </summary>
     Update,
-    Add,
+    /// <summary>
+    /// Set the value if it exists (overwrite), otherwise add it.
+    /// </summary>
+    Set,
+    /// <summary>
+    /// Remove the value.
+    /// </summary>
     Remove
   }
 }

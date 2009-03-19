@@ -23,18 +23,32 @@
 
 namespace AppStract.Core.Data
 {
+  /// <summary>
+  /// Generates unique names for parameters.
+  /// This class is intended to be used when building large queries
+  /// by using different methods and/or threads.
+  /// </summary>
   public class ParameterGenerator
   {
 
     #region Variables
 
+    /// <summary>
+    /// The last assigned index.
+    /// </summary>
     private uint _index;
+    /// <summary>
+    /// The object to lock when changing <see cref="_index"/>.
+    /// </summary>
     private readonly object _indexLock;
 
     #endregion
 
     #region Constructors
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="ParameterGenerator"/>.
+    /// </summary>
     public ParameterGenerator()
     {
       _indexLock = new object();
@@ -45,11 +59,17 @@ namespace AppStract.Core.Data
 
     #region Public Methods
 
+    /// <summary>
+    /// Returns the next unique name for a parameter.
+    /// </summary>
+    /// <returns></returns>
     public string Next()
     {
       lock (_indexLock)
+      {
         _index++;
-      return "*param" + _index;
+        return "*param" + _index;
+      }
     }
 
     #endregion

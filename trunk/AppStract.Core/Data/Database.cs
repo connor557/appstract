@@ -33,13 +33,13 @@ using AppStract.Utilities.Observables;
 
 namespace AppStract.Core.Data
 {
-  public abstract class Database<TItem>
+  public abstract class Database<T> : IDisposable
   {
 
     #region Variables
 
     protected readonly string _connectionString;
-    private readonly ObservableQueue<DatabaseAction<TItem>> _actionQueue;
+    private readonly ObservableQueue<DatabaseAction<T>> _actionQueue;
     private readonly ReaderWriterLockSlim _actionQueueLock;
     private readonly ReaderWriterLockSlim _sqliteLock;
 
@@ -52,7 +52,7 @@ namespace AppStract.Core.Data
       _connectionString = connectionString;
       _sqliteLock = new ReaderWriterLockSlim();
       _actionQueueLock = new ReaderWriterLockSlim();
-      _actionQueue = new ObservableQueue<DatabaseAction<TItem>>();
+      _actionQueue = new ObservableQueue<DatabaseAction<T>>();
       _actionQueue.ItemEnqueued += ItemEnqueued;
     }
 
@@ -60,9 +60,9 @@ namespace AppStract.Core.Data
 
     #region Public Methods
 
-    public abstract IEnumerable<TItem> ReadAll();
+    public abstract IEnumerable<T> ReadAll();
 
-    public void EnqueueAction(DatabaseAction<TItem> databaseAction)
+    public void EnqueueAction(DatabaseAction<T> databaseAction)
     {
       /// Don't acquire a write lock, this class can handle the enqueueing of new items while flushing.
       /// A lock is only necessary when dequeueing items.
@@ -77,6 +77,8 @@ namespace AppStract.Core.Data
     /// Reads all values from the specified <paramref name="columns"/> in the specified <paramref name="tables"/>.
     /// The items are build by calling <paramref name="itemBuilder"/>.
     /// </summary>
+    /// <exception cref="ArgumentException">An <see cref="ArgumentException"/> is thrown when there are no tables defined.</exception>
+    /// <exception cref="ArgumentNullException">An <see cref="ArgumentNullException"/> is thrown if one of the parameters is null.</exception>
     /// <param name="tables">The tables in the database to read from.</param>
     /// <param name="columns">The columns to read all values from.</param>
     /// <param name="itemBuilder">
@@ -84,23 +86,53 @@ namespace AppStract.Core.Data
     /// are in the same order as the columns in the <paramref name="columns"/> parameter.
     /// </param>
     /// <returns>A list of all items.</returns>
-    protected IList<TItem> ReadAll(IEnumerable<string> tables, IEnumerable<string> columns, BuildItemFromQuery<TItem> itemBuilder)
+    protected IList<ItemType> ReadAll<ItemType>(IEnumerable<string> tables, IEnumerable<string> columns, BuildItemFromQueryData<ItemType> itemBuilder)
     {
-      List<TItem> entries = new List<TItem>();
+      List<ItemType> entries = new List<ItemType>();
       try
       {
         _sqliteLock.EnterReadLock();
         using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
         {
-          StringBuilder cmdBuilder = new StringBuilder("SELECT ");
-          foreach (string col in columns)
-            cmdBuilder.Append(col + ", ");
-          cmdBuilder.Remove(cmdBuilder.Length - 2, 2);
-          cmdBuilder.Append(" FROM ");
-          foreach (string table in tables)
-            cmdBuilder.Append(table + ", ");
-          cmdBuilder.Remove(cmdBuilder.Length - 2, 2);
-          SQLiteCommand command = new SQLiteCommand(cmdBuilder + ";", connection);
+          string query = BuildSelectQuery(tables, columns).ToString();
+          SQLiteCommand command = new SQLiteCommand(query.EndsWith(";") ? query : query + ";", connection);
+          command.Connection.Open();
+          SQLiteDataReader reader = command.ExecuteReader();
+          while (reader.Read())
+            entries.Add(itemBuilder(reader));
+        }
+      }
+      finally
+      {
+        _sqliteLock.ExitReadLock();
+      }
+      return entries;
+    }
+
+    /// <summary>
+    /// Reads all values from the specified <paramref name="columns"/> in the specified <paramref name="tables"/>.
+    /// The items are build by calling <paramref name="itemBuilder"/>.
+    /// </summary>
+    /// <exception cref="ArgumentException">An <see cref="ArgumentException"/> is thrown when there are no tables defined.</exception>
+    /// <exception cref="ArgumentNullException">An <see cref="ArgumentNullException"/> is thrown if one of the parameters is null.</exception>
+    /// <param name="tables">The tables in the database to read from.</param>
+    /// <param name="columns">The columns to read all values from.</param>
+    /// <param name="conditionals">The elements for the where keyword.</param>
+    /// <param name="itemBuilder">
+    /// The method to use when building the item. The <see cref="IDataRecord"/>'s fields
+    /// are in the same order as the columns in the <paramref name="columns"/> parameter.
+    /// </param>
+    /// <returns>A list of all items.</returns>
+    protected IList<ItemType> ReadAll<ItemType>(IEnumerable<string> tables, IEnumerable<string> columns, IEnumerable<KeyValuePair<object, object>> conditionals, BuildItemFromQueryData<ItemType> itemBuilder)
+    {
+      List<ItemType> entries = new List<ItemType>();
+      try
+      {
+        _sqliteLock.EnterReadLock();
+        using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
+        {
+          string query = BuildSelectQuery(tables, columns, conditionals).ToString();
+          SQLiteCommand command = new SQLiteCommand(query.EndsWith(";") ? query : query + ";", connection);
           command.Connection.Open();
           SQLiteDataReader reader = command.ExecuteReader();
           while (reader.Read())
@@ -160,7 +192,7 @@ namespace AppStract.Core.Data
     /// <param name="seed">The object to use for the generation of unique names.</param>
     /// <param name="item"></param>
     /// <returns></returns>
-    protected abstract void AppendDeleteCommand(SQLiteCommand command, ParameterGenerator seed, TItem item);
+    protected abstract void AppendDeleteQuery(SQLiteCommand command, ParameterGenerator seed, T item);
 
     /// <summary>
     /// Appends an insert-query for <paramref name="item"/> to <paramref name="command"/>.
@@ -171,7 +203,7 @@ namespace AppStract.Core.Data
     /// <param name="seed"></param>
     /// <param name="item"></param>
     /// <returns></returns>
-    protected abstract void AppendInsertCommand(SQLiteCommand command, ParameterGenerator seed, TItem item);
+    protected abstract void AppendInsertQuery(SQLiteCommand command, ParameterGenerator seed, T item);
 
     /// <summary>
     /// Appends an update-query for <paramref name="item"/> to <paramref name="command"/>.
@@ -182,20 +214,29 @@ namespace AppStract.Core.Data
     /// <param name="seed"></param>
     /// <param name="item"></param>
     /// <returns></returns>
-    protected abstract void AppendUpdateCommand(SQLiteCommand command, ParameterGenerator seed, TItem item);
+    protected abstract void AppendUpdateQuery(SQLiteCommand command, ParameterGenerator seed, T item);
 
     #endregion
 
     #region Private Methods
 
-    private void ItemEnqueued(DatabaseAction<TItem> item)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="item"></param>
+    private void ItemEnqueued(DatabaseAction<T> item)
     {
       Flush();
     }
 
+    /// <summary>
+    /// Flushes all queued <see cref="DatabaseAction{TItem}"/>s to the physical database.
+    /// It's not guaranteed that it's the current thread that will perform the flushing!
+    /// </summary>
     private void Flush()
     {
-      if (!_actionQueueLock.TryEnterWriteLock(400))
+      if (!_actionQueueLock.TryEnterWriteLock(500))
+        /// Already flushing, return.
         return;
       SQLiteConnection connection = new SQLiteConnection(_connectionString);
       SQLiteCommand command = new SQLiteCommand(connection);
@@ -208,11 +249,11 @@ namespace AppStract.Core.Data
           {
             var item = _actionQueue.Dequeue();
             if (item.ActionType == DatabaseActionType.Update)
-              AppendUpdateCommand(command, seed, item.Item);
-            else if (item.ActionType == DatabaseActionType.Add)
-              AppendInsertCommand(command, seed, item.Item);
+              AppendUpdateQuery(command, seed, item.Item);
+            else if (item.ActionType == DatabaseActionType.Set)
+              AppendInsertQuery(command, seed, item.Item);
             else if (item.ActionType == DatabaseActionType.Remove)
-              AppendDeleteCommand(command, seed, item.Item);
+              AppendDeleteQuery(command, seed, item.Item);
             else
               throw new NotImplementedException(
                 "DatabaseActionType is changed without adding an extra handler to the Database.FlushQueue() method.");
@@ -222,6 +263,8 @@ namespace AppStract.Core.Data
         {
           _actionQueueLock.ExitWriteLock();
         }
+        /// Execute the command as a single transaction to improve speed.
+        command.CommandText = "BEGIN;" + command.CommandText + "COMMIT;";
         if (!ExecuteCommand(command))
           throw new Exception("Failed to flush the database.");
       }
@@ -232,6 +275,12 @@ namespace AppStract.Core.Data
       }
     }
 
+    /// <summary>
+    /// Executes the given <paramref name="command"/> as a NonQuery.
+    /// This method will enter a writelock on <see cref="_sqliteLock"/>..
+    /// </summary>
+    /// <param name="command"></param>
+    /// <returns></returns>
     private bool ExecuteCommand(IDbCommand command)
     {
       _sqliteLock.EnterWriteLock();
@@ -250,6 +299,74 @@ namespace AppStract.Core.Data
       {
         _sqliteLock.ExitWriteLock();
       }
+    }
+
+    /// <summary>
+    /// Returns a query which selects the specified <paramref name="fields"/> from the specified <paramref name="tables"/>.
+    /// </summary>
+    /// <param name="tables">The tables to select fields from.</param>
+    /// <param name="fields">The fields to select from the tables.</param>
+    /// <returns></returns>
+    private static StringBuilder BuildSelectQuery(IEnumerable<string> tables, IEnumerable<string> fields)
+    {
+      if (tables == null)
+        throw new ArgumentNullException("tables");
+      if (fields == null)
+        throw new ArgumentNullException("fields");
+      StringBuilder queryBuilder = new StringBuilder("SELECT ");
+      /// Add columns to the query.
+      foreach (string field in fields)
+        queryBuilder.Append(field + ", ");
+      if (queryBuilder.ToString().EndsWith(", "))
+        queryBuilder.Remove(queryBuilder.Length - 2, 2);
+      else
+        /// No columns to select? Select everything.
+        queryBuilder.Append("*");
+      queryBuilder.Append(" FROM ");
+      /// Add tables to the query.
+      foreach (string table in tables)
+        queryBuilder.Append(table + ", ");
+      if (queryBuilder.ToString().EndsWith(", "))
+        queryBuilder.Remove(queryBuilder.Length - 2, 2);
+      else
+        /// No tables? Can't build a query without tables!
+        throw new ArgumentException("Unable to build the query because there are no tables defined.", "tables");
+      return queryBuilder;
+    }
+
+    /// <summary>
+    /// Returns a query which selects the specified <paramref name="fields"/> from the specified <paramref name="tables"/>.
+    /// </summary>
+    /// <param name="tables">The tables to select fields from.</param>
+    /// <param name="fields">The fields to select from the tables.</param>
+    /// <param name="conditions">The conditions to select on using the WHERE keyword.</param>
+    /// <returns></returns>
+    private static StringBuilder BuildSelectQuery(IEnumerable<string> tables, IEnumerable<string> fields, IEnumerable<KeyValuePair<object, object>> conditions)
+    {
+      if (conditions == null)
+        throw new ArgumentNullException("conditions");
+      StringBuilder queryBuilder = BuildSelectQuery(tables, fields);
+      if (queryBuilder[queryBuilder.Length - 1] == ';')
+        queryBuilder.Remove(queryBuilder.Length - 1, 1);
+      queryBuilder.Append(" WHERE ");
+      /// Add the conditions.
+      foreach (KeyValuePair<object, object> condition in conditions)
+        queryBuilder.Append(condition.Key + " = " + condition.Value + " AND ");
+      if (queryBuilder.ToString().EndsWith(" AND "))
+        queryBuilder.Remove(queryBuilder.Length - 5, 5);
+      else
+        /// No conditions? Remove the "WHERE keyword.
+        queryBuilder.Remove(queryBuilder.Length - 7, 7);
+      return queryBuilder;
+    }
+
+    #endregion
+
+    #region IDisposable Members
+
+    public void Dispose()
+    {
+      Flush();
     }
 
     #endregion
