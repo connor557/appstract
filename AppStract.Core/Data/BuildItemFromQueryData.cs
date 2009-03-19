@@ -32,6 +32,6 @@ namespace AppStract.Core.Data
   /// <typeparam name="TItem">The type that will be built by the method.</typeparam>
   /// <param name="dataRecord">The <see cref="IDataRecord"/> to read the values from.</param>
   /// <returns></returns>
-  public delegate TItem BuildItemFromQuery<TItem>(IDataRecord dataRecord);
+  public delegate TItem BuildItemFromQueryData<TItem>(IDataRecord dataRecord);
 
 }

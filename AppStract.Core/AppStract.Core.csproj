@@ -50,13 +50,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\ParameterGenerator.cs" />
-    <Compile Include="Data\BuildItemFromQuery.cs" />
+    <Compile Include="Data\BuildItemFromQueryData.cs" />
     <Compile Include="Data\Database.cs" />
     <Compile Include="Data\DatabaseAction.cs" />
     <Compile Include="Data\DatabaseActionType.cs" />
     <Compile Include="Data\IIndexUser.cs" />
     <Compile Include="Data\IndexGenerator.cs" />
     <Compile Include="Data\IndexRange.cs" />
+    <Compile Include="Data\Registry\RegistryDatabase.cs" />
     <Compile Include="Logging\ConsoleLogger.cs" />
     <Compile Include="Logging\FileLogger.cs" />
     <Compile Include="Logging\Logger.cs" />
@@ -89,9 +90,6 @@
       <Project>{29578947-FFF4-4A0A-9C75-AE3C5E03F746}</Project>
       <Name>AppStract.Utilities</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Data\Registry\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

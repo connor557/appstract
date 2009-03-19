@@ -21,7 +21,7 @@
 
 #endregion
 
-using System.Collections.Generic;
+using AppStract.Core.Synchronization;
 using AppStract.Server.Registry.Data;
 using AppStract.Core.Data;
 using AppStract.Core.Virtualization.Registry;
@@ -29,7 +29,8 @@ using AppStract.Core.Virtualization.Registry;
 namespace AppStract.Server.Registry
 {
   /// <summary>
-  /// Implementation of a virtualized Windows registry.
+  /// Implementation of a virtualized Windows registry. <see cref="VirtualRegistry"/> functions as a switch between
+  /// the caller and <see cref="VirtualRegistryData"/> &amp; <see cref="TransparentRegistry"/>.
   /// </summary>
   public class VirtualRegistry
   {
@@ -50,23 +51,27 @@ namespace AppStract.Server.Registry
     #region Constructors
 
     /// <summary>
-    /// Initializes a new instance of a virtual Windows registry.
+    /// Initializes a new instance of the virtual Windows registry.
     /// </summary>
-    /// <param name="keys">The already known registry keys.</param>
-    public VirtualRegistry(IEnumerable<VirtualRegistryKey> keys)
+    public VirtualRegistry()
     {
       IndexGenerator indexGenerator = new IndexGenerator();
       /// Reserved indices for static virtual keys.
       indexGenerator.ExcludedRanges.Add(new IndexRange(0, 20));
       /// Reserved indices for registry rootkeys.
       indexGenerator.ExcludedRanges.Add(new IndexRange(0x80000000, 0x80000006));
-      _virtualRegistry = new VirtualRegistryData(indexGenerator, keys);
+      _virtualRegistry = new VirtualRegistryData(indexGenerator);
       _transparantRegistry = new TransparentRegistry(indexGenerator);
     }
 
     #endregion
 
     #region Public Methods
+
+    public void Initialize(IRegistrySynchronizer dataSource)
+    {
+      _virtualRegistry.LoadData(dataSource);
+    }
 
     public uint? OpenKey(string keyName)
     {
@@ -142,7 +147,7 @@ namespace AppStract.Server.Registry
       /// An application typically calls RegEnumValue to determine the value names and then
       /// RegQueryValueEx to retrieve the data for the names.
       /// 
-      value = new VirtualRegistryValue(null, ValueType.INVALID);
+      value = new VirtualRegistryValue(valueName, null, ValueType.INVALID);
       if (RegistryHelper.IsHiveHandle(hKey))
         return StateCode.AccessDenied;
       if (_virtualRegistry.IsKnownKey(hKey))

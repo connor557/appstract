@@ -67,7 +67,7 @@ namespace AppStract.Server.Registry.Data
       /// Key exists, buffer it before returning.
       VirtualRegistryKey virtualRegistryKey = ConstructRegistryKey(keyFullPath);
       WriteKey(virtualRegistryKey, false);
-      return virtualRegistryKey.Index;
+      return virtualRegistryKey.Handle;
     }
 
     /// <summary>
@@ -130,16 +130,17 @@ namespace AppStract.Server.Registry.Data
 
     public override StateCode QueryValue(uint hKey, string valueName, out VirtualRegistryValue value)
     {
-      value = new VirtualRegistryValue(null, ValueType.INVALID);
+      value = new VirtualRegistryValue(valueName, null, ValueType.INVALID);
       string keyPath;
       if (!IsKnownKey(hKey, out keyPath))
         return StateCode.InvalidHandle;
       try
       {
-        object o = Microsoft.Win32.Registry.GetValue(keyPath, valueName, null);
+        object o = Microsoft.Win32.Registry.GetValue(keyPath, valueName, null); 
         if (o == null)
           return StateCode.NotFound;
-        value = new VirtualRegistryValue(o, ValueType.REG_NONE);
+        /// ToDo: Get the ValueType from the Registry using RegistryKey.GetValueKind();
+        value = new VirtualRegistryValue(valueName, o, ValueType.REG_NONE);
         return StateCode.Succes;
       }
       catch

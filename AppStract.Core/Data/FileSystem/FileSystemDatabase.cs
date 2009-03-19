@@ -66,9 +66,9 @@ namespace AppStract.Core.Data.FileSystem
     /// <returns></returns>
     public override IEnumerable<FileTableEntry> ReadAll()
     {
-      return ReadAll(new[] {_DatabaseFileTable},
-                     new[] {_DatabaseFileTableKey, _DatabaseFileTableValue},
-                     BuildItemFromReadAllQuery);
+      return ReadAll<FileTableEntry>(new[] {_DatabaseFileTable},
+                                     new[] {_DatabaseFileTableKey, _DatabaseFileTableValue},
+                                     BuildItemFromReadAllQuery);
     }
 
     /*
@@ -241,7 +241,7 @@ namespace AppStract.Core.Data.FileSystem
 
     #region Protected Methods
 
-    protected override void AppendDeleteCommand(SQLiteCommand command, ParameterGenerator seed, FileTableEntry item)
+    protected override void AppendDeleteQuery(SQLiteCommand command, ParameterGenerator seed, FileTableEntry item)
     {
       string paramKey = seed.Next();
       command.CommandText += string.Format("DELETE FROM {0} WHERE {1} = {2};",
@@ -249,7 +249,7 @@ namespace AppStract.Core.Data.FileSystem
       command.Parameters.AddWithValue(paramKey, item.Key);
     }
 
-    protected override void AppendInsertCommand(SQLiteCommand command, ParameterGenerator seed, FileTableEntry item)
+    protected override void AppendInsertQuery(SQLiteCommand command, ParameterGenerator seed, FileTableEntry item)
     {
       string paramKey = seed.Next();
       string paramValue = seed.Next();
@@ -260,11 +260,11 @@ namespace AppStract.Core.Data.FileSystem
       command.Parameters.AddWithValue(paramValue, item.Value);
     }
 
-    protected override void AppendUpdateCommand(SQLiteCommand command, ParameterGenerator seed, FileTableEntry item)
+    protected override void AppendUpdateQuery(SQLiteCommand command, ParameterGenerator seed, FileTableEntry item)
     {
       string paramKey = seed.Next();
       string paramValue = seed.Next();
-      command.CommandText += string.Format("UPDATE {0} SET {1} = {2} WHERE {3} = {4});",
+      command.CommandText += string.Format("UPDATE {0} SET {1} = {2} WHERE {3} = {4};",
                                            _DatabaseFileTable,
                                            _DatabaseFileTableValue, paramValue,
                                            _DatabaseFileTableKey, paramKey);

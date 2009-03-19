@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using AppStract.Core.Data;
 using AppStract.Core.Data.FileSystem;
+using AppStract.Core.Data.Registry;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Core.Virtualization.Registry;
 using AppStract.Utilities.Observables;
@@ -37,6 +38,7 @@ namespace AppStract.Core.Synchronization.Implementation
     #region Variables
 
     private readonly FileSystemDatabase _fileSystemDatabase;
+    private readonly RegistryDatabase _registryDatabase;
 
     #endregion
 
@@ -47,9 +49,44 @@ namespace AppStract.Core.Synchronization.Implementation
       throw new NotImplementedException();
     }
 
-    public ResourceSynchronizer(FileSystemDatabase fileSystemDatabase)
+    public ResourceSynchronizer(FileSystemDatabase fileSystemDatabase, RegistryDatabase registryDatabase)
     {
       _fileSystemDatabase = fileSystemDatabase;
+      _registryDatabase = registryDatabase;
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    private void FileTable_ItemAdded(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item)
+    {
+      _fileSystemDatabase.EnqueueAction(new DatabaseAction<FileTableEntry>(new FileTableEntry(item), DatabaseActionType.Set));
+    }
+
+    private void FileTable_ItemChanged(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item)
+    {
+      _fileSystemDatabase.EnqueueAction(new DatabaseAction<FileTableEntry>(new FileTableEntry(item), DatabaseActionType.Update));
+    }
+
+    private void FileTable_ItemRemoved(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item)
+    {
+      _fileSystemDatabase.EnqueueAction(new DatabaseAction<FileTableEntry>(new FileTableEntry(item), DatabaseActionType.Remove));
+    }
+
+    private void Registry_ItemAdded(ICollection<KeyValuePair<uint, VirtualRegistryKey>> sender, KeyValuePair<uint, VirtualRegistryKey> item)
+    {
+      _registryDatabase.EnqueueAction(new DatabaseAction<VirtualRegistryKey>(item.Value, DatabaseActionType.Set));
+    }
+
+    private void Registry_ItemChanged(ICollection<KeyValuePair<uint, VirtualRegistryKey>> sender, KeyValuePair<uint, VirtualRegistryKey> item)
+    {
+      _registryDatabase.EnqueueAction(new DatabaseAction<VirtualRegistryKey>(item.Value, DatabaseActionType.Update));
+    }
+
+    private void Registry_ItemARemoved(ICollection<KeyValuePair<uint, VirtualRegistryKey>> sender, KeyValuePair<uint, VirtualRegistryKey> item)
+    {
+      _registryDatabase.EnqueueAction(new DatabaseAction<VirtualRegistryKey>(item.Value, DatabaseActionType.Remove));
     }
 
     #endregion
@@ -74,43 +111,34 @@ namespace AppStract.Core.Synchronization.Implementation
 
     #region Members of IRegistrySynchronizer
 
-    public void LoadRegistryTo(IDictionary<uint, VirtualRegistryKey> keyList)
+    public void LoadRegistryTo(ObservableDictionary<uint, VirtualRegistryKey> keyList)
     {
-      throw new System.NotImplementedException();
+      if (keyList == null)
+        throw new ArgumentNullException("keyList");
+      IEnumerable<VirtualRegistryKey> keys = _registryDatabase.ReadAll();
+      foreach (VirtualRegistryKey key in keys)
+        keyList.Add(key.Handle, key);
+      keyList.ItemAdded += Registry_ItemAdded;
+      keyList.ItemChanged += Registry_ItemChanged;
+      keyList.ItemRemoved += Registry_ItemARemoved;
     }
 
     public void SetRegistryKey(VirtualRegistryKey virtualRegistryKey)
     {
-      throw new System.NotImplementedException();
+      SetRegistryKey(virtualRegistryKey, false);
     }
 
     public void SetRegistryKey(VirtualRegistryKey virtualRegistryKey, bool overwriteAllValues)
     {
-      throw new System.NotImplementedException();
+      _registryDatabase.EnqueueAction(new DatabaseAction<VirtualRegistryKey>(virtualRegistryKey,
+        overwriteAllValues ? DatabaseActionType.Set : DatabaseActionType.Update));
     }
 
     public void DeleteRegistryKey(uint keyIndex)
     {
-      throw new System.NotImplementedException();
-    }
-
-    #endregion
-
-    #region Private Methods
-
-    private void FileTable_ItemAdded(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item)
-    {
-      _fileSystemDatabase.EnqueueAction(new DatabaseAction<FileTableEntry>(new FileTableEntry(item), DatabaseActionType.Add));
-    }
-
-    private void FileTable_ItemChanged(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item)
-    {
-      _fileSystemDatabase.EnqueueAction(new DatabaseAction<FileTableEntry>(new FileTableEntry(item), DatabaseActionType.Update));
-    }
-
-    private void FileTable_ItemRemoved(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item)
-    {
-      _fileSystemDatabase.EnqueueAction(new DatabaseAction<FileTableEntry>(new FileTableEntry(item), DatabaseActionType.Remove));
+      _registryDatabase.EnqueueAction(
+        new DatabaseAction<VirtualRegistryKey>(new VirtualRegistryKey(keyIndex, null),
+                                               DatabaseActionType.Remove));
     }
 
     #endregion
