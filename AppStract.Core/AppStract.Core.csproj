@@ -75,12 +75,14 @@
     <Compile Include="Synchronization\IRegistrySynchronizer.cs" />
     <Compile Include="Synchronization\IServerReporter.cs" />
     <Compile Include="Synchronization\Implementation\ResourceSynchronizer.cs" />
-    <Compile Include="Virtualization\FileSystem\CreationDisposition.cs" />
+    <Compile Include="Virtualization\FileSystem\FileCreationDisposition.cs" />
+    <Compile Include="Virtualization\FileSystem\FileKind.cs" />
     <Compile Include="Virtualization\FileSystem\FileRequest.cs" />
     <Compile Include="Virtualization\FileSystem\FileTableEntry.cs" />
     <Compile Include="Virtualization\FileSystem\IFileSystemProvider.cs" />
     <Compile Include="Virtualization\FileSystem\ResourceType.cs" />
     <Compile Include="Virtualization\Registry\IRegistryProvider.cs" />
+    <Compile Include="Virtualization\Registry\RegCreationDisposition.cs" />
     <Compile Include="Virtualization\Registry\ValueType.cs" />
     <Compile Include="Virtualization\Registry\VirtualRegistryKey.cs" />
     <Compile Include="Virtualization\Registry\VirtualRegistryValue.cs" />

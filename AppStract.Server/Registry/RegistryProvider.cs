@@ -23,6 +23,7 @@
 
 using AppStract.Core.Synchronization;
 using AppStract.Core.Virtualization.Registry;
+using Microsoft.Win32.Interop;
 
 namespace AppStract.Server.Registry
 {
@@ -57,46 +58,45 @@ namespace AppStract.Server.Registry
 
     #region IRegistryProvider Members
 
-    //public RegistryValue QueryValue(string valueName, uint hKey)
-    //{
-    //  throw new System.NotImplementedException();
-    //}
+    public uint SetValue(uint hKey, string valueName, uint valueType, object data)
+    {
+      var type = RegistryHelper.ValueTypeFromId(valueType);
+      var registryValue = new VirtualRegistryValue(valueName, data, type);
+      var stateCode = _virtualRegistry.SetValue(hKey, registryValue);
+      return WinError.FromStateCode(stateCode);
+    }
 
-    //public void SetValue(RegistryValue value)
-    //{
-    //  throw new System.NotImplementedException();
-    //}
+    public uint OpenKey(uint hKey, string subKey, out uint hSubKey)
+    {
+      return _virtualRegistry.OpenKey(hKey, subKey, out hSubKey)
+               ? WinError.ERROR_SUCCESS
+               /// Note: This behaviour needs to be updated!
+               /// How can we know which one is the illegal value? Is it hKey or subKey?
+               : WinError.ERROR_INVALID_HANDLE;
+    }
 
-    //public uint? OpenKey(uint hkey, string subkey, out uint phkResult)
-    //{
-    //  /// Query virtual registry.
-    //  if (_registry.ContainsKey(hkey))
-    //  {
-    //    VirtualRegistryHive key = _registry[hkey];
-    //    if (string.IsNullOrEmpty(subkey))
-    //    {
-    //      phkResult = key.Key;
-    //      return 0;
-    //    }
-    //    subkey = subkey.ToLowerInvariant();
-    //    foreach (VirtualRegistryHive keySubKey in key.SubKeys)
-    //    {
-    //      if (keySubKey.Name == subkey)
-    //      {
-    //        phkResult = keySubKey.Key;
-    //        return 0;
-    //      }
-    //    }
-    //  }
-    //  /// Query real registry.
-    //  else
-    //  {
-        
-    //  }
-    //  // Else return error: The configuration registry key could not be opened.
-    //  phkResult = 0;
-    //  return 1011;
-    //}
+    public uint CreateKey(uint hKey, string subKey, out uint hSubKey, out int lpdwDisposition)
+    {
+      RegCreationDisposition creationDisposition;
+      var stateCode = _virtualRegistry.CreateKey(hKey, subKey, out hSubKey, out creationDisposition);
+      lpdwDisposition = RegistryHelper.DispositionFromRegCreationDisposition(creationDisposition);
+      return WinError.FromStateCode(stateCode);
+    }
+
+    public uint QueryValue(uint hKey, string valueName, out object value, out uint valueType)
+    {
+      VirtualRegistryValue virtualRegistryValue;
+      StateCode code = _virtualRegistry.QueryValue(hKey, valueName, out virtualRegistryValue);
+      value = virtualRegistryValue.Data;
+      valueType = RegistryHelper.ValueIdFromValueType(virtualRegistryValue.Type);
+      return WinError.FromStateCode(code);
+    }
+
+    public uint CloseKey(uint hKey)
+    {
+      _virtualRegistry.CloseKey(hKey);
+      return WinError.ERROR_SUCCESS;
+    }
 
     #endregion
 

@@ -21,28 +21,34 @@
 
 #endregion
 
-namespace AppStract.Server.Registry
+using AppStract.Core.Virtualization.FileSystem;
+using AppStract.Core.Virtualization.Registry;
+
+namespace AppStract.Inject
 {
+
   /// <summary>
-  /// Static error codes for registry actions.
+  /// HookHandler processes all intercepted calls to hooked methods.
   /// </summary>
-  public enum StateCode
+  internal partial class HookImplementations
   {
-    /// <summary>
-    /// The operation completed successfully.
-    /// </summary>
-    Succes = 0,
-    /// <summary>
-    /// The handle is invalid.
-    /// </summary>
-    InvalidHandle = 1,
-    /// <summary>
-    /// Access is denied.
-    /// </summary>
-    AccessDenied = 2,
-    /// <summary>
-    /// The system can not find the specified resource.
-    /// </summary>
-    NotFound = 3
+
+    #region Variables
+
+    private readonly IFileSystemProvider _fileSystem;
+    private readonly IRegistryProvider _registry;
+
+    #endregion
+
+    #region Constructors
+
+    public HookImplementations(IFileSystemProvider fileSystemProvider, IRegistryProvider registryProvider)
+    {
+      _fileSystem = fileSystemProvider;
+      _registry = registryProvider;
+    }
+
+    #endregion
+
   }
 }

@@ -23,7 +23,9 @@
 
 using System;
 using System.Collections.Generic;
+using AppStract.Core.Virtualization.Registry;
 using Microsoft.Win32;
+using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
 
 namespace AppStract.Server.Registry
 {
@@ -285,6 +287,77 @@ namespace AppStract.Server.Registry
       return subKeyName.StartsWith(@"\")
                ? keyName + subKeyName
                : keyName + @"\" + subKeyName;
+    }
+
+    public static uint ValueIdFromValueType(ValueType valueType)
+    {
+      if (valueType == ValueType.REG_NONE)
+        return 0;
+      if (valueType == ValueType.REG_SZ)
+        return 1;
+      if (valueType == ValueType.REG_EXPAND_SZ)
+        return 2;
+      if (valueType == ValueType.REG_BINARY)
+        return 3;
+      if (valueType == ValueType.REG_DWORD_LITTLE_ENDIAN)
+        return 4;
+      if (valueType == ValueType.REG_DWORD_BIG_ENDIAN)
+        return 5;
+      if (valueType == ValueType.REG_LINK)
+        return 6;
+      if (valueType == ValueType.REG_MULTI_SZ)
+        return 7;
+      if (valueType == ValueType.REG_RESOURCE_LIST)
+        return 8;
+      if (valueType == ValueType.REG_FULL_RESOURCE_DESCRIPTOR)
+        return 9;
+      if (valueType == ValueType.REG_RESOURCE_REQUIREMENTS_LIST)
+        return 10;
+      if (valueType == ValueType.REG_QWORD_LITTLE_ENDIAN)
+        return 11;
+      throw new ArgumentException();
+    }
+
+    public static ValueType ValueTypeFromId(uint valueType)
+    {
+      switch (valueType)
+      {
+        case 0:
+          return ValueType.REG_NONE;
+        case 1:
+          return ValueType.REG_SZ;
+        case 2:
+          return ValueType.REG_EXPAND_SZ;
+        case 3:
+          return ValueType.REG_BINARY;
+        case 4:
+          return ValueType.REG_DWORD_LITTLE_ENDIAN;
+        case 5:
+          return ValueType.REG_DWORD_BIG_ENDIAN;
+        case 6:
+          return ValueType.REG_LINK;
+        case 7:
+          return ValueType.REG_MULTI_SZ;
+        case 8:
+          return ValueType.REG_RESOURCE_LIST;
+        case 9:
+          return ValueType.REG_FULL_RESOURCE_DESCRIPTOR;
+        case 10:
+          return ValueType.REG_RESOURCE_REQUIREMENTS_LIST;
+        case 11:
+          return ValueType.REG_QWORD_LITTLE_ENDIAN;
+        default:
+          throw new ArgumentException();
+      }
+    }
+
+    public static byte DispositionFromRegCreationDisposition(RegCreationDisposition creationDisposition)
+    {
+      if (creationDisposition == RegCreationDisposition.REG_CREATED_NEW_KEY)
+        return 0x00000001;
+      if (creationDisposition == RegCreationDisposition.REG_OPENED_EXISTING_KEY)
+        return 0x00000002;
+      return 0x00000000;
     }
 
     #endregion

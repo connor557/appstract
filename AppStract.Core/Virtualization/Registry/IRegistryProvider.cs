@@ -21,28 +21,20 @@
 
 #endregion
 
-
 namespace AppStract.Core.Virtualization.Registry
 {
   public interface IRegistryProvider
   {
 
-    //RegistryValue QueryValue(string valueName, uint hKey);
+    uint SetValue(uint hKey, string valueName, uint valueType, object data);
 
-    //void SetValue(RegistryValue value);
+    uint OpenKey(uint hKey, string subKey, out uint hSubKey);
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="hkey">A handle to an open registry key.</param>
-    /// <param name="subkey">
-    /// The name of the registry subkey to be opened. 
-    /// Key names are not case sensitive.
-    /// If this parameter is NULL or a pointer to an empty string, the function will open a new handle to the key identified by the hKey parameter.
-    /// </param>
-    /// <param name="phkResult"></param>
-    /// <returns></returns>
-    //uint? OpenKey(uint hkey, string subkey, out uint phkResult);
+    uint CreateKey(uint hKey, string subKey, out uint hSubKey, out int lpdwDisposition);
+
+    uint QueryValue(uint hKey, string valueName, out object value, out uint valueType);
+
+    uint CloseKey(uint hKey);
 
   }
 }

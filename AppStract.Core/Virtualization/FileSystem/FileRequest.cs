@@ -30,7 +30,7 @@ namespace AppStract.Core.Virtualization.FileSystem
 
     private readonly string _filename;
     private readonly ResourceKind _resourceKind;
-    private readonly CreationDisposition _creationDisposition;
+    private readonly FileCreationDisposition _creationDisposition;
 
     #endregion
 
@@ -57,7 +57,7 @@ namespace AppStract.Core.Virtualization.FileSystem
     /// Gets the <see cref="CreationDisposition"/> for the requested resource,
     /// this is the action to be taken if the resource doesn't exist yet.
     /// </summary>
-    public CreationDisposition CreationDisposition
+    public FileCreationDisposition CreationDisposition
     {
       get { return _creationDisposition; }
     }
@@ -66,7 +66,7 @@ namespace AppStract.Core.Virtualization.FileSystem
 
     #region Constructors
 
-    public FileRequest(string filename, ResourceKind resourceType, CreationDisposition creationDisposition)
+    public FileRequest(string filename, ResourceKind resourceType, FileCreationDisposition creationDisposition)
     {
       _filename = filename;
       _resourceKind = resourceType;

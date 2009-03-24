@@ -60,6 +60,12 @@ namespace AppStract.Core.Data
 
     #region Public Methods
 
+    public abstract void Initialize();
+
+    /// <summary>
+    /// Reads the complete database to an <see cref="IEnumerable{T}"/>.
+    /// </summary>
+    /// <returns></returns>
     public abstract IEnumerable<T> ReadAll();
 
     public void EnqueueAction(DatabaseAction<T> databaseAction)

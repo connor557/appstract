@@ -37,35 +37,53 @@ namespace AppStract.Core.Virtualization.FileSystem
 
     #region Variables
 
-    private readonly string _key;
-    private readonly string _value;
+    private string _key;
+    private string _value;
+    private readonly FileKind _fileKind;
 
     #endregion
 
     #region Properties
 
+    /// <summary>
+    /// The path as used by the real file sytem.
+    /// </summary>
     public string Key
     {
-      get { return _value; }
+      get { return _key; }
+      set { _key = value; }
     }
 
+    /// <summary>
+    /// The path as used by the virtual file system.
+    /// </summary>
     public string Value
     {
       get { return _value; }
+      set { _value = value; }
+    }
+
+    /// <summary>
+    /// Gets whether the current <see cref="FileTableEntry"/> is a file or a directory.
+    /// </summary>
+    public FileKind FileKind
+    {
+      get { return _fileKind; }
     }
 
     #endregion
 
     #region Constructors
 
-    public FileTableEntry(string key, string value)
+    public FileTableEntry(string key, string value, FileKind fileKind)
     {
       _key = key;
       _value = value;
+      _fileKind = fileKind;
     }
 
-    public FileTableEntry(KeyValuePair<string, string> pair)
-      : this(pair.Key, pair.Value) { }
+    public FileTableEntry(KeyValuePair<string, string> pair, FileKind fileKind)
+      : this(pair.Key, pair.Value, fileKind) { }
 
     private FileTableEntry(SerializationInfo info, StreamingContext context)
     {
@@ -80,11 +98,24 @@ namespace AppStract.Core.Virtualization.FileSystem
       }
       try
       {
-        _value = info.GetString("value");        
+        _value = info.GetString("value");
       }
-      catch(SerializationException)
+      catch (SerializationException)
       {
         _value = null;
+        /// ToDo: Log the exception.
+      }
+      try
+      {
+        string fileKind = info.GetString("kind");
+        Type enumType = typeof (FileKind);
+        _fileKind = Enum.IsDefined(enumType, fileKind)
+                      ? (FileKind)Enum.Parse(enumType, fileKind)
+                      : FileKind.Unspecified;
+      }
+      catch (SerializationException)
+      {
+        _fileKind = FileSystem.FileKind.Unspecified;
         /// ToDo: Log the exception.
       }
     }
@@ -97,6 +128,7 @@ namespace AppStract.Core.Virtualization.FileSystem
     {
       info.AddValue("key", _key);
       info.AddValue("value", _value);
+      info.AddValue("kind", _fileKind.ToString());
     }
 
     #endregion

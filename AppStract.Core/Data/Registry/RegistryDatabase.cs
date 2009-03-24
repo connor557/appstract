@@ -62,6 +62,15 @@ namespace AppStract.Core.Data.Registry
 
     #region Public Methods
 
+    public override void Initialize()
+    {
+      throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Reads the complete database to an <see cref="IEnumerable{T}"/>.
+    /// </summary>
+    /// <returns></returns>
     public override IEnumerable<VirtualRegistryKey> ReadAll()
     {
       /// Read the keys.

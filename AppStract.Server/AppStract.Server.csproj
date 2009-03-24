@@ -41,7 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FileSystem\DynamicFileSystemProvider.cs" />
+    <Compile Include="FileSystem\DynamicVirtualFileSystem.cs" />
     <Compile Include="FileSystem\EnvironmentExtender.cs" />
     <Compile Include="FileSystem\FileAccessRedirector.cs" />
     <Compile Include="FileSystem\VirtualEnvironment.cs" />
@@ -54,7 +54,6 @@
     <Compile Include="Registry\AccessMechanism.cs" />
     <Compile Include="Registry\RegistryHelper.cs" />
     <Compile Include="Registry\RegistryProvider.cs" />
-    <Compile Include="Registry\StateCode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Registry\VirtualRegistry.cs" />
   </ItemGroup>

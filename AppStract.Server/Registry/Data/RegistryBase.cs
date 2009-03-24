@@ -22,10 +22,10 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using AppStract.Core.Data;
 using AppStract.Core.Virtualization.Registry;
+using Microsoft.Win32;
 using Microsoft.Win32.Interop;
 
 namespace AppStract.Server.Registry.Data
@@ -136,54 +136,35 @@ namespace AppStract.Server.Registry.Data
     }
 
     /// <summary>
-    /// Opens the key from the specified path.
-    /// </summary>
-    /// <param name="keyFullPath"></param>
-    /// <returns></returns>
-    public virtual uint? OpenKey(string keyFullPath)
-    {
-      keyFullPath = RegistryTranslator.ToVirtualPath(keyFullPath);
-      _keysSynchronizationLock.EnterUpgradeableReadLock();  /// We're not sure if this method is readonly.
-      try
-      {
-        /// Try to find the key in the virtual registry.
-        VirtualRegistryKey virtualRegistryKey
-          = _keys.Values.First(key => key.Path.ToLowerInvariant() == keyFullPath);
-        if (virtualRegistryKey == null)
-        {
-          /// Create a new key.
-          virtualRegistryKey = ConstructRegistryKey(keyFullPath);
-          WriteKey(virtualRegistryKey, false);
-        }
-        return virtualRegistryKey.Handle;
-      }
-      finally
-      {
-        _keysSynchronizationLock.ExitUpgradeableReadLock();
-      }
-    }
-
-    /// <summary>
     /// Creates a key with the specified path.
     /// </summary>
     /// <param name="keyFullPath">The path for the new key.</param>
     /// <param name="hKey">The allocated index.</param>
+    /// <param name="creationDisposition">Whether the key is opened or created.</param>
     /// <returns>A <see cref="WinError"/> code.</returns>
-    public virtual StateCode CreateKey(string keyFullPath, out uint? hKey)
+    public virtual StateCode CreateKey(string keyFullPath, out uint hKey, out RegCreationDisposition creationDisposition)
     {
-      uint? index = OpenKey(keyFullPath);
-      if (index != null)
+      if(OpenKey(keyFullPath, out hKey))
       {
-        hKey = index;
+        creationDisposition = RegCreationDisposition.REG_OPENED_EXISTING_KEY;
       }
       else
       {
+        creationDisposition = RegCreationDisposition.REG_CREATED_NEW_KEY;
         VirtualRegistryKey key = ConstructRegistryKey(keyFullPath);
         WriteKey(key, false);
         hKey = key.Handle;
       }
       return StateCode.Succes;
     }
+
+    /// <summary>
+    /// Opens the key from the specified path.
+    /// </summary>
+    /// <param name="keyFullPath"></param>
+    /// <param name="hResult"></param>
+    /// <returns></returns>
+    public abstract bool OpenKey(string keyFullPath, out uint hResult);
 
     /// <summary>
     /// Retrieves the value associated with the specified key and name.
@@ -199,10 +180,9 @@ namespace AppStract.Server.Registry.Data
     /// Sets a value for the key with the specified handle.
     /// </summary>
     /// <param name="hKey">Handle of the key to set a value for.</param>
-    /// <param name="valueName">Name of the value to set.</param>
     /// <param name="value">The data to set for the value.</param>
     /// <returns></returns>
-    public abstract StateCode SetValue(uint hKey, string valueName, VirtualRegistryValue value);
+    public abstract StateCode SetValue(uint hKey, VirtualRegistryValue value);
 
     /// <summary>
     /// Deletes a value from the key with the specified handle.
@@ -244,6 +224,47 @@ namespace AppStract.Server.Registry.Data
       if (loadAllValuesFirst)
         registryKey = LoadAllValues(registryKey, true, true);
       WriteKey(registryKey);
+    }
+
+    /// <summary>
+    /// Returns whether the key with the specified path exists in the current host's registry.
+    /// </summary>
+    /// <param name="keyFullPath">The full path of the key, including the root key.</param>
+    /// <returns>Whether the key exist's in the current host's registry.</returns>
+    protected static bool KeyExistsInHostRegistry(string keyFullPath)
+    {
+      RegistryKey key = ReadKeyFromHostRegistry(keyFullPath, false);
+      if (key == null)
+        return false;
+      key.Close();
+      return true;
+    }
+
+    /// <summary>
+    /// Reads the specified key from the host's registry.
+    /// </summary>
+    /// <param name="keyFullPath">The full path of the key, including the root key.</param>
+    /// <param name="writable">Set to true if write access is required.</param>
+    /// <returns>Null if key isn't read from the host's registry.</returns>
+    protected static RegistryKey ReadKeyFromHostRegistry(string keyFullPath, bool writable)
+    {
+      string subKeyName;
+      RegistryKey registryKey = RegistryHelper.GetHiveAsKey(keyFullPath, out subKeyName);
+      if (registryKey == null)
+        return null;
+      if (subKeyName == null)
+        return registryKey;
+      RegistryKey subRegistryKey;
+      try
+      {
+        subRegistryKey = registryKey.OpenSubKey(subKeyName, writable);
+        registryKey.Close();
+      }
+      catch
+      {
+        return null;
+      }
+      return subRegistryKey;
     }
 
     #endregion

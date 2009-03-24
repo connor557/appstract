@@ -25,6 +25,7 @@ using AppStract.Core.Synchronization;
 using AppStract.Server.Registry.Data;
 using AppStract.Core.Data;
 using AppStract.Core.Virtualization.Registry;
+using Microsoft.Win32.Interop;
 
 namespace AppStract.Server.Registry
 {
@@ -73,32 +74,27 @@ namespace AppStract.Server.Registry
       _virtualRegistry.LoadData(dataSource);
     }
 
-    public uint? OpenKey(string keyName)
+    public bool OpenKey(string keyName, out uint hResult)
     {
-      AccessMechanism actionIfKeyIsUnknown = RegistryHelper.DetermineAccessMechanism(keyName);
-      if (actionIfKeyIsUnknown != AccessMechanism.Transparent)
-      {
-        uint? index = _virtualRegistry.OpenKey(keyName);
-        if (index == null)
-          _virtualRegistry.CreateKey(keyName, out index);
-        return index;
-      }
-      /// Transparent access, use the buffer.
-      return _transparantRegistry.OpenKey(keyName);
+      var accessMechanism = RegistryHelper.DetermineAccessMechanism(keyName);
+      return accessMechanism == AccessMechanism.Transparent
+        ? _transparantRegistry.OpenKey(keyName, out hResult)
+        : _virtualRegistry.OpenKey(keyName, out hResult);
     }
 
-    public uint? OpenKey(uint hKey, string subKeyName)
+    public bool OpenKey(uint hKey, string subKeyName, out uint hResult)
     {
       string keyName = RegistryHelper.GetHiveAsString(hKey);
       if (keyName != null
           || _virtualRegistry.IsKnownKey(hKey, out keyName)
           || _transparantRegistry.IsKnownKey(hKey, out keyName))
       {
-        return OpenKey(RegistryHelper.CombineKeys(keyName, subKeyName));
+        return OpenKey(RegistryHelper.CombineKeys(keyName, subKeyName), out hResult);
       }
       /// Can't find the hKey.
       /// -> Bug: Where did the process get it from?
-      return null;
+      hResult = 0;
+      return false;
     }
 
     public void CloseKey(uint hKey)
@@ -108,9 +104,10 @@ namespace AppStract.Server.Registry
       _transparantRegistry.CloseKey(hKey);
     }
 
-    public StateCode CreateKey(uint hKey, string subKey, out uint? phkResult)
+    public StateCode CreateKey(uint hKey, string subKey, out uint phkResult, out RegCreationDisposition creationDisposition)
     {
       phkResult = 0;
+      creationDisposition = RegCreationDisposition.INVALID;
       string keyName = RegistryHelper.GetHiveAsString(hKey);
       if (keyName == null)
       {
@@ -122,8 +119,8 @@ namespace AppStract.Server.Registry
       keyName = RegistryHelper.CombineKeys(keyName, subKey);
       AccessMechanism access = RegistryHelper.DetermineAccessMechanism(keyName);
       return access == AccessMechanism.Transparent
-               ? _transparantRegistry.CreateKey(keyName, out phkResult)
-               : _virtualRegistry.CreateKey(keyName, out phkResult);
+               ? _transparantRegistry.CreateKey(keyName, out phkResult, out creationDisposition)
+               : _virtualRegistry.CreateKey(keyName, out phkResult, out creationDisposition);
     }
 
     public StateCode DeleteKey(uint hKey)
@@ -139,11 +136,6 @@ namespace AppStract.Server.Registry
     {
       /// ToDo: Implement the following in the hook handler!
       /// 
-      /// If the function succeeds, the return value is ERROR_SUCCESS.
-      /// If the function fails, the return value is a system error code.
-      /// If the lpData buffer is too small to receive the data, the function returns ERROR_MORE_DATA.
-      /// If the lpValueName registry value does not exist, the function returns ERROR_FILE_NOT_FOUND.
-      /// 
       /// An application typically calls RegEnumValue to determine the value names and then
       /// RegQueryValueEx to retrieve the data for the names.
       /// 
@@ -157,14 +149,14 @@ namespace AppStract.Server.Registry
       return StateCode.InvalidHandle;
     }
 
-    public StateCode SetValue(uint hKey, string valueName, VirtualRegistryValue value)
+    public StateCode SetValue(uint hKey, VirtualRegistryValue value)
     {
       if (RegistryHelper.IsHiveHandle(hKey))
         return StateCode.AccessDenied;
       if (_virtualRegistry.IsKnownKey(hKey))
-        return _virtualRegistry.SetValue(hKey, valueName, value);
+        return _virtualRegistry.SetValue(hKey, value);
       if (_transparantRegistry.IsKnownKey(hKey))
-        return _transparantRegistry.SetValue(hKey, valueName, value);
+        return _transparantRegistry.SetValue(hKey, value);
       return StateCode.InvalidHandle;
     }
 
