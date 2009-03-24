@@ -25,6 +25,7 @@ using System;
 using AppStract.Core.Data;
 using AppStract.Core.Virtualization.Registry;
 using Microsoft.Win32;
+using Microsoft.Win32.Interop;
 using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
 
 namespace AppStract.Server.Registry.Data
@@ -56,18 +57,21 @@ namespace AppStract.Server.Registry.Data
     /// The index of the buffered key is returned, if the key is successfully read.
     /// Else, the return value is null.
     /// </summary>
-    /// <param name="keyFullPath"></param>
+    /// <param name="keyName"></param>
+    /// <param name="hResult"></param>
     /// <returns></returns>
-    public override uint? OpenKey(string keyFullPath)
+    public override bool OpenKey(string keyName, out uint hResult)
     {
-      RegistryKey hostRegistryKey = ReadKeyFromHostRegistry(keyFullPath, false);
+      hResult = 0;
+      RegistryKey hostRegistryKey = ReadKeyFromHostRegistry(keyName, false);
       if (hostRegistryKey == null)
-        return null;
+        return false;
       hostRegistryKey.Close();
       /// Key exists, buffer it before returning.
-      VirtualRegistryKey virtualRegistryKey = ConstructRegistryKey(keyFullPath);
+      VirtualRegistryKey virtualRegistryKey = ConstructRegistryKey(keyName);
       WriteKey(virtualRegistryKey, false);
-      return virtualRegistryKey.Handle;
+      hResult = virtualRegistryKey.Handle;
+      return true;
     }
 
     /// <summary>
@@ -88,16 +92,16 @@ namespace AppStract.Server.Registry.Data
       _indexGenerator.Release(hKey);
     }
 
-    public override StateCode CreateKey(string keyFullPath, out uint? hKey)
+    public override StateCode CreateKey(string keyFullPath, out uint hKey, out RegCreationDisposition creationDisposition)
     {
-      hKey = null;
+      hKey = 0;
       /// Create the key in the real registry.
-      RegistryKey registryKey = CreateKeyInHostRegistry(keyFullPath);
+      RegistryKey registryKey = CreateKeyInHostRegistry(keyFullPath, out creationDisposition);
       if (registryKey == null)
         return StateCode.AccessDenied;
       registryKey.Close();
       /// Buffer the created key.
-      return base.CreateKey(keyFullPath, out hKey);
+      return base.CreateKey(keyFullPath, out hKey, out creationDisposition);
     }
 
     public override StateCode DeleteKey(uint hKey)
@@ -136,9 +140,10 @@ namespace AppStract.Server.Registry.Data
         return StateCode.InvalidHandle;
       try
       {
-        object o = Microsoft.Win32.Registry.GetValue(keyPath, valueName, null); 
-        if (o == null)
-          return StateCode.NotFound;
+        object defValue = new object();
+        object o = Microsoft.Win32.Registry.GetValue(keyPath, valueName, defValue);
+        if (o == defValue)
+          return StateCode.FileNotFound;
         /// ToDo: Get the ValueType from the Registry using RegistryKey.GetValueKind();
         value = new VirtualRegistryValue(valueName, o, ValueType.REG_NONE);
         return StateCode.Succes;
@@ -149,14 +154,14 @@ namespace AppStract.Server.Registry.Data
       }
     }
 
-    public override StateCode SetValue(uint hKey, string valueName, VirtualRegistryValue value)
+    public override StateCode SetValue(uint hKey, VirtualRegistryValue value)
     {
       string keyPath;
       if (!IsKnownKey(hKey, out keyPath))
         return StateCode.InvalidHandle;
       try
       {
-        Microsoft.Win32.Registry.SetValue(keyPath, valueName, value.Data);
+        Microsoft.Win32.Registry.SetValue(keyPath, value.Name, value.Data);
       }
       catch
       {
@@ -193,41 +198,16 @@ namespace AppStract.Server.Registry.Data
     #region Private Methods
 
     /// <summary>
-    /// Reads the specified key from the host's registry.
-    /// </summary>
-    /// <param name="keyFullPath">The full path of the key, including the root key.</param>
-    /// <param name="writable">Set to true if write access is required.</param>
-    /// <returns>Null if key isn't read from the host's registry.</returns>
-    private static RegistryKey ReadKeyFromHostRegistry(string keyFullPath, bool writable)
-    {
-      string subKeyName;
-      RegistryKey registryKey = RegistryHelper.GetHiveAsKey(keyFullPath, out subKeyName);
-      if (registryKey == null)
-        return null;
-      if (subKeyName == null)
-        return registryKey;
-      RegistryKey subRegistryKey;
-      try
-      {
-        subRegistryKey = registryKey.OpenSubKey(subKeyName, writable);
-        registryKey.Close();
-      }
-      catch
-      {
-        return null;
-      }
-      return subRegistryKey;
-    }
-
-    /// <summary>
     /// Creates the specified key in the host's registry, and returns it.
     /// </summary>
     /// <param name="keyFullPath">The full path of the key, including the root key.</param>
+    /// <param name="creationDisposition">Whether the key has been opened or created.</param>
     /// <returns></returns>
-    private static RegistryKey CreateKeyInHostRegistry(string keyFullPath)
+    private static RegistryKey CreateKeyInHostRegistry(string keyFullPath, out RegCreationDisposition creationDisposition)
     {
       string subKeyName;
       RegistryKey registryKey = RegistryHelper.GetHiveAsKey(keyFullPath, out subKeyName);
+      creationDisposition = RegCreationDisposition.INVALID;
       if (registryKey == null)
         return null;
       if (subKeyName == null)
@@ -235,7 +215,16 @@ namespace AppStract.Server.Registry.Data
       RegistryKey subRegistryKey;
       try
       {
-        subRegistryKey = registryKey.CreateSubKey(subKeyName);
+        subRegistryKey = registryKey.OpenSubKey(subKeyName);
+        if (subRegistryKey != null)
+        {
+          creationDisposition = RegCreationDisposition.REG_OPENED_EXISTING_KEY;
+        }
+        else
+        {
+          subRegistryKey = registryKey.CreateSubKey(subKeyName);
+          creationDisposition = RegCreationDisposition.REG_CREATED_NEW_KEY;
+        }
         registryKey.Close();
       }
       catch

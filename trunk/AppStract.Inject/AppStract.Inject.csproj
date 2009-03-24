@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EasyHook, Version=2.5.0.0, Culture=neutral, PublicKeyToken=4b580fca19d0b0c5, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\External Libraries\EasyHook\EasyHook.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -46,6 +50,27 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="HookData.cs" />
+    <Compile Include="HookDelegates.FileSystem.cs" />
+    <Compile Include="HookDelegates.Registry.cs" />
+    <Compile Include="HookImplementations.cs" />
+    <Compile Include="HookImplementations.FileSystem.cs" />
+    <Compile Include="Hooks.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AppStract.Core\AppStract.Core.csproj">
+      <Project>{73CC3214-9CAD-4723-BBBB-79BE7482E639}</Project>
+      <Name>AppStract.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AppStract.Utilities\AppStract.Utilities.csproj">
+      <Project>{29578947-FFF4-4A0A-9C75-AE3C5E03F746}</Project>
+      <Name>AppStract.Utilities</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="HookImplementations.Registry.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

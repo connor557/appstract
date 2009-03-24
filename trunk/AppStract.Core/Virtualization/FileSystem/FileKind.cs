@@ -23,18 +23,10 @@
 
 namespace AppStract.Core.Virtualization.FileSystem
 {
-  public interface IFileSystemProvider
+  public enum FileKind
   {
-
-    /// <summary>
-    /// Returns a <see cref="FileTableEntry"/> for the specified <see cref="FileRequest"/>.
-    /// If the file doesn't exist yet, it will be added to the filetable without creating the file on disc.
-    /// </summary>
-    /// <param name="fileRequest"></param>
-    /// <returns></returns>
-    FileTableEntry GetFile(FileRequest fileRequest);
-
-    void DeleteFile(FileTableEntry fileTableEntry);
-
+    Unspecified,
+    File,
+    Directory
   }
 }

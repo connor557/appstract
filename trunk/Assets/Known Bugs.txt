@@ -1,6 +1,0 @@
-Loading of Libraries
-======================================================================
-- Should the function SetDllDirectory be supported?
-    The injected code doesn't load extra libraries during runtime.
-    But what if the directory is changed to a virtual folder?
-    --> Will it be found without supporting SetDllDirectory?

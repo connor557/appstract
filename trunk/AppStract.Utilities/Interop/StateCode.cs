@@ -21,20 +21,32 @@
 
 #endregion
 
-namespace AppStract.Core.Virtualization.FileSystem
+namespace Microsoft.Win32.Interop
 {
-  public interface IFileSystemProvider
+  /// <summary>
+  /// Static error codes for registry actions.
+  /// </summary>
+  public enum StateCode
   {
-
     /// <summary>
-    /// Returns a <see cref="FileTableEntry"/> for the specified <see cref="FileRequest"/>.
-    /// If the file doesn't exist yet, it will be added to the filetable without creating the file on disc.
+    /// The operation completed successfully.
     /// </summary>
-    /// <param name="fileRequest"></param>
-    /// <returns></returns>
-    FileTableEntry GetFile(FileRequest fileRequest);
-
-    void DeleteFile(FileTableEntry fileTableEntry);
-
+    Succes = 0,
+    /// <summary>
+    /// The handle is invalid.
+    /// </summary>
+    InvalidHandle = 1,
+    /// <summary>
+    /// Access is denied.
+    /// </summary>
+    AccessDenied = 2,
+    /// <summary>
+    /// The system can not find the specified resource.
+    /// </summary>
+    NotFound = 3,
+    /// <summary>
+    /// The system can not find the specified file.
+    /// </summary>
+    FileNotFound = 4
   }
 }

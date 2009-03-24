@@ -21,6 +21,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -216,7 +217,7 @@ namespace AppStract.Server.FileSystem
       {
         _fileTableLock.ExitWriteLock();
       }
-      return new FileTableEntry(key, value);
+      return new FileTableEntry(key, value, FileKind.Unspecified);
     }
 
     #endregion
@@ -227,7 +228,7 @@ namespace AppStract.Server.FileSystem
     {
       /// Are we looking for a library?
       if (fileRequest.ResourceKind == ResourceKind.Library)
-        return new FileTableEntry(fileRequest.FileName, TryFindLibrary(fileRequest.FileName));
+        return new FileTableEntry(fileRequest.FileName, TryFindLibrary(fileRequest.FileName), FileKind.File);
       
       string filename; // Variable to hold the file's location.
       /// Are we looking for a regular file?
@@ -235,18 +236,27 @@ namespace AppStract.Server.FileSystem
           /// Can the file be found in the virtual file table?
           && TryGetFile(fileRequest.FileName, out filename))
         /// The file is found, return its full path.
-        return new FileTableEntry(fileRequest.FileName, Path.Combine(_root, filename));
+        return new FileTableEntry(fileRequest.FileName, Path.Combine(_root, filename), FileKind.Unspecified);
 
       /// The requested resource doesn't exist yet... How will the requester handle this?
-      if (fileRequest.CreationDisposition == CreationDisposition.CREATE_ALWAYS
-          || fileRequest.CreationDisposition == CreationDisposition.CREATE_NEW
-          || fileRequest.CreationDisposition == CreationDisposition.OPEN_ALWAYS)
-        /// The CreationDisposition specifies that the file will be created.
-        /// Add a new entry to the file table and return it.
-        return AddNewEntryToFileTable(fileRequest.FileName);
+      if (fileRequest.CreationDisposition == FileCreationDisposition.CREATE_ALWAYS
+          || fileRequest.CreationDisposition == FileCreationDisposition.CREATE_NEW
+          || fileRequest.CreationDisposition == FileCreationDisposition.OPEN_ALWAYS)
+      /// The CreationDisposition specifies that the file will be created.
+      /// Add a new entry to the file table and return it.
+      {
+        var entry = AddNewEntryToFileTable(fileRequest.FileName);
+        entry.Value = Path.Combine(_root, entry.Value);
+        return entry;
+      }
       /// Else, the file won't be created.
       /// Return a non-existing temporary file without creating a filetable-entry for it.
-      return new FileTableEntry(fileRequest.FileName, GetTemporaryFile(false));
+      return new FileTableEntry(fileRequest.FileName, GetTemporaryFile(false), FileKind.Unspecified);
+    }
+
+    public virtual void DeleteFile(FileTableEntry fileTableEntry)
+    {
+      throw new NotImplementedException();
     }
 
     #endregion

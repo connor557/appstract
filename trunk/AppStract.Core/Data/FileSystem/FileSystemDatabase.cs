@@ -21,6 +21,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -60,8 +61,13 @@ namespace AppStract.Core.Data.FileSystem
 
     #region Public Methods
 
+    public override void Initialize()
+    {
+      throw new NotImplementedException();
+    }
+
     /// <summary>
-    /// Reads the full database.
+    /// Reads the complete database to an <see cref="IEnumerable{T}"/>.
     /// </summary>
     /// <returns></returns>
     public override IEnumerable<FileTableEntry> ReadAll()
@@ -70,172 +76,6 @@ namespace AppStract.Core.Data.FileSystem
                                      new[] {_DatabaseFileTableKey, _DatabaseFileTableValue},
                                      BuildItemFromReadAllQuery);
     }
-
-    /*
-    /// <summary>
-    /// Reads a single entry.
-    /// </summary>
-    /// <param name="key"></param>
-    /// <returns></returns>
-    public string ReadEntry(string key)
-    {
-      try
-      {
-        _sqliteLock.EnterReadLock();
-        using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
-        {
-          SQLiteCommand command = BuildQueryCommand(key);
-          connection.Open();
-          SQLiteDataReader reader = command.ExecuteReader(CommandBehavior.SingleResult);
-          return reader.Read()
-                   ? reader.GetString(0)
-                   : null;
-        }
-      }
-      catch
-      {
-        return null;
-      }
-      finally
-      {
-        _sqliteLock.ExitReadLock();
-      }
-    }
-
-    /// <summary>
-    /// Deletes a single entry.
-    /// </summary>
-    /// <param name="key"></param>
-    /// <returns></returns>
-    public bool DeleteEntry(string key)
-    {
-      _sqliteLock.EnterWriteLock();
-      try
-      {
-        using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
-        {
-          SQLiteCommand command = BuildDeleteCommand(key);
-          command.Connection = connection;
-          connection.Open();
-          return command.ExecuteNonQuery() != 0;
-        }
-      }
-      finally
-      {
-        _sqliteLock.ExitWriteLock();
-      }
-    }
-
-    /// <summary>
-    /// Updates or inserts a single entry.
-    /// </summary>
-    /// <param name="key"></param>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    public bool UpdateEntry(string key, string value)
-    {
-      string entry = ReadEntry(key);
-      try
-      {
-        _sqliteLock.EnterWriteLock();
-        using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
-        {
-          SQLiteCommand command = entry != null
-                                    ? BuildUpdateCommand(key, value)
-                                    : BuildInsertCommand(key, value);
-          connection.Open();
-          return command.ExecuteNonQuery() != 0;
-        }
-      }
-      catch
-      {
-        return false;
-      }
-      finally
-      {
-        _sqliteLock.ExitWriteLock();
-      }
-    }
-
-    /// <summary>
-    /// Reads multiple entries at once.
-    /// </summary>
-    /// <param name="keys"></param>
-    /// <returns></returns>
-    public string[] BatchRead(string[] keys)
-    {
-      List<string> result = new List<string>(keys.Length);
-      try
-      {
-        _sqliteLock.EnterReadLock();
-        using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
-        {
-          connection.Open();
-          SQLiteCommand command = BuildQueryCommand(keys);
-          command.Connection = connection;
-          SQLiteDataReader reader = command.ExecuteReader();
-          while (reader.Read())
-            result.Add(reader.GetString(0));
-        }
-      }
-      finally
-      {
-        _sqliteLock.ExitReadLock();
-      }
-      return result.ToArray();
-    }
-
-    /// <summary>
-    /// Updates or inserts multiple <see cref="KeyValuePair{TKey,TValue}"/>s.
-    /// </summary>
-    /// <remarks>
-    /// The items are updated or inserted one by one because we have to check the existance of each item
-    /// before being able to build a query.
-    /// </remarks>
-    /// <param name="keysValues"></param>
-    /// <returns></returns>
-    public bool[] BatchUpdate(KeyValuePair<string, string>[] keysValues)
-    {
-      SQLiteConnection connection = null;
-      List<bool> result = new List<bool>(keysValues.Length);
-      try
-      {
-        _sqliteLock.EnterWriteLock();
-        foreach (KeyValuePair<string, string> keyValue in keysValues)
-        {
-          try
-          {
-            if (connection == null)
-            {
-              connection = new SQLiteConnection(_connectionString);
-              connection.Open();
-            }
-            SQLiteCommand command = BuildQueryCommand(keyValue.Key);
-            command.Connection = connection;
-            command = command.ExecuteReader().Read()
-                        ? BuildUpdateCommand(keyValue.Key, keyValue.Value)
-                        : BuildInsertCommand(keyValue.Key, keyValue.Value);
-            command.Connection = connection;
-            result.Add(command.ExecuteScalar() != null);
-          }
-          catch
-          {
-            if (connection != null)
-              connection.Dispose();
-            connection = null;
-            result.Add(false);
-          }
-        }
-      }
-      finally
-      {
-        if (connection != null)
-          connection.Dispose();
-        _sqliteLock.ExitWriteLock();
-      }
-      return result.ToArray();
-    }
-    */
 
     #endregion
 
@@ -278,7 +118,7 @@ namespace AppStract.Core.Data.FileSystem
 
     private static FileTableEntry BuildItemFromReadAllQuery(IDataRecord dataRecord)
     {
-      return new FileTableEntry(dataRecord.GetString(0), dataRecord.GetString(1));
+      return new FileTableEntry(dataRecord.GetString(0), dataRecord.GetString(1), FileKind.Unspecified);
     }
 
     /*

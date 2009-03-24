@@ -22,10 +22,12 @@
 #endregion
 
 using System;
+using System.Linq;
 using AppStract.Core.Data;
 using AppStract.Core.Synchronization;
 using AppStract.Core.Virtualization.Registry;
 using AppStract.Utilities.Observables;
+using Microsoft.Win32.Interop;
 using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
 
 namespace AppStract.Server.Registry.Data
@@ -60,16 +62,40 @@ namespace AppStract.Server.Registry.Data
       }
     }
 
-    public override uint? OpenKey(string keyFullPath)
+    public override bool OpenKey(string keyFullPath, out uint hResult)
     {
+      hResult = 0;
       keyFullPath = RegistryTranslator.ToVirtualPath(keyFullPath);
-      return base.OpenKey(keyFullPath);
+      /// We're not sure if this method is read-only.
+      _keysSynchronizationLock.EnterUpgradeableReadLock();
+      try
+      {
+        /// Try to find the key in the virtual registry.
+        VirtualRegistryKey virtualRegistryKey
+          = _keys.Values.First(key => key.Path.ToLowerInvariant() == keyFullPath);
+        if (virtualRegistryKey == null && KeyExistsInHostRegistry(keyFullPath))
+        {
+          /// The key doesn't exist yet.
+          /// Create it key in the virtual registry,
+          /// but ONLY IF the key exists in the current host's registry!
+          virtualRegistryKey = ConstructRegistryKey(keyFullPath);
+          WriteKey(virtualRegistryKey, false);
+        }
+        if (virtualRegistryKey == null)
+          return false;
+        hResult = virtualRegistryKey.Handle;
+        return true;
+      }
+      finally
+      {
+        _keysSynchronizationLock.ExitUpgradeableReadLock();
+      }
     }
 
-    public override StateCode  CreateKey(string keyFullPath, out uint? hKey)
+    public override StateCode CreateKey(string keyFullPath, out uint hKey, out RegCreationDisposition creationDisposition)
     {
       keyFullPath = RegistryTranslator.ToVirtualPath(keyFullPath);
-      return base.CreateKey(keyFullPath, out hKey);
+      return base.CreateKey(keyFullPath, out hKey, out creationDisposition);
     }
 
     public override StateCode QueryValue(uint hkey, string valueName, out VirtualRegistryValue value)
@@ -97,9 +123,10 @@ namespace AppStract.Server.Registry.Data
         throw new ApplicationException("The application tries to handle a transparant key with the virtual registry.");
       try
       {
-        object o = Microsoft.Win32.Registry.GetValue(key.Path, valueName, null);
-        if (o == null)
-          return StateCode.NotFound;
+        object defValue = new object();
+        object o = Microsoft.Win32.Registry.GetValue(key.Path, valueName, defValue);
+        if (o == defValue)
+          return StateCode.FileNotFound;
         value = new VirtualRegistryValue(valueName, o, ValueType.REG_NONE);
       }
       catch
@@ -111,7 +138,7 @@ namespace AppStract.Server.Registry.Data
       return StateCode.Succes;
     }
 
-    public override StateCode SetValue(uint hKey, string valueName, VirtualRegistryValue value)
+    public override StateCode SetValue(uint hKey, VirtualRegistryValue value)
     {
       VirtualRegistryKey key;
       _keysSynchronizationLock.EnterReadLock();
@@ -125,10 +152,10 @@ namespace AppStract.Server.Registry.Data
       {
         _keysSynchronizationLock.ExitReadLock();
       }
-      if (key.Values.Keys.Contains(valueName))
-        key.Values[valueName] = value;
+      if (key.Values.Keys.Contains(value.Name))
+        key.Values[value.Name] = value;
       else
-        key.Values.Add(valueName, value);
+        key.Values.Add(value.Name, value);
       return StateCode.Succes;
     }
 

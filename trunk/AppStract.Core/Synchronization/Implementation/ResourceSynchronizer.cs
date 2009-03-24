@@ -61,17 +61,17 @@ namespace AppStract.Core.Synchronization.Implementation
 
     private void FileTable_ItemAdded(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item)
     {
-      _fileSystemDatabase.EnqueueAction(new DatabaseAction<FileTableEntry>(new FileTableEntry(item), DatabaseActionType.Set));
+      _fileSystemDatabase.EnqueueAction(new DatabaseAction<FileTableEntry>(new FileTableEntry(item, FileKind.Unspecified), DatabaseActionType.Set));
     }
 
     private void FileTable_ItemChanged(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item)
     {
-      _fileSystemDatabase.EnqueueAction(new DatabaseAction<FileTableEntry>(new FileTableEntry(item), DatabaseActionType.Update));
+      _fileSystemDatabase.EnqueueAction(new DatabaseAction<FileTableEntry>(new FileTableEntry(item, FileKind.Unspecified), DatabaseActionType.Update));
     }
 
     private void FileTable_ItemRemoved(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item)
     {
-      _fileSystemDatabase.EnqueueAction(new DatabaseAction<FileTableEntry>(new FileTableEntry(item), DatabaseActionType.Remove));
+      _fileSystemDatabase.EnqueueAction(new DatabaseAction<FileTableEntry>(new FileTableEntry(item, FileKind.Unspecified), DatabaseActionType.Remove));
     }
 
     private void Registry_ItemAdded(ICollection<KeyValuePair<uint, VirtualRegistryKey>> sender, KeyValuePair<uint, VirtualRegistryKey> item)

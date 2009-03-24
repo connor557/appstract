@@ -29,10 +29,10 @@ using AppStract.Core.Virtualization.FileSystem;
 namespace AppStract.Server.FileSystem
 {
   /// <summary>
-  /// <see cref="DynamicFileSystemProvider"/> extends <see cref="FileSystemProvider"/>
+  /// <see cref="DynamicVirtualFileSystem"/> extends <see cref="VirtualFileSystem"/>
   /// by having the ability to release the virtual filesystem after a specified time interval.
   /// </summary>
-  public class DynamicFileSystemProvider : VirtualFileSystem
+  public class DynamicVirtualFileSystem : VirtualFileSystem
   {
 
     #region Variables
@@ -54,7 +54,7 @@ namespace AppStract.Server.FileSystem
 
     #region Constructors
 
-    public DynamicFileSystemProvider(string currentDirectory, IFileSystemSynchronizer resourceSynchronizer)
+    public DynamicVirtualFileSystem(string currentDirectory, IFileSystemSynchronizer resourceSynchronizer)
       : base(currentDirectory, resourceSynchronizer)
     {
       _released = false;
@@ -85,7 +85,7 @@ namespace AppStract.Server.FileSystem
     {
       if (!_released)
         return base.GetFile(fileRequest);
-      return new FileTableEntry(fileRequest.FileName, fileRequest.FileName);
+      return new FileTableEntry(fileRequest.FileName, fileRequest.FileName, FileKind.Unspecified);
     }
 
     #endregion

@@ -21,20 +21,21 @@
 
 #endregion
 
-namespace AppStract.Core.Virtualization.FileSystem
+namespace AppStract.Core.Virtualization.Registry
 {
-  public interface IFileSystemProvider
+  public enum RegCreationDisposition
   {
-
     /// <summary>
-    /// Returns a <see cref="FileTableEntry"/> for the specified <see cref="FileRequest"/>.
-    /// If the file doesn't exist yet, it will be added to the filetable without creating the file on disc.
+    /// Represents exceptions during the creation of a key.
     /// </summary>
-    /// <param name="fileRequest"></param>
-    /// <returns></returns>
-    FileTableEntry GetFile(FileRequest fileRequest);
-
-    void DeleteFile(FileTableEntry fileTableEntry);
-
+    INVALID = 0,
+    /// <summary>
+    /// The key did not exist and was created.
+    /// </summary>
+    REG_CREATED_NEW_KEY = 1,
+    /// <summary>
+    /// The key existed and was simply opened without being changed.
+    /// </summary>
+    REG_OPENED_EXISTING_KEY = 2
   }
 }

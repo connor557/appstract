@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Inject", "AppStra
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{04537DA2-B27B-4B63-A793-AB0EE064CD6B}"
 	ProjectSection(SolutionItems) = preProject
-		Assets\Known Bugs.txt = Assets\Known Bugs.txt
+		Assets\Known Issues.txt = Assets\Known Issues.txt
 		Assets\Notes.txt = Assets\Notes.txt
 	EndProjectSection
 EndProject

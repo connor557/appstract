@@ -27,7 +27,7 @@ namespace AppStract.Core.Virtualization.FileSystem
   /// An action to take on a file or device that exists or does not exist. 
   /// For devices other than files, this parameter is usually set to OPEN_EXISTING.
   /// </summary>
-  public enum CreationDisposition
+  public enum FileCreationDisposition
   {
     /// <summary>
     /// The required action is not specified.
