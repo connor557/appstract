@@ -24,13 +24,13 @@
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Core.Virtualization.Registry;
 
-namespace AppStract.Inject
+namespace AppStract.Server.Inject
 {
 
   /// <summary>
   /// HookHandler processes all intercepted calls to hooked methods.
   /// </summary>
-  internal partial class HookImplementations
+  public partial class HookImplementations
   {
 
     #region Variables

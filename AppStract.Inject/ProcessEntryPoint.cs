@@ -26,6 +26,7 @@ using System.Diagnostics;
 using System.Threading;
 using AppStract.Core.Virtualization.Synchronization;
 using AppStract.Server.FileSystem;
+using AppStract.Server.Inject;
 using AppStract.Server.Registry;
 using EasyHook;
 

@@ -26,9 +26,9 @@ using System.Runtime.InteropServices;
 using Microsoft.Win32.Interop;
 using AppStract.Utilities.Interop;
 
-namespace AppStract.Inject
+namespace AppStract.Server.Inject
 {
-  internal partial class HookImplementations
+  public partial class HookImplementations
   {
 
     #region Public Methods
