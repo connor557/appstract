@@ -25,14 +25,14 @@ using System;
 using System.Collections.Generic;
 using EasyHook;
 
-namespace AppStract.Inject
+namespace AppStract.Server.Inject
 {
 
   /// <summary>
   /// Manages the available hooks, defined by <see cref="HookData"/>.
   /// <see cref="Initialize"/> must be called before <see cref="HookManager"/> can provide any data or install any hook.
   /// </summary>
-  internal static class HookManager
+  public static class HookManager
   {
 
     #region Variables

@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EasyHook, Version=2.5.0.0, Culture=neutral, PublicKeyToken=4b580fca19d0b0c5, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\External Libraries\EasyHook\EasyHook.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -47,6 +51,13 @@
     <Compile Include="FileSystem\VirtualEnvironment.cs" />
     <Compile Include="FileSystem\VirtualFolder.cs" />
     <Compile Include="FileSystem\VirtualFileSystem.cs" />
+    <Compile Include="Inject\HookData.cs" />
+    <Compile Include="Inject\HookDelegates.FileSystem.cs" />
+    <Compile Include="Inject\HookDelegates.Registry.cs" />
+    <Compile Include="Inject\HookImplementations.cs" />
+    <Compile Include="Inject\HookImplementations.FileSystem.cs" />
+    <Compile Include="Inject\HookImplementations.Registry.cs" />
+    <Compile Include="Inject\HookManager.cs" />
     <Compile Include="Registry\Data\TransparentRegistry.cs" />
     <Compile Include="Registry\Data\RegistryBase.cs" />
     <Compile Include="Registry\Data\RegistryTranslator.cs" />

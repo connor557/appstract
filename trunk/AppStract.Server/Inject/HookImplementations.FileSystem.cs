@@ -27,9 +27,9 @@ using System.Runtime.InteropServices;
 using AppStract.Core.Virtualization.FileSystem;
 using Microsoft.Win32.Interop;
 
-namespace AppStract.Inject
+namespace AppStract.Server.Inject
 {
-  internal partial class HookImplementations
+  public partial class HookImplementations
   {
 
     #region Constants

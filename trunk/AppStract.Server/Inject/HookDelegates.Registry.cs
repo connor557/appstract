@@ -24,9 +24,9 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace AppStract.Inject
+namespace AppStract.Server.Inject
 {
-  internal static partial class HookDelegates
+  public static partial class HookDelegates
   {
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
