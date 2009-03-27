@@ -21,7 +21,7 @@
 
 #endregion
 
-using AppStract.Core.Synchronization;
+using AppStract.Core.Virtualization.Synchronization;
 using AppStract.Server.Registry.Data;
 using AppStract.Core.Data;
 using AppStract.Core.Virtualization.Registry;

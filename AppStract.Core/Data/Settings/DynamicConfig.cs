@@ -21,21 +21,18 @@
 
 #endregion
 
-using AppStract.Core.Virtualization.Registry;
-using AppStract.Utilities.Observables;
-
-namespace AppStract.Core.Synchronization
+namespace AppStract.Core.Data.Settings
 {
-  public interface IRegistrySynchronizer
+  public class DynamicConfig
   {
 
-    void LoadRegistryTo(ObservableDictionary<uint, VirtualRegistryKey> keyList);
-
-    void SetRegistryKey(VirtualRegistryKey virtualRegistryKey);
-
-    void SetRegistryKey(VirtualRegistryKey virtualRegistryKey, bool overwriteAllValues);
-
-    void DeleteRegistryKey(uint keyIndex);
+    /// <summary>
+    /// Gets or sets the root folder of the current process.
+    /// </summary>
+    public string Root
+    {
+      get; set;
+    }
 
   }
 }

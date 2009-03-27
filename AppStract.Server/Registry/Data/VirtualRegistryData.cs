@@ -24,7 +24,7 @@
 using System;
 using System.Linq;
 using AppStract.Core.Data;
-using AppStract.Core.Synchronization;
+using AppStract.Core.Virtualization.Synchronization;
 using AppStract.Core.Virtualization.Registry;
 using AppStract.Utilities.Observables;
 using Microsoft.Win32.Interop;

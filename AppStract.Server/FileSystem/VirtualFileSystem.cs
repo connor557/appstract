@@ -25,7 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using AppStract.Core.Synchronization;
+using AppStract.Core.Virtualization.Synchronization;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Utilities.Observables;
 

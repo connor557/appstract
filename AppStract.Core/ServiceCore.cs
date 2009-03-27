@@ -24,25 +24,39 @@
 using System;
 using System.Collections.Generic;
 using AppStract.Core.Logging;
+using AppStract.Core.Data.Settings;
 
 namespace AppStract.Core
 {
+  /// <summary>
+  /// The static core class of AppStract,
+  /// used as a communication bus between the different services.
+  /// </summary>
   public static class ServiceCore
   {
 
     #region Variables
 
-    private static Logger _logger;
     private static readonly IDictionary<Type, object> _services;
 
     #endregion
 
     #region Properties
 
+    /// <summary>
+    /// The current instance's configuration.
+    /// </summary>
+    public static Configuration Configuration
+    {
+      get; set;
+    }
+
+    /// <summary>
+    /// The current instance's log service.
+    /// </summary>
     public static Logger Log
     {
-      get { return _logger; }
-      set { _logger = value; }
+      get; set;
     }
 
     #endregion
