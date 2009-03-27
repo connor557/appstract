@@ -54,15 +54,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\Virtualization\ParameterGenerator.cs" />
-    <Compile Include="Data\Virtualization\BuildItemFromQueryData.cs" />
-    <Compile Include="Data\Virtualization\Database.cs" />
-    <Compile Include="Data\Virtualization\DatabaseAction.cs" />
-    <Compile Include="Data\Virtualization\DatabaseActionType.cs" />
-    <Compile Include="Data\Virtualization\IIndexUser.cs" />
-    <Compile Include="Data\Virtualization\IndexGenerator.cs" />
-    <Compile Include="Data\Virtualization\IndexRange.cs" />
-    <Compile Include="Data\Virtualization\Registry\RegistryDatabase.cs" />
+    <Compile Include="Data\Databases\ParameterGenerator.cs" />
+    <Compile Include="Data\Databases\BuildItemFromQueryData.cs" />
+    <Compile Include="Data\Databases\Database.cs" />
+    <Compile Include="Data\Databases\DatabaseAction.cs" />
+    <Compile Include="Data\Databases\DatabaseActionType.cs" />
+    <Compile Include="Data\Databases\IIndexUser.cs" />
+    <Compile Include="Data\Databases\IndexGenerator.cs" />
+    <Compile Include="Data\Databases\IndexRange.cs" />
+    <Compile Include="Data\Databases\Registry\RegistryDatabase.cs" />
     <Compile Include="Logging\ConsoleLogger.cs" />
     <Compile Include="Logging\FileLogger.cs" />
     <Compile Include="Logging\Logger.cs" />
@@ -73,7 +73,7 @@
     <Compile Include="ServiceException.cs" />
     <Compile Include="ServiceNotFoundException.cs" />
     <Compile Include="ServiceOverwriteException.cs" />
-    <Compile Include="Data\Virtualization\FileSystem\FileSystemDatabase.cs" />
+    <Compile Include="Data\Databases\FileSystem\FileSystemDatabase.cs" />
     <Compile Include="Data\Settings\AppConfig.cs" />
     <Compile Include="Data\Settings\Configuration.cs" />
     <Compile Include="Data\Settings\DynamicConfig.cs" />

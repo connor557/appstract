@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace AppStract.Core.Data.Virtualization
+namespace AppStract.Core.Data.Databases
 {
   /// <summary>
   /// Specifies the type of action to take for the database-call.

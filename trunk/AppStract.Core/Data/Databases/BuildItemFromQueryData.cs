@@ -23,7 +23,7 @@
 
 using System.Data;
 
-namespace AppStract.Core.Data.Virtualization
+namespace AppStract.Core.Data.Databases
 {
 
   /// <summary>
