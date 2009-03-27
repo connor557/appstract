@@ -45,6 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assembly\AssemblyHelper.cs" />
+    <Compile Include="Assembly\AssemblyType.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Interop\MarshallingHelpers.cs" />
     <Compile Include="Interop\StateCode.cs" />
