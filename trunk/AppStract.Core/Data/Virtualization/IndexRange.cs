@@ -21,38 +21,54 @@
 
 #endregion
 
-namespace AppStract.Core.Data
+using System;
+
+namespace AppStract.Core.Data.Virtualization
 {
-  public class DatabaseAction<TItem>
+  public class IndexRange
   {
 
     #region Variables
 
-    private readonly DatabaseActionType _actionType;
-    private readonly TItem _item;
+    private uint _start;
+    private uint _end;
 
     #endregion
 
     #region Properties
 
-    public DatabaseActionType ActionType
+    public uint Start
     {
-      get { return _actionType; }
+      get { return _start; }
+      set { _start = value; }
     }
 
-    public TItem Item
+    public uint End
     {
-      get { return _item; }
+      get { return _end; }
+      set { _end = value; }
     }
 
     #endregion
 
-    #region Constructors
+    #region Constructor
 
-    public DatabaseAction(TItem item, DatabaseActionType actionType)
+    public IndexRange(uint start, uint end)
     {
-      _item = item;
-      _actionType = actionType;
+      if (end < start)
+        throw new ArgumentException("Parameter \"end\" must be greater then \"start\"", "end");
+      _start = start;
+      _end = end;
+    }
+
+    #endregion
+
+    #region Public Methods
+
+    public bool IsInRange(uint value)
+    {
+      return value >= _start
+             && value <= _end;
     }
 
     #endregion
