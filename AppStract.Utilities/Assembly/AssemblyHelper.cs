@@ -37,6 +37,15 @@ namespace AppStract.Utilities.Assembly
     #region Public Methods
 
     /// <summary>
+    /// Gets the first executable that was executed in the current <see cref="AppDomain"/>.
+    /// </summary>
+    /// <returns></returns>
+    public static System.Reflection.Assembly GetEntryAssembly()
+    {
+      return System.Reflection.Assembly.GetEntryAssembly();
+    }
+
+    /// <summary>
     /// Returns the type of the assembly specified.
     /// </summary>
     /// <exception cref="ArgumentException"></exception>
