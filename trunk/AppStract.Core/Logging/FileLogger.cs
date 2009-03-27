@@ -22,7 +22,6 @@
 #endregion
 
 using System.IO;
-using AppStract.Core.Paths;
 
 namespace AppStract.Core.Logging
 {
@@ -47,7 +46,7 @@ namespace AppStract.Core.Logging
     /// <returns></returns>
     public static FileLogger CreateLogService(LogLevel logLevel)
     {
-      return CreateLogService(logLevel, ServiceCore.Get<IPathManager>().GetPath("%LOG%"));
+      return CreateLogService(logLevel, ServiceCore.Configuration.UserConfig.LogFile);
     }
 
     /// <summary>

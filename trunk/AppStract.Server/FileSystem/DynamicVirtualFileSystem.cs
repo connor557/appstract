@@ -22,7 +22,7 @@
 #endregion
 
 using System.Timers;
-using AppStract.Core.Synchronization;
+using AppStract.Core.Virtualization.Synchronization;
 using AppStract.Core.Virtualization.FileSystem;
 
 

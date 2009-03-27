@@ -21,7 +21,7 @@
 
 #endregion
 
-using AppStract.Core.Synchronization;
+using AppStract.Core.Virtualization.Synchronization;
 using AppStract.Core.Virtualization.Registry;
 using Microsoft.Win32.Interop;
 

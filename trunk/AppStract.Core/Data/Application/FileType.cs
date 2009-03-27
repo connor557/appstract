@@ -21,21 +21,14 @@
 
 #endregion
 
-using System;
-
-
-namespace AppStract.Core.Synchronization
+namespace AppStract.Core.Data.Application
 {
-  public interface IServerReporter
+  public enum FileType
   {
-
-    void Ping();
-
-    void Ping(int processId);
-
-    void ReportException(int processId, Exception exception);
-
-    void ReportException(int processId, Exception exception, string message);
-
+    File,
+    Assembly_Native,
+    Assembly_Managed,
+    Database,
+    Directory
   }
 }

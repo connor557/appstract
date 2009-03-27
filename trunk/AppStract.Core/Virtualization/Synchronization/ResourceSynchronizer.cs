@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2008-2009 Simon Allaeys
+#region Copyright (C) 2008-2009 Simon Allaeys
 
 /*
     Copyright (C) 2008-2009 Simon Allaeys
@@ -24,15 +24,16 @@
 using System;
 using System.Collections.Generic;
 using AppStract.Core.Data;
+using AppStract.Core.Data.Application;
 using AppStract.Core.Data.FileSystem;
 using AppStract.Core.Data.Registry;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Core.Virtualization.Registry;
 using AppStract.Utilities.Observables;
 
-namespace AppStract.Core.Synchronization.Implementation
+namespace AppStract.Core.Virtualization.Synchronization
 {
-  public class ResourceSynchronizer : IFileSystemSynchronizer, IRegistrySynchronizer
+  public class ResourceSynchronizer : MarshalByRefObject, IFileSystemSynchronizer, IRegistrySynchronizer, IServerReporter
   {
 
     #region Variables
@@ -44,7 +45,7 @@ namespace AppStract.Core.Synchronization.Implementation
 
     #region Constructors
 
-    public ResourceSynchronizer()
+    public ResourceSynchronizer(ApplicationFile fileSystemDatabaseFile, ApplicationFile registryDatabaseFile)
     {
       throw new NotImplementedException();
     }
@@ -139,6 +140,35 @@ namespace AppStract.Core.Synchronization.Implementation
       _registryDatabase.EnqueueAction(
         new DatabaseAction<VirtualRegistryKey>(new VirtualRegistryKey(keyIndex, null),
                                                DatabaseActionType.Remove));
+    }
+
+    #endregion
+
+    #region IServerReporter Members
+
+    public void Ping()
+    {
+      throw new NotImplementedException();
+    }
+
+    public void Ping(string message)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void ReportException(Exception exception)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void ReportException(Exception exception, string message)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void ReportMessage(string message)
+    {
+      throw new NotImplementedException();
     }
 
     #endregion

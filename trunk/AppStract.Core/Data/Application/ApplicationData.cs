@@ -21,14 +21,44 @@
 
 #endregion
 
-using AppStract.Utilities.Observables;
+using System;
 
-namespace AppStract.Core.Synchronization
+namespace AppStract.Core.Data.Application
 {
-  public interface IFileSystemSynchronizer
+  [Serializable]
+  public class ApplicationData
   {
 
-    void LoadFileSystemTableTo(ObservableDictionary<string, string> fileTable);
+    #region Variables
+
+    private readonly ApplicationSettings _settings;
+    private readonly ApplicationFiles _files;
+
+    #endregion
+
+    #region Properties
+
+    public ApplicationSettings Settings
+    {
+      get { return _settings; }
+    }
+
+    public ApplicationFiles Files
+    {
+      get { return _files; }
+    }
+
+    #endregion
+
+    #region Constructors
+
+    public ApplicationData()
+    {
+      _settings = new ApplicationSettings();
+      _files = new ApplicationFiles();
+    }
+
+    #endregion
 
   }
 }

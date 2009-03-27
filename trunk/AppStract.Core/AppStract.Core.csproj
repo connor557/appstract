@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EasyHook, Version=2.5.0.0, Culture=neutral, PublicKeyToken=4b580fca19d0b0c5, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\External Libraries\EasyHook\EasyHook.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -39,6 +43,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\External Libraries\System.Data.SQLite.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -63,24 +68,33 @@
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="Logging\NullLogger.cs" />
-    <Compile Include="PathManager\PathDescriptionNotFoundException.cs" />
-    <Compile Include="PathManager\IPathManager.cs" />
     <Compile Include="ServiceCore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceException.cs" />
     <Compile Include="ServiceNotFoundException.cs" />
     <Compile Include="ServiceOverwriteException.cs" />
     <Compile Include="Data\FileSystem\FileSystemDatabase.cs" />
-    <Compile Include="Synchronization\IFileSystemSynchronizer.cs" />
-    <Compile Include="Synchronization\IRegistrySynchronizer.cs" />
-    <Compile Include="Synchronization\IServerReporter.cs" />
-    <Compile Include="Synchronization\Implementation\ResourceSynchronizer.cs" />
+    <Compile Include="Data\Settings\AppConfig.cs" />
+    <Compile Include="Data\Settings\Configuration.cs" />
+    <Compile Include="Data\Settings\DynamicConfig.cs" />
+    <Compile Include="Data\Settings\UserConfig.cs" />
+    <Compile Include="Virtualization\Synchronization\IFileSystemSynchronizer.cs" />
+    <Compile Include="Virtualization\Synchronization\IRegistrySynchronizer.cs" />
+    <Compile Include="Virtualization\Synchronization\IServerReporter.cs" />
+    <Compile Include="Virtualization\Synchronization\ResourceSynchronizer.cs" />
+    <Compile Include="Data\Application\ApplicationData.cs" />
+    <Compile Include="Data\Application\ApplicationFile.cs" />
+    <Compile Include="Data\Application\ApplicationFiles.cs" />
+    <Compile Include="Data\Application\ApplicationSettings.cs" />
     <Compile Include="Virtualization\FileSystem\FileCreationDisposition.cs" />
     <Compile Include="Virtualization\FileSystem\FileKind.cs" />
     <Compile Include="Virtualization\FileSystem\FileRequest.cs" />
     <Compile Include="Virtualization\FileSystem\FileTableEntry.cs" />
     <Compile Include="Virtualization\FileSystem\IFileSystemProvider.cs" />
     <Compile Include="Virtualization\FileSystem\ResourceType.cs" />
+    <Compile Include="Data\Application\FileType.cs" />
+    <Compile Include="Virtualization\Process\VirtualProcessException.cs" />
+    <Compile Include="Virtualization\Process\VirtualizedProcess.cs" />
     <Compile Include="Virtualization\Registry\IRegistryProvider.cs" />
     <Compile Include="Virtualization\Registry\RegCreationDisposition.cs" />
     <Compile Include="Virtualization\Registry\ValueType.cs" />

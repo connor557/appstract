@@ -57,12 +57,16 @@
     <Compile Include="HookDelegates.Registry.cs" />
     <Compile Include="HookImplementations.cs" />
     <Compile Include="HookImplementations.FileSystem.cs" />
-    <Compile Include="Hooks.cs" />
+    <Compile Include="HookManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppStract.Core\AppStract.Core.csproj">
       <Project>{73CC3214-9CAD-4723-BBBB-79BE7482E639}</Project>
       <Name>AppStract.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AppStract.Server\AppStract.Server.csproj">
+      <Project>{4944058E-49BF-4CF8-968D-D905731EC728}</Project>
+      <Name>AppStract.Server</Name>
     </ProjectReference>
     <ProjectReference Include="..\AppStract.Utilities\AppStract.Utilities.csproj">
       <Project>{29578947-FFF4-4A0A-9C75-AE3C5E03F746}</Project>
@@ -71,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HookImplementations.Registry.cs" />
+    <Compile Include="ProcessEntryPoint.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
