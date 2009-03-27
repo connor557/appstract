@@ -23,20 +23,20 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Windows.Forms;
 
-namespace AppStract.UI
+namespace AppStract.Host
 {
-  public partial class Form1 : Form
+  /// <summary>
+  /// The entry class for AppStract.Host,
+  /// which is a console application able to run packaged applications in a virtual environment.
+  /// </summary>
+  class Program
   {
-    public Form1()
+    static void Main(string[] args)
     {
-      InitializeComponent();
+      Console.ReadLine();
     }
   }
 }
