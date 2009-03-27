@@ -21,9 +21,9 @@
 
 #endregion
 
-namespace AppStract.UI
+namespace AppStract.Packager
 {
-  partial class Form1
+  partial class FrmPackager
   {
     /// <summary>
     /// Required designer variable.
