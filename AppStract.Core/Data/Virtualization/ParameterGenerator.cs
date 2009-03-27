@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace AppStract.Core.Data
+namespace AppStract.Core.Data.Virtualization
 {
   /// <summary>
   /// Generates unique names for parameters.

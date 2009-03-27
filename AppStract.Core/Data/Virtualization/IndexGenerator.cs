@@ -24,7 +24,7 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace AppStract.Core.Data
+namespace AppStract.Core.Data.Virtualization
 {
   /// <summary>
   /// Generates indices to be used in a database.

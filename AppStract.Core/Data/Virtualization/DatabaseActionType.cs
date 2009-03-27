@@ -21,17 +21,24 @@
 
 #endregion
 
-using System.Data;
-
-namespace AppStract.Core.Data
+namespace AppStract.Core.Data.Virtualization
 {
-
   /// <summary>
-  /// Represents the method that will build a {TItem} from an <see cref="IDataRecord"/>.
+  /// Specifies the type of action to take for the database-call.
   /// </summary>
-  /// <typeparam name="TItem">The type that will be built by the method.</typeparam>
-  /// <param name="dataRecord">The <see cref="IDataRecord"/> to read the values from.</param>
-  /// <returns></returns>
-  public delegate TItem BuildItemFromQueryData<TItem>(IDataRecord dataRecord);
-
+  public enum DatabaseActionType
+  {
+    /// <summary>
+    /// Update the existing value.
+    /// </summary>
+    Update,
+    /// <summary>
+    /// Set the value if it exists (overwrite), otherwise add it.
+    /// </summary>
+    Set,
+    /// <summary>
+    /// Remove the value.
+    /// </summary>
+    Remove
+  }
 }

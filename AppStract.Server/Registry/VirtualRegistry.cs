@@ -23,7 +23,7 @@
 
 using AppStract.Core.Virtualization.Synchronization;
 using AppStract.Server.Registry.Data;
-using AppStract.Core.Data;
+using AppStract.Core.Data.Virtualization;
 using AppStract.Core.Virtualization.Registry;
 using Microsoft.Win32.Interop;
 

@@ -23,10 +23,10 @@
 
 using System;
 using System.Collections.Generic;
-using AppStract.Core.Data;
 using AppStract.Core.Data.Application;
-using AppStract.Core.Data.FileSystem;
-using AppStract.Core.Data.Registry;
+using AppStract.Core.Data.Virtualization;
+using AppStract.Core.Data.Virtualization.FileSystem;
+using AppStract.Core.Data.Virtualization.Registry;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Core.Virtualization.Registry;
 using AppStract.Utilities.Observables;

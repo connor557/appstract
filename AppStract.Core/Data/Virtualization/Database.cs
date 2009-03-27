@@ -31,7 +31,7 @@ using AppStract.Core;
 using AppStract.Core.Logging;
 using AppStract.Utilities.Observables;
 
-namespace AppStract.Core.Data
+namespace AppStract.Core.Data.Virtualization
 {
   public abstract class Database<T> : IDisposable
   {
