@@ -82,7 +82,8 @@ namespace AppStract.Inject
       _registry = new RegistryProvider(_registrySynchronizer);
       _hookImplementations = new HookImplementations(_fileSystem, _registry);
       /// Validate connection.
-      _serverReporter.Ping("Process [PID" + RemoteHooking.GetCurrentProcessId() + "] is initialized and validated.");
+      _serverReporter.Ping();
+      _serverReporter.ReportMessage("Process [PID" + RemoteHooking.GetCurrentProcessId() + "] is initialized and validated.");
     }
 
     #endregion
@@ -107,10 +108,12 @@ namespace AppStract.Inject
       Thread.CurrentThread.Name = string.Format("{0} (PID {1})",
         Process.GetCurrentProcess().ProcessName, RemoteHooking.GetCurrentProcessId());
       /// Validate the connection.
-      _serverReporter.Ping("Process [PID" + RemoteHooking.GetCurrentProcessId() + "] is running.");
+      _serverReporter.Ping();
       /// Install all hooks.
       HookManager.Initialize(this, _hookImplementations);
       HookManager.InstallHooks();
+      _serverReporter.ReportMessage("Process [PID" + RemoteHooking.GetCurrentProcessId() + "] is hooked.");
+      _serverReporter.ReportMessage("Process [PID" + RemoteHooking.GetCurrentProcessId() + "] is waking up.");
       /// Start the injected process.
       RemoteHooking.WakeUpProcess();
       /// Block the current thread until the host becomes unreachable,

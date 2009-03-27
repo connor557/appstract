@@ -148,27 +148,22 @@ namespace AppStract.Core.Virtualization.Synchronization
 
     public void Ping()
     {
-      throw new NotImplementedException();
-    }
-
-    public void Ping(string message)
-    {
-      throw new NotImplementedException();
+      /// No action required.
     }
 
     public void ReportException(Exception exception)
     {
-      throw new NotImplementedException();
+      ServiceCore.Log.Error("", exception);
     }
 
     public void ReportException(Exception exception, string message)
     {
-      throw new NotImplementedException();
+      ServiceCore.Log.Error(message, exception);
     }
 
     public void ReportMessage(string message)
     {
-      throw new NotImplementedException();
+      ServiceCore.Log.Message(message);
     }
 
     #endregion

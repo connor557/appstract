@@ -30,8 +30,6 @@ namespace AppStract.Core.Virtualization.Synchronization
 
     void Ping();
 
-    void Ping(string message);
-
     void ReportException(Exception exception);
 
     void ReportException(Exception exception, string message);
