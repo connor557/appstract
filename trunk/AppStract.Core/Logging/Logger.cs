@@ -179,6 +179,7 @@ namespace AppStract.Core.Logging
         exceptionFormatter.AppendLine("Inner Exception:");
         exceptionFormatter.AppendLine("\t" + innerException);
         exceptionFormatter.AppendLine("\t Message: " + innerException.Message);
+        innerException = innerException.InnerException;
       }
       exceptionFormatter.AppendLine("Stack Trace:");
       exceptionFormatter.AppendLine(ex.StackTrace);
