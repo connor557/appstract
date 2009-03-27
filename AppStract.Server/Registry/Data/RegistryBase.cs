@@ -23,7 +23,7 @@
 
 using System.Collections.Generic;
 using System.Threading;
-using AppStract.Core.Data.Virtualization;
+using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.Registry;
 using Microsoft.Win32;
 using Microsoft.Win32.Interop;
