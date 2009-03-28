@@ -21,22 +21,14 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 namespace AppStract.Host
 {
-  /// <summary>
-  /// The entry class for AppStract.Host,
-  /// which is a console application able to run packaged applications in a virtual environment.
-  /// </summary>
-  class Program
+  public enum CommandlineOption
   {
-    static void Main(string[] args)
-    {
-      Console.ReadLine();
-    }
+    LogLevel,
+    LogOutput,
+    LogFile,
+    ApplicationDataFile,
+    ShowWindow
   }
 }
