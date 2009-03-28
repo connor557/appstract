@@ -27,7 +27,7 @@ using System.Data;
 using System.Data.SQLite;
 using AppStract.Core.Virtualization.FileSystem;
 
-namespace AppStract.Core.Data.Databases.FileSystem
+namespace AppStract.Core.Data.Databases
 {
   public sealed class FileSystemDatabase : Database<FileTableEntry>
   {

@@ -28,7 +28,7 @@ using System.Data.SQLite;
 using AppStract.Core.Virtualization.Registry;
 using ValueType=AppStract.Core.Virtualization.Registry.ValueType;
 
-namespace AppStract.Core.Data.Databases.Registry
+namespace AppStract.Core.Data.Databases
 {
   public sealed class RegistryDatabase : Database<VirtualRegistryKey>
   {
