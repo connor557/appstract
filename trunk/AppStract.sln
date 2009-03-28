@@ -24,6 +24,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External Libraries", "Exter
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Host", "AppStract.Host\AppStract.Host.csproj", "{735A66C3-D42E-4C07-9125-5304D1F1C542}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Images", "Images", "{8C33A40B-B952-4C62-A053-30EC00C35AB6}"
+	ProjectSection(SolutionItems) = preProject
+		Images\applogo.ico = Images\applogo.ico
+		Images\logo.jpg = Images\logo.jpg
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
