@@ -48,6 +48,11 @@ namespace AppStract.Core.Logging
       set { _level = value; }
     }
 
+    public LogType Type
+    {
+      get { return _logType; }
+    }
+
     #endregion
 
     #region Constructors
