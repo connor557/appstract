@@ -62,7 +62,7 @@
     <Compile Include="Data\Databases\IIndexUser.cs" />
     <Compile Include="Data\Databases\IndexGenerator.cs" />
     <Compile Include="Data\Databases\IndexRange.cs" />
-    <Compile Include="Data\Databases\Registry\RegistryDatabase.cs" />
+    <Compile Include="Data\Databases\RegistryDatabase.cs" />
     <Compile Include="Logging\ConsoleLogger.cs" />
     <Compile Include="Logging\FileLogger.cs" />
     <Compile Include="Logging\Logger.cs" />
@@ -73,7 +73,7 @@
     <Compile Include="ServiceException.cs" />
     <Compile Include="ServiceNotFoundException.cs" />
     <Compile Include="ServiceOverwriteException.cs" />
-    <Compile Include="Data\Databases\FileSystem\FileSystemDatabase.cs" />
+    <Compile Include="Data\Databases\FileSystemDatabase.cs" />
     <Compile Include="Data\Settings\AppConfig.cs" />
     <Compile Include="Data\Settings\Configuration.cs" />
     <Compile Include="Data\Settings\DynamicConfig.cs" />

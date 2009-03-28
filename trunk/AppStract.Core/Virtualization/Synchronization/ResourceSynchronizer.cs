@@ -25,8 +25,6 @@ using System;
 using System.Collections.Generic;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Data.Databases;
-using AppStract.Core.Data.Databases.FileSystem;
-using AppStract.Core.Data.Databases.Registry;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Core.Virtualization.Registry;
 using AppStract.Utilities.Observables;
