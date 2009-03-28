@@ -39,7 +39,7 @@ namespace AppStract.Core.Virtualization.Process
     /// <summary>
     /// All data related to the application run in the current <see cref="VirtualizedProcess"/>.
     /// </summary>
-    private readonly ApplicationData _applicationData;
+    private readonly VirtualProcessStartInfo _startInfo;
     /// <summary>
     /// The object responsible for the synchronization
     /// between the current process and the virtualized process.
@@ -66,45 +66,31 @@ namespace AppStract.Core.Virtualization.Process
 
     #region Constructors
 
-    private VirtualizedProcess(ApplicationData applicationData)
+    private VirtualizedProcess(VirtualProcessStartInfo startInfo)
     {
-      if (applicationData.Files.ExeMain.Type != FileType.Assembly_Native
-          && applicationData.Files.ExeMain.Type != FileType.Assembly_Managed)
-        throw new ArgumentException("The file specified by applicationData.Files.ExeMain is not a valid executable.",
-                                    "applicationData");
-      _applicationData = applicationData;
       _easyHookSyncRoot = new object();
-      _resourceSynchronizer = new ResourceSynchronizer(applicationData.Files.DatabaseFileSystem,
-                                                       applicationData.Files.DatabaseRegistry);
+      _startInfo = startInfo;
+      _resourceSynchronizer = new ResourceSynchronizer(startInfo.DatabaseFileSystem,
+                                                       startInfo.DatabaseRegistry);
     }
 
     #endregion
 
     #region Public Methods
 
-    public static VirtualizedProcess StartProcess(ApplicationData applicationData)
+    public static VirtualizedProcess StartProcess(VirtualProcessStartInfo startInfo)
     {
-      /// Check the executable to use.
-      if (applicationData.Files.ExeMain.Type == FileType.Assembly_Native)
-        ServiceCore.Log.Message("Starting a new process for the native executable located at {0}",
-                                applicationData.Files.ExeMain);
-      else if (applicationData.Files.ExeMain.Type == FileType.Assembly_Managed)
-        ServiceCore.Log.Message("Starting a new process for the managed executable located at {0}",
-                                applicationData.Files.ExeMain);
-      else
-        throw new ArgumentException("The provided ApplicationData.Files.ExeMain must be a valid assembly.",
-                                    "applicationData");
       /// Create an instance of VirtualizedProcess.
-      VirtualizedProcess process = new VirtualizedProcess(applicationData);
+      VirtualizedProcess process = new VirtualizedProcess(startInfo);
       /// Initializes the underlying resources.
       process.InitEasyHook();
       /// Start the process.
-      if (applicationData.Files.ExeMain.Type == FileType.Assembly_Native)
+      if (startInfo.Executable.Type == FileType.Assembly_Native)
         process.CreateAndInject();
-      else if (applicationData.Files.ExeMain.Type == FileType.Assembly_Managed)
+      else if (startInfo.Executable.Type == FileType.Assembly_Managed)
         process.WrapAndInject();
-      else /// Avoid conflicts between different threads changing the ExeMain parameter.
-        throw new VirtualProcessException("FileType " + applicationData.Files.ExeMain.Type +
+      else  /// This should never happen.
+        throw new VirtualProcessException("FileType " + startInfo.Executable.Type +
                                           " can't be used to start a process with.");
       return process;
     }
@@ -136,7 +122,7 @@ namespace AppStract.Core.Virtualization.Process
       /// Get the location of the library to inject
       string libraryLocation = ServiceCore.Configuration.AppConfig.LibtoInject;
       RemoteHooking.CreateAndInject(
-        Path.Combine(ServiceCore.Configuration.DynConfig.Root, _applicationData.Files.ExeMain.File),
+        Path.Combine(ServiceCore.Configuration.DynConfig.Root, _startInfo.Executable.File),
         /// Optional command line parameters for process creation
         "",
         /// ProcessCreationFlags, no conditions are set on the created process.
@@ -152,7 +138,7 @@ namespace AppStract.Core.Virtualization.Process
       _process.EnableRaisingEvents = true;
       _process.Exited += Process_Exited;
       ServiceCore.Log.Message("A virtualized process with PID {0} has been succesfully created for {1}.",
-                              processId, _applicationData.Files.ExeMain.File);
+                              processId, _startInfo.Executable.File);
     }
 
     private void WrapAndInject()

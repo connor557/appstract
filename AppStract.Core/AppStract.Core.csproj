@@ -78,6 +78,7 @@
     <Compile Include="Data\Settings\Configuration.cs" />
     <Compile Include="Data\Settings\DynamicConfig.cs" />
     <Compile Include="Data\Settings\UserConfig.cs" />
+    <Compile Include="Virtualization\Process\VirtualProcessStartInfo.cs" />
     <Compile Include="Virtualization\Synchronization\IFileSystemSynchronizer.cs" />
     <Compile Include="Virtualization\Synchronization\IRegistrySynchronizer.cs" />
     <Compile Include="Virtualization\Synchronization\IServerReporter.cs" />
