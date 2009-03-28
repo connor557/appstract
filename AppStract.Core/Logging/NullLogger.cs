@@ -25,6 +25,13 @@ namespace AppStract.Core.Logging
 {
   public class NullLogger : Logger
   {
+
+    public NullLogger()
+      : base()
+    {
+      _logType = LogType.Null;
+    }
+
     protected override void Write(string message)
     {
       return;
