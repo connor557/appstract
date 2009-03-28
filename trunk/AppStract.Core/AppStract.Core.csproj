@@ -67,6 +67,7 @@
     <Compile Include="Logging\FileLogger.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Logging\LogLevel.cs" />
+    <Compile Include="Logging\LogType.cs" />
     <Compile Include="Logging\NullLogger.cs" />
     <Compile Include="ServiceCore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

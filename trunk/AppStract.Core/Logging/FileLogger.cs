@@ -31,7 +31,7 @@ namespace AppStract.Core.Logging
     #region Constructors
 
     private FileLogger(LogLevel logLevel, TextWriter textWriter)
-      : base (logLevel, textWriter)
+      : base (LogType.File, logLevel, textWriter)
     { }
 
     #endregion

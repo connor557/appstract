@@ -21,24 +21,12 @@
 
 #endregion
 
-using System;
-
 namespace AppStract.Core.Logging
 {
-  public class ConsoleLogger : Logger
+  public enum LogType
   {
-
-    #region Constructors
-
-    public ConsoleLogger()
-      : base(LogType.Console, LogLevel.All, Console.Out)
-    { }
-
-    public ConsoleLogger(LogLevel logLevel)
-      : base(LogType.Console, logLevel, Console.Out)
-    { }
-
-    #endregion
-
+    Console,
+    File,
+    Null
   }
 }

@@ -36,6 +36,7 @@ namespace AppStract.Core.Logging
     protected object _syncRoot;
     protected TextWriter _writer;
     protected LogLevel _level;
+    protected LogType _logType;
 
     #endregion
 
@@ -57,13 +58,15 @@ namespace AppStract.Core.Logging
     /// 
     /// </summary>
     /// <exception cref="ArgumentNullException"></exception>
+    /// <param name="logType"></param>
     /// <param name="logLevel"></param>
     /// <param name="writer"></param>
-    protected Logger(LogLevel logLevel, TextWriter writer)
+    protected Logger(LogType logType, LogLevel logLevel, TextWriter writer)
     {
       if (writer == null)
         throw new ArgumentNullException("writer");
       _level = logLevel;
+      _logType = logType;
       _writer = writer;
       _syncRoot = new object();
     }
