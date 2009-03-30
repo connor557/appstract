@@ -31,6 +31,9 @@ using SystemProcess = System.Diagnostics.Process;
 
 namespace AppStract.Core.Virtualization.Process
 {
+  /// <summary>
+  /// Provides access to local virtualized processes.
+  /// </summary>
   public class VirtualizedProcess : IDisposable
   {
 
@@ -39,12 +42,12 @@ namespace AppStract.Core.Virtualization.Process
     /// <summary>
     /// All data related to the application run in the current <see cref="VirtualizedProcess"/>.
     /// </summary>
-    private readonly VirtualProcessStartInfo _startInfo;
+    protected readonly VirtualProcessStartInfo _startInfo;
     /// <summary>
     /// The object responsible for the synchronization
     /// between the current process and the virtualized process.
     /// </summary>
-    private readonly ResourceSynchronizer _resourceSynchronizer;
+    protected readonly ResourceSynchronizer _resourceSynchronizer;
     /// <summary>
     /// Name of the remoting-channel, created by RemoteHooking.IpcCreateServer
     /// </summary>
@@ -58,46 +61,100 @@ namespace AppStract.Core.Virtualization.Process
     /// </summary>
     private bool _iniEasyHook;
     /// <summary>
+    /// Whether the current <see cref="VirtualizedProcess"/> has been terminated.
+    /// </summary>
+    private bool _hasExited;
+    /// <summary>
+    /// Delegates to call when the process has exited.
+    /// </summary>
+    private ProcessExitEventHandler _exited;
+    /// <summary>
     /// The object to lock while initializing EasyHook.
     /// </summary>
     private readonly object _easyHookSyncRoot;
+    /// <summary>
+    /// The object to lock when calling <see cref="_exited"/>.
+    /// </summary>
+    private readonly object _exitEventSyncRoot;
+
+    #endregion
+
+    #region Events
+
+    public event ProcessExitEventHandler Exited
+    {
+      add { lock (_exitEventSyncRoot) _exited += value; }
+      remove { lock (_exitEventSyncRoot) _exited -= value; }
+    }
+
+    #endregion
+
+    #region Properties
+
+    /// <summary>
+    /// Gets a value whether the associated <see cref="VirtualizedProcess"/> has been terminated.
+    /// </summary>
+    public bool HasExited
+    {
+      get { return _hasExited; }
+    }
 
     #endregion
 
     #region Constructors
 
-    private VirtualizedProcess(VirtualProcessStartInfo startInfo)
+    protected VirtualizedProcess(VirtualProcessStartInfo startInfo)
     {
       _easyHookSyncRoot = new object();
+      _exitEventSyncRoot = new object();
       _startInfo = startInfo;
       _resourceSynchronizer = new ResourceSynchronizer(startInfo.DatabaseFileSystem,
                                                        startInfo.DatabaseRegistry);
     }
 
-    #endregion
+    protected VirtualizedProcess(VirtualProcessStartInfo startInfo, ResourceSynchronizer resourceSynchronizer)
+    {
+      _easyHookSyncRoot = new object();
+      _exitEventSyncRoot = new object();
+      _startInfo = startInfo;
+      _resourceSynchronizer = resourceSynchronizer;
+    }
 
+    #endregion
+    
     #region Public Methods
 
-    public static VirtualizedProcess StartProcess(VirtualProcessStartInfo startInfo)
+    public static VirtualizedProcess Start(VirtualProcessStartInfo startInfo)
     {
       /// Create an instance of VirtualizedProcess.
-      VirtualizedProcess process = new VirtualizedProcess(startInfo);
-      /// Initializes the underlying resources.
-      process.InitEasyHook();
-      /// Start the process.
-      if (startInfo.Executable.Type == FileType.Assembly_Native)
-        process.CreateAndInject();
-      else if (startInfo.Executable.Type == FileType.Assembly_Managed)
-        process.WrapAndInject();
-      else  /// This should never happen.
-        throw new VirtualProcessException("FileType " + startInfo.Executable.Type +
-                                          " can't be used to start a process with.");
+      var process = new VirtualizedProcess(startInfo);
+      process.Start();
       return process;
     }
 
-    public void KillProcess()
+    public void Kill()
     {
-      
+      _process.Kill();
+      _process.Dispose();
+    }
+
+    #endregion
+
+    #region Protected Methods
+
+    protected void Start()
+    {
+      /// Initialize the underlying resources.
+      InitEasyHook();
+      _hasExited = false;
+      /// Start the process.
+      if (_startInfo.Executable.Type == FileType.Assembly_Native)
+        CreateAndInject();
+      else if (_startInfo.Executable.Type == FileType.Assembly_Managed)
+        WrapAndInject();
+      else  /// This should never happen.
+        throw new VirtualProcessException("FileType " + _startInfo.Executable.Type +
+                                          " can't be used to start a process with.");
     }
 
     #endregion
@@ -110,7 +167,7 @@ namespace AppStract.Core.Virtualization.Process
       {
         if (_iniEasyHook)
           return;
-        Config.Register("AppStract", ServiceCore.Configuration.AppConfig.LibsToRegister.ToArray());
+        Config.Register("AppStract", CoreBus.Configuration.AppConfig.LibsToRegister.ToArray());
         RemoteHooking.IpcCreateServer<ResourceSynchronizer>(ref _channelName, WellKnownObjectMode.SingleCall);
         _iniEasyHook = true;
       }
@@ -120,9 +177,9 @@ namespace AppStract.Core.Virtualization.Process
     {
       int processId;
       /// Get the location of the library to inject
-      string libraryLocation = ServiceCore.Configuration.AppConfig.LibtoInject;
+      string libraryLocation = CoreBus.Configuration.AppConfig.LibtoInject;
       RemoteHooking.CreateAndInject(
-        Path.Combine(ServiceCore.Configuration.DynConfig.Root, _startInfo.Executable.File),
+        Path.Combine(CoreBus.Configuration.DynConfig.Root, _startInfo.Executable.File),
         /// Optional command line parameters for process creation
         "",
         /// ProcessCreationFlags, no conditions are set on the created process.
@@ -137,7 +194,7 @@ namespace AppStract.Core.Virtualization.Process
       _process = SystemProcess.GetProcessById(processId, SystemProcess.GetCurrentProcess().MachineName);
       _process.EnableRaisingEvents = true;
       _process.Exited += Process_Exited;
-      ServiceCore.Log.Message("A virtualized process with PID {0} has been succesfully created for {1}.",
+      CoreBus.Log.Message("A virtualized process with PID {0} has been succesfully created for {1}.",
                               processId, _startInfo.Executable.File);
     }
 
@@ -153,12 +210,16 @@ namespace AppStract.Core.Virtualization.Process
 
     private void Process_Exited(object sender, EventArgs e)
     {
-      //if (!_process.HasExited)
-      //  return;
-      //if (_process.ExitCode == 0)
-      //  SetStateChange(ProcessState.Exited);
-      //else
-      //  SetStateChange(ProcessState.Failed);
+      if (!_process.HasExited)
+        return;
+      _hasExited = true;
+      lock (_exitEventSyncRoot)
+      {
+        if (_process.ExitCode == 0)
+          _exited(this, ExitCode.Success);
+        else
+          _exited(this, ExitCode.Unexpected);
+      }
     }
 
     #endregion
@@ -171,5 +232,6 @@ namespace AppStract.Core.Virtualization.Process
     }
 
     #endregion
+
   }
 }

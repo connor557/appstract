@@ -131,8 +131,16 @@ namespace AppStract.Core.Virtualization.Process
 
     #region Constructors
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="VirtualProcessStartInfo"/>
+    ///  based on the <see cref="ApplicationData"/> specified.
+    /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <param name="data"></param>
     public VirtualProcessStartInfo(ApplicationData data)
     {
+      if (data ==null)
+        throw new ArgumentNullException("data");
       if (data.Files.ExeMain.Type != FileType.Assembly_Managed
           || data.Files.ExeMain.Type != FileType.Assembly_Native)
         throw new ArgumentException("The ApplicationData specified contains an illegal value for the main executable.",
@@ -150,9 +158,20 @@ namespace AppStract.Core.Virtualization.Process
       _workingDirectory = new ApplicationFile();
     }
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="VirtualProcessStartInfo"/>
+    ///  based on the <see cref="ApplicationData"/> specified.
+    /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <param name="data"></param>
+    /// <param name="workingDirectory"></param>
     public VirtualProcessStartInfo(ApplicationData data, ApplicationFile workingDirectory)
       : this(data)
     {
+      if (data == null)
+        throw new ArgumentNullException("data");
+      if (workingDirectory == null)
+        throw new ArgumentNullException("workingDirectory");
       if (workingDirectory.Type != FileType.Directory)
         throw new ArgumentException("The working directory specified is not a directory.",
                                     "workingDirectory");

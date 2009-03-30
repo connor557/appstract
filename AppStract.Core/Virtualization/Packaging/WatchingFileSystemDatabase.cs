@@ -1,0 +1,102 @@
+﻿#region Copyright (C) 2008-2009 Simon Allaeys
+
+/*
+    Copyright (C) 2008-2009 Simon Allaeys
+ 
+    This file is part of AppStract
+
+    AppStract is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    AppStract is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with AppStract.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System.Collections.Generic;
+using AppStract.Core.Data.Databases;
+using AppStract.Core.Virtualization.FileSystem;
+
+namespace AppStract.Core.Virtualization.Packaging
+{
+  /// <summary>
+  /// Watches the incoming <see cref="DatabaseAction{T}"/> for variables needed to created
+  /// an instance of <see cref="PackagedApplication"/> when packaging has completed.
+  /// </summary>
+  class WatchingFileSystemDatabase : FileSystemDatabase
+  {
+
+    #region Variables
+
+    private readonly List<FileTableEntry> _executables;
+    private readonly object _listExecutablesSyncLock;
+
+    #endregion
+
+    #region Properties
+
+    public IEnumerable<FileTableEntry> Executables
+    {
+      get { return _executables; }
+    }
+
+    #endregion
+
+    #region Constructors
+
+    public WatchingFileSystemDatabase(string connectionString)
+      : base(connectionString)
+    {
+      ItemEnqueued += InstallerFileSystemDatabase_ItemEnqueued;
+      _executables = new List<FileTableEntry>();
+      _listExecutablesSyncLock = new object();
+    }
+
+    #endregion
+
+    #region Public Methods
+
+    public new static WatchingFileSystemDatabase CreateDefaultDatabase(string filename)
+    {
+      var fs = FileSystemDatabase.CreateDefaultDatabase(filename);
+      return new WatchingFileSystemDatabase(fs.ConnectionString);
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    /// <summary>
+    /// EventHandler for newly enqueued items.
+    /// Checks if the <paramref name="item"/> will be needed to create a <see cref="PackagedApplication"/>,
+    /// if so it is stored so it can be retrieved when packaging has completed.
+    /// </summary>
+    /// <param name="sender">The sender of the event, should be the current instance.</param>
+    /// <param name="item">Item to check.</param>
+    private void InstallerFileSystemDatabase_ItemEnqueued(object sender, DatabaseAction<FileTableEntry> item)
+    {
+      if (item.ActionType == DatabaseActionType.Update
+          || !item.Item.Value.ToLowerInvariant().EndsWith(".exe"))
+        return;
+      lock (_listExecutablesSyncLock)
+      {
+        if (item.ActionType == DatabaseActionType.Set
+            && !_executables.Contains(item.Item))
+          _executables.Add(item.Item);
+        else if (item.ActionType == DatabaseActionType.Remove)
+          _executables.Remove(item.Item);
+      }
+    }
+
+    #endregion
+
+  }
+}

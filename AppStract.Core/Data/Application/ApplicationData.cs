@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using AppStract.Utilities.Serialization;
 
 namespace AppStract.Core.Data.Application
 {
@@ -56,6 +57,49 @@ namespace AppStract.Core.Data.Application
     {
       _settings = new ApplicationSettings();
       _files = new ApplicationFiles();
+    }
+
+    #endregion
+
+    #region Public Methods
+
+    /// <summary>
+    /// Saves an instance of <see cref="ApplicationData"/> to the specified <paramref name="filename"/>.
+    /// </summary>
+    /// <param name="applicationData">The data to save.</param>
+    /// <param name="filename">File containing the data to deserialize.</param>
+    /// <returns>True if the data is successfully save; otherwise, false.</returns>
+    public static bool Save(ApplicationData applicationData, string filename)
+    {
+      try
+      {
+        Serializer.Serialize(filename, applicationData);
+        return true;
+      }
+      catch (SerializationException e)
+      {
+        CoreBus.Log.Warning("Failed to save instance of ApplicationData to " + filename, e);
+        return false;
+      }
+    }
+
+    /// <summary>
+    /// Initializes and returns an instance of <see cref="ApplicationData"/> from the specified <paramref name="filename"/>.
+    /// Returns null if the deserialization failed.
+    /// </summary>
+    /// <param name="filename">File containing the data to deserialize.</param>
+    /// <returns>The <see cref="ApplicationData"/>, or null if deserialization failed.</returns>
+    public static ApplicationData Load(string filename)
+    {
+      try
+      {
+        return Serializer.Deserialize<ApplicationData>(filename);
+      }
+      catch (SerializationException e)
+      {
+        CoreBus.Log.Warning("Failed to load an instance of ApplicationData from " + filename, e);
+        return null;
+      }
     }
 
     #endregion

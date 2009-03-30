@@ -21,28 +21,15 @@
 
 #endregion
 
-using System;
-
 namespace AppStract.Core.Virtualization.Process
 {
-  public class VirtualProcessException : CoreException
+  /// <summary>
+  /// The code that the associated process specified when it terminated.
+  /// </summary>
+  public enum ExitCode
   {
-
-    #region Constructors
-
-    public VirtualProcessException()
-      : base()
-    { }
-
-    public VirtualProcessException(string message)
-      : base(message)
-    { }
-
-    public VirtualProcessException(string message, Exception innerException)
-      : base (message, innerException)
-    { }
-
-    #endregion
-
+    Success,
+    Error,
+    Unexpected
   }
 }

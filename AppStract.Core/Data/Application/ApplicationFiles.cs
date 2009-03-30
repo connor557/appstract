@@ -37,8 +37,6 @@ namespace AppStract.Core.Data.Application
 
     public ApplicationFile ExeMain { get; set; }
 
-    public ApplicationFile ExeSettings { get; set; }
-
     #endregion
 
   }

@@ -23,22 +23,22 @@
 
 using System;
 
-namespace AppStract.Core
+namespace AppStract.Core.Virtualization.Packaging
 {
-  public class ServiceException : Exception
+  public class PackageException : CoreException
   {
 
     #region Constructors
 
-    public ServiceException()
+    public PackageException()
       : base()
     { }
 
-    public ServiceException(string message)
+    public PackageException(string message)
       : base(message)
     { }
 
-    public ServiceException(string message, Exception innerException)
+    public PackageException(string message, Exception innerException)
       : base (message, innerException)
     { }
 

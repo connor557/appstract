@@ -32,16 +32,40 @@ namespace AppStract.Core.Data.Application
   public class ApplicationFile
   {
 
+    #region Variables
+
+    private FileType _type;
+    private string _file;
+
+    #endregion
+
     #region Properties
 
     public FileType Type
     {
-      get; set;
+      get { return _type; }
     }
 
     public string File
     {
-      get; set;
+      get { return _file; }
+      set
+      {
+        _type = GetFileType(value);
+        _file = value;
+      }
+    }
+
+    #endregion
+
+    #region Constructors
+
+    public ApplicationFile() { }
+
+    public ApplicationFile(string file)
+      : this()
+    {
+      File = file;
     }
 
     #endregion
@@ -66,13 +90,17 @@ namespace AppStract.Core.Data.Application
       return "[" + Type + "] " + File; 
     }
 
+    #endregion
+
+    #region Private Methods
+
     /// <summary>
     /// Returns the <see cref="FileType"/> for the filename specified.
     /// </summary>
     /// <exception cref="FileNotFoundException"></exception>
     /// <param name="filename"></param>
     /// <returns></returns>
-    public static FileType GetFileType(string filename)
+    private static FileType GetFileType(string filename)
     {
       if (Directory.Exists(filename))
         return FileType.Directory;

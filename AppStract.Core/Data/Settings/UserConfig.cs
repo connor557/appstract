@@ -26,7 +26,7 @@ using System;
 namespace AppStract.Core.Data.Settings
 {
   [Serializable]
-  public class UserConfig
+  public class UserConfig : IConfigurationObject
   {
 
     #region Properties
@@ -34,6 +34,15 @@ namespace AppStract.Core.Data.Settings
     public string LogFile
     {
       get; set;
+    }
+
+    #endregion
+
+    #region IConfigurationObject Members
+
+    public void LoadDefaults()
+    {
+      LogFile = "AppStract.log";
     }
 
     #endregion

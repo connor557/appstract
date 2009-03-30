@@ -23,23 +23,25 @@
 
 using System;
 
-
 namespace AppStract.Core
 {
-  public class ServiceNotFoundException : ServiceException
+  /// <summary>
+  /// Represents errors that occur during code execution in the application's core.
+  /// </summary>
+  public class CoreException : Exception
   {
 
     #region Constructors
 
-    public ServiceNotFoundException()
+    public CoreException()
       : base()
     { }
 
-    public ServiceNotFoundException(string message)
+    public CoreException(string message)
       : base(message)
     { }
 
-    public ServiceNotFoundException(string message, Exception innerException)
+    public CoreException(string message, Exception innerException)
       : base (message, innerException)
     { }
 

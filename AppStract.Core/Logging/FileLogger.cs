@@ -46,7 +46,7 @@ namespace AppStract.Core.Logging
     /// <returns></returns>
     public static FileLogger CreateLogService(LogLevel logLevel)
     {
-      return CreateLogService(logLevel, ServiceCore.Configuration.UserConfig.LogFile);
+      return CreateLogService(logLevel, CoreBus.Configuration.UserConfig.LogFile);
     }
 
     /// <summary>

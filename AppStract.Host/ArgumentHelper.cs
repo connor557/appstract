@@ -22,29 +22,32 @@
 #endregion
 
 using System;
+using AppStract.Core.Logging;
 
-
-namespace AppStract.Core
+namespace AppStract.Host
 {
-  public class ServiceOverwriteException : ServiceException
+  public static class ArgumentHelper
   {
 
-    #region Constructors
+    public static bool TryParseLogLevel(object logLevel, out LogLevel rLogLevel)
+    {
+      rLogLevel = LogLevel.None;
+      var logLevelType = typeof(LogLevel);
+      if (!Enum.IsDefined(logLevelType, logLevel))
+        return false;
+      rLogLevel = (LogLevel)Enum.Parse(logLevelType, logLevel.ToString());
+      return true;
+    }
 
-    public ServiceOverwriteException()
-      : base()
-    { }
-
-    public ServiceOverwriteException(string message)
-      : base(message)
-    { }
-
-    public ServiceOverwriteException(string message, Exception innerException)
-      : base(message, innerException)
-    { }
-
-    #endregion
+    public static bool TryParseLogType(object logType, out LogType rLogType)
+    {
+      rLogType = LogType.Null;
+      var logTypeType = typeof(LogType);
+      if (!Enum.IsDefined(logTypeType, logType))
+        return false;
+      rLogType = (LogType)Enum.Parse(logTypeType, logType.ToString());
+      return true;
+    }
 
   }
 }
-
