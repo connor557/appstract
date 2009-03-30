@@ -62,6 +62,11 @@ namespace AppStract.Core.Data.Databases
 
     #region Public Methods
 
+    public static RegistryDatabase CreateDefaultDatabase(string filename)
+    {
+      throw new NotImplementedException();
+    }
+
     public override void Initialize()
     {
       throw new NotImplementedException();
