@@ -27,6 +27,9 @@ using System.Xml.Serialization;
 
 namespace AppStract.Utilities.Serialization
 {
+  /// <summary>
+  /// Serializes and deserializes objects into and from XML documents.
+  /// </summary>
   public static class Serializer
   {
 
@@ -57,8 +60,27 @@ namespace AppStract.Utilities.Serialization
     /// </summary>
     /// <param name="filename"></param>
     /// <param name="data"></param>
+    public static void Serialize(string filename, object data)
+    {
+      var serializer = new XmlSerializer(data.GetType());
+      try
+      {
+        using (var stream = new StreamWriter(filename))
+          serializer.Serialize(stream, data);
+      }
+      catch (Exception e)
+      {
+        throw new SerializationException("Can't serialize an object of type " + data.GetType() + " to " + filename, e);
+      }
+    }
+
+    /// <summary>
+    /// Serializes the given data to the specified file.
+    /// </summary>
+    /// <param name="filename"></param>
+    /// <param name="data"></param>
     /// <returns></returns>
-    public static bool Serialize(string filename, object data)
+    public static bool TrySerialize(string filename, object data)
     {
       var serializer = new XmlSerializer(data.GetType());
       try
