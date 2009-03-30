@@ -21,9 +21,11 @@
 
 #endregion
 
+using System;
+
 namespace AppStract.Core.Data.Databases
 {
-  public class DatabaseAction<T>
+  public class DatabaseAction<T> : EventArgs
   {
 
     #region Variables
