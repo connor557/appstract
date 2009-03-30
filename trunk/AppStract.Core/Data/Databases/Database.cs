@@ -43,6 +43,18 @@ namespace AppStract.Core.Data.Databases
 
     #endregion
 
+    #region Properties
+
+    /// <summary>
+    /// Gets the connection string used by the current instance.
+    /// </summary>
+    public string ConnectionString
+    {
+      get { return _connectionString; }
+    }
+
+    #endregion
+
     #region Constructors
 
     protected Database(string connectionString)
