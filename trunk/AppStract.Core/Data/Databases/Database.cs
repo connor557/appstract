@@ -31,14 +31,31 @@ using AppStract.Utilities.Observables;
 
 namespace AppStract.Core.Data.Databases
 {
+  /// <summary>
+  /// Base class for database interfaces using SQLite.
+  /// </summary>
+  /// <typeparam name="T"></typeparam>
   public abstract class Database<T> : IDisposable
   {
 
     #region Variables
 
+    /// <summary>
+    /// The connectionstring used to connect to the SQLite database.
+    /// Contains only lower cased characters.
+    /// </summary>
     protected readonly string _connectionString;
+    /// <summary>
+    /// Queue for the <see cref="DatabaseAction{T}"/>s waiting to be commited.
+    /// </summary>
     private readonly ObservableQueue<DatabaseAction<T>> _actionQueue;
+    /// <summary>
+    /// Lock to use when working with <see cref="_actionQueue"/>.
+    /// </summary>
     private readonly ReaderWriterLockSlim _actionQueueLock;
+    /// <summary>
+    /// Lock to use when using the database file.
+    /// </summary>
     private readonly ReaderWriterLockSlim _sqliteLock;
 
     #endregion
@@ -57,19 +74,32 @@ namespace AppStract.Core.Data.Databases
 
     #region Constructors
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="Database{T}"/>.
+    /// </summary>
+    /// <exception cref="ArgumentException"></exception>
+    /// <param name="connectionString">The connectionstring to use to connect to the SQLite database.</param>
     protected Database(string connectionString)
     {
-      _connectionString = connectionString;
+      _connectionString = connectionString.ToLowerInvariant();
+      /// Do a basic check on the connectionstring.
+      if (!_connectionString.Contains("data source="))
+        throw new ArgumentException("The connectionstring must at least specify a data source.");
       _sqliteLock = new ReaderWriterLockSlim();
       _actionQueueLock = new ReaderWriterLockSlim();
       _actionQueue = new ObservableQueue<DatabaseAction<T>>();
-      _actionQueue.ItemEnqueued += OnItemEnqueued;
+      _actionQueue.ItemEnqueued += OnActionEnqueued;
     }
 
     #endregion
 
     #region Public Methods
 
+    /// <summary>
+    /// Initializes the database.
+    /// If the SQLite file doesn't exist yet, it is created.
+    /// If the tables don't exist yet, they are created.
+    /// </summary>
     public abstract void Initialize();
 
     /// <summary>
@@ -78,11 +108,16 @@ namespace AppStract.Core.Data.Databases
     /// <returns></returns>
     public abstract IEnumerable<T> ReadAll();
 
+    /// <summary>
+    /// Enqueues an action to be commited to the database.
+    /// </summary>
+    /// <param name="databaseAction"></param>
     public void EnqueueAction(DatabaseAction<T> databaseAction)
     {
       /// Don't acquire a write lock, this class can handle the enqueueing of new items while flushing.
       /// A lock is only necessary when dequeueing items.
       _actionQueue.Enqueue(databaseAction);
+      ItemEnqueued(this, databaseAction);
     }
 
     #endregion
@@ -92,10 +127,62 @@ namespace AppStract.Core.Data.Databases
     /// <summary>
     /// Occurs when a new item is added to the queue.
     /// This event is synchronously called and is not thread safe.
-    /// Inheritors should never unsubscribe. If an inheritor exposes this event,
-    /// the inheritor should implement it's own functionality to make it thread safe.
+    /// Inheritors should never unsubscribe, in order to avoid exceptions while raising the event.
+    /// Inheritors should also process the event async if processing takes a long time.
+    /// If an inheritor exposes this event, the inheritor should implement it's own functionality to make it thread safe.
     /// </summary>
     protected event EventHandler<DatabaseAction<T>> ItemEnqueued;
+
+    /// <summary>
+    /// Returns whether the table with the specified <paramref name="tableName"/> exists.
+    /// If the table does not exist and <paramref name="creationQuery"/> is not null, the table is created.
+    /// </summary>
+    /// <exception cref="ArgumentNullException">
+    /// An <see cref="ArgumentNullException"/> is thrown if <paramref name="tableName"/> is null.
+    /// </exception>
+    /// <exception cref="DatabaseException">
+    /// A <see cref="DatabaseException"/> is thrown when the method is unable to create the table.
+    /// </exception>
+    /// <param name="tableName">Table to verify.</param>
+    /// <param name="creationQuery">
+    /// Query to use if the table needs to be created.
+    /// If this parameter is null, the method behaves like an Exists() method.
+    /// </param>
+    protected bool VerifyTable(string tableName, string creationQuery)
+    {
+      if (tableName == null)
+        throw new ArgumentNullException("tableName");
+      try
+      {
+        _sqliteLock.EnterUpgradeableReadLock();
+        using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
+        {
+          SQLiteCommand command = new SQLiteCommand(".tables", connection);
+          command.Connection.Open();
+          SQLiteDataReader reader = command.ExecuteReader();
+          if (reader.Read())
+          {
+            /// BUG? Don't know the return value without debugging!
+            var value = reader.GetString(0);
+            if (value.ToLowerInvariant().Contains(tableName.ToLowerInvariant()))
+              return true;
+          }
+          /// Create the table.
+          if (creationQuery != null)
+          {
+            command = new SQLiteCommand(creationQuery, connection);
+            if (!ExecuteCommand(command))
+              throw new DatabaseException("Unable to create table\"" + tableName
+                                          + "\" with the following query: " + creationQuery);
+          }
+          return false;
+        }
+      }
+      finally
+      {
+        _sqliteLock.ExitUpgradeableReadLock();
+      }
+    }
 
     /// <summary>
     /// Reads all values from the specified <paramref name="columns"/> in the specified <paramref name="tables"/>.
@@ -245,10 +332,10 @@ namespace AppStract.Core.Data.Databases
     #region Private Methods
 
     /// <summary>
-    /// 
+    /// Handles newly enqueued <see cref="DatabaseAction{T}"/>s.
     /// </summary>
-    /// <param name="item"></param>
-    private void OnItemEnqueued(DatabaseAction<T> item)
+    /// <param name="action"></param>
+    private void OnActionEnqueued(DatabaseAction<T> action)
     {
       Flush();
     }
@@ -390,6 +477,7 @@ namespace AppStract.Core.Data.Databases
 
     public void Dispose()
     {
+      /// BUG: This call could return before the current instance is really flushed.
       Flush();
     }
 

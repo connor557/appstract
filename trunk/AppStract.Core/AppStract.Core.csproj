@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\Databases\DatabaseException.cs" />
     <Compile Include="Data\Databases\ParameterGenerator.cs" />
     <Compile Include="Data\Databases\BuildItemFromQueryData.cs" />
     <Compile Include="Data\Databases\Database.cs" />
