@@ -27,13 +27,21 @@ using System.Collections.Generic;
 namespace AppStract.Core.Data.Settings
 {
   [Serializable]
-  public class AppConfig
+  public class AppConfig : IConfigurationObject
   {
 
     #region Properties
 
     /// <summary>
-    /// The library to inject.
+    /// Gets or sets the default location of the application data file.
+    /// </summary>
+    public string DefaultApplicationDataFile
+    {
+      get; set;
+    }
+
+    /// <summary>
+    /// Gets or sets the library to inject.
     /// </summary>
     public string LibtoInject
     {
@@ -41,11 +49,32 @@ namespace AppStract.Core.Data.Settings
     }
 
     /// <summary>
-    /// All libraries to register with EasyHook.
+    /// Gets or sets all libraries to register with EasyHook.
     /// </summary>
     public List<string> LibsToRegister
     {
       get; set;
+    }
+
+    #endregion
+
+    #region IConfigurationObject Members
+
+    public void LoadDefaults()
+    {
+      DefaultApplicationDataFile = "ApplicationData.xml";
+      LibtoInject = "AppStract.Inject.dll";
+      LibsToRegister = new List<string>(
+        new[]
+          {
+            "EasyHook.dll",
+            "AppStract.Core.dll",
+            "AppStract.Host.dll",
+            "AppStract.Inject.dll",
+            "AppStract.Manager.dll",
+            "AppStract.Server.dll",
+            "AppStract.Utilities.dll"
+          });
     }
 
     #endregion

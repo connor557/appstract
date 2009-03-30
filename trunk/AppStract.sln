@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Packager", "AppStract.Packager\AppStract.Packager.csproj", "{9497B6D7-48A2-4B3F-B0A3-880A2A8724C3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Manager", "AppStract.Manager\AppStract.Manager.csproj", "{9497B6D7-48A2-4B3F-B0A3-880A2A8724C3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Utilities", "AppStract.Utilities\AppStract.Utilities.csproj", "{29578947-FFF4-4A0A-9C75-AE3C5E03F746}"
 EndProject

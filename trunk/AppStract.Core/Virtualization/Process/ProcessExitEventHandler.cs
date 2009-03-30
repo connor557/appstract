@@ -21,22 +21,14 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-
-namespace AppStract.Packager
+namespace AppStract.Core.Virtualization.Process
 {
-  public partial class FrmPackager : Form
-  {
-    public FrmPackager()
-    {
-      InitializeComponent();
-    }
-  }
+
+  /// <summary>
+  /// Represents a method that will handle the event raisen by an exited <see cref="VirtualizedProcess"/>.
+  /// </summary>
+  /// <param name="sender">The terminated <see cref="VirtualizedProcess"/>.</param>
+  /// <param name="exitCode">The <see cref="ExitCode"/>, specified when the sender terminated.</param>
+  public delegate void ProcessExitEventHandler(VirtualizedProcess sender, ExitCode exitCode);
+  
 }

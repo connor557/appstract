@@ -21,29 +21,12 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
-
-namespace AppStract.Packager
+namespace AppStract.Core.Data.Settings
 {
-  /// <summary>
-  /// The entry class for AppStract.Packager,
-  /// which is the application responsible for packaging an application
-  /// so it can be run in a virtual environment using AppStract.Host.
-  /// </summary>
-  static class Program
+  public interface IConfigurationObject
   {
-    /// <summary>
-    /// The main entry point for the application.
-    /// </summary>
-    [STAThread]
-    static void Main()
-    {
-      Application.EnableVisualStyles();
-      Application.SetCompatibleTextRenderingDefault(false);
-      Application.Run(new FrmPackager());
-    }
+
+    void LoadDefaults();
+
   }
 }

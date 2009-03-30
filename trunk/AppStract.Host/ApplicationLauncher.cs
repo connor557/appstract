@@ -22,10 +22,7 @@
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-using System.Threading;
 using AppStract.Core;
-using AppStract.Core.Data.Settings;
 using AppStract.Core.Logging;
 
 namespace AppStract.Host
@@ -34,7 +31,7 @@ namespace AppStract.Host
   /// The entry class for AppStract.Host,
   /// which is a console application able to run packaged applications in a virtual environment.
   /// </summary>
-  public class ApplicationLauncher
+  class ApplicationLauncher
   {
 
     #region Constants
@@ -46,143 +43,81 @@ namespace AppStract.Host
 
     #endregion
 
-    #region Main
-
-    static void Main(string[] args)
-    {
-      Thread.CurrentThread.Name = "Main";
-      Console.Title = _consoleTitle;
-      InitializeCore();
-      ConfigureFromArgs(args);
-      /// Start application...
-#if DEBUG
-      Console.WriteLine("\r\n\r\nLogic starts here...");
-      Console.ReadLine();
-#endif
-    }
-
-    #endregion
-
-    #region Public Methods
-
-    /// <summary>
-    /// Initializes the <see cref="ServiceCore"/> 
-    /// and it's <see cref="ServiceCore.Configuration"/> and <see cref="ServiceCore.Log"/>.
-    /// </summary>
-    public static void InitializeCore()
-    {
-#if DEBUG
-      ServiceCore.Log = new ConsoleLogger();
-#else
-      /// How to initialize the log service without configuration?
-      /// How to initialize the configuration without logservice?
-      throw new NotImplementedException();
-#endif
-      ServiceCore.Configuration = Configuration.LoadConfiguration();
-    }
-
-    /// <summary>
-    /// Configures the application with settings specified in <paramref name="args"/>.
-    /// </summary>
-    /// <param name="args"></param>
-    public static void ConfigureFromArgs(string[] args)
-    {
-      var parser = new CommandlineParser(args);
-      parser.Parse();
-      if (parser.IsDefined(CommandlineOption.LogOutput))
-      {
-        if (parser.IsDefined(CommandlineOption.LogFile))
-          TrySetLogOutput(parser.GetOption(CommandlineOption.LogOutput),
-                          parser.GetOption(CommandlineOption.LogFile));
-        else
-          TrySetLogOutput(parser.GetOption(CommandlineOption.LogOutput));
-      }
-      else if (parser.IsDefined(CommandlineOption.LogFile)
-        && ServiceCore.Log.Type == LogType.File)
-        TrySetLogOutput(LogType.File, parser.GetOption(CommandlineOption.LogFile));
-      if (parser.IsDefined(CommandlineOption.LogLevel))
-        TrySetLogLevel(parser.GetOption(CommandlineOption.LogLevel));
-      if (parser.IsDefined(CommandlineOption.ShowWindow))
-        SetWindowState(parser.GetOption(CommandlineOption.ShowWindow));
-      if (parser.IsDefined(CommandlineOption.ApplicationDataFile))
-        throw new NotImplementedException();
-    }
-
-    #endregion
-
     #region Private Methods
 
-    private static void TrySetLogLevel(object logLevel)
+    /// <summary>
+    /// The main entry point for AppStract.Host.
+    /// </summary>
+    /// <param name="args"></param>
+    private static void Main(string[] args)
     {
-      var logLevelType = typeof (LogLevel);
-      if (!Enum.IsDefined(logLevelType, logLevel))
-        return;
-      var level = (LogLevel) Enum.Parse(logLevelType, logLevel.ToString());
-      ServiceCore.Log.LogLevel = level;
+      System.Threading.Thread.CurrentThread.Name = "Main";
+      Console.Title = _consoleTitle;
+      CoreManager.InitializeCore();
+      var parser = new CommandlineParser(args);
+      ConfigureFromArgs(parser);
+#if !DEBUG
+      try
+      {
+#endif
+        if (parser.IsDefined(CommandlineOption.ApplicationDataFile))
+          CoreManager.StartProcess(parser.GetOption(CommandlineOption.ApplicationDataFile).ToString());
+        else
+          CoreManager.StartProcess();
+#if !DEBUG
+      }
+      catch(Exception ex)
+      {
+        CoreBus.Log.Critical("A fatal exception occured.", ex);
+        CoreBus.Configuration.ShowWindow(true, _consoleTitle);
+        Console.WriteLine("\r\n\r\n\r\n\r\n\r\n\r\n");
+        Console.WriteLine("############################################################\r\n");
+        Console.WriteLine(" A fatal exception occured, see below for more information.\r\n");
+        Console.WriteLine("############################################################\r\n");
+        Console.WriteLine(ex.GetType());
+        Console.WriteLine(" -> " + ex.Message);
+      }
+#endif
+      Console.WriteLine("\r\nPress any key to exit.");
+      Console.ReadLine();
     }
-
-    private static void TrySetLogOutput(object logType)
-    {
-      TrySetLogOutput(logType, null);
-    }
-
-    private static void TrySetLogOutput(object logType, object file)
-    {
-      var logTypeType = typeof (LogType);
-      if (!Enum.IsDefined(logTypeType, logType))
-        return;
-      var type = (LogType) Enum.Parse(logTypeType, logType.ToString());
-      if (ServiceCore.Log.Type == type)
-        return;
-      if (type == LogType.Null)
-        ServiceCore.Log = new NullLogger();
-      else if (type == LogType.Console)
-        ServiceCore.Log = new ConsoleLogger(ServiceCore.Log.LogLevel);
-      else if (type == LogType.File)
-        ServiceCore.Log
-          = file == null
-              ? FileLogger.CreateLogService(ServiceCore.Log.LogLevel)
-              : FileLogger.CreateLogService(ServiceCore.Log.LogLevel, file.ToString());
-    }
-
-    private static void SetWindowState(object showWindow)
-    {
-      bool visible = showWindow.ToString() == "1"
-                     || showWindow.ToString().ToLowerInvariant() == "true";
-      if (visible)
-        return;
-      /// Hide the window.
-      IntPtr hWnd = FindWindow(null, _consoleTitle);
-      if (hWnd != IntPtr.Zero)
-        ShowWindow(hWnd, 0); /// 0 = SW_HIDE
-                             /// 1 = SW_SHOWNORMA  
-      /// Else, do nothing.
-      /// There is no console window when this code is called from AppStract.Packager.
-    }
-
-    #endregion
-
-    #region DLL Imports
 
     /// <summary>
-    /// The FindWindow function retrieves a handle to the top-level window whose class name
-    /// and window name match the specified strings. This function does not search child windows.
-    /// This function does not perform a case-sensitive search.
+    /// Configures the application with settings extracted from <paramref name="argParser"/>.
     /// </summary>
-    /// <param name="lpClassName"></param>
-    /// <param name="lpWindowName"></param>
-    /// <returns></returns>
-    [DllImport("user32.dll")]
-    public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
-
-    /// <summary>
-    /// The ShowWindow function sets the specified window's show state.
-    /// </summary>
-    /// <param name="hWnd"></param>
-    /// <param name="nCmdShow"></param>
-    /// <returns></returns>
-    [DllImport("user32.dll")]
-    static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    /// <param name="argParser"></param>
+    private static void ConfigureFromArgs(CommandlineParser argParser)
+    {
+      if (argParser.IsDefined(CommandlineOption.LogOutput))
+      {
+        LogType type;
+        if (ArgumentHelper.TryParseLogType(argParser.GetOption(CommandlineOption.LogOutput), out type))
+        {
+          if (argParser.IsDefined(CommandlineOption.LogFile))
+            CoreBus.Configuration.SetLogOutput(type, argParser.GetOption(CommandlineOption.LogFile).ToString());
+          else
+            CoreBus.Configuration.SetLogOutput(type);
+        }
+      }
+      else if (argParser.IsDefined(CommandlineOption.LogFile)
+               && CoreBus.Log.Type == LogType.File)
+      {
+        CoreBus.Configuration.SetLogOutput(LogType.File, argParser.GetOption(CommandlineOption.LogFile).ToString());
+      }
+      if (argParser.IsDefined(CommandlineOption.LogLevel))
+      {
+        LogLevel logLevel;
+        if (ArgumentHelper.TryParseLogLevel(argParser.GetOption(CommandlineOption.LogLevel), out logLevel))
+          CoreBus.Configuration.SetLogLevel(logLevel);
+      }
+      if (argParser.IsDefined(CommandlineOption.ShowWindow))
+      {
+        object showWindow = argParser.GetOption(CommandlineOption.ShowWindow);
+        bool sWindow = showWindow.ToString() == "1"
+                       || showWindow.ToString().ToLowerInvariant() == "true";
+        CoreBus.Configuration.ShowWindow(sWindow, _consoleTitle);
+      }
+    }
 
     #endregion
 

@@ -21,18 +21,41 @@
 
 #endregion
 
+using System;
+using System.IO;
+using AppStract.Utilities.Assembly;
+
 namespace AppStract.Core.Data.Settings
 {
-  public class DynamicConfig
+  public class DynamicConfig : IConfigurationObject
   {
+
+    #region Properties
 
     /// <summary>
     /// Gets or sets the root folder of the current process.
     /// </summary>
     public string Root
     {
-      get; set;
+      get; private set;
     }
+
+    #endregion
+
+    #region IConfigurationObject Members
+
+    public void LoadDefaults()
+    {
+      Root = null;
+      var entryAssemblyFile = AssemblyHelper.GetEntryAssembly().Location;
+      if (entryAssemblyFile != null)
+        Root = Path.GetDirectoryName(entryAssemblyFile);
+      if (string.IsNullOrEmpty(Root))
+        /// Don't use "else ...", Path.GetDirectoryName() might return an empty string.
+        Root = Environment.CurrentDirectory;
+    }
+
+    #endregion
 
   }
 }

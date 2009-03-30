@@ -41,11 +41,30 @@ namespace AppStract.Core.Virtualization.Synchronization
 
     #endregion
 
+    #region Properties
+
+    public FileSystemDatabase FileSystemDatabase
+    {
+      get { return _fileSystemDatabase; }
+    }
+
+    public RegistryDatabase RegistryDatabase
+    {
+      get { return _registryDatabase; }
+    }
+
+    #endregion
+
     #region Constructors
 
     public ResourceSynchronizer(ApplicationFile fileSystemDatabaseFile, ApplicationFile registryDatabaseFile)
     {
-      throw new NotImplementedException();
+      if (fileSystemDatabaseFile.Type != FileType.Database)
+        throw new ArgumentException("The filename specified for the file system database is not valid.", "fileSystemDatabaseFile");
+      if (registryDatabaseFile.Type != FileType.Database)
+        throw new ArgumentException("The filename specified for the registry database is not valid.", "registryDatabaseFile");
+      _fileSystemDatabase = FileSystemDatabase.CreateDefaultDatabase(fileSystemDatabaseFile.File);
+      _registryDatabase = RegistryDatabase.CreateDefaultDatabase(registryDatabaseFile.File);
     }
 
     public ResourceSynchronizer(FileSystemDatabase fileSystemDatabase, RegistryDatabase registryDatabase)
@@ -151,17 +170,17 @@ namespace AppStract.Core.Virtualization.Synchronization
 
     public void ReportException(Exception exception)
     {
-      ServiceCore.Log.Error("", exception);
+      CoreBus.Log.Error("", exception);
     }
 
     public void ReportException(Exception exception, string message)
     {
-      ServiceCore.Log.Error(message, exception);
+      CoreBus.Log.Error(message, exception);
     }
 
     public void ReportMessage(string message)
     {
-      ServiceCore.Log.Message(message);
+      CoreBus.Log.Message(message);
     }
 
     #endregion

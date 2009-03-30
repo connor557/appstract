@@ -21,42 +21,38 @@
 
 #endregion
 
-namespace AppStract.Packager
+using AppStract.Core.Data.Settings;
+using AppStract.Core.Logging;
+
+namespace AppStract.Core
 {
-  partial class FrmPackager
+  /// <summary>
+  /// The static core class of AppStract,
+  /// used as a communication bus between the different components.
+  /// </summary>
+  public static class CoreBus
   {
-    /// <summary>
-    /// Required designer variable.
-    /// </summary>
-    private System.ComponentModel.IContainer components = null;
+
+    #region Properties
 
     /// <summary>
-    /// Clean up any resources being used.
+    /// The current instance's configuration.
     /// </summary>
-    /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-    protected override void Dispose(bool disposing)
+    public static Configuration Configuration
     {
-      if (disposing && (components != null))
-      {
-        components.Dispose();
-      }
-      base.Dispose(disposing);
+      get; set;
     }
 
-    #region Windows Form Designer generated code
-
     /// <summary>
-    /// Required method for Designer support - do not modify
-    /// the contents of this method with the code editor.
+    /// The current instance's log service.
     /// </summary>
-    private void InitializeComponent()
+    public static Logger Log
     {
-      this.components = new System.ComponentModel.Container();
-      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.Text = "Form1";
+      get; set;
     }
 
     #endregion
+
   }
 }
-
+ 
