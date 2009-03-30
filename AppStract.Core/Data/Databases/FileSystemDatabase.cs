@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.IO;
 using AppStract.Core.Virtualization.FileSystem;
 
 namespace AppStract.Core.Data.Databases
@@ -61,14 +62,43 @@ namespace AppStract.Core.Data.Databases
 
     #region Public Methods
 
+    /// <summary>
+    /// Returns a <see cref="FileSystemDatabase"/> using the default connectionstring.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="Initialize"/> must be called before being able to use this instance,
+    /// just as with any other instance of <see cref="FileSystemDatabase"/>.
+    /// </remarks>
+    /// <param name="filename">The path of the file to use as data source.</param>
+    /// <returns></returns>
     public static FileSystemDatabase CreateDefaultDatabase(string filename)
     {
-      throw new NotImplementedException();
+      var connectionstring =
+        string.Format("Data Source={0};Version=3;PRAGMA synchronous=OFF;FailIfMissing=True;Journal Mode=Off;",
+                      filename);
+      return new FileSystemDatabase(connectionstring);
     }
 
+    /// <summary>
+    /// Initializes the database.
+    /// Must be called before being able to use any other functionality.
+    /// </summary>
+    /// <exception cref="DatabaseException">
+    /// A <see cref="DatabaseException"/> is thrown if the connectionstring is invalid.
+    /// -0R-
+    /// A <see cref="DatabaseException"/> is thrown if initialization failed.
+    /// </exception>
     public override void Initialize()
     {
-      throw new NotImplementedException();
+      var index = _connectionString.IndexOf("data source=");
+      if (index == -1)
+        throw new DatabaseException("The database's connection string is invalid.");
+      var filename = _connectionString.Substring(index + 12, _connectionString.IndexOf(';') - 12);
+      if (!File.Exists(filename))
+        File.Create(filename).Close();
+      var creationQuery = string.Format("CREATE TABLE {0} ({1} TEXT, {2} TEXT);",
+                                        _DatabaseFileTable, _DatabaseFileTableKey, _DatabaseFileTableValue);
+      VerifyTable(_DatabaseFileTable, creationQuery);
     }
 
     /// <summary>
