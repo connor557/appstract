@@ -27,8 +27,6 @@ using System.Data;
 using System.Data.SQLite;
 using System.Text;
 using System.Threading;
-using AppStract.Core;
-using AppStract.Core.Logging;
 using AppStract.Utilities.Observables;
 
 namespace AppStract.Core.Data.Databases
@@ -53,7 +51,7 @@ namespace AppStract.Core.Data.Databases
       _sqliteLock = new ReaderWriterLockSlim();
       _actionQueueLock = new ReaderWriterLockSlim();
       _actionQueue = new ObservableQueue<DatabaseAction<T>>();
-      _actionQueue.ItemEnqueued += ItemEnqueued;
+      _actionQueue.ItemEnqueued += OnItemEnqueued;
     }
 
     #endregion
@@ -78,6 +76,14 @@ namespace AppStract.Core.Data.Databases
     #endregion
 
     #region Protected Methods
+
+    /// <summary>
+    /// Occurs when a new item is added to the queue.
+    /// This event is synchronously called and is not thread safe.
+    /// Inheritors should never unsubscribe. If an inheritor exposes this event,
+    /// the inheritor should implement it's own functionality to make it thread safe.
+    /// </summary>
+    protected event EventHandler<DatabaseAction<T>> ItemEnqueued;
 
     /// <summary>
     /// Reads all values from the specified <paramref name="columns"/> in the specified <paramref name="tables"/>.
@@ -230,7 +236,7 @@ namespace AppStract.Core.Data.Databases
     /// 
     /// </summary>
     /// <param name="item"></param>
-    private void ItemEnqueued(DatabaseAction<T> item)
+    private void OnItemEnqueued(DatabaseAction<T> item)
     {
       Flush();
     }
@@ -241,7 +247,7 @@ namespace AppStract.Core.Data.Databases
     /// </summary>
     private void Flush()
     {
-      if (!_actionQueueLock.TryEnterWriteLock(500))
+      if (!_actionQueueLock.TryEnterWriteLock(200))
         /// Already flushing, return.
         return;
       SQLiteConnection connection = new SQLiteConnection(_connectionString);
