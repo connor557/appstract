@@ -29,7 +29,7 @@ using AppStract.Core.Virtualization.FileSystem;
 
 namespace AppStract.Core.Data.Databases
 {
-  public sealed class FileSystemDatabase : Database<FileTableEntry>
+  public class FileSystemDatabase : Database<FileTableEntry>
   {
 
     #region Constants

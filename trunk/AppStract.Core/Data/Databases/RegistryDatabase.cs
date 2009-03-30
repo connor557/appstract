@@ -30,7 +30,7 @@ using ValueType=AppStract.Core.Virtualization.Registry.ValueType;
 
 namespace AppStract.Core.Data.Databases
 {
-  public sealed class RegistryDatabase : Database<VirtualRegistryKey>
+  public class RegistryDatabase : Database<VirtualRegistryKey>
   {
 
     #region Variables
