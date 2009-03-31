@@ -31,11 +31,24 @@ using AppStract.Core.Virtualization.Synchronization;
 
 namespace AppStract.Core.Virtualization.Packaging
 {
+  /// <summary>
+  /// Derived from <see cref="VirtualizedProcess"/>
+  /// and extended with functionality specific to the packaging of applications.
+  /// </summary>
   class PackagingProcess : VirtualizedProcess
   {
 
     #region Constructors
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="PackagingProcess"/>.
+    /// </summary>
+    /// <param name="startInfo">
+    /// The <see cref="VirtualProcessStartInfo"/> containing the information used to start the process with.
+    /// </param>
+    /// <param name="synchronizer">
+    /// The <see cref="ProcessSynchronizer"/> to use for data synchronization with the <see cref="VirtualizedProcess"/>.
+    /// </param>
     private PackagingProcess(VirtualProcessStartInfo startInfo, ProcessSynchronizer synchronizer)
       : base(startInfo, synchronizer)
     {
@@ -46,6 +59,15 @@ namespace AppStract.Core.Virtualization.Packaging
 
     #region Public Methods
 
+    /// <summary>
+    /// Starts a new <see cref="PackagingProcess"/> from the <see cref="VirtualProcessStartInfo"/> specified.
+    /// </summary>
+    /// <param name="startInfo">
+    /// The <see cref="VirtualProcessStartInfo"/> containing the information used to start the process with.
+    /// </param>
+    /// <returns>
+    /// A new <see cref="PackagingProcess"/> component that is associated with the process resource.
+    /// </returns>
     public new static PackagingProcess Start(VirtualProcessStartInfo startInfo)
     {
       if (startInfo.DatabaseRegistry.Type != FileType.Database)
@@ -59,17 +81,21 @@ namespace AppStract.Core.Virtualization.Packaging
       return process;
     }
 
+    /// <summary>
+    /// Returns all the executables that were detected during packaging.
+    /// </summary>
+    /// <returns></returns>
     public IEnumerable<string> GetExecutables()
     {
       if (!HasExited)
         return new List<string>(0);
-      var db = _resourceSynchronizer.FileSystemDatabase as WatchingFileSystemDatabase;
+      var db = _processSynchronizer.FileSystemDatabase as WatchingFileSystemDatabase;
       if (db == null) /// Should never occur.
         throw new InvalidCastException("An unexpected exception occured in the application workflow."
                                        + " Expected object of type "
                                        + typeof (WatchingFileSystemDatabase)
                                        + " but received an object of type "
-                                       + _resourceSynchronizer.FileSystemDatabase.GetType()
+                                       + _processSynchronizer.FileSystemDatabase.GetType()
                                        + " Please contact the developers about this issue.");
       var executables = new List<string>();
       foreach (FileTableEntry entry in db.Executables)
