@@ -90,7 +90,7 @@ namespace AppStract.Manager.Wizard
       // _panelLogo
       // 
       this._panelLogo.BackColor = System.Drawing.Color.Transparent;
-      this._panelLogo.BackgroundImage = AppStract.Manager.Properties.Resources.Logo;
+      this._panelLogo.BackgroundImage = AppStract.Manager.Properties.Resources.logo;
       this._tableLayoutPanel.SetColumnSpan(this._panelLogo, 2);
       this._panelLogo.Dock = System.Windows.Forms.DockStyle.Top;
       this._panelLogo.Location = new System.Drawing.Point(3, 3);
