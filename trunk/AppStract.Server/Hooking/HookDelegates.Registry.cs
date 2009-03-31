@@ -24,7 +24,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace AppStract.Server.Inject
+namespace AppStract.Server.Hooking
 {
   public static partial class HookDelegates
   {

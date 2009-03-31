@@ -24,7 +24,7 @@
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Core.Virtualization.Registry;
 
-namespace AppStract.Server.Inject
+namespace AppStract.Server.Hooking
 {
 
   /// <summary>

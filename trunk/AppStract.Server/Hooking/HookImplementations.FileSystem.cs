@@ -27,7 +27,7 @@ using System.Runtime.InteropServices;
 using AppStract.Core.Virtualization.FileSystem;
 using Microsoft.Win32.Interop;
 
-namespace AppStract.Server.Inject
+namespace AppStract.Server.Hooking
 {
   public partial class HookImplementations
   {
