@@ -109,7 +109,8 @@ namespace AppStract.Core.Virtualization.Process
       _exitEventSyncRoot = new object();
       _startInfo = startInfo;
       _resourceSynchronizer = new ProcessSynchronizer(startInfo.DatabaseFileSystem,
-                                                       startInfo.DatabaseRegistry);
+                                                      startInfo.WorkingDirectory,
+                                                      startInfo.DatabaseRegistry);
     }
 
     protected VirtualizedProcess(VirtualProcessStartInfo startInfo, ProcessSynchronizer resourceSynchronizer)

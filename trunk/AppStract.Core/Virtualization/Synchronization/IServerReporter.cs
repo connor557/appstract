@@ -25,15 +25,38 @@ using System;
 
 namespace AppStract.Core.Virtualization.Synchronization
 {
+  /// <summary>
+  /// Enables different processes to test connectivity
+  /// and to send simple messages from the guest to the host.
+  /// </summary>
   public interface IServerReporter
   {
 
+    /// <summary>
+    /// Pings the host process. If the ping fails, an exception is thrown.
+    /// </summary>
+    /// <exception cref="Exception">
+    /// Ping failed.
+    /// </exception>
     void Ping();
 
+    /// <summary>
+    /// Reports an <see cref="Exception"/> to the host process.
+    /// </summary>
+    /// <param name="exception"><see cref="Exception"/> to report.</param>
     void ReportException(Exception exception);
 
+    /// <summary>
+    /// Reports an <see cref="Exception"/> to the host process.
+    /// </summary>
+    /// <param name="exception"><see cref="Exception"/> to report.</param>
+    /// <param name="message">An associated message.</param>
     void ReportException(Exception exception, string message);
 
+    /// <summary>
+    /// Reports a message to the host process.
+    /// </summary>
+    /// <param name="message">Message to report.</param>
     void ReportMessage(string message);
 
   }

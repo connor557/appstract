@@ -54,7 +54,7 @@ namespace AppStract.Core.Virtualization.Packaging
         throw new ArgumentException("The destination file specified for the registry database is not valid.", "startInfo");
       var registryDatabase = RegistryDatabase.CreateDefaultDatabase(startInfo.DatabaseRegistry.File);
       var fileSystemDatabase = WatchingFileSystemDatabase.CreateDefaultDatabase(startInfo.DatabaseFileSystem.File);
-      var synchronizer = new ProcessSynchronizer(fileSystemDatabase, registryDatabase);
+      var synchronizer = new ProcessSynchronizer(fileSystemDatabase, startInfo.WorkingDirectory, registryDatabase);
       var process = new PackagingProcess(startInfo, synchronizer);
       return process;
     }

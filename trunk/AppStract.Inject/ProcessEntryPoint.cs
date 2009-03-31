@@ -71,14 +71,14 @@ namespace AppStract.Inject
     /// </remarks>
     /// <param name="inContext">Information about the environment in which the library main method has been invoked.</param>
     /// <param name="inChannelName">The name of the inter-process communication channel to connect to.</param>
-    /// <param name="resourceSynchronizer"></param>
-    public ProcessEntryPoint(RemoteHooking.IContext inContext, string inChannelName, ProcessSynchronizer resourceSynchronizer)
+    /// <param name="processSynchronizer"></param>
+    public ProcessEntryPoint(RemoteHooking.IContext inContext, string inChannelName, IProcessSynchronizer processSynchronizer)
     {
       /// Connect to server.
       RemoteHooking.IpcConnectClient<ProcessSynchronizer>(inChannelName);
       /// Initialize variables.
-      _serverReporter = resourceSynchronizer;
-      _commBus = new CommunicationBus(resourceSynchronizer, resourceSynchronizer);
+      _serverReporter = processSynchronizer;
+      _commBus = new CommunicationBus(processSynchronizer, processSynchronizer);
       _fileSystemSynchronizer = _commBus;
       _registrySynchronizer = _commBus;
       _hookImplementations = new HookImplementations(_fileSystem, _registry);
@@ -88,7 +88,7 @@ namespace AppStract.Inject
       _serverReporter.ReportMessage("Process [PID" + processId + "] is initialized and validated.");
       /// Load resources.
       _serverReporter.ReportMessage("Process [PID" + processId + "] will now load the file system and registry data.");
-      _fileSystem = new VirtualFileSystem(null);  /// BUG: Add a new variable to the constructor to get the root folder!
+      _fileSystem = new VirtualFileSystem(processSynchronizer.FileSystemRoot);
       _fileSystem.LoadFileTable(_fileSystemSynchronizer);
       _serverReporter.ReportMessage("Process [PID" + processId + "] succesfully loaded the file system.");
       _registry = new RegistryProvider();
