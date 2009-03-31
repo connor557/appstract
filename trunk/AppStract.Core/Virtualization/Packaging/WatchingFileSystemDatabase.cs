@@ -43,6 +43,9 @@ namespace AppStract.Core.Virtualization.Packaging
 
     #region Properties
 
+    /// <summary>
+    /// All detected executables.
+    /// </summary>
     public IEnumerable<FileTableEntry> Executables
     {
       get { return _executables; }
@@ -52,6 +55,10 @@ namespace AppStract.Core.Virtualization.Packaging
 
     #region Constructors
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="WatchingFileSystemDatabase"/>.
+    /// </summary>
+    /// <param name="connectionString">The connectionstring to use.</param>
     public WatchingFileSystemDatabase(string connectionString)
       : base(connectionString)
     {
@@ -64,6 +71,11 @@ namespace AppStract.Core.Virtualization.Packaging
 
     #region Public Methods
 
+    /// <summary>
+    /// Returns a <see cref="WatchingFileSystemDatabase"/> initialized with the default connectionstring.
+    /// </summary>
+    /// <param name="filename">The file that will contain the data of the returned <see cref="WatchingFileSystemDatabase"/>.</param>
+    /// <returns>A <see cref="WatchingFileSystemDatabase"/> initialized with the default connectionstring.</returns>
     public new static WatchingFileSystemDatabase CreateDefaultDatabase(string filename)
     {
       var fs = FileSystemDatabase.CreateDefaultDatabase(filename);

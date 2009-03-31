@@ -25,6 +25,9 @@ using System;
 
 namespace AppStract.Core.Virtualization.Packaging
 {
+  /// <summary>
+  /// Represents an error related to the packaging of an application.
+  /// </summary>
   public class PackageException : CoreException
   {
 

@@ -28,6 +28,11 @@ using AppStract.Core.Virtualization.Process;
 
 namespace AppStract.Core.Virtualization.Packaging
 {
+  /// <summary>
+  /// Class able to package an application.
+  /// To achieve this, the application's installer is executed
+  /// and the data is intercepted to a <see cref="PackagedApplication"/>.
+  /// </summary>
   public class Packager
   {
 
@@ -40,16 +45,36 @@ namespace AppStract.Core.Virtualization.Packaging
 
     #region Variables
 
+    /// <summary>
+    /// The <see cref="VirtualProcessStartInfo"/> used to start <see cref="_process"/> with.
+    /// </summary>
     private readonly VirtualProcessStartInfo _startInfo;
+    /// <summary>
+    /// Used to let <see cref="CreatePackage"/> wait for the packaging to end.
+    /// </summary>
     private readonly AutoResetEvent _waitHandle;
+    /// <summary>
+    /// The <see cref="PackagingProcess"/> virtualizing the installer's process.
+    /// </summary>
     private PackagingProcess _process;
+    /// <summary>
+    /// The result after packaging, if <see cref="_succeeded"/>.
+    /// </summary>
     private PackagedApplication _result;
+    /// <summary>
+    /// Whether packaging succeeded.
+    /// </summary>
     private bool _succeeded;
 
     #endregion
 
     #region Constructors
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="Packager"/>.
+    /// </summary>
+    /// <param name="executable">The application's installer executable.</param>
+    /// <param name="outputFolder">The location where the application must be packaged to.</param>
     public Packager(string executable, string outputFolder)
     {
       ApplicationFile workingDirectory = new ApplicationFile(outputFolder);
@@ -78,7 +103,8 @@ namespace AppStract.Core.Virtualization.Packaging
     /// <returns></returns>
     public PackagedApplication CreatePackage()
     {
-      ThreadPool.QueueUserWorkItem(StartPackaging);
+      _process = PackagingProcess.Start(_startInfo);
+      _process.Exited += Process_Exited;
       WaitHandle.WaitAll(new[] { _waitHandle });
       if (!_succeeded)
         throw new PackageException("Packaging of " + _startInfo + " did not succeed.");
@@ -89,12 +115,12 @@ namespace AppStract.Core.Virtualization.Packaging
 
     #region Private Methods
 
-    private void StartPackaging(object state)
-    {
-      _process = PackagingProcess.Start(_startInfo);
-      _process.Exited += Process_Exited;
-    }
-
+    /// <summary>
+    /// Handles the <see cref="_process"/>.Exited event.
+    /// If packaging succeeded (<see cref="_succeeded"/>), <see cref="_result"/> is set from the retreived data.
+    /// </summary>
+    /// <param name="sender">The exited <see cref="VirtualizedProcess"/>.</param>
+    /// <param name="exitCode">The associated <see cref="ExitCode"/>.</param>
     private void Process_Exited(VirtualizedProcess sender, ExitCode exitCode)
     {
       if (sender != _process)

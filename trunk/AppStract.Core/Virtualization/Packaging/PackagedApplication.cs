@@ -25,6 +25,10 @@ using System.Collections.Generic;
 
 namespace AppStract.Core.Virtualization.Packaging
 {
+  /// <summary>
+  /// Represents a packaged application. The data can be used to create an instance of
+  /// <see cref="AppStract.Core.Data.Application.ApplicationData"/> with.
+  /// </summary>
   public class PackagedApplication
   {
 
@@ -39,21 +43,35 @@ namespace AppStract.Core.Virtualization.Packaging
 
     #region Properties
 
+    /// <summary>
+    /// Gets all executables that were detected during packaging.
+    /// </summary>
     public IList<string> Executables
     {
       get { return _executables; }
     }
 
+    /// <summary>
+    /// Gets the location of the packaged application.
+    /// </summary>
     public string OutputLocation
     {
       get { return _outputLocation; }
     }
 
+    /// <summary>
+    /// Gets the location of the database containing the file table;
+    /// Relative to <see cref="OutputLocation"/>.
+    /// </summary>
     public string FileSystemDatabase
     {
       get { return _relDbFileSystem; }
     }
 
+    /// <summary>
+    /// Gets the location of the database containing the registry keys and values;
+    /// Relative to <see cref="OutputLocation"/>.
+    /// </summary>
     public string RegistryDatabase
     {
       get { return _relDbRegistry; }
@@ -63,10 +81,18 @@ namespace AppStract.Core.Virtualization.Packaging
 
     #region Constructors
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="PackagedApplication"/>.
+    /// </summary>
+    /// <param name="outputLocation">The location of the packaged application.</param>
+    /// <param name="executables">All executables that were detected during packaging.</param>
+    /// <param name="dbFileSystem">The location of the database containing the file table.</param>
+    /// <param name="dbRegistry">he location of the database containing the registry keys and values.</param>
     public PackagedApplication(string outputLocation, IEnumerable<string> executables, string dbFileSystem, string dbRegistry)
     {
       _outputLocation = outputLocation;
       _executables = new List<string>(executables);
+      /// BUG: Verify that these paths are relative to outputLocation!
       _relDbFileSystem = dbFileSystem;
       _relDbRegistry = dbRegistry;
     }
