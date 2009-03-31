@@ -33,23 +33,39 @@ namespace AppStract.Core.Virtualization.Synchronization
   /// <summary>
   /// Provides a way of data synchronization between multiple processes.
   /// </summary>
-  public class ProcessSynchronizer : MarshalByRefObject, IServerReporter, ISynchronizer, IResourceLoader
+  public class ProcessSynchronizer : MarshalByRefObject, IProcessSynchronizer
   {
 
     #region Variables
 
+    /// <summary>
+    /// The root as used by the file system.
+    /// </summary>
+    private readonly string _fileSystemRoot;
+    /// <summary>
+    /// The <see cref="FileSystemDatabase"/> used by the current instance.
+    /// </summary>
     private readonly FileSystemDatabase _fileSystemDatabase;
+    /// <summary>
+    /// The <see cref="RegistryDatabase"/> used by the current instance.
+    /// </summary>
     private readonly RegistryDatabase _registryDatabase;
 
     #endregion
 
     #region Properties
 
+    /// <summary>
+    /// Gets the <see cref="FileSystemDatabase"/> used by the current instance.
+    /// </summary>
     public FileSystemDatabase FileSystemDatabase
     {
       get { return _fileSystemDatabase; }
     }
 
+    /// <summary>
+    /// Gets the <see cref="RegistryDatabase"/> used by the current instance.
+    /// </summary>
     public RegistryDatabase RegistryDatabase
     {
       get { return _registryDatabase; }
@@ -59,20 +75,39 @@ namespace AppStract.Core.Virtualization.Synchronization
 
     #region Constructors
 
-    public ProcessSynchronizer(ApplicationFile fileSystemDatabaseFile, ApplicationFile registryDatabaseFile)
+    /// <summary>
+    /// Initializes a new instance of <see cref="ProcessSynchronizer"/>.
+    /// The constructor will create default databases from the specified files.
+    /// </summary>
+    /// <param name="fileSystemDatabaseFile">The file to use with a default <see cref="FileSystemDatabase"/>.</param>
+    /// <param name="fileSystemRoot">The directory to use as root of the file system.</param>
+    /// <param name="registryDatabaseFile">The file to use with a default <see cref="RegistryDatabase"/>.</param>
+    public ProcessSynchronizer(ApplicationFile fileSystemDatabaseFile, ApplicationFile fileSystemRoot, ApplicationFile registryDatabaseFile)
     {
       if (fileSystemDatabaseFile.Type != FileType.Database)
         throw new ArgumentException("The filename specified for the file system database is not valid.", "fileSystemDatabaseFile");
+      if (fileSystemRoot.Type != FileType.Directory)
+        throw new ArgumentException("The root location specified for the file system is not valid.", "fileSystemRoot");
       if (registryDatabaseFile.Type != FileType.Database)
         throw new ArgumentException("The filename specified for the registry database is not valid.", "registryDatabaseFile");
       _fileSystemDatabase = FileSystemDatabase.CreateDefaultDatabase(fileSystemDatabaseFile.File);
       _registryDatabase = RegistryDatabase.CreateDefaultDatabase(registryDatabaseFile.File);
+      _fileSystemRoot = fileSystemRoot.File;
     }
 
-    public ProcessSynchronizer(FileSystemDatabase fileSystemDatabase, RegistryDatabase registryDatabase)
+    /// <summary>
+    /// Initializes a new instance of <see cref="ProcessSynchronizer"/>.
+    /// </summary>
+    /// <param name="fileSystemDatabase">The <see cref="FileSystemDatabase"/> to send the incomming <see cref="DatabaseAction{T}"/>s to.</param>
+    /// <param name="fileSystemRoot">The directory to use as root of the file system.</param>
+    /// <param name="registryDatabase">The <see cref="RegistryDatabase"/> to send the incomming <see cref="DatabaseAction{T}"/>s to.</param>
+    public ProcessSynchronizer(FileSystemDatabase fileSystemDatabase, ApplicationFile fileSystemRoot, RegistryDatabase registryDatabase)
     {
+      if (fileSystemRoot.Type != FileType.Directory)
+        throw new ArgumentException("The root location specified for the file system is not valid.", "fileSystemRoot");
       _fileSystemDatabase = fileSystemDatabase;
       _registryDatabase = registryDatabase;
+      _fileSystemRoot = fileSystemRoot.File;
     }
 
     #endregion
@@ -116,6 +151,11 @@ namespace AppStract.Core.Virtualization.Synchronization
     #endregion
 
     #region IResourceLoader Members
+
+    public string FileSystemRoot
+    {
+      get { return _fileSystemRoot; }
+    }
 
     public IEnumerable<FileTableEntry> LoadFileSystemTable()
     {

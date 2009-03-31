@@ -27,11 +27,34 @@ using AppStract.Core.Virtualization.Registry;
 
 namespace AppStract.Core.Virtualization.Synchronization
 {
+  /// <summary>
+  /// Provides resources needed by the guest process in order to be initializable.
+  /// </summary>
   public interface IResourceLoader
   {
 
+    /// <summary>
+    /// The root directory as used by the file system.
+    /// </summary>
+    /// <remarks>
+    /// The file table only contains relative paths, while the file system should only provide absolute paths.
+    /// These relative paths must be combined with the root directory, which results in usable absolute paths.
+    /// </remarks>
+    string FileSystemRoot
+    {
+      get;
+    }
+
+    /// <summary>
+    /// Returns all known <see cref="FileTableEntry"/> as an <see cref="IEnumerable{T}"/>.
+    /// </summary>
+    /// <returns></returns>
     IEnumerable<FileTableEntry> LoadFileSystemTable();
 
+    /// <summary>
+    /// Returns all known <see cref="VirtualRegistryKey"/> as an <see cref="IEnumerable{T}"/>.
+    /// </summary>
+    /// <returns></returns>
     IEnumerable<VirtualRegistryKey> LoadRegistry();
 
   }

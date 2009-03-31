@@ -89,6 +89,7 @@
     <Compile Include="Virtualization\Process\VirtualProcessStartInfo.cs" />
     <Compile Include="Virtualization\FileSystem\IFileSystemLoader.cs" />
     <Compile Include="Virtualization\Registry\IRegistryLoader.cs" />
+    <Compile Include="Virtualization\Synchronization\IProcessSynchronizer.cs" />
     <Compile Include="Virtualization\Synchronization\IResourceLoader.cs" />
     <Compile Include="Virtualization\Synchronization\IServerReporter.cs" />
     <Compile Include="Virtualization\Synchronization\ISynchronizer.cs" />
