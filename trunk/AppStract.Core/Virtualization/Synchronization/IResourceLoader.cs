@@ -1,4 +1,4 @@
-#region Copyright (C) 2008-2009 Simon Allaeys
+﻿#region Copyright (C) 2008-2009 Simon Allaeys
 
 /*
     Copyright (C) 2008-2009 Simon Allaeys
@@ -21,14 +21,18 @@
 
 #endregion
 
-using AppStract.Utilities.Observables;
+using System.Collections.Generic;
+using AppStract.Core.Virtualization.FileSystem;
+using AppStract.Core.Virtualization.Registry;
 
 namespace AppStract.Core.Virtualization.Synchronization
 {
-  public interface IFileSystemSynchronizer
+  public interface IResourceLoader
   {
 
-    void LoadFileSystemTableTo(ObservableDictionary<string, string> fileTable);
+    IEnumerable<FileTableEntry> LoadFileSystemTable();
+
+    IEnumerable<VirtualRegistryKey> LoadRegistry();
 
   }
 }

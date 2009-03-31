@@ -24,7 +24,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using AppStract.Core.Virtualization.Synchronization;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Utilities.Observables;
 
@@ -45,10 +44,6 @@ namespace AppStract.Server.FileSystem
     /// Manages the synchronization between multiple threads accessing the file table.
     /// </summary>
     private readonly ReaderWriterLockSlim _fileTableLock;
-    /// <summary>
-    /// The synchronization context of the current <see cref="VirtualFileSystem"/>.
-    /// </summary>
-    private readonly IFileSystemSynchronizer _fileSystemSynchronizer;
     /// <summary>
     /// The root of the filesystem,
     /// which is a path to a directory in the real file system.
@@ -71,11 +66,10 @@ namespace AppStract.Server.FileSystem
 
     #region Constructors
 
-    public VirtualFileSystem(string rootDirectory, IFileSystemSynchronizer fileSystemSynchronizer)
+    public VirtualFileSystem(string rootDirectory)
     {
       _fileTable = new ObservableDictionary<string, string>();
       _fileTableLock = new ReaderWriterLockSlim();
-      _fileSystemSynchronizer = fileSystemSynchronizer;
       if (!Path.IsPathRooted(rootDirectory))
         _root = Path.GetFullPath(rootDirectory);
     }
@@ -87,12 +81,12 @@ namespace AppStract.Server.FileSystem
     /// <summary>
     /// Loads the underlying filetable of the current <see cref="VirtualFileSystem"/>.
     /// </summary>
-    public void LoadFileTable()
+    public void LoadFileTable(IFileSystemLoader dataSource)
     {
       _fileTableLock.EnterWriteLock();
       try
       {
-        _fileSystemSynchronizer.LoadFileSystemTableTo(_fileTable);
+        dataSource.LoadFileSystemTableTo(_fileTable);
       }
       finally
       {

@@ -24,7 +24,6 @@
 using System;
 using System.Linq;
 using AppStract.Core.Data.Databases;
-using AppStract.Core.Virtualization.Synchronization;
 using AppStract.Core.Virtualization.Registry;
 using AppStract.Utilities.Observables;
 using Microsoft.Win32.Interop;
@@ -49,7 +48,7 @@ namespace AppStract.Server.Registry.Data
 
     #region Public Methods
 
-    public void LoadData(IRegistrySynchronizer dataSource)
+    public void LoadData(IRegistryLoader dataSource)
     {
       _keysSynchronizationLock.EnterWriteLock();
       try

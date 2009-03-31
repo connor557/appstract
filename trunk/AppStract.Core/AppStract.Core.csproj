@@ -87,10 +87,12 @@
     <Compile Include="Virtualization\Process\ExitCode.cs" />
     <Compile Include="Virtualization\Process\ProcessExitEventHandler.cs" />
     <Compile Include="Virtualization\Process\VirtualProcessStartInfo.cs" />
-    <Compile Include="Virtualization\Synchronization\IFileSystemSynchronizer.cs" />
-    <Compile Include="Virtualization\Synchronization\IRegistrySynchronizer.cs" />
+    <Compile Include="Virtualization\FileSystem\IFileSystemLoader.cs" />
+    <Compile Include="Virtualization\Registry\IRegistryLoader.cs" />
+    <Compile Include="Virtualization\Synchronization\IResourceLoader.cs" />
     <Compile Include="Virtualization\Synchronization\IServerReporter.cs" />
-    <Compile Include="Virtualization\Synchronization\ResourceSynchronizer.cs" />
+    <Compile Include="Virtualization\Synchronization\ISynchronizer.cs" />
+    <Compile Include="Virtualization\Synchronization\ProcessSynchronizer.cs" />
     <Compile Include="Data\Application\ApplicationData.cs" />
     <Compile Include="Data\Application\ApplicationFile.cs" />
     <Compile Include="Data\Application\ApplicationFiles.cs" />

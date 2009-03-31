@@ -21,7 +21,6 @@
 
 #endregion
 
-using AppStract.Core.Virtualization.Synchronization;
 using AppStract.Server.Registry.Data;
 using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.Registry;
@@ -69,7 +68,7 @@ namespace AppStract.Server.Registry
 
     #region Public Methods
 
-    public void Initialize(IRegistrySynchronizer dataSource)
+    public void Initialize(IRegistryLoader dataSource)
     {
       _virtualRegistry.LoadData(dataSource);
     }

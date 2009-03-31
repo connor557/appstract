@@ -60,6 +60,21 @@ namespace AppStract.Core.Data.Databases
 
     #endregion
 
+    #region Events
+
+    /// <summary>
+    /// Occurs when a new item is added to the queue.
+    /// </summary>
+    /// <remarks>
+    /// This event is synchronously called and is not thread safe.
+    /// Inheritors should never unsubscribe, in order to avoid exceptions while raising the event.
+    /// Inheritors should also process the event async if processing takes a long time.
+    /// If an inheritor exposes this event, the inheritor should implement it's own functionality to make it thread safe.
+    /// </remarks>
+    protected event EventHandler<DatabaseAction<T>> ItemEnqueued;
+
+    #endregion
+
     #region Properties
 
     /// <summary>
@@ -117,21 +132,22 @@ namespace AppStract.Core.Data.Databases
       /// Don't acquire a write lock, this class can handle the enqueueing of new items while flushing.
       /// A lock is only necessary when dequeueing items.
       _actionQueue.Enqueue(databaseAction);
-      ItemEnqueued(this, databaseAction);
+    }
+
+    /// <summary>
+    /// Enqueues multiple actions to be commited to the database.
+    /// </summary>
+    /// <param name="databaseActions"></param>
+    public void EnqueueAction(IEnumerable<DatabaseAction<T>> databaseActions)
+    {
+      /// Don't acquire a write lock, this class can handle the enqueueing of new items while flushing.
+      /// A lock is only necessary when dequeueing items.
+      _actionQueue.Enqueue(databaseActions, false);
     }
 
     #endregion
 
     #region Protected Methods
-
-    /// <summary>
-    /// Occurs when a new item is added to the queue.
-    /// This event is synchronously called and is not thread safe.
-    /// Inheritors should never unsubscribe, in order to avoid exceptions while raising the event.
-    /// Inheritors should also process the event async if processing takes a long time.
-    /// If an inheritor exposes this event, the inheritor should implement it's own functionality to make it thread safe.
-    /// </summary>
-    protected event EventHandler<DatabaseAction<T>> ItemEnqueued;
 
     /// <summary>
     /// Returns whether the table with the specified <paramref name="tableName"/> exists.
@@ -155,27 +171,27 @@ namespace AppStract.Core.Data.Databases
       try
       {
         _sqliteLock.EnterUpgradeableReadLock();
-        using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
+        using (var connection = new SQLiteConnection(_connectionString))
         {
-          SQLiteCommand command = new SQLiteCommand(".tables", connection);
+          var command = new SQLiteCommand("SELECT * FROM \"" + tableName + "\" LIMIT 1", connection);
           command.Connection.Open();
-          SQLiteDataReader reader = command.ExecuteReader();
-          if (reader.Read())
+          try
           {
-            /// BUG? Don't know the return value without debugging!
-            var value = reader.GetString(0);
-            if (value.ToLowerInvariant().Contains(tableName.ToLowerInvariant()))
-              return true;
+            command.ExecuteReader();
+            return true;
           }
-          /// Create the table.
-          if (creationQuery != null)
+          catch (SQLiteException)
           {
-            command = new SQLiteCommand(creationQuery, connection);
-            if (!ExecuteCommand(command))
-              throw new DatabaseException("Unable to create table\"" + tableName
-                                          + "\" with the following query: " + creationQuery);
+            /// Create the table.
+            if (creationQuery != null)
+            {
+              command = new SQLiteCommand(creationQuery, connection);
+              if (!ExecuteCommand(command))
+                throw new Exception("Unable to create table\"" + tableName
+                                            + "\" with the following query: " + creationQuery);
+            }
+            return false;
           }
-          return false;
         }
       }
       finally
@@ -197,7 +213,8 @@ namespace AppStract.Core.Data.Databases
     /// are in the same order as the columns in the <paramref name="columns"/> parameter.
     /// </param>
     /// <returns>A list of all items.</returns>
-    protected IList<ItemType> ReadAll<ItemType>(IEnumerable<string> tables, IEnumerable<string> columns, BuildItemFromQueryData<ItemType> itemBuilder)
+    protected IList<ItemType> ReadAll<ItemType>(IEnumerable<string> tables, IEnumerable<string> columns,
+      BuildItemFromQueryData<ItemType> itemBuilder)
     {
       List<ItemType> entries = new List<ItemType>();
       try
@@ -234,7 +251,8 @@ namespace AppStract.Core.Data.Databases
     /// are in the same order as the columns in the <paramref name="columns"/> parameter.
     /// </param>
     /// <returns>A list of all items.</returns>
-    protected IList<ItemType> ReadAll<ItemType>(IEnumerable<string> tables, IEnumerable<string> columns, IEnumerable<KeyValuePair<object, object>> conditionals, BuildItemFromQueryData<ItemType> itemBuilder)
+    protected IList<ItemType> ReadAll<ItemType>(IEnumerable<string> tables, IEnumerable<string> columns,
+      IEnumerable<KeyValuePair<object, object>> conditionals, BuildItemFromQueryData<ItemType> itemBuilder)
     {
       List<ItemType> entries = new List<ItemType>();
       try
@@ -337,6 +355,7 @@ namespace AppStract.Core.Data.Databases
     /// <param name="action"></param>
     private void OnActionEnqueued(DatabaseAction<T> action)
     {
+      ItemEnqueued(this, action);
       Flush();
     }
 
@@ -354,7 +373,7 @@ namespace AppStract.Core.Data.Databases
       try
       {
         try
-        { 
+        {
           ParameterGenerator seed = new ParameterGenerator();
           while (_actionQueue.Count > 0)
           {

@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2008-2009 Simon Allaeys
+#region Copyright (C) 2008-2009 Simon Allaeys
 
 /*
     Copyright (C) 2008-2009 Simon Allaeys
@@ -21,27 +21,14 @@
 
 #endregion
 
-using System;
+using AppStract.Utilities.Observables;
 
-namespace AppStract.Core.Data.Databases
+namespace AppStract.Core.Virtualization.FileSystem
 {
-  /// <summary>
-  /// Specifies the type of action to take for the database-call.
-  /// </summary>
-  [Serializable]
-  public enum DatabaseActionType
+  public interface IFileSystemLoader
   {
-    /// <summary>
-    /// Update the existing value.
-    /// </summary>
-    Update,
-    /// <summary>
-    /// Set the value if it exists (overwrite), otherwise add it.
-    /// </summary>
-    Set,
-    /// <summary>
-    /// Remove the value.
-    /// </summary>
-    Remove
+
+    void LoadFileSystemTableTo(ObservableDictionary<string, string> fileTable);
+
   }
 }
