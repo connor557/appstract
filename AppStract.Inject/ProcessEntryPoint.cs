@@ -29,7 +29,7 @@ using AppStract.Core.Virtualization.Registry;
 using AppStract.Core.Virtualization.Synchronization;
 using AppStract.Server;
 using AppStract.Server.FileSystem;
-using AppStract.Server.Inject;
+using AppStract.Server.Hooking;
 using AppStract.Server.Registry;
 using EasyHook;
 

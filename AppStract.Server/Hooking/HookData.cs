@@ -24,7 +24,7 @@
 using System;
 using EasyHook;
 
-namespace AppStract.Server.Inject
+namespace AppStract.Server.Hooking
 {
 
   /// <summary>
