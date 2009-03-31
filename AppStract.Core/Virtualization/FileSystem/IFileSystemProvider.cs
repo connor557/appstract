@@ -34,6 +34,10 @@ namespace AppStract.Core.Virtualization.FileSystem
     /// <returns></returns>
     FileTableEntry GetFile(FileRequest fileRequest);
 
+    /// <summary>
+    /// Deletes the <see cref="FileTableEntry"/> specified from the file table.
+    /// </summary>
+    /// <param name="fileTableEntry">The entry to delete from the file table.</param>
     void DeleteFile(FileTableEntry fileTableEntry);
 
   }

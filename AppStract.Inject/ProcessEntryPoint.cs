@@ -24,7 +24,10 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using AppStract.Core.Virtualization.FileSystem;
+using AppStract.Core.Virtualization.Registry;
 using AppStract.Core.Virtualization.Synchronization;
+using AppStract.Server;
 using AppStract.Server.FileSystem;
 using AppStract.Server.Inject;
 using AppStract.Server.Registry;
@@ -47,8 +50,9 @@ namespace AppStract.Inject
     #region Variables
 
     private readonly IServerReporter _serverReporter;
-    private readonly IFileSystemSynchronizer _fileSystemSynchronizer;
-    private readonly IRegistrySynchronizer _registrySynchronizer;
+    private readonly IFileSystemLoader _fileSystemSynchronizer;
+    private readonly IRegistryLoader _registrySynchronizer;
+    private readonly CommunicationBus _commBus;
     private readonly HookImplementations _hookImplementations;
     private readonly VirtualFileSystem _fileSystem;
     private readonly RegistryProvider _registry;
@@ -68,22 +72,28 @@ namespace AppStract.Inject
     /// <param name="inContext">Information about the environment in which the library main method has been invoked.</param>
     /// <param name="inChannelName">The name of the inter-process communication channel to connect to.</param>
     /// <param name="resourceSynchronizer"></param>
-    public ProcessEntryPoint(RemoteHooking.IContext inContext, string inChannelName, ResourceSynchronizer resourceSynchronizer)
+    public ProcessEntryPoint(RemoteHooking.IContext inContext, string inChannelName, ProcessSynchronizer resourceSynchronizer)
     {
       /// Connect to server.
-      RemoteHooking.IpcConnectClient<ResourceSynchronizer>(inChannelName);
-      
-      _serverReporter = resourceSynchronizer;
-      _fileSystemSynchronizer = resourceSynchronizer;
-      _registrySynchronizer = resourceSynchronizer;
+      RemoteHooking.IpcConnectClient<ProcessSynchronizer>(inChannelName);
       /// Initialize variables.
-      /// BUG: Add a new variable to the constructor to get the root folder!
-      _fileSystem = new VirtualFileSystem(null, _fileSystemSynchronizer);
-      _registry = new RegistryProvider(_registrySynchronizer);
+      _serverReporter = resourceSynchronizer;
+      _commBus = new CommunicationBus(resourceSynchronizer, resourceSynchronizer);
+      _fileSystemSynchronizer = _commBus;
+      _registrySynchronizer = _commBus;
       _hookImplementations = new HookImplementations(_fileSystem, _registry);
       /// Validate connection.
       _serverReporter.Ping();
-      _serverReporter.ReportMessage("Process [PID" + RemoteHooking.GetCurrentProcessId() + "] is initialized and validated.");
+      int processId = RemoteHooking.GetCurrentProcessId();
+      _serverReporter.ReportMessage("Process [PID" + processId + "] is initialized and validated.");
+      /// Load resources.
+      _serverReporter.ReportMessage("Process [PID" + processId + "] will now load the file system and registry data.");
+      _fileSystem = new VirtualFileSystem(null);  /// BUG: Add a new variable to the constructor to get the root folder!
+      _fileSystem.LoadFileTable(_fileSystemSynchronizer);
+      _serverReporter.ReportMessage("Process [PID" + processId + "] succesfully loaded the file system.");
+      _registry = new RegistryProvider();
+      _registry.LoadRegistry(_registrySynchronizer);
+      _serverReporter.ReportMessage("Process [PID" + processId + "] succesfully loaded the registry.");
     }
 
     #endregion
@@ -102,7 +112,7 @@ namespace AppStract.Inject
     /// <param name="inContext">Information about the environment in which the library main method has been invoked.</param>
     /// <param name="channelName">The name of the inter-process communication channel to connect to.</param>
     /// <param name="resourceSynchronizer"></param>
-    public void Run(RemoteHooking.IContext inContext, String channelName, ResourceSynchronizer resourceSynchronizer)
+    public void Run(RemoteHooking.IContext inContext, String channelName, ProcessSynchronizer resourceSynchronizer)
     {
       /// Name the current thread.
       Thread.CurrentThread.Name = string.Format("{0} (PID {1})",

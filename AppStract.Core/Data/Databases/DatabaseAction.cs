@@ -25,6 +25,11 @@ using System;
 
 namespace AppStract.Core.Data.Databases
 {
+  /// <summary>
+  /// Represents an action that needs to be performed on a <see cref="Database{T}"/>.
+  /// </summary>
+  /// <typeparam name="T"></typeparam>
+  [Serializable]
   public class DatabaseAction<T> : EventArgs
   {
 
@@ -37,11 +42,17 @@ namespace AppStract.Core.Data.Databases
 
     #region Properties
 
+    /// <summary>
+    /// Gets the type of the required action.
+    /// </summary>
     public DatabaseActionType ActionType
     {
       get { return _actionType; }
     }
 
+    /// <summary>
+    /// Gets the item to perform the required action with.
+    /// </summary>
     public T Item
     {
       get { return _item; }
@@ -51,6 +62,11 @@ namespace AppStract.Core.Data.Databases
 
     #region Constructors
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="DatabaseAction{T}"/>.
+    /// </summary>
+    /// <param name="item">The item to perform the required action with.</param>
+    /// <param name="actionType">The type of action to perform.</param>
     public DatabaseAction(T item, DatabaseActionType actionType)
     {
       _item = item;

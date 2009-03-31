@@ -47,7 +47,7 @@ namespace AppStract.Core.Virtualization.Process
     /// The object responsible for the synchronization
     /// between the current process and the virtualized process.
     /// </summary>
-    protected readonly ResourceSynchronizer _resourceSynchronizer;
+    protected readonly ProcessSynchronizer _resourceSynchronizer;
     /// <summary>
     /// Name of the remoting-channel, created by RemoteHooking.IpcCreateServer
     /// </summary>
@@ -108,11 +108,11 @@ namespace AppStract.Core.Virtualization.Process
       _easyHookSyncRoot = new object();
       _exitEventSyncRoot = new object();
       _startInfo = startInfo;
-      _resourceSynchronizer = new ResourceSynchronizer(startInfo.DatabaseFileSystem,
+      _resourceSynchronizer = new ProcessSynchronizer(startInfo.DatabaseFileSystem,
                                                        startInfo.DatabaseRegistry);
     }
 
-    protected VirtualizedProcess(VirtualProcessStartInfo startInfo, ResourceSynchronizer resourceSynchronizer)
+    protected VirtualizedProcess(VirtualProcessStartInfo startInfo, ProcessSynchronizer resourceSynchronizer)
     {
       _easyHookSyncRoot = new object();
       _exitEventSyncRoot = new object();
@@ -168,7 +168,7 @@ namespace AppStract.Core.Virtualization.Process
         if (_iniEasyHook)
           return;
         Config.Register("AppStract", CoreBus.Configuration.AppConfig.LibsToRegister.ToArray());
-        RemoteHooking.IpcCreateServer<ResourceSynchronizer>(ref _channelName, WellKnownObjectMode.SingleCall);
+        RemoteHooking.IpcCreateServer<ProcessSynchronizer>(ref _channelName, WellKnownObjectMode.SingleCall);
         _iniEasyHook = true;
       }
     }

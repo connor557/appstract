@@ -19,3 +19,5 @@ HOOK IMPLEMENTATIONS -> RegEnumKeyEx
 FileSystem - API HOOKS
 ======================================================================
 Some arguments can be NULL, as documented by Microsoft. Not all of them are implemented as possible null values.
+
+How does Windows rename files?

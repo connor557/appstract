@@ -39,12 +39,9 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommunicationBus.cs" />
     <Compile Include="FileSystem\DynamicVirtualFileSystem.cs" />
     <Compile Include="FileSystem\EnvironmentExtender.cs" />
     <Compile Include="FileSystem\FileAccessRedirector.cs" />

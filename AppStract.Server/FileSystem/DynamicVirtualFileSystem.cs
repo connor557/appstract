@@ -22,9 +22,7 @@
 #endregion
 
 using System.Timers;
-using AppStract.Core.Virtualization.Synchronization;
 using AppStract.Core.Virtualization.FileSystem;
-
 
 namespace AppStract.Server.FileSystem
 {
@@ -54,8 +52,8 @@ namespace AppStract.Server.FileSystem
 
     #region Constructors
 
-    public DynamicVirtualFileSystem(string currentDirectory, IFileSystemSynchronizer resourceSynchronizer)
-      : base(currentDirectory, resourceSynchronizer)
+    public DynamicVirtualFileSystem(string currentDirectory)
+      : base(currentDirectory)
     {
       _released = false;
       _releaseTimer = new Timer(15000);

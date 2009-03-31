@@ -21,27 +21,30 @@
 
 #endregion
 
-using System;
+using System.Collections.Generic;
+using AppStract.Core.Data.Databases;
+using AppStract.Core.Virtualization.FileSystem;
+using AppStract.Core.Virtualization.Registry;
 
-namespace AppStract.Core.Data.Databases
+namespace AppStract.Core.Virtualization.Synchronization
 {
   /// <summary>
-  /// Specifies the type of action to take for the database-call.
+  /// Interface for interprocess data synchronization.
   /// </summary>
-  [Serializable]
-  public enum DatabaseActionType
+  public interface ISynchronizer
   {
+
     /// <summary>
-    /// Update the existing value.
+    /// Commits the specified <see cref="DatabaseAction{T}"/>s to the file system database.
     /// </summary>
-    Update,
+    /// <param name="actions">Actions to commit.</param>
+    void SyncFileSystemActions(IEnumerable<DatabaseAction<FileTableEntry>> actions);
+
     /// <summary>
-    /// Set the value if it exists (overwrite), otherwise add it.
+    /// Commits the specified <see cref="DatabaseAction{T}"/>s to the registry database.
     /// </summary>
-    Set,
-    /// <summary>
-    /// Remove the value.
-    /// </summary>
-    Remove
+    /// <param name="actions">Actions to commit.</param>
+    void SyncRegistryActions(IEnumerable<DatabaseAction<VirtualRegistryKey>> actions);
+
   }
 }

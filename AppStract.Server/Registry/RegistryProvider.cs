@@ -21,7 +21,6 @@
 
 #endregion
 
-using AppStract.Core.Virtualization.Synchronization;
 using AppStract.Core.Virtualization.Registry;
 using Microsoft.Win32.Interop;
 
@@ -33,25 +32,23 @@ namespace AppStract.Server.Registry
     #region Variables
 
     private readonly VirtualRegistry _virtualRegistry;
-    private readonly IRegistrySynchronizer _resourceSynchronizer;
 
     #endregion
 
     #region Constructors
 
-    public RegistryProvider(IRegistrySynchronizer resourceSynchronizer)
+    public RegistryProvider()
     {
       _virtualRegistry = new VirtualRegistry();
-      _resourceSynchronizer = resourceSynchronizer;
     }
 
     #endregion
 
     #region Public Methods
 
-    public void LoadRegistry()
+    public void LoadRegistry(IRegistryLoader dataSource)
     {
-      _virtualRegistry.Initialize(_resourceSynchronizer);
+      _virtualRegistry.Initialize(dataSource);
     }
 
     #endregion
