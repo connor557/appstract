@@ -21,7 +21,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -153,7 +152,7 @@ namespace AppStract.Server.FileSystem
         return redirectedPath;
       /// Still not found?
       /// We're sure the virtual folders don't contain the dll (because of TryGetFile and the redirection).
-      /// ToDo: Are we sure? Need to debug this!
+      /// NOTE: Are we sure? Need to debug this!
       /// Return the parameter and let Windows handle the search.
       return libraryPath;
     }
@@ -251,12 +250,31 @@ namespace AppStract.Server.FileSystem
       }
       /// Else, the file won't be created.
       /// Return a non-existing temporary file without creating a filetable-entry for it.
+      /// BUG: Is this expected behaviour? What if the process is accessing a DVD or some Windows files...
       return new FileTableEntry(fileRequest.FileName, GetTemporaryFile(false), FileKind.Unspecified);
     }
 
     public virtual void DeleteFile(FileTableEntry fileTableEntry)
     {
-      throw new NotImplementedException();
+      _fileTableLock.EnterWriteLock();
+      try
+      {
+        _fileTable.Remove(new KeyValuePair<string, string>(fileTableEntry.Key, fileTableEntry.Value));
+        if (fileTableEntry.FileKind != FileKind.Directory)
+          return;
+        /// Else, delete all subdirectories and subfiles, if any.
+        /// NOTE: Won't Windows API handle this? Not sure...
+        var markedForRemoval = new List<KeyValuePair<string, string>>();
+        foreach (var entry in _fileTable)
+            if (entry.Value.StartsWith(fileTableEntry.Value))
+              markedForRemoval.Add(entry);  /// Can't remove while enumerating
+        foreach (var entry in markedForRemoval)
+          _fileTable.Remove(entry);
+      }
+      finally
+      {
+        _fileTableLock.ExitWriteLock();
+      }
     }
 
     #endregion
