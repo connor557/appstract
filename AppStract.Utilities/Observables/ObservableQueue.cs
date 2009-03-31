@@ -94,7 +94,7 @@ namespace AppStract.Utilities.Observables
     #region Public Methods
 
     /// <summary>
-    /// Adds an object to the end of the <see cref="ObservableDictionary{TKey,TValue}"/>.
+    /// Adds an object to the <see cref="ObservableQueue{TItem}"/>.
     /// </summary>
     /// <remarks>The value can be null for reference types.</remarks>
     /// <param name="item">The object to add to the <see cref="ObservableQueue{TItem}"/>.</param>
@@ -102,6 +102,28 @@ namespace AppStract.Utilities.Observables
     {
       _queue.Enqueue(item);
       RaiseEvent(_itemEnqueued, item, _eventEnqueueLock);
+    }
+
+    /// <summary>
+    /// Adds a serie of objects to the <see cref="ObservableQueue{TItem}"/>.
+    /// An event is raisen for each item.
+    /// </summary>
+    /// <param name="items">The objects to add to the <see cref="ObservableQueue{TItem}"/>.</param>
+    /// <param name="immediateRaise">
+    /// True if the <see cref="ItemEnqueued"/> must be raisen per enqueued item.
+    /// False if all events must be raisen AFTER all items are enqueued.
+    /// </param>
+    public void Enqueue(IEnumerable<TItem> items, bool immediateRaise)
+    {
+      foreach (var item in items)
+      {
+        _queue.Enqueue(item);
+        if (immediateRaise)
+          RaiseEvent(_itemEnqueued, item, _eventEnqueueLock);
+      }
+      if (!immediateRaise)
+        foreach (var item in items)
+          RaiseEvent(_itemEnqueued, item, _eventEnqueueLock);
     }
 
     /// <summary>
