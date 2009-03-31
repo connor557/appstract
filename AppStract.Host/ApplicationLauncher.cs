@@ -91,7 +91,7 @@ namespace AppStract.Host
       if (argParser.IsDefined(CommandlineOption.LogOutput))
       {
         LogType type;
-        if (ArgumentHelper.TryParseLogType(argParser.GetOption(CommandlineOption.LogOutput), out type))
+        if (ParserHelper.TryParseLogType(argParser.GetOption(CommandlineOption.LogOutput), out type))
         {
           if (argParser.IsDefined(CommandlineOption.LogFile))
             CoreBus.Configuration.SetLogOutput(type, argParser.GetOption(CommandlineOption.LogFile).ToString());
@@ -107,7 +107,7 @@ namespace AppStract.Host
       if (argParser.IsDefined(CommandlineOption.LogLevel))
       {
         LogLevel logLevel;
-        if (ArgumentHelper.TryParseLogLevel(argParser.GetOption(CommandlineOption.LogLevel), out logLevel))
+        if (ParserHelper.TryParseLogLevel(argParser.GetOption(CommandlineOption.LogLevel), out logLevel))
           CoreBus.Configuration.SetLogLevel(logLevel);
       }
       if (argParser.IsDefined(CommandlineOption.ShowWindow))
