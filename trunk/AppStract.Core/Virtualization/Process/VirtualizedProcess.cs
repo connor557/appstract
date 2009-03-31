@@ -47,7 +47,7 @@ namespace AppStract.Core.Virtualization.Process
     /// The object responsible for the synchronization
     /// between the current process and the virtualized process.
     /// </summary>
-    protected readonly ProcessSynchronizer _resourceSynchronizer;
+    protected readonly ProcessSynchronizer _processSynchronizer;
     /// <summary>
     /// Name of the remoting-channel, created by RemoteHooking.IpcCreateServer
     /// </summary>
@@ -81,6 +81,9 @@ namespace AppStract.Core.Virtualization.Process
 
     #region Events
 
+    /// <summary>
+    /// Occurs when the current process exited.
+    /// </summary>
     public event ProcessExitEventHandler Exited
     {
       add { lock (_exitEventSyncRoot) _exited += value; }
@@ -103,28 +106,54 @@ namespace AppStract.Core.Virtualization.Process
 
     #region Constructors
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="VirtualizedProcess"/>,
+    /// using a default <see cref="ProcessSynchronizer"/> based on the specified <see cref="VirtualProcessStartInfo"/>.
+    /// </summary>
+    /// <param name="startInfo">
+    /// The <see cref="VirtualProcessStartInfo"/> containing the information used to start the process with.
+    /// </param>
     protected VirtualizedProcess(VirtualProcessStartInfo startInfo)
     {
       _easyHookSyncRoot = new object();
       _exitEventSyncRoot = new object();
       _startInfo = startInfo;
-      _resourceSynchronizer = new ProcessSynchronizer(startInfo.DatabaseFileSystem,
+      _processSynchronizer = new ProcessSynchronizer(startInfo.DatabaseFileSystem,
                                                       startInfo.WorkingDirectory,
                                                       startInfo.DatabaseRegistry);
     }
 
-    protected VirtualizedProcess(VirtualProcessStartInfo startInfo, ProcessSynchronizer resourceSynchronizer)
+    /// <summary>
+    /// Initializes a new instance of <see cref="VirtualizedProcess"/>,
+    /// using a default <see cref="ProcessSynchronizer"/> based on the specified <see cref="VirtualProcessStartInfo"/>.
+    /// </summary>
+    /// <param name="startInfo">
+    /// The <see cref="VirtualProcessStartInfo"/> containing the information used to start the process with.
+    /// </param>
+    /// <param name="processSynchronizer">
+    /// The <see cref="ProcessSynchronizer"/> to use for data synchronization with the <see cref="VirtualizedProcess"/>.
+    /// </param>
+    protected VirtualizedProcess(VirtualProcessStartInfo startInfo, ProcessSynchronizer processSynchronizer)
     {
       _easyHookSyncRoot = new object();
       _exitEventSyncRoot = new object();
       _startInfo = startInfo;
-      _resourceSynchronizer = resourceSynchronizer;
+      _processSynchronizer = processSynchronizer;
     }
 
     #endregion
     
     #region Public Methods
 
+    /// <summary>
+    /// Starts a new <see cref="VirtualizedProcess"/> from the <see cref="VirtualProcessStartInfo"/> specified.
+    /// </summary>
+    /// <param name="startInfo">
+    /// The <see cref="VirtualProcessStartInfo"/> containing the information used to start the process with.
+    /// </param>
+    /// <returns>
+    /// A new <see cref="VirtualizedProcess"/> component that is associated with the process resource.
+    /// </returns>
     public static VirtualizedProcess Start(VirtualProcessStartInfo startInfo)
     {
       /// Create an instance of VirtualizedProcess.
@@ -133,6 +162,10 @@ namespace AppStract.Core.Virtualization.Process
       return process;
     }
 
+    /// <summary>
+    /// Immediately stops the associated process.
+    /// A final synchronization cycle is not guaranteed.
+    /// </summary>
     public void Kill()
     {
       _process.Kill();
@@ -143,6 +176,9 @@ namespace AppStract.Core.Virtualization.Process
 
     #region Protected Methods
 
+    /// <summary>
+    /// Starts the process using the information of the class's variables.
+    /// </summary>
     protected void Start()
     {
       /// Initialize the underlying resources.
@@ -162,6 +198,9 @@ namespace AppStract.Core.Virtualization.Process
 
     #region Private Methods
 
+    /// <summary>
+    /// Initializes all components related to <see cref="EasyHook"/>.
+    /// </summary>
     private void InitEasyHook()
     {
       lock (_easyHookSyncRoot)
@@ -174,6 +213,10 @@ namespace AppStract.Core.Virtualization.Process
       }
     }
 
+    /// <summary>
+    /// Creates and injects the current <see cref="VirtualizedProcess"/>,
+    /// and sets the created process component to the <see cref="_process"/> variable.
+    /// </summary>
     private void CreateAndInject()
     {
       int processId;
@@ -190,7 +233,7 @@ namespace AppStract.Core.Virtualization.Process
         /// The process ID of the newly created process
         out processId,
         /// Extra parameters being passed to the injected library entry points Run() and Initialize()
-        _channelName, _resourceSynchronizer);
+        _channelName, _processSynchronizer);
       /// The process has been created, set the _process variable.
       _process = SystemProcess.GetProcessById(processId, SystemProcess.GetCurrentProcess().MachineName);
       _process.EnableRaisingEvents = true;
@@ -199,6 +242,9 @@ namespace AppStract.Core.Virtualization.Process
                               processId, _startInfo.Executable.File);
     }
 
+    /// <summary>
+    /// [Not Implemented] Wraps and injects a process, used for .NET applications.
+    /// </summary>
     private void WrapAndInject()
     {
       /// Start wrapper.
@@ -209,6 +255,12 @@ namespace AppStract.Core.Virtualization.Process
       throw new NotImplementedException("The wrapper has not been implemented yet.");
     }
 
+    /// <summary>
+    /// Handles the <see cref="_process"/>.Exited event;
+    /// Sets <see cref="_hasExited"/> and raises <see cref="_exited"/>.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void Process_Exited(object sender, EventArgs e)
     {
       if (!_process.HasExited)
