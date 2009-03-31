@@ -38,7 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationLauncher.cs" />
-    <Compile Include="ArgumentHelper.cs" />
+    <Compile Include="ParserHelper.cs" />
     <Compile Include="CommandlineOption.cs" />
     <Compile Include="CommandlineParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -26,7 +26,7 @@ using AppStract.Core.Logging;
 
 namespace AppStract.Host
 {
-  public static class ArgumentHelper
+  public static class ParserHelper
   {
 
     public static bool TryParseLogLevel(object logLevel, out LogLevel rLogLevel)
