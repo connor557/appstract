@@ -25,6 +25,9 @@ using System;
 
 namespace AppStract.Core.Virtualization.Process
 {
+  /// <summary>
+  /// Represents errors related to a <see cref="VirtualizedProcess"/>.
+  /// </summary>
   public class VirtualProcessException : CoreException
   {
 

@@ -28,8 +28,17 @@ namespace AppStract.Core.Virtualization.Process
   /// </summary>
   public enum ExitCode
   {
+    /// <summary>
+    /// The process exited as expected.
+    /// </summary>
     Success,
+    /// <summary>
+    /// The process exited because of an internal error.
+    /// </summary>
     Error,
+    /// <summary>
+    /// The process exited unexpectedly.
+    /// </summary>
     Unexpected
   }
 }
