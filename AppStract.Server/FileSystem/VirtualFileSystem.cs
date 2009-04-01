@@ -243,9 +243,11 @@ namespace AppStract.Server.FileSystem
         return entry;
       }
       /// Else, the file won't be created.
+      /// Note: The behaviour of this else clause must be reconsidered.
+      return new FileTableEntry(fileRequest.FileName, fileRequest.FileName, FileKind.Unspecified);
       /// Return a non-existing temporary file without creating a filetable-entry for it.
       /// BUG: Is this expected behaviour? What if the process is accessing a DVD or some Windows files...
-      return new FileTableEntry(fileRequest.FileName, GetTemporaryFile(false), FileKind.Unspecified);
+      //return new FileTableEntry(fileRequest.FileName, GetTemporaryFile(false), FileKind.Unspecified);
     }
 
     public virtual void DeleteFile(FileTableEntry fileTableEntry)
