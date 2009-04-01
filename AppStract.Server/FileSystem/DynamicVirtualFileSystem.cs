@@ -30,7 +30,7 @@ namespace AppStract.Server.FileSystem
   /// <see cref="DynamicVirtualFileSystem"/> extends <see cref="VirtualFileSystem"/>
   /// by having the ability to release the virtual filesystem after a specified time interval.
   /// </summary>
-  public class DynamicVirtualFileSystem : VirtualFileSystem
+  public class DynamicVirtualFileSystem : FileSystemProvider
   {
 
     #region Variables
