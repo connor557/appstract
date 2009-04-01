@@ -29,13 +29,13 @@ using AppStract.Utilities.Observables;
 
 namespace AppStract.Server.FileSystem
 {
-  public class VirtualFileSystem : IFileSystemProvider
+  public class FileSystemProvider : IFileSystemProvider
   {
 
     #region Variables
 
     /// <summary>
-    /// The file table of the current <see cref="VirtualFileSystem"/>.
+    /// The file table of the current <see cref="FileSystemProvider"/>.
     /// The keys are the paths of the real file system,
     /// the values are the replacement paths relative to <see cref="_root"/>.
     /// </summary>
@@ -66,7 +66,7 @@ namespace AppStract.Server.FileSystem
 
     #region Constructors
 
-    public VirtualFileSystem(string rootDirectory)
+    public FileSystemProvider(string rootDirectory)
     {
       _fileTable = new ObservableDictionary<string, string>();
       _fileTableLock = new ReaderWriterLockSlim();
@@ -79,7 +79,7 @@ namespace AppStract.Server.FileSystem
     #region Public Methods
 
     /// <summary>
-    /// Loads the underlying filetable of the current <see cref="VirtualFileSystem"/>.
+    /// Loads the underlying filetable of the current <see cref="FileSystemProvider"/>.
     /// </summary>
     public void LoadFileTable(IFileSystemLoader dataSource)
     {

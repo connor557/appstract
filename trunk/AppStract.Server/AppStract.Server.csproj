@@ -47,7 +47,7 @@
     <Compile Include="FileSystem\FileAccessRedirector.cs" />
     <Compile Include="FileSystem\VirtualEnvironment.cs" />
     <Compile Include="FileSystem\VirtualFolder.cs" />
-    <Compile Include="FileSystem\VirtualFileSystem.cs" />
+    <Compile Include="FileSystem\FileSystemProvider.cs" />
     <Compile Include="Hooking\HookData.cs" />
     <Compile Include="Hooking\HookDelegates.FileSystem.cs" />
     <Compile Include="Hooking\HookDelegates.Registry.cs" />

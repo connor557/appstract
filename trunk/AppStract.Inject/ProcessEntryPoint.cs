@@ -54,8 +54,8 @@ namespace AppStract.Inject
     private readonly IRegistryLoader _registrySynchronizer;
     private readonly CommunicationBus _commBus;
     private readonly HookImplementations _hookImplementations;
-    private readonly VirtualFileSystem _fileSystem;
-    private readonly RegistryProvider _registry;
+    private readonly IFileSystemProvider _fileSystem;
+    private readonly IRegistryProvider _registry;
 
     #endregion
 
@@ -88,11 +88,13 @@ namespace AppStract.Inject
       _serverReporter.ReportMessage("Process [PID" + processId + "] is initialized and validated.");
       /// Load resources.
       _serverReporter.ReportMessage("Process [PID" + processId + "] will now load the file system and registry data.");
-      _fileSystem = new VirtualFileSystem(processSynchronizer.FileSystemRoot);
-      _fileSystem.LoadFileTable(_fileSystemSynchronizer);
+      var fileSystem = new FileSystemProvider(processSynchronizer.FileSystemRoot);
+      fileSystem.LoadFileTable(_fileSystemSynchronizer);
+      _fileSystem = fileSystem;
       _serverReporter.ReportMessage("Process [PID" + processId + "] succesfully loaded the file system.");
-      _registry = new RegistryProvider();
-      _registry.LoadRegistry(_registrySynchronizer);
+      var registry = new RegistryProvider();
+      registry.LoadRegistry(_registrySynchronizer);
+      _registry = registry;
       _serverReporter.ReportMessage("Process [PID" + processId + "] succesfully loaded the registry.");
     }
 
