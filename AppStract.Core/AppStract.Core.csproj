@@ -70,6 +70,7 @@
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="Logging\LogType.cs" />
+    <Compile Include="Logging\LogMessage.cs" />
     <Compile Include="Logging\NullLogger.cs" />
     <Compile Include="CoreBus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

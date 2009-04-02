@@ -23,8 +23,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Data.Databases;
+using AppStract.Core.Logging;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Core.Virtualization.Registry;
 
@@ -129,9 +131,11 @@ namespace AppStract.Core.Virtualization.Synchronization
       CoreBus.Log.Error(message, exception);
     }
 
-    public void ReportMessage(string message)
+    public void ReportMessage(LogMessage message)
     {
-      CoreBus.Log.Message(message);
+      if (Thread.CurrentThread.Name == null)
+        Thread.CurrentThread.Name = "Guest";
+      CoreBus.Log.Log(message);
     }
 
     #endregion

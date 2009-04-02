@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using AppStract.Core.Logging;
 
 namespace AppStract.Core.Virtualization.Synchronization
 {
@@ -54,10 +55,10 @@ namespace AppStract.Core.Virtualization.Synchronization
     void ReportException(Exception exception, string message);
 
     /// <summary>
-    /// Reports a message to the host process.
+    /// Reports a message that must be logged, to the host process.
     /// </summary>
     /// <param name="message">Message to report.</param>
-    void ReportMessage(string message);
+    void ReportMessage(LogMessage message);
 
   }
 }
