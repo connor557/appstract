@@ -80,63 +80,73 @@ namespace AppStract.Core.Logging
 
     #region Public Methods
 
+    public virtual void Log(LogMessage logMessage)
+    {
+      if (logMessage.Level > _level)
+        return;
+      if (logMessage.Exception == null)
+        Write(FormatLogMessage(logMessage.Level, logMessage.Message));
+      else
+        Write(FormatLogMessage(logMessage.Level, logMessage.Message, logMessage.Exception));
+    }
+
     public virtual void Warning(string format, params object[] args)
     {
-      if (LogLevel.Warning < _level)
+      if (LogLevel.Warning <= _level)
         Write(FormatLogMessage(LogLevel.Warning, string.Format(format, args)));
     }
 
     public virtual void Warning(string format, Exception exception, params object[] args)
     {
-      if (LogLevel.Warning < _level)
+      if (LogLevel.Warning <= _level)
         Write(FormatLogMessage(LogLevel.Warning, string.Format(format, args), exception));
     }
 
     public virtual void Message(string format, params object[] args)
     {
-      if (LogLevel.Information < _level)
+      if (LogLevel.Information <= _level)
         Write(FormatLogMessage(LogLevel.Information, string.Format(format, args)));
     }
 
     public virtual void Message(string format, Exception exception, params object[] args)
     {
-      if (LogLevel.Information < _level)
+      if (LogLevel.Information <= _level)
         Write(FormatLogMessage(LogLevel.Information, string.Format(format, args), exception));
     }
 
     public virtual void Error(string format, params object[] args)
     {
-      if (LogLevel.Error < _level)
+      if (LogLevel.Error <= _level)
         Write(FormatLogMessage(LogLevel.Error, string.Format(format, args)));
     }
 
     public virtual void Error(string format, Exception exception, params object[] args)
     {
-      if (LogLevel.Error < _level)
+      if (LogLevel.Error <= _level)
         Write(FormatLogMessage(LogLevel.Error, string.Format(format, args), exception));
     }
 
     public virtual void Critical(string format, params object[] args)
     {
-      if (LogLevel.Critical < _level)
+      if (LogLevel.Critical <= _level)
         Write(FormatLogMessage(LogLevel.Critical, string.Format(format, args)));
     }
 
     public virtual void Critical(string format, Exception exception, params object[] args)
     {
-      if (LogLevel.Critical < _level)
+      if (LogLevel.Critical <= _level)
         Write(FormatLogMessage(LogLevel.Critical, string.Format(format, args), exception));
     }
 
     public virtual void Debug(string format, params object[] args)
     {
-      if (LogLevel.Debug < _level)
+      if (LogLevel.Debug <= _level)
         Write(FormatLogMessage(LogLevel.Debug, string.Format(format, args)));
     }
 
     public virtual void Debug(string format, Exception exception, params object[] args)
     {
-      if (LogLevel.Debug < _level)
+      if (LogLevel.Debug <= _level)
         Write(FormatLogMessage(LogLevel.Debug, string.Format(format, args), exception));
     }
 

@@ -24,13 +24,8 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
-using AppStract.Core.Virtualization.FileSystem;
-using AppStract.Core.Virtualization.Registry;
 using AppStract.Core.Virtualization.Synchronization;
 using AppStract.Server;
-using AppStract.Server.FileSystem;
-using AppStract.Server.Hooking;
-using AppStract.Server.Registry;
 using EasyHook;
 
 namespace AppStract.Inject
@@ -47,18 +42,6 @@ namespace AppStract.Inject
   public class ProcessEntryPoint : IEntryPoint
   {
 
-    #region Variables
-
-    private readonly IServerReporter _serverReporter;
-    private readonly IFileSystemLoader _fileSystemSynchronizer;
-    private readonly IRegistryLoader _registrySynchronizer;
-    private readonly CommunicationBus _commBus;
-    private readonly HookImplementations _hookImplementations;
-    private readonly IFileSystemProvider _fileSystem;
-    private readonly IRegistryProvider _registry;
-
-    #endregion
-
     #region Constructors
 
     /// <summary>
@@ -71,31 +54,16 @@ namespace AppStract.Inject
     /// </remarks>
     /// <param name="inContext">Information about the environment in which the library main method has been invoked.</param>
     /// <param name="inChannelName">The name of the inter-process communication channel to connect to.</param>
-    /// <param name="processSynchronizer"></param>
+    /// <param name="processSynchronizer">The object to use for communication with the host.</param>
     public ProcessEntryPoint(RemoteHooking.IContext inContext, string inChannelName, IProcessSynchronizer processSynchronizer)
     {
       /// Connect to server.
       RemoteHooking.IpcConnectClient<ProcessSynchronizer>(inChannelName);
-      /// Initialize variables.
-      _serverReporter = processSynchronizer;
-      _commBus = new CommunicationBus(processSynchronizer, processSynchronizer);
-      _fileSystemSynchronizer = _commBus;
-      _registrySynchronizer = _commBus;
-      _hookImplementations = new HookImplementations(_fileSystem, _registry);
+      /// Initialize the guest's core.
+      GuestCore.Initialize(processSynchronizer);
       /// Validate connection.
-      _serverReporter.Ping();
-      int processId = RemoteHooking.GetCurrentProcessId();
-      _serverReporter.ReportMessage("Process [PID" + processId + "] is initialized and validated.");
-      /// Load resources.
-      _serverReporter.ReportMessage("Process [PID" + processId + "] will now load the file system and registry data.");
-      var fileSystem = new FileSystemProvider(processSynchronizer.FileSystemRoot);
-      fileSystem.LoadFileTable(_fileSystemSynchronizer);
-      _fileSystem = fileSystem;
-      _serverReporter.ReportMessage("Process [PID" + processId + "] succesfully loaded the file system.");
-      var registry = new RegistryProvider();
-      registry.LoadRegistry(_registrySynchronizer);
-      _registry = registry;
-      _serverReporter.ReportMessage("Process [PID" + processId + "] succesfully loaded the registry.");
+      if (!GuestCore.ValidConnection)
+        throw new GuestException("Failed to validate the inter-process connection while initializing the guest's process.");
     }
 
     #endregion
@@ -120,12 +88,11 @@ namespace AppStract.Inject
       Thread.CurrentThread.Name = string.Format("{0} (PID {1})",
         Process.GetCurrentProcess().ProcessName, RemoteHooking.GetCurrentProcessId());
       /// Validate the connection.
-      _serverReporter.Ping();
+      if (!GuestCore.ValidConnection)
+        /// Return silently, can't log
+        return;
       /// Install all hooks.
-      HookManager.Initialize(this, _hookImplementations);
-      HookManager.InstallHooks();
-      _serverReporter.ReportMessage("Process [PID" + RemoteHooking.GetCurrentProcessId() + "] is hooked.");
-      _serverReporter.ReportMessage("Process [PID" + RemoteHooking.GetCurrentProcessId() + "] is waking up.");
+      GuestCore.InstallHooks(this);
       /// Start the injected process.
       RemoteHooking.WakeUpProcess();
       /// Block the current thread until the host becomes unreachable,
@@ -140,31 +107,14 @@ namespace AppStract.Inject
     /// <summary>
     /// Doesn't return as long as the host is reachable.
     /// </summary>
-    private void BlockThread()
+    private static void BlockThread()
     {
       while (true)
       {
         Thread.Sleep(500);
-        if (!IsHostReachable())
+        if (!GuestCore.ValidConnection)
           return;
       }
-    }
-
-    /// <summary>
-    /// Returns whether the host is reachable.
-    /// </summary>
-    /// <returns>Is the host reachable?</returns>
-    private bool IsHostReachable()
-    {
-      try
-      {
-        _serverReporter.Ping();
-      }
-      catch (Exception)
-      {
-        return false;
-      }
-      return true;
     }
 
     #endregion
