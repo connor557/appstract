@@ -182,7 +182,7 @@ namespace AppStract.Core.Data.Settings
         if (File.Exists(_appConfigFile))
           return Serializer.Deserialize<AppConfig>(_appConfigFile);
       }
-      catch (ApplicationException ex)
+      catch (SerializationException ex)
       {
         CoreBus.Log.Error("Could not load the application configuration.", ex);
       }
@@ -198,7 +198,7 @@ namespace AppStract.Core.Data.Settings
         if (File.Exists(_appConfigFile))
           return Serializer.Deserialize<UserConfig>(_userConfigFile);
       }
-      catch (ApplicationException ex)
+      catch (SerializationException ex)
       {
         CoreBus.Log.Error("Could not load the user configuration.", ex);
       }
