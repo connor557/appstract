@@ -36,9 +36,13 @@ namespace AppStract.Utilities.Serialization
     /// <summary>
     /// Deserializes an object from type <typeparamref name="T"/> from the specified file.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="filename"></param>
-    /// <returns></returns>
+    /// <exception cref="SerializationException">
+    /// A <see cref="SerializationException"/> is thrown if the content of the file
+    /// can't be deserialized to an object of type <see cref="T"/>.
+    /// </exception>
+    /// <typeparam name="T">The type of the object to deserialize from the XML-file specified.</typeparam>
+    /// <param name="filename">The file containing the XML-data to deserialize.</param>
+    /// <returns>The deserialized object.</returns>
     public static T Deserialize<T>(string filename)
     {
       var serializer = new XmlSerializer(typeof(T));
@@ -56,10 +60,13 @@ namespace AppStract.Utilities.Serialization
     }
 
     /// <summary>
-    /// Serializes the given data to the specified file.
+    /// Serializes the given data to the specified file as XML.
     /// </summary>
-    /// <param name="filename"></param>
-    /// <param name="data"></param>
+    /// <exception cref="SerializationException">
+    /// A <see cref="SerializationException"/> is thrown if the object's type can't be serialized to an XML-file.
+    /// </exception>
+    /// <param name="filename">The file to serialize the data to.</param>
+    /// <param name="data">The data to serialize.</param>
     public static void Serialize(string filename, object data)
     {
       var serializer = new XmlSerializer(data.GetType());
@@ -75,11 +82,11 @@ namespace AppStract.Utilities.Serialization
     }
 
     /// <summary>
-    /// Serializes the given data to the specified file.
+    /// Serializes the given data to the specified file as XML.
     /// </summary>
-    /// <param name="filename"></param>
-    /// <param name="data"></param>
-    /// <returns></returns>
+    /// <param name="filename">The file to serialize the data to.</param>
+    /// <param name="data">The data to serialize.</param>
+    /// <returns>True if serialization succeeded; False, otherwise.</returns>
     public static bool TrySerialize(string filename, object data)
     {
       var serializer = new XmlSerializer(data.GetType());
