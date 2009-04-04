@@ -196,10 +196,9 @@ namespace AppStract.Server.Registry
       /// Get the name of the key.
       subKeyName = key;
       int index = subKeyName.IndexOf("\\");
-      if (index > -1)
-        subKeyName = subKeyName.Substring(index);
-      else
-        subKeyName = null;
+      subKeyName = index > -1
+                     ? subKeyName.Substring(index)
+                     : null;
       /// Get the hive to read from.
       RegistryHive registryHive = GetHive(key);
       /// Open the key from the host's registry.
@@ -289,7 +288,13 @@ namespace AppStract.Server.Registry
                : keyName + @"\" + subKeyName;
     }
 
-    public static uint ValueIdFromValueType(ValueType valueType)
+    /// <summary>
+    /// Returns the ID, as used by the Windows operating system,
+    /// for the <see cref="ValueType"/> specified.
+    /// </summary>
+    /// <param name="valueType">The <see cref="ValueType"/> to return an ID for.</param>
+    /// <returns></returns>
+    public static uint ValueTypeIdFromValueType(ValueType valueType)
     {
       if (valueType == ValueType.REG_NONE)
         return 0;
@@ -315,9 +320,17 @@ namespace AppStract.Server.Registry
         return 10;
       if (valueType == ValueType.REG_QWORD_LITTLE_ENDIAN)
         return 11;
-      throw new ArgumentException();
+      throw new NotImplementedException("The ValueType enumeration has changed without updating RegistryHelper.ValueTypeIdFromValueType");
     }
 
+    /// <summary>
+    /// Returns the <see cref="ValueType"/> associated with the <see cref="uint"/> specified.
+    /// </summary>
+    /// <exception cref="ArgumentException">
+    /// An <see cref="ArgumentException"/> is thrown if no <see cref="ValueType"/> can be associated with the ID specified.
+    /// </exception>
+    /// <param name="valueType">The ID to get the associated <see cref="ValueType"/> for.</param>
+    /// <returns></returns>
     public static ValueType ValueTypeFromId(uint valueType)
     {
       switch (valueType)
@@ -351,6 +364,12 @@ namespace AppStract.Server.Registry
       }
     }
 
+    /// <summary>
+    /// Returns the byte, as expected by Windows operating system,
+    /// associated with the <see cref="RegCreationDisposition"/> specified.
+    /// </summary>
+    /// <param name="creationDisposition">The <see cref="RegCreationDisposition"/> to return the associated byte for.</param>
+    /// <returns></returns>
     public static byte DispositionFromRegCreationDisposition(RegCreationDisposition creationDisposition)
     {
       if (creationDisposition == RegCreationDisposition.REG_CREATED_NEW_KEY)
