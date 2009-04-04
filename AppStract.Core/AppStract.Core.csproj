@@ -78,7 +78,6 @@
     <Compile Include="Data\Databases\FileSystemDatabase.cs" />
     <Compile Include="Data\Settings\AppConfig.cs" />
     <Compile Include="Data\Settings\Configuration.cs" />
-    <Compile Include="Data\Settings\DynamicConfig.cs" />
     <Compile Include="Data\Settings\UserConfig.cs" />
     <Compile Include="Virtualization\Packaging\PackageException.cs" />
     <Compile Include="Virtualization\Packaging\Packager.cs" />
