@@ -223,9 +223,9 @@ namespace AppStract.Core.Virtualization.Process
       /// Get the location of the library to inject
       string libraryLocation = CoreBus.Configuration.AppConfig.LibtoInject;
       RemoteHooking.CreateAndInject(
-        Path.Combine(CoreBus.Configuration.DynConfig.Root, _startInfo.Executable.File),
+        Path.Combine(_startInfo.WorkingDirectory.File, _startInfo.Executable.File),
         /// Optional command line parameters for process creation
-        "",
+        _startInfo.Arguments,
         /// ProcessCreationFlags, no conditions are set on the created process.
         0,
         /// Absolute paths of the libraries to inject, we use the same one for 32bit and 64bit

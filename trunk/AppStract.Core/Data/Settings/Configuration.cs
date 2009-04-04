@@ -66,14 +66,6 @@ namespace AppStract.Core.Data.Settings
       get; private set;
     }
 
-    /// <summary>
-    /// Gets or sets the configuration of the current application's instance.
-    /// </summary>
-    public DynamicConfig DynConfig
-    {
-      get; private set;
-    }
-
     #endregion
 
     #region Constructors
@@ -82,8 +74,6 @@ namespace AppStract.Core.Data.Settings
     {
       AppConfig = appConfig;
       UserConfig = userConfig;
-      DynConfig = new DynamicConfig();
-      DynConfig.LoadDefaults();
     }
 
     #endregion

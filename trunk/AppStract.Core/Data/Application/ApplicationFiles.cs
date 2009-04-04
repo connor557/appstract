@@ -31,10 +31,27 @@ namespace AppStract.Core.Data.Application
 
     #region Properties
 
+    /// <summary>
+    /// Gets or sets the path, relative to the application file's location, of the root directory.
+    /// </summary>
+    public ApplicationFile RootDirectory { get; set; }
+
+    /// <summary>
+    /// Gets or sets the path, relative to <see cref="RootDirectory"/>,
+    /// of the file containing the SQLite database holding the file system's file table.
+    /// </summary>
     public ApplicationFile DatabaseFileSystem { get; set; }
 
+    /// <summary>
+    /// Gets or sets the path, relative to <see cref="RootDirectory"/>,
+    /// of the file containing the SQLite database holding the registry keys and values.
+    /// </summary>
     public ApplicationFile DatabaseRegistry { get; set; }
 
+    /// <summary>
+    /// Gets or sets the path, relative to <see cref="RootDirectory"/>,
+    /// of the executable to start the process with.
+    /// </summary>
     public ApplicationFile ExeMain { get; set; }
 
     #endregion

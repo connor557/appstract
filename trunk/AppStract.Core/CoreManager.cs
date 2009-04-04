@@ -74,6 +74,9 @@ namespace AppStract.Core
     /// <summary>
     /// Starts a process from the applicationdata loaded from the default startup file.
     /// </summary>
+    /// <exception cref="CoreException">
+    /// A <see cref="CoreException"/> is thrown if the process can't be started.
+    /// </exception>
     public static void StartProcess()
     {
       var appFile = CoreBus.Configuration.AppConfig.DefaultApplicationDataFile;
@@ -83,7 +86,13 @@ namespace AppStract.Core
     /// <summary>
     /// Starts a process from the applicationdata loaded from the filename specified.
     /// </summary>
-    /// <param name="applicationDataFile"></param>
+    /// <exception cref="CoreException">
+    /// A <see cref="CoreException"/> is thrown if the process can't be started.
+    /// </exception>
+    /// <param name="applicationDataFile">
+    /// The file to load the <see cref="ApplicationData"/> from,
+    /// representing the application to start.
+    /// </param>
     public static void StartProcess(string applicationDataFile)
     {
       var data = ApplicationData.Load(applicationDataFile);

@@ -113,7 +113,7 @@ namespace AppStract.Core.Virtualization.Process
     }
 
     /// <summary>
-    /// Gets or sets the set of command-line arguments to use when starting the application.
+    /// Gets or sets the set of command-line parameters to use when starting the application.
     /// </summary>
     /// <exception cref="NullReferenceException"></exception>
     public string Arguments
@@ -136,10 +136,25 @@ namespace AppStract.Core.Virtualization.Process
     ///  based on the <see cref="ApplicationData"/> specified.
     /// </summary>
     /// <exception cref="ArgumentNullException"></exception>
-    /// <param name="data"></param>
+    /// <param name="data">The data to base the process on.</param>
     public VirtualProcessStartInfo(ApplicationData data)
+      : this (data, data.Files.RootDirectory)
     {
-      if (data ==null)
+      
+    }
+
+    /// <summary>
+    /// Initializes a new instance of <see cref="VirtualProcessStartInfo"/>
+    ///  based on the <see cref="ApplicationData"/> specified.
+    /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <param name="data">The data to base the process on.</param>
+    /// <param name="workingDirectory">
+    /// The working directory to use, overrides the root directory specified in <paramref name="data"/>.
+    /// </param>
+    public VirtualProcessStartInfo(ApplicationData data, ApplicationFile workingDirectory)
+    {
+      if (data == null)
         throw new ArgumentNullException("data");
       if (data.Files.ExeMain.Type != FileType.Assembly_Managed
           || data.Files.ExeMain.Type != FileType.Assembly_Native)
@@ -151,32 +166,16 @@ namespace AppStract.Core.Virtualization.Process
       if (data.Files.DatabaseRegistry.Type != FileType.Database)
         throw new ArgumentException("The ApplicationData specified contains an illegal value for the registry database.",
                                     "data");
-      _executable = data.Files.ExeMain;
-      _dbFileSystem = data.Files.DatabaseFileSystem;
-      _dbRegistry = data.Files.DatabaseRegistry;
-      _arguments = "";
-      _workingDirectory = new ApplicationFile();
-    }
-
-    /// <summary>
-    /// Initializes a new instance of <see cref="VirtualProcessStartInfo"/>
-    ///  based on the <see cref="ApplicationData"/> specified.
-    /// </summary>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <param name="data"></param>
-    /// <param name="workingDirectory"></param>
-    public VirtualProcessStartInfo(ApplicationData data, ApplicationFile workingDirectory)
-      : this(data)
-    {
-      if (data == null)
-        throw new ArgumentNullException("data");
       if (workingDirectory == null)
         throw new ArgumentNullException("workingDirectory");
       if (workingDirectory.Type != FileType.Directory)
         throw new ArgumentException("The working directory specified is not a directory.",
                                     "workingDirectory");
-      _workingDirectory = workingDirectory;
+      _executable = data.Files.ExeMain;
+      _dbFileSystem = data.Files.DatabaseFileSystem;
+      _dbRegistry = data.Files.DatabaseRegistry;
       _arguments = "";
+      _workingDirectory = workingDirectory;
     }
 
     #endregion
