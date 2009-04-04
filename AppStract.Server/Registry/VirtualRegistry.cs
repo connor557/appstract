@@ -21,6 +21,7 @@
 
 #endregion
 
+using AppStract.Core.Logging;
 using AppStract.Server.Registry.Data;
 using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.Registry;
@@ -68,11 +69,23 @@ namespace AppStract.Server.Registry
 
     #region Public Methods
 
+    /// <summary>
+    /// Initializes the <see cref="VirtualRegistry"/>.
+    /// Must be called before any other method is called,
+    /// in order for the <see cref="VirtualRegistry"/>-object to function properly.
+    /// </summary>
+    /// <param name="dataSource">The <see cref="IRegistryLoader"/> to request the initialization data from.</param>
     public void Initialize(IRegistryLoader dataSource)
     {
       _virtualRegistry.LoadData(dataSource);
     }
 
+    /// <summary>
+    /// Tries to open the key with the name specified.
+    /// </summary>
+    /// <param name="keyName">The name of the key to open.</param>
+    /// <param name="hResult">The open handle for the opened key.</param>
+    /// <returns>Whether the key could be opened.</returns>
     public bool OpenKey(string keyName, out uint hResult)
     {
       var accessMechanism = RegistryHelper.DetermineAccessMechanism(keyName);
@@ -81,8 +94,17 @@ namespace AppStract.Server.Registry
         : _virtualRegistry.OpenKey(keyName, out hResult);
     }
 
+    /// <summary>
+    /// Tries to open a subkey of the key handle specified.
+    /// </summary>
+    /// <param name="hKey">The key handle for the key to open a subkey from.</param>
+    /// <param name="subKeyName">The name of the subkey to open.</param>
+    /// <param name="hResult">The open handle for the opened subkey.</param>
+    /// <returns>Whether the subkey could be opened.</returns>
     public bool OpenKey(uint hKey, string subKeyName, out uint hResult)
     {
+      /// Combine subkey and the key associated with the hKey
+      /// to one single keyname, and pass it to OpenKey(string, out uint).
       string keyName = RegistryHelper.GetHiveAsString(hKey);
       if (keyName != null
           || _virtualRegistry.IsKnownKey(hKey, out keyName)
@@ -91,11 +113,18 @@ namespace AppStract.Server.Registry
         return OpenKey(RegistryHelper.CombineKeys(keyName, subKeyName), out hResult);
       }
       /// Can't find the hKey.
-      /// -> Bug: Where did the process get it from?
+      /// -> Bug? Where did the process get it from?
+      GuestCore.Log(new LogMessage(LogLevel.Error,
+                                   "The external process [PID{0}] tried to open a key from an unknown key handle. Parameters: hKey={1};subKeyName={2}",
+                                   GuestCore.ProcessId, hKey, subKeyName));
       hResult = 0;
       return false;
     }
 
+    /// <summary>
+    /// Closes the key handle specified.
+    /// </summary>
+    /// <param name="hKey">The key handle to close.</param>
     public void CloseKey(uint hKey)
     {
       /// The virtual registry doesn't close keys,
@@ -103,7 +132,15 @@ namespace AppStract.Server.Registry
       _transparantRegistry.CloseKey(hKey);
     }
 
-    public StateCode CreateKey(uint hKey, string subKey, out uint phkResult, out RegCreationDisposition creationDisposition)
+    /// <summary>
+    /// Creates a subkey with the given name for the key handle specified.
+    /// </summary>
+    /// <param name="hKey">The open key handle to create a subkey for.</param>
+    /// <param name="subKeyName">The name of the subkey to create.</param>
+    /// <param name="phkResult">The open handle to the created subkey.</param>
+    /// <param name="creationDisposition">Whether the subkey is created or updated.</param>
+    /// <returns>The error code representing the result of this operation.</returns>
+    public StateCode CreateKey(uint hKey, string subKeyName, out uint phkResult, out RegCreationDisposition creationDisposition)
     {
       phkResult = 0;
       creationDisposition = RegCreationDisposition.INVALID;
@@ -115,58 +152,85 @@ namespace AppStract.Server.Registry
             && !_transparantRegistry.IsKnownKey(hKey, out keyName))
           return StateCode.InvalidHandle;
       }
-      keyName = RegistryHelper.CombineKeys(keyName, subKey);
+      keyName = RegistryHelper.CombineKeys(keyName, subKeyName);
       AccessMechanism access = RegistryHelper.DetermineAccessMechanism(keyName);
       return access == AccessMechanism.Transparent
                ? _transparantRegistry.CreateKey(keyName, out phkResult, out creationDisposition)
                : _virtualRegistry.CreateKey(keyName, out phkResult, out creationDisposition);
     }
 
+    /// <summary>
+    /// Deletes the key associated with the open key handle specified.
+    /// </summary>
+    /// <param name="hKey">The open handle of key to delete.</param>
+    /// <returns>The error code representing the result of this operation.</returns>
     public StateCode DeleteKey(uint hKey)
     {
       if (RegistryHelper.IsHiveHandle(hKey))
+        /// Not allowed to delete a root-key.
         return StateCode.AccessDenied;
       if (_virtualRegistry.DeleteKey(hKey) == StateCode.Succes)
         return StateCode.Succes;
       return _transparantRegistry.DeleteKey(hKey);
     }
 
+    /// <summary>
+    /// Returns the <see cref="VirtualRegistryValue"/> associated with the given <paramref name="valueName"/>
+    /// and the key handle specified.
+    /// </summary>
+    /// <param name="hKey">The key to get the <see cref="VirtualRegistryValue"/> from.</param>
+    /// <param name="valueName">The name of the <see cref="VirtualRegistryValue"/> to return.</param>
+    /// <param name="value">The returned <see cref="VirtualRegistryValue"/>.</param>
+    /// <returns>The error code representing the result of this operation.</returns>
     public StateCode QueryValue(uint hKey, string valueName, out VirtualRegistryValue value)
     {
-      /// ToDo: Implement the following in the hook handler!
-      /// 
-      /// An application typically calls RegEnumValue to determine the value names and then
-      /// RegQueryValueEx to retrieve the data for the names.
-      /// 
       value = new VirtualRegistryValue(valueName, null, ValueType.INVALID);
       if (RegistryHelper.IsHiveHandle(hKey))
+        /// Not allowed to access values of root-keys.
         return StateCode.AccessDenied;
       if (_virtualRegistry.IsKnownKey(hKey))
         return _virtualRegistry.QueryValue(hKey, valueName, out value);
       if (_transparantRegistry.IsKnownKey(hKey))
         return _transparantRegistry.QueryValue(hKey, valueName, out value);
+      /// None of the registries knows the handle.
       return StateCode.InvalidHandle;
     }
 
+    /// <summary>
+    /// Sets the given <see cref="VirtualRegistryValue"/> to the key handle specified.
+    /// </summary>
+    /// <param name="hKey">The key handle to set the <paramref name="value"/> for.</param>
+    /// <param name="value">The <see cref="VirtualRegistryValue"/> to set.</param>
+    /// <returns>The error code representing the result of this operation.</returns>
     public StateCode SetValue(uint hKey, VirtualRegistryValue value)
     {
       if (RegistryHelper.IsHiveHandle(hKey))
+        /// Not allowed to access values of root-keys.
         return StateCode.AccessDenied;
       if (_virtualRegistry.IsKnownKey(hKey))
         return _virtualRegistry.SetValue(hKey, value);
       if (_transparantRegistry.IsKnownKey(hKey))
         return _transparantRegistry.SetValue(hKey, value);
+      /// None of the registries knows the handle.
       return StateCode.InvalidHandle;
     }
 
+    /// <summary>
+    /// Deletes the given value from the key handle specified.
+    /// </summary>
+    /// <param name="hKey">The key handle to delete the value from.</param>
+    /// <param name="valueName">The value to delete.</param>
+    /// <returns>The error code representing the result of this operation.</returns>
     public StateCode DeleteValue(uint hKey, string valueName)
     {
       if (RegistryHelper.IsHiveHandle(hKey))
+        /// Not allowed to access values of root-keys.
         return StateCode.AccessDenied;
       if (_virtualRegistry.IsKnownKey(hKey))
         return _virtualRegistry.DeleteValue(hKey, valueName);
       if (_transparantRegistry.IsKnownKey(hKey))
         return _transparantRegistry.DeleteValue(hKey, valueName);
+      /// None of the registries knows the handle.
       return StateCode.InvalidHandle;
     }
 

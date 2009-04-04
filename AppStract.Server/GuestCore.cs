@@ -51,6 +51,14 @@ namespace AppStract.Server
     #region Properties
 
     /// <summary>
+    /// Gets the ID of the current process.
+    /// </summary>
+    public static int ProcessId
+    {
+      get { return _currentProcessId; }
+    }
+
+    /// <summary>
     /// Gets whether the core has been initialized for the current process.
     /// </summary>
     public static bool Initialized

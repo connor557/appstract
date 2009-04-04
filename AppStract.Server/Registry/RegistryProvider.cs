@@ -26,17 +26,28 @@ using Microsoft.Win32.Interop;
 
 namespace AppStract.Server.Registry
 {
+  /// <summary>
+  /// Default implementation of <see cref="IRegistryProvider"/>;
+  /// Makes use of <see cref="VirtualRegistry"/> to handle requests.
+  /// </summary>
   public class RegistryProvider : IRegistryProvider
   {
 
     #region Variables
 
+    /// <summary>
+    /// The <see cref="VirtualRegistry"/> to pass the requests to.
+    /// </summary>
     private readonly VirtualRegistry _virtualRegistry;
 
     #endregion
 
     #region Constructors
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="RegistryProvider"/>,
+    /// the default implementation of <see cref="IRegistryProvider"/>.
+    /// </summary>
     public RegistryProvider()
     {
       _virtualRegistry = new VirtualRegistry();
@@ -46,6 +57,10 @@ namespace AppStract.Server.Registry
 
     #region Public Methods
 
+    /// <summary>
+    /// Loads data from the given <see cref="IRegistryLoader"/> to the underlying resources.
+    /// </summary>
+    /// <param name="dataSource">The <see cref="IRegistryLoader"/> to load the data from.</param>
     public void LoadRegistry(IRegistryLoader dataSource)
     {
       _virtualRegistry.Initialize(dataSource);
@@ -85,7 +100,7 @@ namespace AppStract.Server.Registry
       VirtualRegistryValue virtualRegistryValue;
       StateCode code = _virtualRegistry.QueryValue(hKey, valueName, out virtualRegistryValue);
       value = virtualRegistryValue.Data;
-      valueType = RegistryHelper.ValueIdFromValueType(virtualRegistryValue.Type);
+      valueType = RegistryHelper.ValueTypeIdFromValueType(virtualRegistryValue.Type);
       return WinError.FromStateCode(code);
     }
 

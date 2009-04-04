@@ -39,18 +39,40 @@ namespace AppStract.Server.Registry.Data
 
     #region Variables
 
+    /// <summary>
+    /// The string representing the CurrentUser of the virtual environment.
+    /// </summary>
     private const string _virtualCurrentUser = "S-APPSTRACT-User";
+    /// <summary>
+    /// The string representing the CurrentConfig of the virtual environment.
+    /// </summary>
     private const string _virtualCurrentHardwareProfile = "APPSTRACT-Config";
+    /// <summary>
+    /// The string representing the SID of the current user of the host operating system.
+    /// Also referred to as the real current user.
+    /// </summary>
     private static readonly string _currentUserSid;
+    /// <summary>
+    /// The string representing the current hardware profile (CurrentConfig) of the host operating system.
+    /// Also referred to as the real current config, or real current hardware profile.
+    /// </summary>
     private static readonly string _currentHardwareProfile;
+    /// <summary>
+    /// The full path to the real current user's profile.
+    /// </summary>
     private static readonly string _currentUserFullPath;
+    /// <summary>
+    /// The full path to the real current hardware profile.
+    /// </summary>
     private static readonly string _currentHardwareProfileFullPath;
+    /// <summary>
+    /// The full path to the virtual current user's profile.
+    /// </summary>
     private static readonly string _virtualCurrentUserFullPath;
+    /// <summary>
+    /// The full path to the  virtual current hardware profile.
+    /// </summary>
     private static readonly string _virtualCurrentHardwareProfileFullPath;
-
-    #endregion
-
-    #region Properties
 
     #endregion
 
