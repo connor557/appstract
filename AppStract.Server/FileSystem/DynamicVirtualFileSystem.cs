@@ -27,7 +27,7 @@ using AppStract.Core.Virtualization.FileSystem;
 namespace AppStract.Server.FileSystem
 {
   /// <summary>
-  /// <see cref="DynamicVirtualFileSystem"/> extends <see cref="VirtualFileSystem"/>
+  /// <see cref="DynamicVirtualFileSystem"/> extends <see cref="FileSystemProvider"/>
   /// by having the ability to release the virtual filesystem after a specified time interval.
   /// </summary>
   public class DynamicVirtualFileSystem : FileSystemProvider

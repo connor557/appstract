@@ -26,12 +26,11 @@ using System.Collections.Generic;
 using System.IO;
 using AppStract.Utilities.Extensions;
 
-
 namespace AppStract.Server.FileSystem
 {
   /// <summary>
-  /// Class responsible for redirecting calls to the host's file system
-  /// to locations in the virtual file system.
+  /// Redirects calls to the host's file system
+  /// to locations as used in the virtual file system.
   /// </summary>
   public static class FileAccessRedirector
   {
@@ -41,7 +40,7 @@ namespace AppStract.Server.FileSystem
     /// <summary>
     /// Contains all known system variables.
     /// The keys are the variables used in the real file system,
-    /// while the linked values are the variables used by the virtual file system.
+    /// while the associated values are the variables used by the virtual file system.
     /// </summary>
     private static readonly IDictionary<string, string> _systemVariables;
 
@@ -60,7 +59,7 @@ namespace AppStract.Server.FileSystem
 
     /// <summary>
     /// Returns the replacement path for the specified <paramref name="path"/>.
-    /// The result is relative to the requesting application's working directory.
+    /// The result is relative to the virtual file system's root directory.
     /// </summary>
     /// <param name="path">The path to redirect.</param>
     /// <returns>The replacement path, used for redirection.</returns>

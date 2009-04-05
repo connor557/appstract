@@ -25,9 +25,16 @@ using AppStract.Utilities.Observables;
 
 namespace AppStract.Core.Virtualization.FileSystem
 {
+  /// <summary>
+  /// Defines a method to load the file table to an <see cref="ObservableDictionary{TKey,TValue}"/>.
+  /// </summary>
   public interface IFileSystemLoader
   {
 
+    /// <summary>
+    /// Loads all known key/value pairs of the file table to an <see cref="ObservableDictionary{TKey,TValue}"/>.
+    /// </summary>
+    /// <param name="fileTable">The <see cref="ObservableDictionary{TKey,TValue}"/> to load the file table to.</param>
     void LoadFileSystemTableTo(ObservableDictionary<string, string> fileTable);
 
   }

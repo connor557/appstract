@@ -27,7 +27,6 @@ using System.Runtime.Serialization;
 
 namespace AppStract.Core.Virtualization.FileSystem
 {
-
   /// <summary>
   /// FileTableEntry is a key/value pair used to link a path used in the real file system
   /// to a path used in the virtual file system.
@@ -94,7 +93,7 @@ namespace AppStract.Core.Virtualization.FileSystem
       catch (SerializationException)
       {
         _key = null;
-        /// ToDo: Log the exception.
+        CoreBus.Log.Warning("Unable to deserialize the key of a FileTableEntry.");
       }
       try
       {
@@ -103,20 +102,26 @@ namespace AppStract.Core.Virtualization.FileSystem
       catch (SerializationException)
       {
         _value = null;
-        /// ToDo: Log the exception.
+        CoreBus.Log.Warning("Unable to deserialize the value of a FileTableEntry."
+                            + _key != null
+                              ? "With key " + _key
+                              : "");
       }
       try
       {
         string fileKind = info.GetString("kind");
         Type enumType = typeof (FileKind);
         _fileKind = Enum.IsDefined(enumType, fileKind)
-                      ? (FileKind)Enum.Parse(enumType, fileKind)
+                      ? (FileKind) Enum.Parse(enumType, fileKind)
                       : FileKind.Unspecified;
       }
       catch (SerializationException)
       {
         _fileKind = FileSystem.FileKind.Unspecified;
-        /// ToDo: Log the exception.
+        CoreBus.Log.Warning("Unable to deserialize the FileKind of a FileTableEntry."
+                            + _key != null
+                              ? "With key " + _key
+                              : "");
       }
     }
 

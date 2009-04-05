@@ -24,11 +24,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using AppStract.Core.Logging;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Utilities.Observables;
 
 namespace AppStract.Server.FileSystem
 {
+  /// <summary>
+  /// The default implementation of <see cref="IFileSystemProvider"/>.
+  /// </summary>
   public class FileSystemProvider : IFileSystemProvider
   {
 
@@ -66,6 +70,11 @@ namespace AppStract.Server.FileSystem
 
     #region Constructors
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="FileSystemProvider"/>,
+    /// using the <paramref name="rootDirectory"/> specified as root.
+    /// </summary>
+    /// <param name="rootDirectory">The path to use as root directory.</param>
     public FileSystemProvider(string rootDirectory)
     {
       _fileTable = new ObservableDictionary<string, string>();
@@ -131,14 +140,6 @@ namespace AppStract.Server.FileSystem
       /// Check the file table.
       if (TryGetFile(libraryPath, out result))
         return result;
-      /// Didn't find libraryPath in the file table,
-      /// try again with the full path.
-      if (!Path.IsPathRooted(libraryPath))
-      {
-        string fullLibraryPath = Path.GetFullPath(libraryPath);
-        if (TryGetFile(fullLibraryPath, out result))
-          return result;
-      }
       /// Still not found? Redirect the request and see if then the library can be found.
       string redirectedPath = FileAccessRedirector.Redirect(libraryPath);
       if (File.Exists(redirectedPath))
@@ -219,12 +220,12 @@ namespace AppStract.Server.FileSystem
 
     public virtual FileTableEntry GetFile(FileRequest fileRequest)
     {
+      GuestCore.Log(new LogMessage(LogLevel.Debug, "Guest process requested file: " + fileRequest));
       /// Are we looking for a library?
       if (fileRequest.ResourceKind == ResourceKind.Library)
         return new FileTableEntry(fileRequest.FileName, TryFindLibrary(fileRequest.FileName), FileKind.File);
-      
-      string filename; // Variable to hold the file's location.
       /// Are we looking for a regular file?
+      string filename; // Variable to hold the file's location.
       if (fileRequest.ResourceKind == ResourceKind.FileOrDirectory
           /// Can the file be found in the virtual file table?
           && TryGetFile(fileRequest.FileName, out filename))
@@ -235,9 +236,9 @@ namespace AppStract.Server.FileSystem
       if (fileRequest.CreationDisposition == FileCreationDisposition.CREATE_ALWAYS
           || fileRequest.CreationDisposition == FileCreationDisposition.CREATE_NEW
           || fileRequest.CreationDisposition == FileCreationDisposition.OPEN_ALWAYS)
-      /// The CreationDisposition specifies that the file will be created.
-      /// Add a new entry to the file table and return it.
       {
+        /// The CreationDisposition specifies that the file will be created.
+        /// Add a new entry to the file table and return it.
         var entry = AddNewEntryToFileTable(fileRequest.FileName);
         entry.Value = Path.Combine(_root, entry.Value);
         return entry;

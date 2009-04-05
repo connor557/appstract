@@ -23,7 +23,7 @@
 
 using System;
 using System.IO;
-
+using AppStract.Core.Logging;
 
 namespace AppStract.Server.FileSystem
 {
@@ -36,6 +36,9 @@ namespace AppStract.Server.FileSystem
 
     #region Variables
 
+    /// <summary>
+    /// The number generator to use for pseudo-random numbers.
+    /// </summary>
     private static readonly Random _randomGenerator;
 
     #endregion
@@ -52,7 +55,8 @@ namespace AppStract.Server.FileSystem
     #region Public Methods
 
     /// <summary>
-    /// Gets the path to the system virtual folder identified by the specified enumeration.
+    /// Gets the path to the system virtual folder identified by the <see cref="VirtualFolder"/> specified.
+    /// The returned path is relative to the file system's root directory.
     /// </summary>
     /// <remarks> The returned path is not guaranteed to exist.</remarks>
     /// <param name="virtualFolder">An enumerated constant that identifies a system virtual folder.</param>
@@ -66,7 +70,7 @@ namespace AppStract.Server.FileSystem
         case VirtualFolder.UserData:
           return @"UserData\";
         case VirtualFolder.Temporary:
-          return @"TemporaryFiles\";
+          return @"Temporary\";
         case VirtualFolder.Other:
           return @"Other\";
         case VirtualFolder.System:
@@ -97,20 +101,25 @@ namespace AppStract.Server.FileSystem
       string filename = directory + _randomGenerator.Next(10000, 999999) + "_RND.dat";
       while (File.Exists(filename))
         filename = directory + _randomGenerator.Next(10000, 999999) + "_RND.dat";
-      File.Create(filename).Close();
+      if (createFile)
+        File.Create(filename).Close();
       return filename;
     }
-    
+
     /// <summary>
-    /// Tries to create all directories for the values from <see cref="VirtualFolder"/>.
+    /// Tries to create all system-folders, as defined in <see cref="VirtualFolder"/>.
     /// </summary>
     /// <param name="rootFolder">Rootfolder for the virtual folders.</param>
-    /// <returns>True if all folders are created; False if the creation of one or more folders fails.</returns>
+    /// <returns>True if all folders are created; False if the creation of one or more folders failed.</returns>
     public static bool CreateVirtualFolders(string rootFolder)
     {
+      GuestCore.Log(new LogMessage(LogLevel.Information,
+                                   "Creating system folders for a virtual environment with root \"{0}\"", rootFolder));
       bool failed = false;
-      foreach (VirtualFolder virtualFolder in Enum.GetValues(typeof(VirtualFolder)))
-        failed = TryCreateDirectory(rootFolder + GetFolderPath(virtualFolder)) ? failed : true;
+      foreach (VirtualFolder virtualFolder in Enum.GetValues(typeof (VirtualFolder)))
+        failed = TryCreateDirectory(Path.Combine(rootFolder, GetFolderPath(virtualFolder)))
+                   ? failed
+                   : true;
       return failed;
     }
 
@@ -118,7 +127,7 @@ namespace AppStract.Server.FileSystem
     /// Tries to create the directory, specified by <paramref name="path"/>.
     /// </summary>
     /// <param name="path">Directory to create.</param>
-    /// <returns>True if the directory is created; Otherwise false.</returns>
+    /// <returns>True if the directory is created; False, otherwise.</returns>
     public static bool TryCreateDirectory(string path)
     {
       try
@@ -128,6 +137,7 @@ namespace AppStract.Server.FileSystem
       }
       catch (IOException)
       {
+        GuestCore.Log(new LogMessage(LogLevel.Warning, "Failed to create directory: " + path));
         return false;
       }
       return true;
