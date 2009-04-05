@@ -26,9 +26,8 @@ using AppStract.Core.Virtualization.Registry;
 
 namespace AppStract.Server.Hooking
 {
-
   /// <summary>
-  /// HookHandler processes all intercepted calls to hooked methods.
+  /// The methods defined by this class process all intercepted calls to hooked methods.
   /// </summary>
   public partial class HookImplementations
   {

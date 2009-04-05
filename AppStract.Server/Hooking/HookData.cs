@@ -26,7 +26,6 @@ using EasyHook;
 
 namespace AppStract.Server.Hooking
 {
-
   /// <summary>
   /// The data needed for creating a managed hook.
   /// </summary>
@@ -83,10 +82,10 @@ namespace AppStract.Server.Hooking
     #region Constructors
 
     /// <summary>
-    /// 
+    /// Initializes a new instance of <see cref="HookData"/>.
     /// </summary>
     /// <param name="targetEntryPoint">
-    /// The target entry point that should be hooked.
+    /// The target entry point that must be hooked.
     /// </param>
     /// <param name="handler">The handler with the same signature as the original entry
     /// point that will be invoked for every call that has passed the Fiber Deadlock Barrier
@@ -107,7 +106,10 @@ namespace AppStract.Server.Hooking
 
     #region Public Methods
 
-    // Override ToString() for debug use
+    /// <summary>
+    /// Returns a string representation of the current <see cref="HookData"/>.
+    /// </summary>
+    /// <returns></returns>
     public override string ToString()
     {
       return "[" + _targetEntryPoint + "] " + _handler.Method.Name;
