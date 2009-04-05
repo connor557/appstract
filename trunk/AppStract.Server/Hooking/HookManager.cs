@@ -27,9 +27,8 @@ using EasyHook;
 
 namespace AppStract.Server.Hooking
 {
-
   /// <summary>
-  /// Manages the available hooks, defined by <see cref="HookData"/>.
+  /// Manages the available hooks, defined as instances of <see cref="HookData"/>.
   /// <see cref="Initialize"/> must be called before <see cref="HookManager"/> can provide any data or install any hook.
   /// </summary>
   public static class HookManager
@@ -37,9 +36,21 @@ namespace AppStract.Server.Hooking
 
     #region Variables
 
+    /// <summary>
+    /// Whether <see cref="HookManager"/> is initialized.
+    /// </summary>
     private static bool _initialized;
+    /// <summary>
+    /// All hooks that must be installed in the guest process.
+    /// </summary>
     private static IList<HookData> _hooks;
+    /// <summary>
+    /// The hooks that are currently installed in the guest process.
+    /// </summary>
     private static IList<LocalHook> _installedHooks;
+    /// <summary>
+    /// The object to lock when executing actions on any of the global variables.
+    /// </summary>
     private static readonly object _syncRoot;
 
     #endregion
@@ -68,7 +79,7 @@ namespace AppStract.Server.Hooking
     /// Initializes the manager.
     /// </summary>
     /// <param name="inCallback">An uninterpreted callback that will later be available through <see cref="HookRuntimeInfo.Callback"/>.</param>
-    /// <param name="hookHandler"></param>
+    /// <param name="hookHandler">The object containing the methods to associate with hooked functions.</param>
     public static void Initialize(object inCallback, HookImplementations hookHandler)
     {
       lock (_syncRoot)
@@ -142,7 +153,7 @@ namespace AppStract.Server.Hooking
     {
       lock (_syncRoot)
       {
-        var hooks = GetAvailableHooks();
+        var hooks = GetAvailableHooks();  /// Will throw an ApplicationException if not _initialized.
         _installedHooks = new List<LocalHook>();
         foreach (var hook in hooks)
         {

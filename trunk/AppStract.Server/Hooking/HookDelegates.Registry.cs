@@ -26,6 +26,9 @@ using System.Runtime.InteropServices;
 
 namespace AppStract.Server.Hooking
 {
+  /// <summary>
+  /// Contains all delegates for hooked functions.
+  /// </summary>
   public static partial class HookDelegates
   {
 
