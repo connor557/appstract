@@ -23,6 +23,9 @@
 
 namespace AppStract.Core.Virtualization.FileSystem
 {
+  /// <summary>
+  /// Request of the guest process for a file, directory, or library.
+  /// </summary>
   public struct FileRequest
   {
     
@@ -54,7 +57,7 @@ namespace AppStract.Core.Virtualization.FileSystem
     }
 
     /// <summary>
-    /// Gets the <see cref="CreationDisposition"/> for the requested resource,
+    /// Gets the <see cref="FileCreationDisposition"/> for the requested resource,
     /// this is the action to be taken if the resource doesn't exist yet.
     /// </summary>
     public FileCreationDisposition CreationDisposition
@@ -66,11 +69,30 @@ namespace AppStract.Core.Virtualization.FileSystem
 
     #region Constructors
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="FileRequest"/>.
+    /// </summary>
+    /// <param name="filename">The requested file, directory, or library.</param>
+    /// <param name="resourceType">The type of the requested resource.</param>
+    /// <param name="creationDisposition">The creation disposition, as specified by the guest process.</param>
     public FileRequest(string filename, ResourceKind resourceType, FileCreationDisposition creationDisposition)
     {
       _filename = filename;
       _resourceKind = resourceType;
       _creationDisposition = creationDisposition;
+    }
+
+    #endregion
+
+    #region Public Methods
+
+    /// <summary>
+    /// Returns a string representation of the current <see cref="FileRequest"/>.
+    /// </summary>
+    /// <returns></returns>
+    public override string ToString()
+    {
+      return string.Format("{0} [{1}||{2}]", _filename, _resourceKind, _creationDisposition);
     }
 
     #endregion

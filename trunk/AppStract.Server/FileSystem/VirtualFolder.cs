@@ -23,6 +23,9 @@
 
 namespace AppStract.Server.FileSystem
 {
+  /// <summary>
+  /// Represents a system-folder of the virtual file system.
+  /// </summary>
   public enum VirtualFolder
   {
     System,
@@ -33,5 +36,4 @@ namespace AppStract.Server.FileSystem
     StartMenu,
     Temporary
   }
-
 }

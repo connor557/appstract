@@ -23,10 +23,22 @@
 
 namespace AppStract.Core.Virtualization.FileSystem
 {
+  /// <summary>
+  /// The kind of file.
+  /// </summary>
   public enum FileKind
   {
+    /// <summary>
+    /// The <see cref="FileKind"/> is unknown.
+    /// </summary>
     Unspecified,
+    /// <summary>
+    /// The path associated links to a file.
+    /// </summary>
     File,
+    /// <summary>
+    /// The path associated links to a directory.
+    /// </summary>
     Directory
   }
 }

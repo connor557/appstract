@@ -24,7 +24,6 @@
 using System;
 using System.Runtime.InteropServices;
 
-
 namespace AppStract.Server.FileSystem
 {
   /// <summary>
@@ -54,7 +53,7 @@ namespace AppStract.Server.FileSystem
     /// Retrieves the full path to the startmenu shared by all users.
     /// </summary>
     /// <param name="allUsersMenuFolder">When the method returns, contains the full path of the common start menu.</param>
-    /// <returns>True if the full path of the common start menu is retrieved.</returns>
+    /// <returns>True if the full path of the common start menu is retrieved; False, otherwise.</returns>
     public static bool TryGetAllUsersMenuFolder(out string allUsersMenuFolder)
     {
       allUsersMenuFolder = null;
@@ -71,6 +70,10 @@ namespace AppStract.Server.FileSystem
 
     #region Classes
 
+    /// <summary>
+    /// The GUID's for well known folders.
+    /// As used by Windows operating system.
+    /// </summary>
     public static class KnownFolder
     {
       public static readonly Guid AddNewPrograms = new Guid("de61d971-5ebc-4f02-a3a9-6c82895e5c04");

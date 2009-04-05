@@ -23,6 +23,9 @@
 
 namespace AppStract.Core.Virtualization.FileSystem
 {
+  /// <summary>
+  /// Provides access to the virtual file system.
+  /// </summary>
   public interface IFileSystemProvider
   {
 
