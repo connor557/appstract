@@ -120,6 +120,7 @@ namespace AppStract.Server
                                                      "Process [PID{0}] succesfully loaded the registry.",
                                                      _currentProcessId));
         _hookImplementations = new HookImplementations(fileSystem, registry);
+        _commBus.AutoFlush = true;
         _initialized = true;
       }
     }

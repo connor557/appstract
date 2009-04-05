@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Core.Virtualization.Registry;
@@ -32,15 +33,16 @@ using AppStract.Utilities.Observables;
 namespace AppStract.Server
 {
   /// <summary>
-  /// Enqueues <see cref="DatabaseAction{T}"/>s 'till <see cref="Flush"/> is called.
-  /// Provides an optimized interface for IPC with the <see cref="ProcessSynchronizer"/>.
+  /// Provides a manageable way of IPC.
+  /// <see cref="DatabaseAction{T}"/>s are enqueued untill <see cref="Flush"/> is called,
+  /// which flushes them in a single batch to the host process.
   /// </summary>
   /// <remarks>
   /// Actions are enqueued for a maximum of 500ms.
   /// If the <see cref="CommunicationBus"/> detects that the process is queried to shut down,
   /// the queues are flushed to the <see cref="ProcessSynchronizer"/> of the host process.
   /// 
-  /// Realize that in 500ms much actions can be enqueued,
+  /// Realize that in 500ms many actions can be enqueued,
   /// and all these actions will be lost if the process would be killed by the Windows task manager.
   /// </remarks>
   public class CommunicationBus : IFileSystemLoader, IRegistryLoader
@@ -70,11 +72,70 @@ namespace AppStract.Server
     /// <summary>
     /// The object to lock when performing actions on <see cref="_fileSystemQueue"/>.
     /// </summary>
-    private readonly object _fileSystemLock;
+    private readonly object _fileSystemSyncObject;
     /// <summary>
     /// The object to lock when performing actions on <see cref="_registryQueue"/>.
     /// </summary>
-    private readonly object _registryLock;
+    private readonly object _registrySyncObject;
+    /// <summary>
+    /// The object to lock when performing actions
+    /// related to <see cref="_flushInterval"/> and/or <see cref="_autoFlush"/>.
+    /// </summary>
+    private readonly object _flushSyncObject;
+    /// <summary>
+    /// The interval between each call to <see cref="Flush"/>,
+    /// in milliseconds.
+    /// </summary>
+    private int _flushInterval;
+    /// <summary>
+    /// Whether <see cref="_fileSystemQueue"/> and <see cref="_registryQueue"/>
+    /// must be automatically flushed.
+    /// </summary>
+    private bool _autoFlush;
+
+    #endregion
+
+    #region Properties
+
+    /// <summary>
+    /// Gets or sets whether the enqueued <see cref="DatabaseAction{T}"/>s must be automatically flushed
+    /// each time <see cref="FlushInterval"/> has passed.
+    /// Default value is false.
+    /// </summary>
+    public bool AutoFlush
+    {
+      get { return _autoFlush; }
+      set
+      {
+        lock (_flushSyncObject)
+        {
+          if (_autoFlush == value)
+            return;
+          _autoFlush = value;
+          if (_autoFlush)
+            new Thread(StartFlushing).Start();
+        }
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the interval between each call to <see cref="Flush"/>, in milliseconds.
+    /// The default interval is 500 milliseconds.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// An <see cref="ArgumentOutOfRangeException"/> is thrown if the interval specified
+    /// is not equal to or greater than 0.
+    /// </exception>
+    public int FlushInterval
+    {
+      get { return _flushInterval; }
+      set
+      {
+        if (value < 0)
+          throw new ArgumentOutOfRangeException("value", "The FlushInterval specified must be greater than -1.");
+        _flushInterval = value;
+      }
+    }
 
     #endregion
 
@@ -96,8 +157,11 @@ namespace AppStract.Server
       _loader = resourceLoader;
       _fileSystemQueue = new Queue<DatabaseAction<FileTableEntry>>();
       _registryQueue = new Queue<DatabaseAction<VirtualRegistryKey>>();
-      _fileSystemLock = new object();
-      _registryLock = new object();
+      _autoFlush = false;
+      _flushInterval = 500;
+      _fileSystemSyncObject = new object();
+      _registrySyncObject = new object();
+      _flushSyncObject = new object();
     }
 
     #endregion
@@ -111,12 +175,12 @@ namespace AppStract.Server
     {
       IEnumerable<DatabaseAction<FileTableEntry>> fsActions;
       IEnumerable<DatabaseAction<VirtualRegistryKey>> regActions;
-      lock (_fileSystemLock)
+      lock (_fileSystemSyncObject)
       {
         fsActions = _fileSystemQueue.ToArray();
         _fileSystemQueue.Clear();
       }
-      lock (_registryLock)
+      lock (_registrySyncObject)
       {
         regActions = _registryQueue.ToArray();
         _registryQueue.Clear();
@@ -129,39 +193,91 @@ namespace AppStract.Server
 
     #region Private Methods
 
+    /// <summary>
+    /// Starts flushing.
+    /// This method doesn't return unless <see cref="_autoFlush"/> is set to false.
+    /// </summary>
+    private void StartFlushing()
+    {
+      while (true)
+      {
+        int flushInterval;
+        lock (_flushSyncObject)
+        {
+          if (!_autoFlush)
+            return;
+          Flush();
+          if (!_autoFlush)
+            return;
+          flushInterval = _flushInterval;
+        }
+        Thread.Sleep(flushInterval);
+      }
+    }
+
+    /// <summary>
+    /// Eventhandler for the ItemAdded event of the file table.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="item"></param>
     private void FileTable_ItemAdded(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item)
     {
-      lock (_fileSystemLock)
+      lock (_fileSystemSyncObject)
         _fileSystemQueue.Enqueue(new DatabaseAction<FileTableEntry>(new FileTableEntry(item, FileKind.Unspecified), DatabaseActionType.Set));
     }
 
+    /// <summary>
+    /// Eventhandler for the ItemChanged event of the file table.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="item"></param>
     private void FileTable_ItemChanged(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item)
     {
-      lock (_fileSystemLock)
+      lock (_fileSystemSyncObject)
         _fileSystemQueue.Enqueue(new DatabaseAction<FileTableEntry>(new FileTableEntry(item, FileKind.Unspecified), DatabaseActionType.Update));
     }
 
+    /// <summary>
+    /// Eventhandler for the ItemRemoved event of the file table.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="item"></param>
     private void FileTable_ItemRemoved(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item)
     {
-      lock (_fileSystemLock)
+      lock (_fileSystemSyncObject)
         _fileSystemQueue.Enqueue(new DatabaseAction<FileTableEntry>(new FileTableEntry(item, FileKind.Unspecified), DatabaseActionType.Remove));
     }
 
+    /// <summary>
+    /// Eventhandler for the ItemAdded event of the registry.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="item"></param>
     private void Registry_ItemAdded(ICollection<KeyValuePair<uint, VirtualRegistryKey>> sender, KeyValuePair<uint, VirtualRegistryKey> item)
     {
-      lock (_registryLock)
+      lock (_registrySyncObject)
         _registryQueue.Enqueue(new DatabaseAction<VirtualRegistryKey>(item.Value, DatabaseActionType.Set));
     }
 
+    /// <summary>
+    /// Eventhandler for the ItemChanged event of the registry.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="item"></param>
     private void Registry_ItemChanged(ICollection<KeyValuePair<uint, VirtualRegistryKey>> sender, KeyValuePair<uint, VirtualRegistryKey> item)
     {
-      lock (_registryLock)
+      lock (_registrySyncObject)
         _registryQueue.Enqueue(new DatabaseAction<VirtualRegistryKey>(item.Value, DatabaseActionType.Update));
     }
 
+    /// <summary>
+    /// Eventhandler for the ItemRemoved event of the registry.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="item"></param>
     private void Registry_ItemRemoved(ICollection<KeyValuePair<uint, VirtualRegistryKey>> sender, KeyValuePair<uint, VirtualRegistryKey> item)
     {
-      lock (_registryLock)
+      lock (_registrySyncObject)
         _registryQueue.Enqueue(new DatabaseAction<VirtualRegistryKey>(item.Value, DatabaseActionType.Remove));
     }
 
