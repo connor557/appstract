@@ -1,4 +1,6 @@
+#summary Minimum requirements
 #labels minimum,system,requirements
+
 = AppStract System Requirements =
 
 AppStract needs
