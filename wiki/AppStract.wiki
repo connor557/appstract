@@ -1,0 +1,9 @@
+#summary AppStract project introduction.
+
+= Introduction =
+
+AppStract is an ongoing thesis work about the design and implementation of a portable application virtualization system.
+
+= Warning =
+
+If you decide to try and run this software please do so in a test-environment (like a disposable virtual machine) until further notice. In the current development state there's a realistic chance that AppStract? will damage the OS, which might cause issues with other .NET software.
