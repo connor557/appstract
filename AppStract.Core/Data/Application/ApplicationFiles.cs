@@ -25,6 +25,9 @@ using System;
 
 namespace AppStract.Core.Data.Application
 {
+  /// <summary>
+  /// Stores files associated to an application.
+  /// </summary>
   [Serializable]
   public class ApplicationFiles
   {
@@ -32,27 +35,24 @@ namespace AppStract.Core.Data.Application
     #region Properties
 
     /// <summary>
-    /// Gets or sets the path, relative to the application file's location, of the root directory.
+    /// Gets or sets the path of the root of the file system.
     /// </summary>
     public ApplicationFile RootDirectory { get; set; }
 
     /// <summary>
-    /// Gets or sets the path, relative to <see cref="RootDirectory"/>,
-    /// of the file containing the SQLite database holding the file system's file table.
+    /// Gets or sets the path of the file containing the SQLite database holding the file system's file table.
     /// </summary>
     public ApplicationFile DatabaseFileSystem { get; set; }
 
     /// <summary>
-    /// Gets or sets the path, relative to <see cref="RootDirectory"/>,
-    /// of the file containing the SQLite database holding the registry keys and values.
+    /// Gets or sets the path of the file containing the SQLite database holding the registry keys and values.
     /// </summary>
     public ApplicationFile DatabaseRegistry { get; set; }
 
     /// <summary>
-    /// Gets or sets the path, relative to <see cref="RootDirectory"/>,
-    /// of the executable to start the process with.
+    /// Gets or sets the path of the executable to start the process with.
     /// </summary>
-    public ApplicationFile ExeMain { get; set; }
+    public ApplicationFile Executable { get; set; }
 
     #endregion
 

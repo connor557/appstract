@@ -31,6 +31,9 @@ using ValueType=AppStract.Core.Virtualization.Registry.ValueType;
 
 namespace AppStract.Core.Data.Databases
 {
+  /// <summary>
+  /// Interface class for the registry database.
+  /// </summary>
   public class RegistryDatabase : Database<VirtualRegistryKey>
   {
 
@@ -67,8 +70,8 @@ namespace AppStract.Core.Data.Databases
     /// Returns a <see cref="FileSystemDatabase"/> using the default connectionstring.
     /// </summary>
     /// <remarks>
-    /// <see cref="Initialize"/> must be called before being able to use this instance,
-    /// just as with any other instance of <see cref="FileSystemDatabase"/>.
+    /// <see cref="Initialize"/> must be called before being able to use the returned instance,
+    /// just as with any other instance of <see cref="RegistryDatabase"/>.
     /// </remarks>
     /// <param name="filename">The path of the file to use as data source.</param>
     /// <returns></returns>
@@ -132,6 +135,15 @@ namespace AppStract.Core.Data.Databases
           key.Values.Add(value.Name, value);
       }
       return keys;
+    }
+
+    /// <summary>
+    /// Returns a string representation of the current <see cref="RegistryDatabase"/>.
+    /// </summary>
+    /// <returns></returns>
+    public override string ToString()
+    {
+      return "[RegistryDatabase] " + _connectionString;
     }
 
     #endregion

@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using System.IO;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Data.Settings;
 using AppStract.Core.Logging;
@@ -42,6 +43,8 @@ namespace AppStract.Core
 
     static CoreManager()
     {
+      /// Binding this event might cause a SecurityException.
+      /// This exception is not catched because it indicates that the process is running with insufficient rights.
       AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
     }
 
@@ -100,7 +103,8 @@ namespace AppStract.Core
         throw new CoreException(applicationDataFile
                                 + " could not be found or contains invalid data while trying"
                                 + " to start a new process based on this file.");
-      var startInfo = new VirtualProcessStartInfo(data);
+      var workingDirectory = new ApplicationFile(Path.GetDirectoryName(applicationDataFile));
+      var startInfo = new VirtualProcessStartInfo(data, workingDirectory);
       _process = VirtualizedProcess.Start(startInfo);
     }
 

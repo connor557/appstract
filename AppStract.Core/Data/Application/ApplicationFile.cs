@@ -97,19 +97,28 @@ namespace AppStract.Core.Data.Application
     /// <summary>
     /// Returns the <see cref="FileType"/> for the filename specified.
     /// </summary>
-    /// <exception cref="FileNotFoundException"></exception>
-    /// <param name="filename"></param>
-    /// <returns></returns>
+    /// <exception cref="FileNotFoundException">
+    /// A <see cref="FileNotFoundException"/> is thrown if the filename is identified as an assembly
+    /// while the associated file does not exist.
+    /// It's not possible to retrieve the <see cref="FileType"/> of a non-existing assembly.
+    /// </exception>
+    /// <remarks>
+    /// The <paramref name="filename"/> specified is identified as an assembly
+    /// if it's not a directory
+    /// and if it ends with ".exe" or ".dll".
+    /// </remarks>
+    /// <param name="filename">The file to determine the <see cref="FileType"/> of.</param>
+    /// <returns>The <see cref="FileType"/> of the <paramref name="filename"/> specified.</returns>
     private static FileType GetFileType(string filename)
     {
-      if (Directory.Exists(filename))
+      if (filename == "" || Directory.Exists(filename))
         return FileType.Directory;
-      if (!System.IO.File.Exists(filename))
-        throw new FileNotFoundException();
       if (filename.EndsWith(".db3"))
-        return FileType.Directory;
+        return FileType.Database;
       if (filename.EndsWithAny(new[] {".exe", ".dll"}))
       {
+        if (!System.IO.File.Exists(filename))
+          throw new FileNotFoundException("The assembly specified does not exist, making it impossible to retrieve its FileType.");
         return AssemblyHelper.GetAssemblyType(filename) == AssemblyType.Native
                  ? FileType.Assembly_Native
                  : FileType.Assembly_Managed;

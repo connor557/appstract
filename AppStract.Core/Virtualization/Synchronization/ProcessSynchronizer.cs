@@ -94,6 +94,8 @@ namespace AppStract.Core.Virtualization.Synchronization
         throw new ArgumentException("The filename specified for the registry database is not valid.", "registryDatabaseFile");
       _fileSystemDatabase = FileSystemDatabase.CreateDefaultDatabase(fileSystemDatabaseFile.File);
       _registryDatabase = RegistryDatabase.CreateDefaultDatabase(registryDatabaseFile.File);
+      _fileSystemDatabase.Initialize();
+      _registryDatabase.Initialize();
       _fileSystemRoot = fileSystemRoot.File;
     }
 
