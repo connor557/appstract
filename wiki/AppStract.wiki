@@ -1,4 +1,4 @@
-#summary AppStract project introduction.
+#summary Project introduction.
 
 = Introduction =
 
