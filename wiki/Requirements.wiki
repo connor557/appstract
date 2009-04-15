@@ -1,0 +1,8 @@
+#labels minimumrequirements,requirements
+#AppStract system requirements
+
+= AppStract System Requirements =
+
+AppStract needs
+ * Windows XP, Windows Vista 32bit, Windows Vista 64bit
+ * .NET Framework 3.5 SP1 or higher
