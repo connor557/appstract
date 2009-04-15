@@ -70,14 +70,19 @@ namespace AppStract.Core.Virtualization.Packaging
     /// </returns>
     public new static PackagingProcess Start(VirtualProcessStartInfo startInfo)
     {
-      if (startInfo.DatabaseRegistry.Type != FileType.Database)
-        throw new ArgumentException("The destination file specified for the file system database is not valid.", "startInfo");
-      if (startInfo.DatabaseRegistry.Type != FileType.Database)
-        throw new ArgumentException("The destination file specified for the registry database is not valid.", "startInfo");
-      var registryDatabase = RegistryDatabase.CreateDefaultDatabase(startInfo.DatabaseRegistry.File);
-      var fileSystemDatabase = WatchingFileSystemDatabase.CreateDefaultDatabase(startInfo.DatabaseFileSystem.File);
+      if (startInfo.Files.DatabaseRegistry.Type != FileType.Database)
+        throw new ArgumentException("The destination file specified for the file system database is not valid.",
+                                    "startInfo");
+      if (startInfo.Files.DatabaseRegistry.Type != FileType.Database)
+        throw new ArgumentException("The destination file specified for the registry database is not valid.",
+                                    "startInfo");
+      var registryDatabase = RegistryDatabase.CreateDefaultDatabase(startInfo.Files.DatabaseRegistry.File);
+      registryDatabase.Initialize();
+      var fileSystemDatabase = WatchingFileSystemDatabase.CreateDefaultDatabase(startInfo.Files.DatabaseFileSystem.File);
+      fileSystemDatabase.Initialize();
       var synchronizer = new ProcessSynchronizer(fileSystemDatabase, startInfo.WorkingDirectory, registryDatabase);
       var process = new PackagingProcess(startInfo, synchronizer);
+      process.Start();
       return process;
     }
 

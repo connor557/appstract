@@ -77,16 +77,17 @@ namespace AppStract.Core.Virtualization.Packaging
     /// <param name="outputFolder">The location where the application must be packaged to.</param>
     public Packager(string executable, string outputFolder)
     {
-      ApplicationFile workingDirectory = new ApplicationFile(outputFolder);
+      ApplicationData data = new ApplicationData();
+      var workingDirectory = new ApplicationFile(outputFolder);
       if (workingDirectory.Type != FileType.Directory)
         throw new ArgumentException("The value specified for the outputFolder is invalid.", "outputFolder");
-      ApplicationData data = new ApplicationData();
-      data.Files.ExeMain.File = executable;
-      if (data.Files.ExeMain.Type != FileType.Assembly_Managed
-          || data.Files.ExeMain.Type != FileType.Assembly_Native)
+      data.Files.RootDirectory = new ApplicationFile("");
+      data.Files.Executable = new ApplicationFile(executable);
+      if (data.Files.Executable.Type != FileType.Assembly_Managed
+          && data.Files.Executable.Type != FileType.Assembly_Native)
         throw new ArgumentException("The value specified for the executable is invalid.", "executable");
-      data.Files.DatabaseFileSystem.File = _dbFileSystem;
-      data.Files.DatabaseRegistry.File = _dbRegistry;
+      data.Files.DatabaseFileSystem = new ApplicationFile(_dbFileSystem);
+      data.Files.DatabaseRegistry = new ApplicationFile(_dbRegistry);
       _startInfo = new VirtualProcessStartInfo(data, workingDirectory);
       _waitHandle = new AutoResetEvent(false);
     }
@@ -135,8 +136,8 @@ namespace AppStract.Core.Virtualization.Packaging
         return;
       _result = new PackagedApplication(_startInfo.WorkingDirectory.File,
                                         _process.GetExecutables(), /// We already checked if sender equals _process.
-                                        _startInfo.DatabaseFileSystem.File,
-                                        _startInfo.DatabaseRegistry.File);
+                                        _startInfo.Files.DatabaseFileSystem.File,
+                                        _startInfo.Files.DatabaseRegistry.File);
       _waitHandle.Set();
     }
 

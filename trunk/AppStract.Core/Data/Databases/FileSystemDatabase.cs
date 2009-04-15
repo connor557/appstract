@@ -21,7 +21,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -30,6 +29,9 @@ using AppStract.Core.Virtualization.FileSystem;
 
 namespace AppStract.Core.Data.Databases
 {
+  /// <summary>
+  /// Interface class for the file system database.
+  /// </summary>
   public class FileSystemDatabase : Database<FileTableEntry>
   {
 
@@ -112,6 +114,15 @@ namespace AppStract.Core.Data.Databases
                                      BuildItemFromReadAllQuery);
     }
 
+    /// <summary>
+    /// Returns a string representation of the current <see cref="FileSystemDatabase"/>.
+    /// </summary>
+    /// <returns></returns>
+    public override string ToString()
+    {
+      return "[FileSystemDatabase] " + _connectionString;
+    }
+
     #endregion
 
     #region Protected Methods
@@ -155,71 +166,6 @@ namespace AppStract.Core.Data.Databases
     {
       return new FileTableEntry(dataRecord.GetString(0), dataRecord.GetString(1), FileKind.Unspecified);
     }
-
-    /*
-    private static SQLiteCommand BuildDeleteCommand(string key)
-    {
-      SQLiteCommand command = new SQLiteCommand(
-        string.Format("DELETE FROM {0} WHERE {1} = {2}",
-                      _DatabaseFileTable,
-                      _DatabaseFileTableKey, "*key"));
-      command.Parameters.AddWithValue("*key", key);
-      return command;
-    }
-
-    private static SQLiteCommand BuildQueryCommand(string key)
-    {
-      SQLiteCommand command = new SQLiteCommand(
-        string.Format("SELECT {0} FROM {1} WHERE {2} = {3}",
-                      _DatabaseFileTableValue,
-                      _DatabaseFileTable,
-                      _DatabaseFileTableKey, "*key"));
-      command.Parameters.AddWithValue("*key", key);
-      return command;
-    }
-
-    private static SQLiteCommand BuildQueryCommand(string[] keys)
-    {
-      if (keys == null)
-        throw new ArgumentNullException("keys");
-      if (keys.Length == 0)
-        throw new ArgumentException("The keys parameter must contain at least 1 item.", "keys");
-      SQLiteCommand command = new SQLiteCommand();
-      StringBuilder commandText = new StringBuilder();
-      commandText.AppendFormat("SELECT {0} FROM {1} WHERE ", _DatabaseFileTableValue, _DatabaseFileTable);
-      for (int i = 0; i < keys.Length; i++)
-      {
-        commandText.AppendFormat("{0} = {1} OR ", _DatabaseFileTableKey, "*key" + i);
-        command.Parameters.AddWithValue("*key" + i, keys[i]);
-      }
-      commandText.Remove(commandText.Length - 4, 4);
-      command.CommandText = commandText.ToString();
-      return command;
-    }
-
-    private static SQLiteCommand BuildInsertCommand(string key, string value)
-    {
-      SQLiteCommand command = new SQLiteCommand(
-        string.Format("INSERT INTO [{0}] ({1}, {2}) VALUES ({3}, {4})",
-                      _DatabaseFileTable, _DatabaseFileTableKey, _DatabaseFileTableValue,
-                      "*key", "*value"));
-      command.Parameters.AddWithValue("*key", key);
-      command.Parameters.AddWithValue("*value", value);
-      return command;
-    }
-
-    private static SQLiteCommand BuildUpdateCommand(string key, string value)
-    {
-      SQLiteCommand command = new SQLiteCommand(
-        string.Format("UPDATE {0} SET {1} = {2} WHERE {3} = {4})",
-                      _DatabaseFileTable,
-                      _DatabaseFileTableValue, "*value",
-                      _DatabaseFileTableKey, "*key"));
-      command.Parameters.AddWithValue("*key", key);
-      command.Parameters.AddWithValue("*value", value);
-      return command;
-    }
-    */
 
     #endregion
 

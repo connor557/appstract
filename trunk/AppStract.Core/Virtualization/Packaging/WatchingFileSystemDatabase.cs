@@ -82,6 +82,15 @@ namespace AppStract.Core.Virtualization.Packaging
       return new WatchingFileSystemDatabase(fs.ConnectionString);
     }
 
+    /// <summary>
+    /// Returns a string representation of the current <see cref="WatchingFileSystemDatabase"/>.
+    /// </summary>
+    /// <returns></returns>
+    public override string ToString()
+    {
+      return "[WatchingFileSystemDatabase] " + _connectionString;
+    }
+
     #endregion
 
     #region Private Methods

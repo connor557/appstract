@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using System.IO;
 using AppStract.Core.Data.Application;
 
 namespace AppStract.Core.Virtualization.Process
@@ -34,9 +35,7 @@ namespace AppStract.Core.Virtualization.Process
 
     #region Variables
 
-    private ApplicationFile _executable;
-    private ApplicationFile _dbFileSystem;
-    private ApplicationFile _dbRegistry;
+    private readonly ApplicationFiles _files;
     private ApplicationFile _workingDirectory;
     private string _arguments;
 
@@ -45,55 +44,12 @@ namespace AppStract.Core.Virtualization.Process
     #region Properties
 
     /// <summary>
-    /// Gets or sets the executable to start the process with.
+    /// Gets the <see cref="ApplicationFiles"/> associated with the to be started <see cref="VirtualizedProcess"/>.
+    /// All files are defined with absolute paths.
     /// </summary>
-    /// <exception cref="ArgumentException"></exception>
-    public ApplicationFile Executable
+    public ApplicationFiles Files
     {
-      get { return _executable; }
-      set
-      {
-        if (value.Type != FileType.Assembly_Managed
-            || value.Type != FileType.Assembly_Native)
-          throw new ArgumentException(
-            "The value specified is an illegal type for the main executable.",
-            "value");
-        _executable = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the location of the database containing all known file system entries.
-    /// </summary>
-    /// <exception cref="ArgumentException"></exception>
-    public ApplicationFile DatabaseFileSystem
-    {
-      get { return _dbFileSystem; }
-      set
-      {
-        if (value.Type != FileType.Database)
-          throw new ArgumentException(
-            "The value specified is an illegal type for the file system database.",
-            "value");
-        _dbFileSystem = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the location of the database containing all known registry entries.
-    /// </summary>
-    /// <exception cref="ArgumentException"></exception>
-    public ApplicationFile DatabaseRegistry
-    {
-      get { return _dbRegistry; }
-      set
-      {
-        if (value.Type != FileType.Database)
-          throw new ArgumentException(
-            "The value specified is an illegal type for the registry database.",
-            "value");
-        _dbRegistry = value;
-      }
+      get { return _files; }
     }
 
     /// <summary>
@@ -135,45 +91,50 @@ namespace AppStract.Core.Virtualization.Process
     /// Initializes a new instance of <see cref="VirtualProcessStartInfo"/>
     ///  based on the <see cref="ApplicationData"/> specified.
     /// </summary>
-    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="ArgumentNullException">
+    /// An <see cref="ArgumentNullException"/> is thrown if <paramref name="data"/> of one of its properties is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// An <see cref="ArgumentException"/> is thrown if any of the properties of <paramref name="data"/> is of the wrong type.
+    /// </exception>
     /// <param name="data">The data to base the process on.</param>
-    public VirtualProcessStartInfo(ApplicationData data)
-      : this (data, data.Files.RootDirectory)
-    {
-      
-    }
-
-    /// <summary>
-    /// Initializes a new instance of <see cref="VirtualProcessStartInfo"/>
-    ///  based on the <see cref="ApplicationData"/> specified.
-    /// </summary>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <param name="data">The data to base the process on.</param>
-    /// <param name="workingDirectory">
-    /// The working directory to use, overrides the root directory specified in <paramref name="data"/>.
-    /// </param>
+    /// <param name="workingDirectory">The working directory of the process to start.</param>
     public VirtualProcessStartInfo(ApplicationData data, ApplicationFile workingDirectory)
     {
-      if (data == null)
-        throw new ArgumentNullException("data");
-      if (data.Files.ExeMain.Type != FileType.Assembly_Managed
-          || data.Files.ExeMain.Type != FileType.Assembly_Native)
+      if (data == null
+          || data.Files.DatabaseFileSystem == null
+          || data.Files.DatabaseRegistry == null
+          || data.Files.Executable == null
+          || data.Files.RootDirectory == null)
+        throw new ArgumentNullException("data", "The data argument or one of its properties is null.");
+      if (workingDirectory == null)
+        throw new ArgumentNullException("workingDirectory", "The workingDirectory argument is null.");
+      if (data.Files.Executable.Type != FileType.Assembly_Managed
+          && data.Files.Executable.Type != FileType.Assembly_Native)
         throw new ArgumentException("The ApplicationData specified contains an illegal value for the main executable.",
                                     "data");
       if (data.Files.DatabaseFileSystem.Type != FileType.Database)
-        throw new ArgumentException("The ApplicationData specified contains an illegal value for the file system database.",
-                                    "data");
+        throw new ArgumentException(
+          "The ApplicationData specified contains an illegal value for the file system database.",
+          "data");
       if (data.Files.DatabaseRegistry.Type != FileType.Database)
-        throw new ArgumentException("The ApplicationData specified contains an illegal value for the registry database.",
-                                    "data");
-      if (workingDirectory == null)
-        throw new ArgumentNullException("workingDirectory");
+        throw new ArgumentException(
+          "The ApplicationData specified contains an illegal value for the registry database.",
+          "data");
       if (workingDirectory.Type != FileType.Directory)
         throw new ArgumentException("The working directory specified is not a directory.",
                                     "workingDirectory");
-      _executable = data.Files.ExeMain;
-      _dbFileSystem = data.Files.DatabaseFileSystem;
-      _dbRegistry = data.Files.DatabaseRegistry;
+      _files = new ApplicationFiles
+                 {
+                   DatabaseFileSystem
+                     = new ApplicationFile(Path.Combine(workingDirectory.File, data.Files.DatabaseFileSystem.File)),
+                   DatabaseRegistry
+                     = new ApplicationFile(Path.Combine(workingDirectory.File, data.Files.DatabaseRegistry.File)),
+                   Executable
+                     = new ApplicationFile(Path.Combine(workingDirectory.File, data.Files.Executable.File)),
+                   RootDirectory
+                     = new ApplicationFile(Path.Combine(workingDirectory.File, data.Files.RootDirectory.File))
+                 };
       _arguments = "";
       _workingDirectory = workingDirectory;
     }

@@ -118,9 +118,9 @@ namespace AppStract.Core.Virtualization.Process
       _easyHookSyncRoot = new object();
       _exitEventSyncRoot = new object();
       _startInfo = startInfo;
-      _processSynchronizer = new ProcessSynchronizer(startInfo.DatabaseFileSystem,
-                                                      startInfo.WorkingDirectory,
-                                                      startInfo.DatabaseRegistry);
+      _processSynchronizer = new ProcessSynchronizer(startInfo.Files.DatabaseFileSystem,
+                                                      startInfo.Files.RootDirectory,
+                                                      startInfo.Files.DatabaseRegistry);
     }
 
     /// <summary>
@@ -142,7 +142,7 @@ namespace AppStract.Core.Virtualization.Process
     }
 
     #endregion
-    
+
     #region Public Methods
 
     /// <summary>
@@ -185,13 +185,18 @@ namespace AppStract.Core.Virtualization.Process
       InitEasyHook();
       _hasExited = false;
       /// Start the process.
-      if (_startInfo.Executable.Type == FileType.Assembly_Native)
-        CreateAndInject();
-      else if (_startInfo.Executable.Type == FileType.Assembly_Managed)
-        WrapAndInject();
-      else  /// This should never happen.
-        throw new VirtualProcessException("FileType " + _startInfo.Executable.Type +
-                                          " can't be used to start a process with.");
+      switch (_startInfo.Files.Executable.Type)
+      {
+        case FileType.Assembly_Native:
+          CreateAndInject();
+          break;
+        case FileType.Assembly_Managed:
+          WrapAndInject();
+          break;
+        default:  /// Should never happen!
+          throw new VirtualProcessException("FileType " + _startInfo.Files.Executable.Type +
+                                            " can't be used to start a process with.");
+      }
     }
 
     #endregion
@@ -223,7 +228,7 @@ namespace AppStract.Core.Virtualization.Process
       /// Get the location of the library to inject
       string libraryLocation = CoreBus.Configuration.AppConfig.LibtoInject;
       RemoteHooking.CreateAndInject(
-        Path.Combine(_startInfo.WorkingDirectory.File, _startInfo.Executable.File),
+        Path.Combine(_startInfo.WorkingDirectory.File, _startInfo.Files.Executable.File),
         /// Optional command line parameters for process creation
         _startInfo.Arguments,
         /// ProcessCreationFlags, no conditions are set on the created process.
@@ -239,7 +244,7 @@ namespace AppStract.Core.Virtualization.Process
       _process.EnableRaisingEvents = true;
       _process.Exited += Process_Exited;
       CoreBus.Log.Message("A virtualized process with PID {0} has been succesfully created for {1}.",
-                              processId, _startInfo.Executable.File);
+                              processId, _startInfo.Files.Executable.File);
     }
 
     /// <summary>
