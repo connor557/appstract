@@ -1,5 +1,5 @@
 #labels minimumrequirements,requirements
-#AppStract system requirements
+# AppStract system requirements
 
 = AppStract System Requirements =
 
