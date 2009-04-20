@@ -49,10 +49,6 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EasyHook, Version=2.5.0.0, Culture=neutral, PublicKeyToken=4b580fca19d0b0c5, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\External Libraries\EasyHook\EasyHook.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -93,6 +89,10 @@
     <ProjectReference Include="..\AppStract.Utilities\AppStract.Utilities.csproj">
       <Project>{29578947-FFF4-4A0A-9C75-AE3C5E03F746}</Project>
       <Name>AppStract.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EasyHook\EasyHook.csproj">
+      <Project>{AB53862B-3B5C-4EFC-9787-1F01199EBFBF}</Project>
+      <Name>EasyHook</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
