@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Threading;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Data.Databases;
@@ -35,6 +36,7 @@ namespace AppStract.Core.Virtualization.Synchronization
   /// <summary>
   /// Provides a way of data synchronization between multiple processes.
   /// </summary>
+  [Serializable]
   public class ProcessSynchronizer : MarshalByRefObject, IProcessSynchronizer
   {
 
@@ -112,6 +114,37 @@ namespace AppStract.Core.Virtualization.Synchronization
       _fileSystemDatabase = fileSystemDatabase;
       _registryDatabase = registryDatabase;
       _fileSystemRoot = fileSystemRoot.File;
+    }
+
+    /// <summary>
+    /// Protected constructor to support the <see cref="ISerializable"/> interface.
+    /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <param name="info"></param>
+    /// <param name="context"></param>
+    protected ProcessSynchronizer(SerializationInfo info, StreamingContext context)
+    {
+      if (info == null)
+        throw new ArgumentNullException("info");
+      _fileSystemRoot = info.GetString("fileSystemRoot");
+      _fileSystemDatabase = new FileSystemDatabase(info.GetString("fileSystemConnectionString"));
+      _registryDatabase = new RegistryDatabase(info.GetString("registryConnectionString"));
+    }
+
+    #endregion
+
+    #region ISerializable Members
+
+    /// <summary>
+    /// Populates the <see cref="SerializationInfo"/> with the data needed to serialize the current object.
+    /// </summary>
+    /// <param name="info"></param>
+    /// <param name="context"></param>
+    public void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      info.AddValue("fileSystemRoot", _fileSystemRoot);
+      info.AddValue("fileSystemConnectionString", _fileSystemDatabase.ConnectionString);
+      info.AddValue("registryConnectionString", _registryDatabase.ConnectionString);
     }
 
     #endregion

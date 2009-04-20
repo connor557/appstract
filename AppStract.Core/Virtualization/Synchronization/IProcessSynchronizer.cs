@@ -21,13 +21,19 @@
 
 #endregion
 
+using System;
+using System.Runtime.Serialization;
+
 namespace AppStract.Core.Virtualization.Synchronization
 {
   /// <summary>
   /// Interface offering complete support for data synchronization between multiple processes.
   /// Wraps <see cref="IServerReporter"/>, <see cref="ISynchronizer"/>, and <see cref="IResourceLoader"/>.
   /// </summary>
-  public interface IProcessSynchronizer : IServerReporter, ISynchronizer, IResourceLoader
+  /// <remarks>
+  /// Classes implementing the <see cref="IProcessSynchronizer"/> interface must be marked with the <see cref="SerializableAttribute"/>.
+  /// </remarks>
+  public interface IProcessSynchronizer : ISerializable, IServerReporter, ISynchronizer, IResourceLoader
   {
   }
 }

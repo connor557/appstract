@@ -69,9 +69,9 @@ namespace AppStract.Core.Data.Settings
           {
             "EasyHook.dll",
             "AppStract.Core.dll",
-            "AppStract.Host.dll",
+            "AppStract.Host.exe",
             "AppStract.Inject.dll",
-            "AppStract.Manager.dll",
+            "AppStract.Manager.exe",
             "AppStract.Server.dll",
             "AppStract.Utilities.dll"
           });

@@ -213,7 +213,7 @@ namespace AppStract.Core.Virtualization.Process
         if (_iniEasyHook)
           return;
         Config.Register("AppStract", CoreBus.Configuration.AppConfig.LibsToRegister.ToArray());
-        RemoteHooking.IpcCreateServer<ProcessSynchronizer>(ref _channelName, WellKnownObjectMode.SingleCall);
+        RemoteHooking.IpcCreateServer<ProcessSynchronizer>(ref _channelName, WellKnownObjectMode.Singleton);
         _iniEasyHook = true;
       }
     }
