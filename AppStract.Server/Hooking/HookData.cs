@@ -35,6 +35,10 @@ namespace AppStract.Server.Hooking
     #region Variables
 
     /// <summary>
+    /// Description of the hook that can be installed with the current <see cref="HookData"/>.
+    /// </summary>
+    private readonly string _description;
+    /// <summary>
     /// Target entry point that should be hooked.
     /// </summary>
     private readonly IntPtr _targetEntryPoint;
@@ -52,6 +56,14 @@ namespace AppStract.Server.Hooking
     #endregion
 
     #region Properties
+
+    /// <summary>
+    /// Gets the description of the hook that can be installed with the current <see cref="HookData"/>.
+    /// </summary>
+    public string Description
+    {
+      get { return _description; }
+    }
 
     /// <summary>
     /// Gets the target entry point that should be hooked.
@@ -84,6 +96,9 @@ namespace AppStract.Server.Hooking
     /// <summary>
     /// Initializes a new instance of <see cref="HookData"/>.
     /// </summary>
+    /// <param name="description">
+    /// The description of the API hook that can be installed with this <see cref="HookData"/>.
+    /// </param>
     /// <param name="targetEntryPoint">
     /// The target entry point that must be hooked.
     /// </param>
@@ -95,8 +110,9 @@ namespace AppStract.Server.Hooking
     /// Uninterpreted callback that will later be available through
     /// <seealso cref="HookRuntimeInfo.Callback"/>.
     /// </param>
-    public HookData(IntPtr targetEntryPoint, Delegate handler, object callback)
+    public HookData(string description, IntPtr targetEntryPoint, Delegate handler, object callback)
     {
+      _description = description;
       _targetEntryPoint = targetEntryPoint;
       _handler = handler;
       _callback = callback;
