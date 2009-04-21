@@ -99,5 +99,14 @@ namespace AppStract.Core.Logging
 
     #endregion
 
+    #region Public Methods
+
+    public string ToString()
+    {
+      return "[" + _level + "] " + _message;
+    }
+
+    #endregion
+
   }
 }
