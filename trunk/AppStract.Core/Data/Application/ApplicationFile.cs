@@ -111,6 +111,7 @@ namespace AppStract.Core.Data.Application
     /// <returns>The <see cref="FileType"/> of the <paramref name="filename"/> specified.</returns>
     private static FileType GetFileType(string filename)
     {
+      filename = filename.ToLowerInvariant();
       if (filename == "" || Directory.Exists(filename))
         return FileType.Directory;
       if (filename.EndsWith(".db3"))
