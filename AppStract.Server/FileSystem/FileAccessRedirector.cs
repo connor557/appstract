@@ -89,52 +89,86 @@ namespace AppStract.Server.FileSystem
       systemVariables.Add(
         Environment.GetFolderPath(Environment.SpecialFolder.Personal).ToLowerInvariant(),
         VirtualEnvironment.GetFolderPath(VirtualFolder.UserData));
-      systemVariables.Add(
-        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).ToLowerInvariant(),
-        VirtualEnvironment.GetFolderPath(VirtualFolder.UserData) + @"Documents\");
-      systemVariables.Add(
-        Environment.GetFolderPath(Environment.SpecialFolder.MyPictures).ToLowerInvariant(),
-        VirtualEnvironment.GetFolderPath(VirtualFolder.UserData) + @"Pictures\");
-      systemVariables.Add(
-        Environment.GetFolderPath(Environment.SpecialFolder.MyMusic).ToLowerInvariant(),
-        VirtualEnvironment.GetFolderPath(VirtualFolder.UserData) + @"Music\");
+
+      /// From now on, always check if the dictionary doesn't already contain the same key.
+      /// The users might have configured the specialfolders to use the same folder.
+      /// BUG: Such configurations might lead to inconsistencies between different host systems.
+      tmp = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).ToLowerInvariant();
+      if (!systemVariables.ContainsKey(tmp))
+      {
+        systemVariables.Add(tmp,
+          VirtualEnvironment.GetFolderPath(VirtualFolder.UserData) + @"Documents\");
+      }
+
+      tmp = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures).ToLowerInvariant();
+      if (!systemVariables.ContainsKey(tmp))
+      {
+        systemVariables.Add(tmp,
+          VirtualEnvironment.GetFolderPath(VirtualFolder.UserData) + @"Pictures\");
+      }
+
+      tmp = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic).ToLowerInvariant();
+      if (!systemVariables.ContainsKey(tmp))
+      {
+        systemVariables.Add(tmp,
+          VirtualEnvironment.GetFolderPath(VirtualFolder.UserData) + @"Music\");
+      }
 
       /// Application Data
-      systemVariables.Add(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData).ToLowerInvariant(),
-        VirtualEnvironment.GetFolderPath(VirtualFolder.ApplicationData));
-      systemVariables.Add(
-        Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData).ToLowerInvariant(),
-        VirtualEnvironment.GetFolderPath(VirtualFolder.ApplicationData));
-      systemVariables.Add(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).ToLowerInvariant(),
-        VirtualEnvironment.GetFolderPath(VirtualFolder.ApplicationData));
+      tmp = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData).ToLowerInvariant();
+      if (!systemVariables.ContainsKey(tmp))
+      {
+        systemVariables.Add(tmp,
+          VirtualEnvironment.GetFolderPath(VirtualFolder.ApplicationData));
+      }
+
+      tmp = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData).ToLowerInvariant();
+      if (!systemVariables.ContainsKey(tmp))
+      {
+        systemVariables.Add(tmp,
+          VirtualEnvironment.GetFolderPath(VirtualFolder.ApplicationData));
+      }
+
+      tmp = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).ToLowerInvariant();
+      if (!systemVariables.ContainsKey(tmp))
+      {
+        systemVariables.Add(tmp,
+          VirtualEnvironment.GetFolderPath(VirtualFolder.ApplicationData));
+      }
 
       /// Program Files
-      systemVariables.Add(
-        Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles).ToLowerInvariant(),
-        VirtualEnvironment.GetFolderPath(VirtualFolder.ProgramFiles));
+      tmp = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles).ToLowerInvariant();
+      if (!systemVariables.ContainsKey(tmp))
+      {
+        systemVariables.Add(tmp,
+          VirtualEnvironment.GetFolderPath(VirtualFolder.ProgramFiles));
+      }
 
       /// System
       tmp = Environment.GetEnvironmentVariable("systemroot");
-      if (tmp != null)
+      if (tmp != null && !systemVariables.ContainsKey(tmp))
       {
         systemVariables.Add(
           tmp.ToLowerInvariant(),
           VirtualEnvironment.GetFolderPath(VirtualFolder.System));
       }
-      systemVariables.Add(
-        Environment.GetFolderPath(Environment.SpecialFolder.System).ToLowerInvariant(),
-        VirtualEnvironment.GetFolderPath(VirtualFolder.System) + @"System32\");
-
-      /// Start Menu
-      systemVariables.Add(
-        Environment.GetFolderPath(Environment.SpecialFolder.StartMenu).ToLowerInvariant(),
-        VirtualEnvironment.GetFolderPath(VirtualFolder.StartMenu));
-      if (EnvironmentExtender.TryGetAllUsersMenuFolder(out tmp))
+      tmp = Environment.GetFolderPath(Environment.SpecialFolder.System).ToLowerInvariant();
+      if (!systemVariables.ContainsKey(tmp))
       {
-        systemVariables.Add(
-          tmp.ToLowerInvariant(),
+        systemVariables.Add(tmp,
+          VirtualEnvironment.GetFolderPath(VirtualFolder.System) + @"System32\");
+      }
+      /// Start Menu
+      tmp = Environment.GetFolderPath(Environment.SpecialFolder.StartMenu).ToLowerInvariant();
+      if (!systemVariables.ContainsKey(tmp))
+      {
+        systemVariables.Add(tmp,
+          VirtualEnvironment.GetFolderPath(VirtualFolder.StartMenu));
+      }
+      if (EnvironmentExtender.TryGetAllUsersMenuFolder(out tmp)
+        && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
+      {
+        systemVariables.Add(tmp.ToLowerInvariant(),
           VirtualEnvironment.GetFolderPath(VirtualFolder.StartMenu));
       }
 

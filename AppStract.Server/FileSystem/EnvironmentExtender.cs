@@ -23,6 +23,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace AppStract.Server.FileSystem
 {
@@ -35,15 +36,27 @@ namespace AppStract.Server.FileSystem
     #region Imports
 
     /// <summary>
-    /// Retrieves the full path of a known folder identified by the folder's KNOWNFOLDERID.
+    /// 
     /// </summary>
-    /// <param name="rfid">A reference to the KNOWNFOLDERID that identifies the folder.</param>
-    /// <param name="dwFlags">Flags that specify special retrieval options. This value can be 0; otherwise, one or more of the KNOWN_FOLDER_FLAG values.</param>
-    /// <param name="hToken">An access token that represents a particular user. If this parameter is NULL, which is the most common usage, the function requests the known folder for the current user.</param>
-    /// <param name="pszPath">When this method returns, contains the address of a pointer to a null-terminated Unicode string that specifies the path of the known folder. The calling process is responsible for freeing this resource once it is no longer needed by calling CoTaskMemFree.</param>
-    /// <returns>0 if the function succeeded.</returns>
-    [DllImport("shell32.dll")]
-    static extern int SHGetKnownFolderPath([MarshalAs(UnmanagedType.LPStruct)] Guid rfid, uint dwFlags, IntPtr hToken, out IntPtr pszPath);
+    /// <remarks>
+    /// Microsoft marked this function as deprecated and advices the use of SHGetKnownFolderPath.
+    /// This advice is ignored because SHGetKnownFolderPath is not compatible with Windows XP SP3.
+    /// </remarks>
+    /// <param name="owner">Reserved.</param>
+    /// <param name="folder">
+    /// A CSIDL value that identifies the folder whose path is to be retrieved.
+    /// Only real folders are valid. If a virtual folder is specified, this function fails.
+    /// You can force creation of a folder by combining the folder's CSIDL with CSIDL_FLAG_CREATE.
+    /// </param>
+    /// <param name="token">An access token that can be used to represent a particular user.</param>
+    /// <param name="flags">Flags that specify the path to be returned.</param>
+    /// <param name="path">
+    /// A pointer to a null-terminated string of length MAX_PATH which will receive the path.
+    /// If an error occurs or S_FALSE is returned, this string will be empty.
+    /// </param>
+    /// <returns>Returns 0 if OK.</returns>
+    [DllImport("shfolder.dll", CharSet = CharSet.Unicode)]
+    private static extern int SHGetFolderPath(IntPtr owner, int folder, IntPtr token, int flags, StringBuilder path);
 
     #endregion
 
@@ -57,13 +70,12 @@ namespace AppStract.Server.FileSystem
     public static bool TryGetAllUsersMenuFolder(out string allUsersMenuFolder)
     {
       allUsersMenuFolder = null;
-      IntPtr pPath;
-      if (SHGetKnownFolderPath(KnownFolder.CommonStartMenu, 0, IntPtr.Zero, out pPath) == 0)
-      {
-        allUsersMenuFolder = Marshal.PtrToStringUni(pPath);
-        Marshal.FreeCoTaskMem(pPath);
-      }
-      return allUsersMenuFolder != null;
+      StringBuilder path = new StringBuilder(260);
+      int retval = SHGetFolderPath(IntPtr.Zero, 0x16, IntPtr.Zero, 0, path);
+      if (retval != 0)
+        return false;
+      allUsersMenuFolder = path.ToString();
+      return true;
     }
 
     #endregion
