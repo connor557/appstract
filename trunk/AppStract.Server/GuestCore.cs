@@ -107,21 +107,24 @@ namespace AppStract.Server
         _commBus = new CommunicationBus(processSynchronizer, processSynchronizer);
         /// Load resources.
         _serverReporter.ReportMessage(new LogMessage(LogLevel.Information,
-                                                     "Process [PID{0}] will now load the file system and registry data.",
+                                                     "Process [{0}] will now load the file system and registry data.",
                                                      _currentProcessId));
         var fileSystem = new FileSystemProvider(processSynchronizer.FileSystemRoot);
         fileSystem.LoadFileTable(_commBus);
-        _serverReporter.ReportMessage(new LogMessage(LogLevel.Information,
-                                                     "Process [PID{0}] succesfully loaded the file system.",
+        _serverReporter.ReportMessage(new LogMessage(LogLevel.Debug,
+                                                     "Process [{0}] succesfully loaded the file system.",
                                                      _currentProcessId));
         var registry = new RegistryProvider();
         registry.LoadRegistry(_commBus);
-        _serverReporter.ReportMessage(new LogMessage(LogLevel.Information,
-                                                     "Process [PID{0}] succesfully loaded the registry.",
+        _serverReporter.ReportMessage(new LogMessage(LogLevel.Debug,
+                                                     "Process [{0}] succesfully loaded the registry.",
                                                      _currentProcessId));
         _hookImplementations = new HookImplementations(fileSystem, registry);
         _commBus.AutoFlush = true;
         _initialized = true;
+        _serverReporter.ReportMessage(new LogMessage(LogLevel.Information,
+                                                     "Process [{0}] succesfully initialized its core.",
+                                                     _currentProcessId));
       }
     }
 
