@@ -220,6 +220,8 @@ namespace AppStract.Server.FileSystem
 
     public virtual FileTableEntry GetFile(FileRequest fileRequest)
     {
+      if (fileRequest.FileName.StartsWith(@"\\.\")) /// Don't bother to try to redirect pipes.
+        return new FileTableEntry(fileRequest.FileName, fileRequest.FileName, FileKind.Unspecified);
       GuestCore.Log(new LogMessage(LogLevel.Debug, "Guest process requested file: " + fileRequest));
       /// Are we looking for a library?
       if (fileRequest.ResourceKind == ResourceKind.Library)
@@ -244,11 +246,7 @@ namespace AppStract.Server.FileSystem
         return entry;
       }
       /// Else, the file won't be created.
-      /// Note: The behaviour of this else clause must be reconsidered.
       return new FileTableEntry(fileRequest.FileName, fileRequest.FileName, FileKind.Unspecified);
-      /// Return a non-existing temporary file without creating a filetable-entry for it.
-      /// BUG: Is this expected behaviour? What if the process is accessing a DVD or some Windows files...
-      //return new FileTableEntry(fileRequest.FileName, GetTemporaryFile(false), FileKind.Unspecified);
     }
 
     public virtual void DeleteFile(FileTableEntry fileTableEntry)
