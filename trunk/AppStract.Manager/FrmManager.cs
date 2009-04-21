@@ -21,6 +21,7 @@
 
 #endregion
 
+using System.Threading;
 using System.Windows.Forms;
 using AppStract.Core;
 using AppStract.Core.Data.Application;
@@ -56,6 +57,8 @@ namespace AppStract.Manager
 
     private void _lnkPackage_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
     {
+      if (Thread.CurrentThread.Name == null)
+        Thread.CurrentThread.Name = "Packager";
       /// Gather the necessairy information from the user.
       var preWizard = new NewApplication();
       if (preWizard.ShowDialog() != System.Windows.Forms.DialogResult.OK)
