@@ -24,6 +24,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using AppStract.Core.Logging;
 using AppStract.Core.Virtualization.Synchronization;
 using AppStract.Server;
 using EasyHook;
@@ -54,13 +55,12 @@ namespace AppStract.Inject
     /// </remarks>
     /// <param name="inContext">Information about the environment in which the library main method has been invoked.</param>
     /// <param name="inChannelName">The name of the inter-process communication channel to connect to.</param>
-    /// <param name="processSynchronizer">The object to use for communication with the host.</param>
-    public ProcessEntryPoint(RemoteHooking.IContext inContext, string inChannelName, IProcessSynchronizer processSynchronizer)
+    public ProcessEntryPoint(RemoteHooking.IContext inContext, string inChannelName)
     {
       /// Connect to server.
-      RemoteHooking.IpcConnectClient<ProcessSynchronizer>(inChannelName);
+      IProcessSynchronizer sync = RemoteHooking.IpcConnectClient<ProcessSynchronizerInterface>(inChannelName).ProcessSynchronizer;
       /// Initialize the guest's core.
-      GuestCore.Initialize(processSynchronizer);
+      GuestCore.Initialize(sync);
       /// Validate connection.
       if (!GuestCore.ValidConnection)
         throw new GuestException("Failed to validate the inter-process connection while initializing the guest's process.");
@@ -81,16 +81,16 @@ namespace AppStract.Inject
     /// </remarks>
     /// <param name="inContext">Information about the environment in which the library main method has been invoked.</param>
     /// <param name="channelName">The name of the inter-process communication channel to connect to.</param>
-    /// <param name="resourceSynchronizer"></param>
-    public void Run(RemoteHooking.IContext inContext, String channelName, ProcessSynchronizer resourceSynchronizer)
+    public void Run(RemoteHooking.IContext inContext, string channelName)
     {
       /// Name the current thread.
-      Thread.CurrentThread.Name = string.Format("{0} (PID {1})",
+      Thread.CurrentThread.Name = string.Format("{0} (PID {1}) Run method",
         Process.GetCurrentProcess().ProcessName, RemoteHooking.GetCurrentProcessId());
       /// Validate the connection.
       if (!GuestCore.ValidConnection)
-        /// Return silently, can't log
-        return;
+        return; /// Return silently, can't log
+      GuestCore.Log(new LogMessage(
+        LogLevel.Information, "Guest process [{0}] entered the Run method.", GuestCore.ProcessId));
       /// Install all hooks.
       GuestCore.InstallHooks(this);
       /// Start the injected process.

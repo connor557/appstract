@@ -24,6 +24,7 @@
 using System;
 using System.IO;
 using System.Runtime.Remoting;
+using System.Threading;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Virtualization.Synchronization;
 using EasyHook;
@@ -213,7 +214,8 @@ namespace AppStract.Core.Virtualization.Process
         if (_iniEasyHook)
           return;
         Config.Register("AppStract", CoreBus.Configuration.AppConfig.LibsToRegister.ToArray());
-        RemoteHooking.IpcCreateServer<ProcessSynchronizer>(ref _channelName, WellKnownObjectMode.Singleton);
+        ProcessSynchronizerInterface.SProcessSynchronizer = _processSynchronizer;
+        RemoteHooking.IpcCreateServer<ProcessSynchronizerInterface>(ref _channelName, WellKnownObjectMode.Singleton);
         _iniEasyHook = true;
       }
     }
@@ -238,7 +240,7 @@ namespace AppStract.Core.Virtualization.Process
         /// The process ID of the newly created process
         out processId,
         /// Extra parameters being passed to the injected library entry points Run() and Initialize()
-        _channelName, _processSynchronizer);
+        _channelName);
       /// The process has been created, set the _process variable.
       _process = SystemProcess.GetProcessById(processId, SystemProcess.GetCurrentProcess().MachineName);
       _process.EnableRaisingEvents = true;
@@ -268,6 +270,9 @@ namespace AppStract.Core.Virtualization.Process
     /// <param name="e"></param>
     private void Process_Exited(object sender, EventArgs e)
     {
+      if (Thread.CurrentThread.Name == null)
+        Thread.CurrentThread.Name = "Process Finalizer";
+      CoreBus.Log.Message("Process Exited event called for " + sender);
       if (!_process.HasExited)
         return;
       _hasExited = true;

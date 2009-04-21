@@ -127,6 +127,7 @@
     <Compile Include="Virtualization\Registry\VirtualRegistryKey.cs" />
     <Compile Include="Virtualization\Registry\VirtualRegistryValue.cs" />
     <Compile Include="CoreManager.cs" />
+    <Compile Include="Virtualization\Synchronization\ProcessSynchronizerInterface.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppStract.Utilities\AppStract.Utilities.csproj">
