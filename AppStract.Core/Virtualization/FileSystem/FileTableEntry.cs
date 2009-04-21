@@ -31,6 +31,7 @@ namespace AppStract.Core.Virtualization.FileSystem
   /// FileTableEntry is a key/value pair used to link a path used in the real file system
   /// to a path used in the virtual file system.
   /// </summary>
+  [Serializable]
   public struct FileTableEntry : ISerializable, IEquatable<FileTableEntry>
   {
 
