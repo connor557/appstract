@@ -21,6 +21,8 @@
 
 #endregion
 
+using System.IO;
+
 namespace AppStract.Core.Virtualization.FileSystem
 {
   /// <summary>
@@ -77,7 +79,9 @@ namespace AppStract.Core.Virtualization.FileSystem
     /// <param name="creationDisposition">The creation disposition, as specified by the guest process.</param>
     public FileRequest(string filename, ResourceKind resourceType, FileCreationDisposition creationDisposition)
     {
-      _filename = filename;
+      if (!Path.IsPathRooted(filename)) /// Avoid getting full paths for pipes.
+        filename = Path.GetFullPath(filename);
+      _filename = filename.ToLowerInvariant();
       _resourceKind = resourceType;
       _creationDisposition = creationDisposition;
     }
