@@ -79,7 +79,8 @@ namespace AppStract.Core.Virtualization.FileSystem
     /// <param name="creationDisposition">The creation disposition, as specified by the guest process.</param>
     public FileRequest(string filename, ResourceKind resourceType, FileCreationDisposition creationDisposition)
     {
-      if (!Path.IsPathRooted(filename)) /// Avoid getting full paths for pipes.
+      if (resourceType != ResourceKind.Library  /// Libraries don't need a full path.
+        && !Path.IsPathRooted(filename))        /// Avoid getting full paths for pipes.
         filename = Path.GetFullPath(filename);
       _filename = filename.ToLowerInvariant();
       _resourceKind = resourceType;

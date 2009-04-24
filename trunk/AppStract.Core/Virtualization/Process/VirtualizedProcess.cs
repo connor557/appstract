@@ -25,6 +25,7 @@ using System;
 using System.IO;
 using System.Runtime.Remoting;
 using System.Threading;
+using Microsoft.Win32.Interop;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Virtualization.Synchronization;
 using EasyHook;
@@ -272,16 +273,20 @@ namespace AppStract.Core.Virtualization.Process
     {
       if (Thread.CurrentThread.Name == null)
         Thread.CurrentThread.Name = "Process Finalizer";
-      CoreBus.Log.Message("Process Exited event called for " + sender);
+      CoreBus.Log.Message("Process Exited event is called");
       if (!_process.HasExited)
         return;
       _hasExited = true;
       lock (_exitEventSyncRoot)
       {
-        if (_process.ExitCode == 0)
+        if (WinError.Succeeded(_process.ExitCode))
           _exited(this, ExitCode.Success);
         else
-          _exited(this, ExitCode.Unexpected);
+        {
+          CoreBus.Log.Error("Process exited with ExitCode [{0}] {1} and message {2}",
+            _process.ExitCode, WinError.GetErrorName((uint)_process.ExitCode), _process.StandardError.ReadToEnd());
+          _exited(this, ExitCode.Error);
+        }
       }
     }
 

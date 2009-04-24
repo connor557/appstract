@@ -55,6 +55,16 @@ namespace Microsoft.Win32.Interop
       return String.Empty;
     }
 
+    public static bool Succeeded(int result)
+    {
+      return result >= 0;
+    }
+
+    public static bool Failed(int result)
+    {
+      return result < 0;
+    }
+
     /// <summary>
     /// The operation completed successfully.
     /// </summary>
@@ -12079,15 +12089,6 @@ namespace Microsoft.Win32.Interop
     /// </summary>
     public const int NS_E_FILE_OPEN_FAILED = (int)(0xC00D001DL - 0x100000000);
 
-    public static bool Succeeded(int result)
-    {
-      return result >= 0;
-    }
-
-    public static bool Failed(int result)
-    {
-      return result < 0;
-    }
   }
 }
 /******************************************************************************/

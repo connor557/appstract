@@ -126,18 +126,16 @@ namespace AppStract.Core.Virtualization.Packaging
     {
       if (sender != _process)
         throw new ApplicationException("An unexpected exception occured in the application workflow."
-                                       + " Expected object of type "
-                                       + _process.GetType()
-                                       + " but received an object of type "
-                                       + sender.GetType()
+                                       + " Process_Exited event is called from an unknown Process."
                                        + " Please contact the developers about this issue.");
       _succeeded = exitCode == ExitCode.Success;
-      if (!_succeeded)
-        return;
-      _result = new PackagedApplication(_startInfo.WorkingDirectory.File,
-                                        _process.GetExecutables(), /// We already checked if sender equals _process.
-                                        _startInfo.Files.DatabaseFileSystem.File,
-                                        _startInfo.Files.DatabaseRegistry.File);
+      if (_succeeded)
+      {
+        _result = new PackagedApplication(_startInfo.WorkingDirectory.File,
+                                          _process.GetExecutables(), /// We already checked if sender equals _process.
+                                          _startInfo.Files.DatabaseFileSystem.File,
+                                          _startInfo.Files.DatabaseRegistry.File);
+      }
       _waitHandle.Set();
     }
 

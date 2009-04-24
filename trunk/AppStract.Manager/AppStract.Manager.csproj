@@ -207,6 +207,7 @@
 xcopy "$(SolutionDir)External Libraries\sqlite3.dll" "$(TargetDir)" /i /r /y
 xcopy "$(SolutionDir)AppStract.Inject\bin\x86\Debug\AppStract.Inject.dll" "$(TargetDir)" /i /r /y
 xcopy "$(SolutionDir)AppStract.Server\bin\x86\Debug\AppStract.Server.dll" "$(TargetDir)" /i /r /y
-xcopy "$(SolutionDir)AppStract.Host\bin\x86\Debug\AppStract.Host.exe" "$(TargetDir)" /i /r /y</PostBuildEvent>
+xcopy "$(SolutionDir)AppStract.Host\bin\x86\Debug\AppStract.Host.exe" "$(TargetDir)" /i /r /y
+xcopy "$(SolutionDir)EasyHook\bin\x86\Debug" "$(TargetDir)" /i /r /y</PostBuildEvent>
   </PropertyGroup>
 </Project>
