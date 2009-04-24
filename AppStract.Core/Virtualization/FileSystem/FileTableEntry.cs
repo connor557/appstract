@@ -111,9 +111,9 @@ namespace AppStract.Core.Virtualization.FileSystem
       try
       {
         string fileKind = info.GetString("kind");
-        Type enumType = typeof (FileKind);
+        Type enumType = typeof(FileKind);
         _fileKind = Enum.IsDefined(enumType, fileKind)
-                      ? (FileKind) Enum.Parse(enumType, fileKind)
+                      ? (FileKind)Enum.Parse(enumType, fileKind)
                       : FileKind.Unspecified;
       }
       catch (SerializationException)
@@ -124,6 +124,15 @@ namespace AppStract.Core.Virtualization.FileSystem
                               ? "With key " + _key
                               : "");
       }
+    }
+
+    #endregion
+
+    #region Public Methods
+
+    public override string ToString()
+    {
+      return "[" + _fileKind + "][ " + _key + " || " + _value + " ]";
     }
 
     #endregion
