@@ -30,7 +30,7 @@ namespace AppStract.Core.Virtualization.FileSystem
   /// </summary>
   public struct FileRequest
   {
-    
+
     #region Variables
 
     private readonly string _filename;
@@ -79,10 +79,12 @@ namespace AppStract.Core.Virtualization.FileSystem
     /// <param name="creationDisposition">The creation disposition, as specified by the guest process.</param>
     public FileRequest(string filename, ResourceKind resourceType, FileCreationDisposition creationDisposition)
     {
-      if (resourceType != ResourceKind.Library  /// Libraries don't need a full path.
-        && !Path.IsPathRooted(filename))        /// Avoid getting full paths for pipes.
-        filename = Path.GetFullPath(filename);
-      _filename = filename.ToLowerInvariant();
+      if (resourceType != ResourceKind.Library                /// Libraries don't need a full path.
+        && (!Path.IsPathRooted(filename)                      /// Avoid getting full paths for pipes.
+        || filename.ToLowerInvariant().Contains("docume~1"))) /// Legacy paths are rooted, but GetFullPath is still needed!
+        _filename = Path.GetFullPath(filename).ToLowerInvariant();
+      else
+        _filename = filename.ToLowerInvariant();
       _resourceKind = resourceType;
       _creationDisposition = creationDisposition;
     }
