@@ -104,26 +104,26 @@ namespace AppStract.Server.Hooking
                     new HookDelegates.DLoadLibraryEx(hookHandler.DoLoadLibraryEx),
                     inCallback));
         /// Hooks regarding the registry
-        //hooks.Add(new HookData("Set Registry Value",
-        //            LocalHook.GetProcAddress("advapi32.dll", "RegSetValueExW"),
-        //            new HookDelegates.DSetValue(hookHandler.RegSetValueEx),
-        //            inCallback));
-        //hooks.Add(new HookData("Query Registry Value",
-        //            LocalHook.GetProcAddress("advapi32.dll", "RegQueryValueExW"),
-        //            new HookDelegates.DQueryValue(hookHandler.RegQueryValue_Hooked),
-        //            inCallback));
-        //hooks.Add(new HookData("Open Registry Key",
-        //            LocalHook.GetProcAddress("advapi32.dll", "RegOpenKeyExW"),
-        //            new HookDelegates.DOpenKey(hookHandler.RegOpenKey_Hooked),
-        //            inCallback));
-        //hooks.Add(new HookData("Create Registry Key",
-        //            LocalHook.GetProcAddress("advapi32.dll", "RegCreateKeyExW"),
-        //            new HookDelegates.DCreateKey(hookHandler.RegCreateKeyEx_Hooked),
-        //            inCallback));
-        //hooks.Add(new HookData("Close Registry Key",
-        //            LocalHook.GetProcAddress("advapi32.dll", "RegCloseKey"),
-        //            new HookDelegates.DCloseKey(hookHandler.RegCloseKey_Hooked),
-        //            inCallback));
+        hooks.Add(new HookData("Set Registry Value",
+                    LocalHook.GetProcAddress("advapi32.dll", "RegSetValueExW"),
+                    new HookDelegates.DSetValue(hookHandler.RegSetValueEx),
+                    inCallback));
+        hooks.Add(new HookData("Query Registry Value",
+                    LocalHook.GetProcAddress("advapi32.dll", "RegQueryValueExW"),
+                    new HookDelegates.DQueryValue(hookHandler.RegQueryValue_Hooked),
+                    inCallback));
+        hooks.Add(new HookData("Open Registry Key",
+                    LocalHook.GetProcAddress("advapi32.dll", "RegOpenKeyExW"),
+                    new HookDelegates.DOpenKey(hookHandler.RegOpenKey_Hooked),
+                    inCallback));
+        hooks.Add(new HookData("Create Registry Key",
+                    LocalHook.GetProcAddress("advapi32.dll", "RegCreateKeyExW"),
+                    new HookDelegates.DCreateKey(hookHandler.RegCreateKeyEx_Hooked),
+                    inCallback));
+        hooks.Add(new HookData("Close Registry Key",
+                    LocalHook.GetProcAddress("advapi32.dll", "RegCloseKey"),
+                    new HookDelegates.DCloseKey(hookHandler.RegCloseKey_Hooked),
+                    inCallback));
         _hooks = hooks;
         _initialized = true;
         GuestCore.Log(new LogMessage(LogLevel.Information,

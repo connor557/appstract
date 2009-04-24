@@ -57,7 +57,6 @@
   <ItemGroup>
     <Compile Include="CommunicationBus.cs" />
     <Compile Include="FileSystem\DynamicFileSystemProvider.cs" />
-    <Compile Include="FileSystem\EnvironmentExtender.cs" />
     <Compile Include="FileSystem\FileAccessRedirector.cs" />
     <Compile Include="FileSystem\VirtualEnvironment.cs" />
     <Compile Include="FileSystem\VirtualFolder.cs" />

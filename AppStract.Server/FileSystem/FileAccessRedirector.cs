@@ -165,8 +165,9 @@ namespace AppStract.Server.FileSystem
         systemVariables.Add(tmp,
           VirtualEnvironment.GetFolderPath(VirtualFolder.StartMenu));
       }
-      if (EnvironmentExtender.TryGetAllUsersMenuFolder(out tmp)
-        && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
+
+      tmp = GetCommonMenuFolder();
+      if (tmp != null && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
       {
         systemVariables.Add(tmp.ToLowerInvariant(),
           VirtualEnvironment.GetFolderPath(VirtualFolder.StartMenu));
@@ -191,7 +192,7 @@ namespace AppStract.Server.FileSystem
       /// Is the path a directory?
       if (fileExtension == null)
       {
-        int index = path.LastIndexOfAny(new[] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar});
+        int index = path.LastIndexOfAny(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
         if (index == -1 || index == path.Length - 1)
           // It's a root path, return the path of VirtualFolder.Other
           return otherFolder;
@@ -205,6 +206,20 @@ namespace AppStract.Server.FileSystem
       while (File.Exists(otherFolder + filename + uniqueValue + fileExtension))
         uniqueValue = cnt++.ToString();
       return otherFolder + filename + uniqueValue + fileExtension;
+    }
+
+    /// <summary>
+    /// Returns the location of the common menu folder.
+    /// </summary>
+    /// <returns></returns>
+    private static string GetCommonMenuFolder()
+    {
+      var value
+        = Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\explorer\Shell Folders",
+        "Common Start Menu", null);
+      if (value != null)
+        return value.ToString();
+      return null;
     }
 
     #endregion
