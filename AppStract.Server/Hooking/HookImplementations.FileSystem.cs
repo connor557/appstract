@@ -132,7 +132,7 @@ namespace AppStract.Server.Hooking
     /// <returns></returns>
     public IntPtr DoLoadLibraryEx(String dllFileName, IntPtr handel, uint mozart)
     {
-      var request = new FileRequest(dllFileName, ResourceKind.FileOrDirectory, FileCreationDisposition.OPEN_EXISTING);
+      var request = new FileRequest(dllFileName, ResourceKind.Library, FileCreationDisposition.OPEN_EXISTING);
       var entry = _fileSystem.GetFile(request);
       return LoadLibraryEx(entry.Value, handel, mozart);
     }

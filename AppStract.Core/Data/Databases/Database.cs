@@ -356,13 +356,23 @@ namespace AppStract.Core.Data.Databases
     private void OnActionEnqueued(DatabaseAction<T> action)
     {
       ItemEnqueued(this, action);
-      Flush();
+      try
+      {
+        Flush();
+      }
+      catch (Exception e)
+      {
+        CoreBus.Log.Error("Failed to flush to database", e);
+      }
     }
 
     /// <summary>
     /// Flushes all queued <see cref="DatabaseAction{TItem}"/>s to the physical database.
     /// It's not guaranteed that it's the current thread that will perform the flushing!
     /// </summary>
+    /// <exception cref="Exception">
+    /// An <see cref="Exception"/> is thrown if flushing failes.
+    /// </exception>
     private void Flush()
     {
       if (!_actionQueueLock.TryEnterWriteLock(200))
@@ -497,7 +507,14 @@ namespace AppStract.Core.Data.Databases
     public void Dispose()
     {
       /// BUG: This call could return before the current instance is really flushed.
-      Flush();
+      try
+      {
+        Flush();
+      }
+      catch (Exception e)
+      {
+        CoreBus.Log.Error("Failed to flush to database", e);
+      }
     }
 
     #endregion

@@ -68,7 +68,7 @@ namespace AppStract.Core.Data.Databases
       lock (_indexLock)
       {
         _index++;
-        return "*param" + _index;
+        return "@param" + _index;
       }
     }
 

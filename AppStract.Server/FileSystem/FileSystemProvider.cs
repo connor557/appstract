@@ -21,6 +21,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -77,10 +78,14 @@ namespace AppStract.Server.FileSystem
     /// <param name="rootDirectory">The path to use as root directory.</param>
     public FileSystemProvider(string rootDirectory)
     {
+      if (rootDirectory == null)
+        throw new ArgumentNullException("rootDirectory");
       _fileTable = new ObservableDictionary<string, string>();
       _fileTableLock = new ReaderWriterLockSlim();
       if (!Path.IsPathRooted(rootDirectory))
         _root = Path.GetFullPath(rootDirectory);
+      else
+        _root = rootDirectory;
     }
 
     #endregion

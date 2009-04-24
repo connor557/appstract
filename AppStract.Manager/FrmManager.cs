@@ -64,8 +64,19 @@ namespace AppStract.Manager
       if (preWizard.ShowDialog() != System.Windows.Forms.DialogResult.OK)
         return;
       /// Start packaging.
-      var package = new Packager(preWizard.Result.InstallerExecutable,
-                                 preWizard.Result.InstallerOutputDestination).CreatePackage();
+      PackagedApplication package;
+      try
+      {
+        package = new Packager(preWizard.Result.InstallerExecutable,
+                        preWizard.Result.InstallerOutputDestination).CreatePackage();
+      }
+      catch (PackageException ex)
+      {
+        CoreBus.Log.Error("Packaging failed", ex);
+        MessageBox.Show("Failed to package the application.\r\nPlease check the log files for more information.",
+          "Packaging failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        return;
+      }
       /// Gather configuration data from the user.
       var postWizard = new ApplicationSetup(package);
       if (postWizard.ShowDialog() != System.Windows.Forms.DialogResult.OK)
