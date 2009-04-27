@@ -82,7 +82,8 @@ namespace AppStract.Server.FileSystem
     {
       string startsWith;
       return path.StartsWithAny(_systemVariables.Keys, out startsWith, true)
-               ? (_systemVariables[startsWith] + path.Substring(startsWith.Length + 1)).ToLowerInvariant()
+               ? _systemVariables[startsWith] +
+                 (path.Length <= startsWith.Length ? "" : path.Substring(startsWith.Length + 1).ToLowerInvariant())
                : RedirectToDefaultFolder(path).ToLowerInvariant();
     }
 
