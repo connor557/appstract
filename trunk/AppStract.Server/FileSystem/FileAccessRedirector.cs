@@ -43,6 +43,10 @@ namespace AppStract.Server.FileSystem
     /// while the associated values are the variables used by the virtual file system.
     /// </summary>
     private static readonly IDictionary<string, string> _systemVariables;
+    /// <summary>
+    /// Path to the temporary folder used by the current system.
+    /// </summary>
+    private static readonly string _tempPath;
 
     #endregion
 
@@ -50,12 +54,23 @@ namespace AppStract.Server.FileSystem
 
     static FileAccessRedirector()
     {
+      _tempPath = Path.GetTempPath().ToLowerInvariant();
       _systemVariables = InitializeSystemVariables();
     }
 
     #endregion
 
     #region Public Methods
+
+    /// <summary>
+    /// Returns whether the specified path refers to a temporary location.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public static bool IsTemporaryLocation(string path)
+    {
+      return path.ToLowerInvariant().StartsWith(_tempPath);
+    }
 
     /// <summary>
     /// Returns the replacement path for the specified <paramref name="path"/>.
@@ -65,10 +80,25 @@ namespace AppStract.Server.FileSystem
     /// <returns>The replacement path, used for redirection.</returns>
     public static string Redirect(string path)
     {
-      string newPath;
-      if (path.StartsWithAny(_systemVariables.Keys, out newPath, true))
-        return (newPath + path.Substring(newPath.Length)).ToLowerInvariant();
-      return RedirectToDefaultFolder(path).ToLowerInvariant();
+      string startsWith;
+      return path.StartsWithAny(_systemVariables.Keys, out startsWith, true)
+               ? (_systemVariables[startsWith] + path.Substring(startsWith.Length + 1)).ToLowerInvariant()
+               : RedirectToDefaultFolder(path).ToLowerInvariant();
+    }
+
+    /// <summary>
+    /// Returns a string representation of the current static instance of <see cref="FileAccessRedirector"/>.
+    /// </summary>
+    /// <remarks>
+    /// Intended for debug use only.
+    /// </remarks>
+    /// <returns></returns>
+    public new static string ToString()
+    {
+      string result = "#Entries: " + _systemVariables.Count;
+      foreach (var pair in _systemVariables)
+        result += "\n\r" + pair.Key + "   -   " + pair.Value;
+      return result;
     }
 
     #endregion
@@ -85,40 +115,43 @@ namespace AppStract.Server.FileSystem
       IDictionary<string, string> systemVariables = new Dictionary<string, string>();
       string tmp; // Will contain the temporary values used in this method.
 
-      /// UserData
-      systemVariables.Add(
-        Environment.GetFolderPath(Environment.SpecialFolder.Personal).ToLowerInvariant(),
-        VirtualEnvironment.GetFolderPath(VirtualFolder.UserData));
-
-      /// From now on, always check if the dictionary doesn't already contain the same key.
+      /// Always check if the dictionary doesn't already contain the same key.
       /// The users might have configured the specialfolders to use the same folder.
       /// BUG: Such configurations might lead to inconsistencies between different host systems.
-      tmp = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).ToLowerInvariant();
-      if (!systemVariables.ContainsKey(tmp))
+      tmp = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+      if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
       {
-        systemVariables.Add(tmp,
-          VirtualEnvironment.GetFolderPath(VirtualFolder.UserData) + @"Documents\");
+        systemVariables.Add(tmp.ToLowerInvariant(),
+          VirtualEnvironment.GetFolderPath(VirtualFolder.UserDocuments));
       }
 
-      tmp = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures).ToLowerInvariant();
-      if (!systemVariables.ContainsKey(tmp))
+      tmp = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+      if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
       {
-        systemVariables.Add(tmp,
-          VirtualEnvironment.GetFolderPath(VirtualFolder.UserData) + @"Pictures\");
+        systemVariables.Add(tmp.ToLowerInvariant(),
+          VirtualEnvironment.GetFolderPath(VirtualFolder.UserPictures));
       }
 
-      tmp = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic).ToLowerInvariant();
-      if (!systemVariables.ContainsKey(tmp))
+      tmp = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+      if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
       {
-        systemVariables.Add(tmp,
-          VirtualEnvironment.GetFolderPath(VirtualFolder.UserData) + @"Music\");
+        systemVariables.Add(tmp.ToLowerInvariant(),
+          VirtualEnvironment.GetFolderPath(VirtualFolder.UserMusic));
+      }
+
+      /// UserData
+      tmp = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+      if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
+      {
+        systemVariables.Add(tmp.ToLowerInvariant(),
+                            VirtualEnvironment.GetFolderPath(VirtualFolder.UserData));
       }
 
       /// Application Data
-      tmp = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData).ToLowerInvariant();
-      if (!systemVariables.ContainsKey(tmp))
+      tmp = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+      if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
       {
-        systemVariables.Add(tmp,
+        systemVariables.Add(tmp.ToLowerInvariant(),
           VirtualEnvironment.GetFolderPath(VirtualFolder.ApplicationData));
       }
 
@@ -129,10 +162,10 @@ namespace AppStract.Server.FileSystem
           VirtualEnvironment.GetFolderPath(VirtualFolder.ApplicationData));
       }
 
-      tmp = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).ToLowerInvariant();
-      if (!systemVariables.ContainsKey(tmp))
+      tmp = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+      if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
       {
-        systemVariables.Add(tmp,
+        systemVariables.Add(tmp.ToLowerInvariant(),
           VirtualEnvironment.GetFolderPath(VirtualFolder.ApplicationData));
       }
 
@@ -146,28 +179,27 @@ namespace AppStract.Server.FileSystem
 
       /// System
       tmp = Environment.GetEnvironmentVariable("systemroot");
-      if (tmp != null && !systemVariables.ContainsKey(tmp))
+      if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
       {
-        systemVariables.Add(
-          tmp.ToLowerInvariant(),
+        systemVariables.Add(tmp.ToLowerInvariant(),
           VirtualEnvironment.GetFolderPath(VirtualFolder.System));
       }
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.System).ToLowerInvariant();
-      if (!systemVariables.ContainsKey(tmp))
+      if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp))
       {
         systemVariables.Add(tmp,
-          VirtualEnvironment.GetFolderPath(VirtualFolder.System) + @"System32\");
+          VirtualEnvironment.GetFolderPath(VirtualFolder.System32));
       }
       /// Start Menu
-      tmp = Environment.GetFolderPath(Environment.SpecialFolder.StartMenu).ToLowerInvariant();
-      if (!systemVariables.ContainsKey(tmp))
+      tmp = Environment.GetFolderPath(Environment.SpecialFolder.StartMenu);
+      if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
       {
-        systemVariables.Add(tmp,
+        systemVariables.Add(tmp.ToLowerInvariant(),
           VirtualEnvironment.GetFolderPath(VirtualFolder.StartMenu));
       }
 
       tmp = GetCommonMenuFolder();
-      if (tmp != null && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
+      if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
       {
         systemVariables.Add(tmp.ToLowerInvariant(),
           VirtualEnvironment.GetFolderPath(VirtualFolder.StartMenu));

@@ -29,9 +29,13 @@ namespace AppStract.Server.FileSystem
   public enum VirtualFolder
   {
     System,
+    System32,
     ProgramFiles,
     ApplicationData,
     UserData,
+    UserDocuments,
+    UserPictures,
+    UserMusic,
     Other,
     StartMenu,
     Temporary

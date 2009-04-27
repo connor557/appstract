@@ -69,12 +69,20 @@ namespace AppStract.Server.FileSystem
           return @"ProgramFiles\";
         case VirtualFolder.UserData:
           return @"UserData\";
+        case VirtualFolder.UserDocuments:
+          return @"UserData\Documents\";
+        case VirtualFolder.UserMusic:
+          return @"UserData\Music\";
+        case VirtualFolder.UserPictures:
+          return @"UserData\Pictures\";
         case VirtualFolder.Temporary:
           return @"Temporary\";
         case VirtualFolder.Other:
           return @"Other\";
         case VirtualFolder.System:
           return @"System\";
+        case VirtualFolder.System32:
+          return @"System\System32\";
         case VirtualFolder.StartMenu:
           return @"StartMenu\";
         case VirtualFolder.ApplicationData:

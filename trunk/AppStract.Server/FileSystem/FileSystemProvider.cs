@@ -82,10 +82,10 @@ namespace AppStract.Server.FileSystem
         throw new ArgumentNullException("rootDirectory");
       _fileTable = new ObservableDictionary<string, string>();
       _fileTableLock = new ReaderWriterLockSlim();
-      if (!Path.IsPathRooted(rootDirectory))
-        _root = Path.GetFullPath(rootDirectory);
-      else
-        _root = rootDirectory;
+      _root = !Path.IsPathRooted(rootDirectory)
+                ? Path.GetFullPath(rootDirectory)
+                : rootDirectory;
+      VirtualEnvironment.CreateVirtualFolders(_root);
     }
 
     #endregion
@@ -227,6 +227,8 @@ namespace AppStract.Server.FileSystem
     {
       if (fileRequest.FileName.StartsWith(@"\\.\")) /// Don't bother to try to redirect pipes.
         return new FileTableEntry(fileRequest.FileName, fileRequest.FileName, FileKind.Unspecified);
+      if (FileAccessRedirector.IsTemporaryLocation(fileRequest.FileName)) /// Don't redirect temporary locations.
+        return new FileTableEntry(fileRequest.FileName, fileRequest.FileName, FileKind.Unspecified);
       GuestCore.Log(new LogMessage(LogLevel.Debug, "Guest process requested file: " + fileRequest));
       /// Are we looking for a library?
       if (fileRequest.ResourceKind == ResourceKind.Library)
@@ -248,6 +250,7 @@ namespace AppStract.Server.FileSystem
         /// Add a new entry to the file table and return it.
         var entry = AddNewEntryToFileTable(fileRequest.FileName);
         entry.Value = Path.Combine(_root, entry.Value);
+        GuestCore.Log(new LogMessage(LogLevel.Debug, "New FileTableEntry: " + entry));
         return entry;
       }
       /// Else, the file won't be created.
