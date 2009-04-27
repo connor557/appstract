@@ -62,7 +62,7 @@ namespace AppStract.Server.Hooking
       IntPtr InSecurityAttributes, UInt32 InCreationDisposition, UInt32 InFlagsAndAttributes, IntPtr InTemplateFile)
     {
       FileCreationDisposition creationDisposition
-        = InCreationDisposition != null && InCreationDisposition > 0
+        = InCreationDisposition > 0
           && Enum.GetNames(typeof (FileCreationDisposition)).Length > InCreationDisposition
             ? (FileCreationDisposition) Enum.ToObject(typeof (FileCreationDisposition), InCreationDisposition)
             : FileCreationDisposition.UNSPECIFIED;
