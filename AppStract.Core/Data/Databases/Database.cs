@@ -164,7 +164,10 @@ namespace AppStract.Core.Data.Databases
     /// Query to use if the table needs to be created.
     /// If this parameter is null, the method behaves like an Exists() method.
     /// </param>
-    protected bool VerifyTable(string tableName, string creationQuery)
+    /// <param name="clearTableIfExists">
+    /// Whether the table must be cleared if it already exists, this deletes all rows from the table.
+    /// </param>
+    protected bool VerifyTable(string tableName, string creationQuery, bool clearTableIfExists)
     {
       if (tableName == null)
         throw new ArgumentNullException("tableName");
@@ -177,7 +180,15 @@ namespace AppStract.Core.Data.Databases
           command.Connection.Open();
           try
           {
-            command.ExecuteReader();
+            command.ExecuteReader().Close();
+            if (!clearTableIfExists)
+              return true;
+            try
+            {
+              command.CommandText = "DELETE FROM \"" + tableName + "\"";
+              command.ExecuteNonQuery();
+            }
+            catch { }
             return true;
           }
           catch (SQLiteException)
