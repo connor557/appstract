@@ -87,7 +87,9 @@ namespace AppStract.Manager
         /// Save the resulting data.
         var dataFilename = System.IO.Path.Combine(preWizard.Result.InstallerOutputDestination,
                                                   CoreBus.Configuration.AppConfig.DefaultApplicationDataFile);
-        ApplicationData.Save(postWizard.Result, dataFilename);
+        if (!ApplicationData.Save(postWizard.Result, dataFilename))
+            /// ToDo: Add some proper error handling here!
+            MessageBox.Show("Failed to save the application data to " + dataFilename);
         /// Start the application, if requested.
         if (preWizard.Result.Autostart)
           CoreManager.StartProcess(dataFilename);
