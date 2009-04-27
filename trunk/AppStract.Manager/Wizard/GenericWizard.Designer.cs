@@ -51,6 +51,7 @@ namespace AppStract.Manager.Wizard
     /// </summary>
     private void InitializeComponent()
     {
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmManager));
       this._tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
       this._panelLogo = new System.Windows.Forms.Panel();
       this._panelContent = new System.Windows.Forms.Panel();
@@ -90,7 +91,7 @@ namespace AppStract.Manager.Wizard
       // _panelLogo
       // 
       this._panelLogo.BackColor = System.Drawing.Color.Transparent;
-      this._panelLogo.BackgroundImage = AppStract.Manager.Properties.Resources.logo;
+      this._panelLogo.BackgroundImage = global::AppStract.Manager.Properties.Resources.logo;
       this._tableLayoutPanel.SetColumnSpan(this._panelLogo, 2);
       this._panelLogo.Dock = System.Windows.Forms.DockStyle.Top;
       this._panelLogo.Location = new System.Drawing.Point(3, 3);
@@ -170,6 +171,7 @@ namespace AppStract.Manager.Wizard
       this.Load += new System.EventHandler(this.GenericWizard_LoadEventHandler);
       this._tableLayoutPanel.ResumeLayout(false);
       this.ResumeLayout(false);
+      this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 
     }
 

@@ -61,33 +61,41 @@ namespace AppStract.Manager
         Thread.CurrentThread.Name = "Packager";
       /// Gather the necessairy information from the user.
       var preWizard = new NewApplication();
-      if (preWizard.ShowDialog() != System.Windows.Forms.DialogResult.OK)
-        return;
-      /// Start packaging.
-      PackagedApplication package;
+      Hide();
       try
       {
-        package = new Packager(preWizard.Result.InstallerExecutable,
-                        preWizard.Result.InstallerOutputDestination).CreatePackage();
+        if (preWizard.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+          return;
+        /// Start packaging.
+        PackagedApplication package;
+        try
+        {
+          package = new Packager(preWizard.Result.InstallerExecutable,
+                                 preWizard.Result.InstallerOutputDestination).CreatePackage();
+        }
+        catch (PackageException ex)
+        {
+          CoreBus.Log.Error("Packaging failed", ex);
+          MessageBox.Show("Failed to package the application.\r\nPlease check the log files for more information.",
+                          "Packaging failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+          return;
+        }
+        /// Gather configuration data from the user.
+        var postWizard = new ApplicationSetup(package);
+        if (postWizard.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+          return; /// ToDo: Clean up first!
+        /// Save the resulting data.
+        var dataFilename = System.IO.Path.Combine(preWizard.Result.InstallerOutputDestination,
+                                                  CoreBus.Configuration.AppConfig.DefaultApplicationDataFile);
+        ApplicationData.Save(postWizard.Result, dataFilename);
+        /// Start the application, if requested.
+        if (preWizard.Result.Autostart)
+          CoreManager.StartProcess(dataFilename);
       }
-      catch (PackageException ex)
+      finally
       {
-        CoreBus.Log.Error("Packaging failed", ex);
-        MessageBox.Show("Failed to package the application.\r\nPlease check the log files for more information.",
-          "Packaging failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        return;
+        Show();
       }
-      /// Gather configuration data from the user.
-      var postWizard = new ApplicationSetup(package);
-      if (postWizard.ShowDialog() != System.Windows.Forms.DialogResult.OK)
-        return; /// ToDo: Clean up first!
-      /// Save the resulting data.
-      var dataFilename = System.IO.Path.Combine(preWizard.Result.InstallerOutputDestination,
-                                                CoreBus.Configuration.AppConfig.DefaultApplicationDataFile);
-      ApplicationData.Save(postWizard.Result, dataFilename);
-      /// Start the application, if requested.
-      if (preWizard.Result.Autostart)
-        CoreManager.StartProcess(dataFilename);
     }
 
     private void _lnkLoad_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
