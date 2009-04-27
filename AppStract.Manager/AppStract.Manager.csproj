@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{9497B6D7-48A2-4B3F-B0A3-880A2A8724C3}</ProjectGuid>
     <OutputType>WinExe</OutputType>
@@ -77,6 +77,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="FrmManager.resx">
       <DependentUpon>FrmManager.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -85,27 +86,35 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Wizard\AppSetup\WizardFinish.resx">
       <DependentUpon>WizardFinish.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Wizard\AppSetup\WizardIntroduction.resx">
       <DependentUpon>WizardIntroduction.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Wizard\AppSetup\WizardSelectExecutable.resx">
       <DependentUpon>WizardSelectExecutable.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Wizard\AppSetup\WizardSettings.resx">
       <DependentUpon>WizardSettings.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Wizard\GenericWizard.resx">
       <DependentUpon>GenericWizard.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Wizard\NewApp\WizardFinish.resx">
       <DependentUpon>WizardFinish.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Wizard\NewApp\WizardIntroduction.resx">
       <DependentUpon>WizardIntroduction.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Wizard\NewApp\WizardSelectInstaller.resx">
       <DependentUpon>WizardSelectInstaller.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
