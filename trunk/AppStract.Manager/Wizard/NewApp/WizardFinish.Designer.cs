@@ -51,9 +51,10 @@ namespace AppStract.Manager.Wizard.NewApp
     /// </summary>
     private void InitializeComponent()
     {
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WizardFinish));
       this._labelHeader = new System.Windows.Forms.Label();
       this._labelContent = new System.Windows.Forms.Label();
-      this._chkAutostart = new System.Windows.Forms.CheckBox();
+      this.lblWarning = new System.Windows.Forms.Label();
       this.SuspendLayout();
       // 
       // _labelHeader
@@ -76,24 +77,23 @@ namespace AppStract.Manager.Wizard.NewApp
       this._labelContent.TabIndex = 4;
       this._labelContent.Text = "The selected installer will be launched as soon as you pressed Finish.";
       // 
-      // _chkAutostart
+      // lblWarning
       // 
-      this._chkAutostart.AutoSize = true;
-      this._chkAutostart.Checked = true;
-      this._chkAutostart.CheckState = System.Windows.Forms.CheckState.Checked;
-      this._chkAutostart.Location = new System.Drawing.Point(56, 157);
-      this._chkAutostart.Name = "_chkAutostart";
-      this._chkAutostart.Size = new System.Drawing.Size(220, 17);
-      this._chkAutostart.TabIndex = 5;
-      this._chkAutostart.Text = "Autostart the application after packaging.";
-      this._chkAutostart.UseVisualStyleBackColor = true;
+      this.lblWarning.AutoSize = true;
+      this.lblWarning.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.lblWarning.ForeColor = System.Drawing.Color.Red;
+      this.lblWarning.Location = new System.Drawing.Point(20, 293);
+      this.lblWarning.Name = "lblWarning";
+      this.lblWarning.Size = new System.Drawing.Size(395, 112);
+      this.lblWarning.TabIndex = 5;
+      this.lblWarning.Text = resources.GetString("lblWarning.Text");
       // 
       // WizardFinish
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.Color.Transparent;
-      this.Controls.Add(this._chkAutostart);
+      this.Controls.Add(this.lblWarning);
       this.Controls.Add(this._labelContent);
       this.Controls.Add(this._labelHeader);
       this.Name = "WizardFinish";
@@ -107,6 +107,6 @@ namespace AppStract.Manager.Wizard.NewApp
 
     private System.Windows.Forms.Label _labelHeader;
     private System.Windows.Forms.Label _labelContent;
-    private System.Windows.Forms.CheckBox _chkAutostart;
+    private System.Windows.Forms.Label lblWarning;
   }
 }
