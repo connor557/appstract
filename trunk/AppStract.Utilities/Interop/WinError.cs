@@ -50,7 +50,7 @@ namespace Microsoft.Win32.Interop
     {
       FieldInfo[] fields = typeof(WinError).GetFields();
       foreach (FieldInfo fi in fields)
-        if ((int)fi.GetValue(null) == result)
+        if ((uint)fi.GetValue(null) == result)
           return fi.Name;
       return String.Empty;
     }
