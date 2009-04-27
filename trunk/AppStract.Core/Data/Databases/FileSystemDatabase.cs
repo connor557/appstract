@@ -100,7 +100,7 @@ namespace AppStract.Core.Data.Databases
         File.Create(filename).Close();
       var creationQuery = string.Format("CREATE TABLE {0} ({1} TEXT, {2} TEXT);",
                                         _DatabaseFileTable, _DatabaseFileTableKey, _DatabaseFileTableValue);
-      VerifyTable(_DatabaseFileTable, creationQuery);
+      VerifyTable(_DatabaseFileTable, creationQuery, false);
     }
 
     /// <summary>
@@ -130,7 +130,7 @@ namespace AppStract.Core.Data.Databases
     protected override void AppendDeleteQuery(SQLiteCommand command, ParameterGenerator seed, FileTableEntry item)
     {
       string paramKey = seed.Next();
-      command.CommandText += string.Format("DELETE FROM {0} WHERE {1} = \"{2}\";",
+      command.CommandText += string.Format("DELETE FROM {0} WHERE {1} = {2};",
                                            _DatabaseFileTable, _DatabaseFileTableKey, paramKey);
       command.Parameters.AddWithValue(paramKey, item.Key);
     }
@@ -139,7 +139,7 @@ namespace AppStract.Core.Data.Databases
     {
       string paramKey = seed.Next();
       string paramValue = seed.Next();
-      command.CommandText += string.Format("INSERT INTO [{0}] ({1}, {2}) VALUES (\"{3}\", \"{4}\");",
+      command.CommandText += string.Format("INSERT INTO [{0}] ({1}, {2}) VALUES ({3}, {4});",
                                            _DatabaseFileTable, _DatabaseFileTableKey, _DatabaseFileTableValue,
                                            paramKey, paramValue);
       command.Parameters.AddWithValue(paramKey, item.Key);
@@ -150,7 +150,7 @@ namespace AppStract.Core.Data.Databases
     {
       string paramKey = seed.Next();
       string paramValue = seed.Next();
-      command.CommandText += string.Format("UPDATE {0} SET {1} = \"{2}\" WHERE \"{3}\" = \"{4}\";",
+      command.CommandText += string.Format("UPDATE {0} SET {1} = {2} WHERE \"{3}\" = {4};",
                                            _DatabaseFileTable,
                                            _DatabaseFileTableValue, paramValue,
                                            _DatabaseFileTableKey, paramKey);

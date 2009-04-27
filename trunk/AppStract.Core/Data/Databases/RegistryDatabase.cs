@@ -102,11 +102,11 @@ namespace AppStract.Core.Data.Databases
         File.Create(filename).Close();
       var creationQuery = string.Format("CREATE TABLE {0} ({1} INTEGER PRIMARY KEY, {2} TEXT);",
                                         _DatabaseKeyTable, _DatabaseKeyHandle, _DatabaseKeyName);
-      VerifyTable(_DatabaseKeyTable, creationQuery);
+      VerifyTable(_DatabaseKeyTable, creationQuery, false);
       creationQuery = string.Format("CREATE TABLE {0} ({1} TEXT, {2} INTEGER, {3} BLOB, {4} TEXT);",
                                     _DatabaseValueTable, _DatabaseValueName, _DatabaseValueKey, _DatabaseValueValue,
                                     _DatabaseValueType);
-      VerifyTable(_DatabaseValueTable, creationQuery);
+      VerifyTable(_DatabaseValueTable, creationQuery, false);
     }
 
     /// <summary>
@@ -153,7 +153,7 @@ namespace AppStract.Core.Data.Databases
     protected override void AppendDeleteQuery(SQLiteCommand command, ParameterGenerator seed, VirtualRegistryKey item)
     {
       string param = seed.Next();
-      command.CommandText += string.Format("DELETE FROM {0} WHERE {1} = \"{2}\"; DELETE FROM {3} WHERE {4} = \"{2}\";",
+      command.CommandText += string.Format("DELETE FROM {0} WHERE {1} = {2}; DELETE FROM {3} WHERE {4} = {2};",
                                            _DatabaseKeyTable, _DatabaseKeyHandle, param,
                                            _DatabaseValueTable, _DatabaseValueKey);
       command.Parameters.AddWithValue(param, item.Handle);
@@ -164,7 +164,7 @@ namespace AppStract.Core.Data.Databases
       var paramHandle = seed.Next();
       var paramName = seed.Next();
       /// Append query for insertion of the key.
-      command.CommandText += string.Format("INSERT INTO [{0}] ({1}, {2}) VALUES (\"{3}\", \"{4}\");",
+      command.CommandText += string.Format("INSERT INTO [{0}] ({1}, {2}) VALUES ({3}, {4});",
                                            _DatabaseKeyTable,
                                            _DatabaseKeyHandle, _DatabaseKeyName,
                                            paramHandle, paramName);
@@ -179,7 +179,7 @@ namespace AppStract.Core.Data.Databases
       var paramHandle = seed.Next();
       var paramName = seed.Next();
       /// Append query for update of the key.
-      command.CommandText += string.Format("UPDATE {0} SET {1} = \"{2}\" WHERE {3} = \"{4}\";",
+      command.CommandText += string.Format("UPDATE {0} SET {1} = {2} WHERE {3} = {4};",
                                            _DatabaseKeyTable,
                                            _DatabaseKeyName, paramName,
                                            _DatabaseKeyHandle, paramHandle);
@@ -187,7 +187,7 @@ namespace AppStract.Core.Data.Databases
       command.Parameters.AddWithValue(paramName, item.Path);
       /// Delete all values. It's not possible to use an update query.
       paramHandle = seed.Next();
-      command.CommandText += string.Format("DELETE FROM {0} WHERE {1} = \"{2}\";",
+      command.CommandText += string.Format("DELETE FROM {0} WHERE {1} = {2};",
                                            _DatabaseValueTable, _DatabaseValueKey, paramHandle);
       command.Parameters.AddWithValue(paramHandle, item.Handle);
       /// Now re-add all values.
