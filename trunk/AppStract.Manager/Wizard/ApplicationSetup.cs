@@ -68,6 +68,10 @@ namespace AppStract.Manager.Wizard
         if (DialogResult != System.Windows.Forms.DialogResult.OK)
           throw new ApplicationException("The result of the NewAppWizard can't be acquired as long as the wizard isn't finished");
         var data = new ApplicationData();
+        data.Files.Executable = new ApplicationFile(_state.Executable);
+        data.Files.RootDirectory = new ApplicationFile("");
+        data.Files.DatabaseFileSystem = new ApplicationFile(_installerResult.FileSystemDatabase);
+        data.Files.DatabaseRegistry = new ApplicationFile(_installerResult.RegistryDatabase);
         return data;
       }
     }
