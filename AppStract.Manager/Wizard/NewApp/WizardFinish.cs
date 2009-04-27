@@ -66,12 +66,12 @@ namespace AppStract.Manager.Wizard.NewApp
 
     public void SaveState()
     {
-      _wizardState.Autostart = _chkAutostart.Checked;
+
     }
 
     public void UpdateContent()
     {
-      _chkAutostart.Checked = _wizardState.Autostart;
+
     }
 
     #endregion

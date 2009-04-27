@@ -117,4 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="lblWarning.Text" xml:space="preserve">
+    <value>WARNING  ###################################  WARNING
+
+   Do not choose to start the application if  the installer asks you!
+   Doing this can lead to unexpected behavior,
+   and might even irreversibly break your system!
+
+WARNING  ###################################  WARNING</value>
+  </data>
 </root>
