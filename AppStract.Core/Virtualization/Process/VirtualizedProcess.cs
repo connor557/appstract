@@ -283,9 +283,17 @@ namespace AppStract.Core.Virtualization.Process
           _exited(this, ExitCode.Success);
         else
         {
-          CoreBus.Log.Error("Process exited with ExitCode [{0}] {1} and message {2}",
-            _process.ExitCode, WinError.GetErrorName((uint)_process.ExitCode), _process.StandardError.ReadToEnd());
-          _exited(this, ExitCode.Error);
+          if (_process.ExitCode != -1)
+          {
+            CoreBus.Log.Error("Guest process exited with ExitCode [{0}] {1} and message {2}",
+              _process.ExitCode, WinError.GetErrorName((uint)_process.ExitCode), _process.StandardError.ReadToEnd());
+            _exited(this, ExitCode.Error);
+          }
+          else
+          {
+            CoreBus.Log.Error("Guest process exited unexpectedly.");
+            _exited(this, ExitCode.Unexpected);
+          }
         }
       }
     }
