@@ -55,7 +55,7 @@ namespace AppStract.Server.Hooking
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
     public delegate uint DQueryValue
                    (IntPtr hkey, [MarshalAs(UnmanagedType.LPWStr)] String lpValueName,
-                    IntPtr lpReserved, ref uint? lpType, IntPtr? lpData, ref uint? lpcbData);
+                    IntPtr lpReserved, IntPtr lpType, IntPtr lpData, IntPtr lpcbData);
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
     public delegate uint DCloseKey

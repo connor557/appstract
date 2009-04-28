@@ -22,7 +22,6 @@
 #endregion
 
 using System;
-using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -54,26 +53,56 @@ namespace AppStract.Utilities.Interop
 
     /// <summary>
     /// This method will marshal an object to the pointer passed.
+    /// The amount of available memory at the <see cref="IntPtr"/> is not checked when marshaling.
     /// </summary>
     /// <exception cref="ArgumentNullException">
+    /// </exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// </exception>
+    /// <param name="data">The data to marshal</param>
+    /// <param name="lpData">
+    /// A pointer to a buffer that receives the value's data.
+    /// This parameter can be <see cref="IntPtr.Zero"/> if the data is not required.
+    /// </param>
+    /// <returns>A WinError code, can be ERROR_SUCCESS or ERROR_MORE_DATA</returns>
+    public static uint CopyToMemory(object data, IntPtr lpData)
+    {
+      if (data == null)
+        throw new ArgumentNullException("data");
+      if (lpData != IntPtr.Zero)
+      {
+        byte[] bData = ToByteArray(data);
+        CopyToMemory(bData, lpData);
+      }
+      return WinError.ERROR_SUCCESS;
+    }
+
+    /// <summary>
+    /// This method will marshal an object to the pointer passed.
+    /// </summary>
+    /// <exception cref="ArgumentNullException">
+    /// The <paramref name="data"/> parameter is null.
+    /// =OR=
     /// The argument <paramref name="lpcbData"/> can only be null if <paramref name="lpData"/> is also null.
     /// </exception>
     /// <param name="data">The data to marshal</param>
     /// <param name="lpData">
     /// A pointer to a buffer that receives the value's data.
-    /// This parameter can be NULL if the data is not required.
+    /// This parameter can be <see cref="IntPtr.Zero"/> if the data is not required.
     /// </param>
     /// <param name="lpcbData">
     /// A pointer to a variable that specifies the size of the buffer pointed to by the lpData parameter,
     /// in bytes. When the function returns, this variable contains the size of the data copied to lpData.
-    /// The lpcbData parameter can be NULL only if lpData is NULL.
+    /// The lpcbData parameter can be NULL only if lpData is <see cref="IntPtr.Zero"/>.
     /// </param>
     /// <returns>A WinError code, can be ERROR_SUCCESS or ERROR_MORE_DATA</returns>
-    public static uint CopyToMemory(object data, IntPtr? lpData, ref uint? lpcbData)
+    public static uint CopyToMemory(object data, IntPtr lpData, ref uint? lpcbData)
     {
-      if (lpData == null && lpcbData == null)
+      if (data == null)
+        throw new ArgumentNullException("data");
+      if (lpData == IntPtr.Zero && lpcbData == null)
         return WinError.ERROR_SUCCESS;
-      if (lpData != null && lpcbData == null)
+      if (lpData != IntPtr.Zero && lpcbData == null)
         throw new ArgumentNullException("lpcbData", "The argument lpcbData can only be null if lpData is also null.");
       uint bufferLength = (uint)lpcbData;
       byte[] bData = ToByteArray(data);
@@ -85,11 +114,8 @@ namespace AppStract.Utilities.Interop
         /// pointed to by lpcbData. In this case, the contents of the lpData buffer are undefined.
         return WinError.ERROR_MORE_DATA;
       }
-      if (lpData != null)
-      {
-        NullableConverter nConvertor = new NullableConverter(typeof(IntPtr));
-        CopyToMemory(bData, (IntPtr)nConvertor.ConvertFrom(lpData));
-      }
+      if (lpData != IntPtr.Zero)
+        CopyToMemory(bData, lpData);
       return WinError.ERROR_SUCCESS;
     }
 
