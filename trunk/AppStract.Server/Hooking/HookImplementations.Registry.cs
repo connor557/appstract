@@ -33,7 +33,6 @@ namespace AppStract.Server.Hooking
 
     #region Public Methods
 
-
     /// <summary>
     /// Open key will open a key  from the VREG, or create it if not available.
     /// </summary>
@@ -136,7 +135,7 @@ namespace AppStract.Server.Hooking
     /// </param>
     /// <returns></returns>
     public uint RegQueryValue_Hooked(IntPtr hKey, [MarshalAs(UnmanagedType.LPWStr)] String lpValueName,
-                               IntPtr lpReserved, ref uint? lpType, IntPtr? lpData, ref uint? lpcbData)
+                               IntPtr lpReserved, IntPtr lpType, IntPtr lpData, IntPtr lpcbData)
     {
       /// BUG: If lpValueName is NULL or an empty string, the function retrieves the type and data for the key's unnamed or default value, if any.
       if (string.IsNullOrEmpty(lpValueName))
@@ -150,16 +149,21 @@ namespace AppStract.Server.Hooking
       if (winError != WinError.ERROR_SUCCESS)
         /// QueryValue failed, return the error.
         return winError;
-      /// Assign the type.
-      if (lpType != null)
-        lpType = type;
-      /// Marshal the data to the specified pointer.
-      return MarshallingHelpers.CopyToMemory(data, lpData, ref lpcbData);
+      /// Marshal all data to the specified pointers.
+      MarshallingHelpers.CopyToMemory(type, lpType);
+      uint? dataLength = lpcbData != IntPtr.Zero
+                         /// Valid pointer, copy the 64bit unsigned integer.
+                           ? (uint?) MarshallingHelpers.CopyFromMemory(lpcbData, 64)
+                         /// Invalid pointer, guest doesn't require lpcbData.
+                           : null;
+      winError = MarshallingHelpers.CopyToMemory(data, lpData, ref dataLength);
+      if (dataLength != null)
+        MarshallingHelpers.CopyToMemory(dataLength, lpcbData);
+      return winError;
     }
 
     /// <summary>
-    /// This method will insert a value into the VREG. Exact the same
-    /// parameters as C++ method.
+    /// This method will insert a value into the VREG.
     /// </summary>
     /// <param name="hKey">A handle to an open registry key.</param>
     /// <param name="lpValueName">
@@ -193,26 +197,6 @@ namespace AppStract.Server.Hooking
       var lHandle = pointer.ToInt64();
       return uint.TryParse(lHandle.ToString(), out result);
     }
-
-    #endregion
-
-    #region Imports
-
-    [DllImport("advapi32.dll", CharSet = CharSet.Unicode, EntryPoint = "RegOpenKeyExW")]
-    static extern uint RegOpenKeyEx(
-        IntPtr hKey,
-        string subKey,
-        uint options,
-        int sam,
-        out IntPtr phkResult);
-
-    [DllImport("advapi32.dll", EntryPoint = "RegQueryValueExW",
-                         CallingConvention = CallingConvention.Winapi)]
-    extern private static int RegQueryValueEx
-                            (IntPtr hkey,
-                             [MarshalAs(UnmanagedType.LPWStr)] String lpValueName,
-                             IntPtr lpReserved, ref uint? lpType,
-                             IntPtr lpData, ref uint lpcbData);
 
     #endregion
 

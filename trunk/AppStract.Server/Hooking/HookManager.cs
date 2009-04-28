@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using AppStract.Core.Logging;
 using EasyHook;
 
@@ -104,26 +105,26 @@ namespace AppStract.Server.Hooking
                     new HookDelegates.DLoadLibraryEx(hookHandler.DoLoadLibraryEx),
                     inCallback));
         /// Hooks regarding the registry
-        //hooks.Add(new HookData("Set Registry Value",
-        //            LocalHook.GetProcAddress("advapi32.dll", "RegSetValueExW"),
-        //            new HookDelegates.DSetValue(hookHandler.RegSetValueEx),
-        //            inCallback));
-        //hooks.Add(new HookData("Query Registry Value",
-        //            LocalHook.GetProcAddress("advapi32.dll", "RegQueryValueExW"),
-        //            new HookDelegates.DQueryValue(hookHandler.RegQueryValue_Hooked),
-        //            inCallback));
-        //hooks.Add(new HookData("Open Registry Key",
-        //            LocalHook.GetProcAddress("advapi32.dll", "RegOpenKeyExW"),
-        //            new HookDelegates.DOpenKey(hookHandler.RegOpenKey_Hooked),
-        //            inCallback));
-        //hooks.Add(new HookData("Create Registry Key",
-        //            LocalHook.GetProcAddress("advapi32.dll", "RegCreateKeyExW"),
-        //            new HookDelegates.DCreateKey(hookHandler.RegCreateKeyEx_Hooked),
-        //            inCallback));
-        //hooks.Add(new HookData("Close Registry Key",
-        //            LocalHook.GetProcAddress("advapi32.dll", "RegCloseKey"),
-        //            new HookDelegates.DCloseKey(hookHandler.RegCloseKey_Hooked),
-        //            inCallback));
+        hooks.Add(new HookData("Set Registry Value",
+                    LocalHook.GetProcAddress("advapi32.dll", "RegSetValueExW"),
+                    new HookDelegates.DSetValue(hookHandler.RegSetValueEx),
+                    inCallback));
+        hooks.Add(new HookData("Query Registry Value",
+                    LocalHook.GetProcAddress("advapi32.dll", "RegQueryValueExW"),
+                    new HookDelegates.DQueryValue(hookHandler.RegQueryValue_Hooked),
+                    inCallback));
+        hooks.Add(new HookData("Open Registry Key",
+                    LocalHook.GetProcAddress("advapi32.dll", "RegOpenKeyExW"),
+                    new HookDelegates.DOpenKey(hookHandler.RegOpenKey_Hooked),
+                    inCallback));
+        hooks.Add(new HookData("Create Registry Key",
+                    LocalHook.GetProcAddress("advapi32.dll", "RegCreateKeyExW"),
+                    new HookDelegates.DCreateKey(hookHandler.RegCreateKeyEx_Hooked),
+                    inCallback));
+        hooks.Add(new HookData("Close Registry Key",
+                    LocalHook.GetProcAddress("advapi32.dll", "RegCloseKey"),
+                    new HookDelegates.DCloseKey(hookHandler.RegCloseKey_Hooked),
+                    inCallback));
         _hooks = hooks;
         _initialized = true;
         GuestCore.Log(new LogMessage(LogLevel.Information,
@@ -163,11 +164,19 @@ namespace AppStract.Server.Hooking
         _installedHooks = new List<LocalHook>();
         foreach (var hook in hooks)
         {
-          var localHook = LocalHook.Create(hook.TargetEntryPoint, hook.Handler, hook.Callback);
-          /// 0-value in exclusive access control list: don't intercept calls from current thread
-          localHook.ThreadACL.SetExclusiveACL(new[] { 0 });
-          _installedHooks.Add(localHook);
-          GuestCore.Log(new LogMessage(LogLevel.Debug, "HookManager installed API Hook: " + hook.Description));
+          try
+          {
+            var localHook = LocalHook.Create(hook.TargetEntryPoint, hook.Handler, hook.Callback);
+            /// 0-value in exclusive access control list: don't intercept calls from current thread
+            localHook.ThreadACL.SetExclusiveACL(new[] { 0 });
+            _installedHooks.Add(localHook);
+            GuestCore.Log(new LogMessage(LogLevel.Debug, "HookManager installed API Hook: " + hook.Description));
+          }
+          catch (Exception e)
+          {
+            GuestCore.Log(new LogMessage(LogLevel.Critical, "HookManager failed to install API Hook: " + hook.Description, e));
+            Process.GetCurrentProcess().Kill();
+          }
         }
       }
       GuestCore.Log(new LogMessage(LogLevel.Debug, "HookManager finished installing the API hooks."));

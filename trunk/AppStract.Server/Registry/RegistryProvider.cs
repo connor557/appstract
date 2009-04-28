@@ -21,6 +21,7 @@
 
 #endregion
 
+using AppStract.Core.Logging;
 using AppStract.Core.Virtualization.Registry;
 using Microsoft.Win32.Interop;
 
@@ -73,6 +74,8 @@ namespace AppStract.Server.Registry
     public uint SetValue(uint hKey, string valueName, uint valueType, object data)
     {
       var type = RegistryHelper.ValueTypeFromId(valueType);
+      GuestCore.Log(new LogMessage(LogLevel.Debug, "Set value: {0} [HKey: {1} || Type: {2}]",
+        valueName, hKey, type));
       var registryValue = new VirtualRegistryValue(valueName, data, type);
       var stateCode = _virtualRegistry.SetValue(hKey, registryValue);
       return WinError.FromStateCode(stateCode);
@@ -80,6 +83,7 @@ namespace AppStract.Server.Registry
 
     public uint OpenKey(uint hKey, string subKey, out uint hSubKey)
     {
+      GuestCore.Log(new LogMessage(LogLevel.Debug, @"Open key: {0}\\{1}", hKey, subKey));
       return _virtualRegistry.OpenKey(hKey, subKey, out hSubKey)
                ? WinError.ERROR_SUCCESS
                /// Note: This behaviour needs to be updated!
@@ -89,6 +93,7 @@ namespace AppStract.Server.Registry
 
     public uint CreateKey(uint hKey, string subKey, out uint hSubKey, out int lpdwDisposition)
     {
+      GuestCore.Log(new LogMessage(LogLevel.Debug, "Create key {0} at HKey {1}", subKey, hKey));
       RegCreationDisposition creationDisposition;
       var stateCode = _virtualRegistry.CreateKey(hKey, subKey, out hSubKey, out creationDisposition);
       lpdwDisposition = RegistryHelper.DispositionFromRegCreationDisposition(creationDisposition);
@@ -97,6 +102,8 @@ namespace AppStract.Server.Registry
 
     public uint QueryValue(uint hKey, string valueName, out object value, out uint valueType)
     {
+      GuestCore.Log(new LogMessage(LogLevel.Debug, "Query value {0} from HKey {1}",
+        valueName, hKey));
       VirtualRegistryValue virtualRegistryValue;
       StateCode code = _virtualRegistry.QueryValue(hKey, valueName, out virtualRegistryValue);
       value = virtualRegistryValue.Data;
@@ -106,6 +113,7 @@ namespace AppStract.Server.Registry
 
     public uint CloseKey(uint hKey)
     {
+      GuestCore.Log(new LogMessage(LogLevel.Debug, "Close HKey " + hKey));
       _virtualRegistry.CloseKey(hKey);
       return WinError.ERROR_SUCCESS;
     }
