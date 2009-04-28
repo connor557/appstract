@@ -55,6 +55,9 @@ namespace AppStract.Utilities.Interop
     /// <summary>
     /// This method will marshal an object to the pointer passed.
     /// </summary>
+    /// <exception cref="ArgumentNullException">
+    /// The argument <paramref name="lpcbData"/> can only be null if <paramref name="lpData"/> is also null.
+    /// </exception>
     /// <param name="data">The data to marshal</param>
     /// <param name="lpData">
     /// A pointer to a buffer that receives the value's data.
@@ -70,10 +73,12 @@ namespace AppStract.Utilities.Interop
     {
       if (lpData == null && lpcbData == null)
         return WinError.ERROR_SUCCESS;
-      byte[] bData = ToByteArray(data);
+      if (lpData != null && lpcbData == null)
+        throw new ArgumentNullException("lpcbData", "The argument lpcbData can only be null if lpData is also null.");
       uint bufferLength = (uint)lpcbData;
+      byte[] bData = ToByteArray(data);
       lpcbData = uint.Parse(bData.LongLength.ToString());
-      if (bData.Length > bufferLength)
+      if (lpcbData > bufferLength)
       {
         /// If the buffer specified by lpData parameter is not large enough to hold the data,
         /// the function returns ERROR_MORE_DATA and stores the required buffer size in the variable
