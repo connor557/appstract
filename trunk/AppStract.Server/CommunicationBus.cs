@@ -34,7 +34,7 @@ namespace AppStract.Server
 {
   /// <summary>
   /// Provides a manageable way of IPC.
-  /// <see cref="DatabaseAction{T}"/>s are enqueued untill <see cref="Flush"/> is called,
+  /// <see cref="DatabaseAction{T}"/>s are enqueued until <see cref="Flush"/> is called,
   /// which flushes them in a single batch to the host process.
   /// </summary>
   /// <remarks>

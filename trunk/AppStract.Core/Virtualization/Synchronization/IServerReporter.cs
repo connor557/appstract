@@ -60,5 +60,13 @@ namespace AppStract.Core.Virtualization.Synchronization
     /// <param name="message">Message to report.</param>
     void ReportMessage(LogMessage message);
 
+    /// <summary>
+    /// Returns the maximum <see cref="LogLevel"/> needed by <see cref="ReportMessage"/>
+    /// in order to report messages. Calling <see cref="ReportMessage"/> for <see cref="LogMessage"/>s
+    /// with a higher <see cref="LogLevel"/> is a waste of resource.
+    /// </summary>
+    /// <returns></returns>
+    LogLevel GetRequiredLogLevel();
+
   }
 }

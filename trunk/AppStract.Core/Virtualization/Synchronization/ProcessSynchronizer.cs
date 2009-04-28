@@ -23,7 +23,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using System.Threading;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Data.Databases;
@@ -44,15 +43,15 @@ namespace AppStract.Core.Virtualization.Synchronization
     /// <summary>
     /// The root as used by the file system.
     /// </summary>
-    private string _fileSystemRoot;
+    private readonly string _fileSystemRoot;
     /// <summary>
     /// The <see cref="FileSystemDatabase"/> used by the current instance.
     /// </summary>
-    private FileSystemDatabase _fileSystemDatabase;
+    private readonly FileSystemDatabase _fileSystemDatabase;
     /// <summary>
     /// The <see cref="RegistryDatabase"/> used by the current instance.
     /// </summary>
-    private RegistryDatabase _registryDatabase;
+    private readonly RegistryDatabase _registryDatabase;
 
     #endregion
 
@@ -139,6 +138,11 @@ namespace AppStract.Core.Virtualization.Synchronization
       if (Thread.CurrentThread.Name == null)
         Thread.CurrentThread.Name = "Guest";
       CoreBus.Log.Log(message);
+    }
+
+    public LogLevel GetRequiredLogLevel()
+    {
+      return CoreBus.Log.LogLevel;
     }
 
     #endregion

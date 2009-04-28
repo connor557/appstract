@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using System.Threading;
 using AppStract.Core.Logging;
 using AppStract.Core.Virtualization.Synchronization;
 using AppStract.Server.FileSystem;
@@ -39,12 +40,34 @@ namespace AppStract.Server
 
     #region Variables
 
+    /// <summary>
+    /// Indicates whether the <see cref="GuestCore"/> is initialized.
+    /// </summary>
     private static bool _initialized;
+    /// <summary>
+    /// The object to lock when initializing the <see cref="GuestCore"/>.
+    /// </summary>
     private static readonly object _initializationLock = new object();
+    /// <summary>
+    /// The process ID of the current process.
+    /// </summary>
     private static int _currentProcessId;
+    /// <summary>
+    /// The object to use to report messages to the server and to test connectivity with.
+    /// </summary>
     private static IServerReporter _serverReporter;
+    /// <summary>
+    /// The object responsible for communicating back-end database queries to the server.
+    /// </summary>
     private static CommunicationBus _commBus;
+    /// <summary>
+    /// Contains all handlers for the installed API hooks.
+    /// </summary>
     private static HookImplementations _hookImplementations;
+    /// <summary>
+    /// The maximum allowed <see cref="LogLevel"/> of <see cref="LogMessage"/>s to report.
+    /// </summary>
+    private static LogLevel _logLevel;
 
     #endregion
 
@@ -102,8 +125,11 @@ namespace AppStract.Server
         if (_initialized)
           return;
         _currentProcessId = RemoteHooking.GetCurrentProcessId();
+        /// Attach ProcessExit event handler.
+        AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
         /// Initialize variables.
         _serverReporter = processSynchronizer;
+        _logLevel = _serverReporter.GetRequiredLogLevel();
         _commBus = new CommunicationBus(processSynchronizer, processSynchronizer);
         /// Load resources.
         _serverReporter.ReportMessage(new LogMessage(LogLevel.Information,
@@ -162,6 +188,10 @@ namespace AppStract.Server
     /// <param name="message"></param>
     public static void Log(LogMessage message)
     {
+      if (Thread.CurrentThread.Name == null)
+        Thread.CurrentThread.Name = "Guest";
+      if (message.Level > _logLevel)
+        return;
       try
       {
         /// Note: Queue these message, similar to CommunicationBus?
@@ -171,6 +201,15 @@ namespace AppStract.Server
       {
         throw new GuestException("The GuestCore must be initialized before using the log functionality", e);
       }
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
+    {
+      _commBus.Flush();
     }
 
     #endregion
