@@ -30,6 +30,7 @@ using AppStract.Core.Data.Application;
 using AppStract.Core.Virtualization.Synchronization;
 using EasyHook;
 using SystemProcess = System.Diagnostics.Process;
+using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
 
 namespace AppStract.Core.Virtualization.Process
 {
@@ -199,6 +200,8 @@ namespace AppStract.Core.Virtualization.Process
           throw new VirtualProcessException("FileType " + _startInfo.Files.Executable.Type +
                                             " can't be used to start a process with.");
       }
+      CoreBus.Log.Message("A virtualized process with PID {0} has been succesfully created for {1}.",
+                              _process.Id, _startInfo.Files.Executable.File);
     }
 
     #endregion
@@ -225,11 +228,14 @@ namespace AppStract.Core.Virtualization.Process
     /// Creates and injects the current <see cref="VirtualizedProcess"/>,
     /// and sets the created process component to the <see cref="_process"/> variable.
     /// </summary>
+    /// <exception cref="FileNotFoundException"></exception>
     private void CreateAndInject()
     {
       int processId;
       /// Get the location of the library to inject
       string libraryLocation = CoreBus.Configuration.AppConfig.LibtoInject;
+      if (!File.Exists(libraryLocation))
+        throw new FileNotFoundException("Unable to locate the library to inject.", libraryLocation);
       RemoteHooking.CreateAndInject(
         Path.Combine(_startInfo.WorkingDirectory.File, _startInfo.Files.Executable.File),
         /// Optional command line parameters for process creation
@@ -246,21 +252,42 @@ namespace AppStract.Core.Virtualization.Process
       _process = SystemProcess.GetProcessById(processId, SystemProcess.GetCurrentProcess().MachineName);
       _process.EnableRaisingEvents = true;
       _process.Exited += Process_Exited;
-      CoreBus.Log.Message("A virtualized process with PID {0} has been succesfully created for {1}.",
-                              processId, _startInfo.Files.Executable.File);
     }
 
     /// <summary>
-    /// [Not Implemented] Wraps and injects a process, used for .NET applications.
+    /// Wraps and injects a process, used for .NET applications.
     /// </summary>
+    /// <exception cref="FileNotFoundException"></exception>
     private void WrapAndInject()
     {
-      /// Start wrapper.
+      /// Get the location of the files needed.
+      string wrapperLocation = CoreBus.Configuration.AppConfig.WrapperExecutable;
+      string libraryLocation = CoreBus.Configuration.AppConfig.LibtoInject;
+      if (!File.Exists(wrapperLocation))
+        throw new FileNotFoundException("Unable to locate the wrapper executable.", wrapperLocation);
+      if (!File.Exists(libraryLocation))
+        throw new FileNotFoundException("Unable to locate the library to inject.", libraryLocation);
+      /// Start wrapper process.
+      ProcessStartInfo startInfo = new ProcessStartInfo
+                                     {
+                                       FileName = wrapperLocation,
+                                       CreateNoWindow = true
+                                     };
+      _process = SystemProcess.Start(startInfo);
+      _process.EnableRaisingEvents = true;
+      _process.Exited += Process_Exited;
       /// Inject wrapper.
-      /// Let wrapper load the assembly.
-      /// Let wrapper install the hooks.
-      /// Let wrapper call Main()
-      throw new NotImplementedException("The wrapper has not been implemented yet.");
+      RemoteHooking.Inject(
+        /// The process to inject, in this case the wrapper.
+        _process.Id,
+        /// Absolute paths of the libraries to inject, we use the same one for 32bit and 64bit
+        libraryLocation, libraryLocation,
+        /// The name of the channel to use for IPC.
+        _channelName,
+        /// The location of the executable to start the wrapped process from.
+        Path.Combine(_startInfo.WorkingDirectory.File, _startInfo.Files.Executable.File),
+        /// The arguments to pass to the main method of the executable. 
+        _startInfo.Arguments);
     }
 
     /// <summary>

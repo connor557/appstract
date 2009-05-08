@@ -101,7 +101,7 @@ namespace AppStract.Core.Logging
 
     #region Public Methods
 
-    public string ToString()
+    public override string ToString()
     {
       return "[" + _level + "] " + _message;
     }

@@ -49,6 +49,14 @@ namespace AppStract.Core.Data.Settings
     }
 
     /// <summary>
+    /// Gets or sets the executable of the wrapper to use for managed targets.
+    /// </summary>
+    public string WrapperExecutable
+    {
+      get; set;
+    }
+
+    /// <summary>
     /// Gets or sets all libraries to register with EasyHook.
     /// </summary>
     public List<string> LibsToRegister
@@ -64,6 +72,7 @@ namespace AppStract.Core.Data.Settings
     {
       DefaultApplicationDataFile = "ApplicationData.xml";
       LibtoInject = "AppStract.Inject.dll";
+      WrapperExecutable = "Appstract.Wrapper.exe";
       LibsToRegister = new List<string>(
         new[]
           {

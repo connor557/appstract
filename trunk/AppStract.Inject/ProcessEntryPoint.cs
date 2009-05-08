@@ -27,6 +27,7 @@ using System.Threading;
 using AppStract.Core.Logging;
 using AppStract.Core.Virtualization.Synchronization;
 using AppStract.Server;
+using AppStract.Utilities.Assembly;
 using EasyHook;
 
 namespace AppStract.Inject
@@ -66,6 +67,32 @@ namespace AppStract.Inject
         throw new GuestException("Failed to validate the inter-process connection while initializing the guest's process.");
     }
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="ProcessEntryPoint"/>.
+    /// </summary>
+    /// <remarks>
+    /// This call should only focus on initializing the variables and connecting to the host application.
+    /// All business logic should be invoked in the Run() method.
+    /// Unhandled exception are redirected to the host application automatically.
+    /// </remarks>
+    /// <param name="inContext">Information about the environment in which the library main method has been invoked.</param>
+    /// <param name="inChannelName">The name of the inter-process communication channel to connect to.</param>
+    /// <param name="wrappedProcessExecutable">The executable to start the Main() method of.</param>
+    /// <param name="args">The arguments to pass to the main method of <paramref name="wrappedProcessExecutable"/>.</param>
+    public ProcessEntryPoint(RemoteHooking.IContext inContext, string inChannelName, string wrappedProcessExecutable, string args)
+      : this(inContext, inChannelName)
+    {
+      /// Install all hooks.
+      GuestCore.InstallHooks(this);
+      /// Run the main method of the wrapped process.
+      GuestCore.Log(new LogMessage(LogLevel.Debug, "Invoking the main method of the virtualized process..."));
+      AssemblyHelper.RunMainMethod(wrappedProcessExecutable,
+                                   args.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+      /// Block a thread until the host becomes unreachable,
+      /// this should keep the GC from collecting the current EntryPoint.
+      new Thread(BlockThread).Start();
+    }
+
     #endregion
 
     #region Public Methods
@@ -83,21 +110,31 @@ namespace AppStract.Inject
     /// <param name="channelName">The name of the inter-process communication channel to connect to.</param>
     public void Run(RemoteHooking.IContext inContext, string channelName)
     {
-      /// Name the current thread.
-      Thread.CurrentThread.Name = string.Format("{0} (PID {1}) Run method",
-        Process.GetCurrentProcess().ProcessName, RemoteHooking.GetCurrentProcessId());
-      /// Validate the connection.
-      if (!GuestCore.ValidConnection)
-        return; /// Return silently, can't log
-      GuestCore.Log(new LogMessage(
-        LogLevel.Information, "Guest process [{0}] entered the Run method.", GuestCore.ProcessId));
-      /// Install all hooks.
-      GuestCore.InstallHooks(this);
-      /// Start the injected process.
-      RemoteHooking.WakeUpProcess();
-      /// Block the current thread until the host becomes unreachable,
-      /// this keeps the GC from collecting the current EntryPoint.
-      BlockThread();
+      try
+      {
+        /// Name the current thread.
+        if (Thread.CurrentThread.Name == null)
+            Thread.CurrentThread.Name = string.Format("{0} (PID {1}) Run method",
+              Process.GetCurrentProcess().ProcessName, RemoteHooking.GetCurrentProcessId());
+        /// Validate the connection.
+        if (!GuestCore.ValidConnection)
+          return; /// Return silently, can't log
+        GuestCore.Log(new LogMessage(
+          LogLevel.Information, "Guest process [{0}] entered the Run method.", GuestCore.ProcessId));
+        /// Install all hooks.
+        GuestCore.InstallHooks(this);
+        /// Start the injected process.
+        RemoteHooking.WakeUpProcess();
+        /// Block the current thread until the host becomes unreachable,
+        /// this keeps the GC from collecting the current EntryPoint.
+        BlockThread();
+      }
+      catch (Exception e)
+      {
+        GuestCore.Log(new LogMessage(LogLevel.Critical, "An unexpected exception occured.", e),
+                      false);
+        Process.GetCurrentProcess().Kill();
+      }
     }
 
     #endregion

@@ -25,6 +25,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Security;
+using SystemAssembly = System.Reflection.Assembly;
 
 namespace AppStract.Utilities.Assembly
 {
@@ -40,9 +41,9 @@ namespace AppStract.Utilities.Assembly
     /// Gets the first executable that was executed in the current <see cref="AppDomain"/>.
     /// </summary>
     /// <returns></returns>
-    public static System.Reflection.Assembly GetEntryAssembly()
+    public static SystemAssembly GetEntryAssembly()
     {
-      return System.Reflection.Assembly.GetEntryAssembly();
+      return SystemAssembly.GetEntryAssembly();
     }
 
     /// <summary>
@@ -68,6 +69,18 @@ namespace AppStract.Utilities.Assembly
         /// No way that this is managed code.
         return AssemblyType.Native;
       }
+    }
+
+    /// <summary>
+    /// Runs the main method from the <paramref name="executable"/> specified.
+    /// </summary>
+    /// <param name="executable">The executable to run the main method from.</param>
+    /// <param name="args">The arguments to pass to the main method.</param>
+    public static void RunMainMethod(string executable, string[] args)
+    {
+      SystemAssembly assembly = SystemAssembly.LoadFrom(executable);
+      MethodInfo entryPoint = assembly.EntryPoint;
+      entryPoint.Invoke(null, new object[] { args });
     }
 
     #endregion
