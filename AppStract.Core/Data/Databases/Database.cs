@@ -34,7 +34,7 @@ namespace AppStract.Core.Data.Databases
   /// <summary>
   /// Base class for database interfaces using SQLite.
   /// </summary>
-  /// <typeparam name="T"></typeparam>
+  /// <typeparam name="T">The type of objects stored and accessed by the current <see cref="Database{T}"/>.</typeparam>
   public abstract class Database<T> : IDisposable
   {
 
@@ -188,18 +188,22 @@ namespace AppStract.Core.Data.Databases
               command.CommandText = "DELETE FROM \"" + tableName + "\"";
               command.ExecuteNonQuery();
             }
-            catch { }
+            catch (Exception e)
+            {
+              CoreBus.Log.Debug("[Database] Failed to clear table \"{0}\"", e, tableName);
+            }
             return true;
           }
           catch (SQLiteException)
           {
+            CoreBus.Log.Debug("[Database] Failed to verify existance of table \"{0}\"", tableName);
             /// Create the table.
             if (creationQuery != null)
             {
               command = new SQLiteCommand(creationQuery, connection);
               if (!ExecuteCommand(command))
-                throw new Exception("Unable to create table\"" + tableName
-                                            + "\" with the following query: " + creationQuery);
+                throw new Exception("[Database] Unable to create table\"" + tableName
+                                    + "\" with the following query: " + creationQuery);
             }
             return false;
           }
