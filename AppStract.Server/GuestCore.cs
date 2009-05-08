@@ -184,9 +184,30 @@ namespace AppStract.Server
     /// </remarks>
     /// <exception cref="GuestException">
     /// A call to <see cref="Initialize"/> must be completed before using the log functionality.
+    /// =OR=
+    /// An unexpected <see cref="Exception"/> occured.
     /// </exception>
     /// <param name="message"></param>
     public static void Log(LogMessage message)
+    {
+      Log(message, true);
+    }
+
+    /// <summary>
+    /// Sends the <see cref="LogMessage"/> specified to the host.
+    /// </summary>
+    /// <remarks>
+    /// To optimize performance, there's no check whether the GuestCore has been initialized already.
+    /// Internally, a <see cref="NullReferenceException"/> is caught if the core isn't initialized.
+    /// </remarks>
+    /// <exception cref="GuestException">
+    /// A call to <see cref="Initialize"/> must be completed before using the log functionality.
+    /// =OR=
+    /// An unexpected <see cref="Exception"/> occured.
+    /// </exception>
+    /// <param name="message"></param>
+    /// <param name="throwOnError"></param>
+    public static void Log(LogMessage message, bool throwOnError)
     {
       if (Thread.CurrentThread.Name == null)
         Thread.CurrentThread.Name = "Guest";
@@ -199,7 +220,13 @@ namespace AppStract.Server
       }
       catch (NullReferenceException e)
       {
-        throw new GuestException("The GuestCore must be initialized before using the log functionality", e);
+        if (throwOnError)
+          throw new GuestException("The GuestCore must be initialized before using the log functionality.", e);
+      }
+      catch (Exception e)
+      {
+        if (throwOnError)
+          throw new GuestException("An unexpected exception occured.", e);
       }
     }
 
