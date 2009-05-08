@@ -152,8 +152,8 @@ namespace AppStract.Server.Hooking
       /// Marshal all data to the specified pointers.
       MarshallingHelpers.CopyToMemory(type, lpType);
       uint? dataLength = lpcbData != IntPtr.Zero
-                         /// Valid pointer, copy the 64bit unsigned integer.
-                           ? (uint?) MarshallingHelpers.CopyFromMemory(lpcbData, 64)
+                         /// Valid pointer, copy the 32bit unsigned integer.
+                           ? (uint?) MarshallingHelpers.CopyFromMemory(lpcbData, sizeof(uint))
                          /// Invalid pointer, guest doesn't require lpcbData.
                            : null;
       winError = MarshallingHelpers.CopyToMemory(data, lpData, ref dataLength);
