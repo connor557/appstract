@@ -29,6 +29,9 @@ using Microsoft.Win32.Interop;
 
 namespace AppStract.Utilities.Interop
 {
+  /// <summary>
+  /// Helper class for actions related to marshalling.
+  /// </summary>
   public static class MarshallingHelpers
   {
 
@@ -37,9 +40,11 @@ namespace AppStract.Utilities.Interop
     /// <summary>
     /// This method will marshal an object from the pointer specified.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The length of the data must fit in a signed integer to be compatible with .NET Marshalling.
+    /// </exception>
     /// <param name="source">Pointer to get the object from.</param>
-    /// <param name="dataLength">The length of the data, starting from the pointer.</param>
+    /// <param name="dataLength">The number of bytes to copy.</param>
     public static object CopyFromMemory(IntPtr source, uint dataLength)
     {
       if (dataLength > int.MaxValue)
