@@ -13,6 +13,12 @@ Most sizes in the registry are specified as "in bytes". What does this mean? How
 HOOK IMPLEMENTATIONS -> QueryValue
 /// BUG: If lpValueName is NULL or an empty string, the function retrieves the type and data for the key's unnamed or default value, if any.
 
+HOOK IMPLEMENTATIONS -> DeleteKey
+/// Might happen on some rare occassions, should this be a transparent action?
+
+HOOK IMPLEMENTATIONS -> DeleteKeyValue
+/// Might happen on some rare occassions, should this be a transparent action?
+
 HOOK IMPLEMENTATIONS -> RegEnumKeyEx
 /// This is a very important function in the Windows API! Thus, it should be implemented.
 
@@ -21,3 +27,10 @@ FileSystem - API HOOKS
 Some arguments can be NULL, as documented by Microsoft. Not all of them are implemented as possible null values.
 
 How does Windows rename files?
+
+HOOK IMPLEMENTATIONS -> DeleteFile
+/// Might happen, should this be a transparent action?
+
+HOOK IMPLEMENTATIONS -> RemoveDirectory
+/// Might happen, should this be a transparent action?
+/// Note: Same as DeleteFile! It's expected that RemoveDirectory only passes the call to DeleteFile
