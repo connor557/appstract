@@ -42,11 +42,26 @@ namespace AppStract.Core.Virtualization.FileSystem
     #region Properties
 
     /// <summary>
-    /// Gets the path of the requested file.
+    /// Gets the name, as inputted by the requester, of the requested resource.
     /// </summary>
-    public string FileName
+    public string Name
     {
       get { return _filename; }
+    }
+
+    /// <summary>
+    /// Gets the full path of the requested resource.
+    /// </summary>
+    public string FullName
+    {
+      get
+      {
+        return (!Path.IsPathRooted(_filename) /// Avoid getting full paths for pipes.
+                /// Legacy paths are rooted, but need to be converted to standard notation.
+                || _filename.ToLowerInvariant().Contains("docume~1"))
+                 ? Path.GetFullPath(_filename)
+                 : _filename;
+      }
     }
 
     /// <summary>
@@ -79,12 +94,7 @@ namespace AppStract.Core.Virtualization.FileSystem
     /// <param name="creationDisposition">The creation disposition, as specified by the guest process.</param>
     public FileRequest(string filename, ResourceKind resourceType, FileCreationDisposition creationDisposition)
     {
-      if (resourceType != ResourceKind.Library                /// Libraries don't need a full path.
-        && (!Path.IsPathRooted(filename)                      /// Avoid getting full paths for pipes.
-        || filename.ToLowerInvariant().Contains("docume~1"))) /// Legacy paths are rooted, but GetFullPath is still needed!
-        _filename = Path.GetFullPath(filename).ToLowerInvariant();
-      else
-        _filename = filename.ToLowerInvariant();
+      _filename = filename.ToLowerInvariant();
       _resourceKind = resourceType;
       _creationDisposition = creationDisposition;
     }

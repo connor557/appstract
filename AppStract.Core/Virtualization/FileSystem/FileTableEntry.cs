@@ -46,7 +46,7 @@ namespace AppStract.Core.Virtualization.FileSystem
     #region Properties
 
     /// <summary>
-    /// The path as used by the real file sytem.
+    /// Gets or sets the path as used by the real file sytem.
     /// </summary>
     public string Key
     {
@@ -55,7 +55,7 @@ namespace AppStract.Core.Virtualization.FileSystem
     }
 
     /// <summary>
-    /// The path as used by the virtual file system.
+    /// Gets or sets the path as used by the virtual file system.
     /// </summary>
     public string Value
     {
@@ -75,6 +75,12 @@ namespace AppStract.Core.Virtualization.FileSystem
 
     #region Constructors
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="FileTableEntry"/>.
+    /// </summary>
+    /// <param name="key">The path as used by the real file system.</param>
+    /// <param name="value">The path as used by the virtual file system.</param>
+    /// <param name="fileKind">The <see cref="FileKind"/> associated with the new entry.</param>
     public FileTableEntry(string key, string value, FileKind fileKind)
     {
       _key = key;
@@ -82,9 +88,24 @@ namespace AppStract.Core.Virtualization.FileSystem
       _fileKind = fileKind;
     }
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="FileTableEntry"/>.
+    /// </summary>
+    /// <param name="pair">
+    /// A <see cref="KeyValuePair{TKey,TValue}"/> with
+    /// as key the path as used by the real file system
+    /// and as value the path as used by the virtual file system.
+    /// </param>
+    /// <param name="fileKind">The <see cref="FileKind"/> associated with the new entry.</param>
     public FileTableEntry(KeyValuePair<string, string> pair, FileKind fileKind)
       : this(pair.Key, pair.Value, fileKind) { }
 
+    /// <summary>
+    /// Private constructor,
+    /// will be accessed through .NET Reflection when used as an instance of <see cref="ISerializable"/>.
+    /// </summary>
+    /// <param name="info"></param>
+    /// <param name="context"></param>
     private FileTableEntry(SerializationInfo info, StreamingContext context)
     {
       try
