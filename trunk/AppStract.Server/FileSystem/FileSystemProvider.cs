@@ -160,24 +160,30 @@ namespace AppStract.Server.FileSystem
     /// <summary>
     /// Adds a new file to the file table for the given key.
     /// </summary>
-    /// <param name="keyFilename">Value used as key and used as base for the linked value.</param>
+    /// <param name="fileRequest">The <see cref="FileRequest"/> to base the new <see cref="FileTableEntry"/> on.</param>
     /// <returns>The created <see cref="FileTableEntry"/>.</returns>
-    private FileTableEntry AddNewEntryToFileTable(string keyFilename)
+    private FileTableEntry AddNewEntryToFileTable(FileRequest fileRequest)
     {
-      string fileEntryValue = FileAccessRedirector.Redirect(keyFilename);
-      string fullPath = Path.Combine(_root, fileEntryValue);
+      string fileEntryValue = FileAccessRedirector.Redirect(fileRequest.FullName);
+      /// Verify if fileEntryValue is a unique filename in the virtual environment.
+      string fullVirtualPath = Path.Combine(_root, fileEntryValue);
       int cnt = 0;
-      while (File.Exists(fullPath))
+      while (File.Exists(fullVirtualPath))
       {
-        string filename = Path.GetFileName(fileEntryValue);
+        string filename = Path.GetFileName(fullVirtualPath);
         string newFilename = string.Format("{0}{1}{2}",
                                            Path.GetFileNameWithoutExtension(filename),
                                            cnt++,
                                            Path.GetExtension(filename));
         fileEntryValue = fileEntryValue.Replace(filename, newFilename);
-        fullPath = Path.Combine(_root, fileEntryValue);
+        fullVirtualPath = Path.Combine(_root, fileEntryValue);
       }
-      return WriteEntryToTable(keyFilename, fileEntryValue, false);
+      /// The value is now (probably?) unique, write it to the file table.
+      /// Why probably?
+      ///   A concurrent thread might use the same value,
+      ///   but the chance that this happens is almost zero
+      ///   and is not worth the overhead of adding a lock statement.
+      return WriteEntryToTable(fileRequest.Name, fileEntryValue, false);
     }
 
     /// <summary>
@@ -225,21 +231,21 @@ namespace AppStract.Server.FileSystem
 
     public virtual FileTableEntry GetFile(FileRequest fileRequest)
     {
-      if (fileRequest.FileName.StartsWith(@"\\.\")) /// Don't bother to try to redirect pipes.
-        return new FileTableEntry(fileRequest.FileName, fileRequest.FileName, FileKind.Unspecified);
-      if (FileAccessRedirector.IsTemporaryLocation(fileRequest.FileName)) /// Don't redirect temporary locations.
-        return new FileTableEntry(fileRequest.FileName, fileRequest.FileName, FileKind.Unspecified);
+      if (fileRequest.Name.StartsWith(@"\\.\")) /// Don't bother to try to redirect pipes.
+        return new FileTableEntry(fileRequest.Name, fileRequest.Name, FileKind.Unspecified);
+      if (FileAccessRedirector.IsTemporaryLocation(fileRequest.FullName)) /// Don't redirect temporary locations.
+        return new FileTableEntry(fileRequest.FullName, fileRequest.FullName, FileKind.Unspecified);
       GuestCore.Log(new LogMessage(LogLevel.Debug, "Guest process requested file: " + fileRequest));
       /// Are we looking for a library?
       if (fileRequest.ResourceKind == ResourceKind.Library)
-        return new FileTableEntry(fileRequest.FileName, TryFindLibrary(fileRequest.FileName), FileKind.File);
+        return new FileTableEntry(fileRequest.Name, TryFindLibrary(fileRequest.Name), FileKind.File);
       /// Are we looking for a regular file?
       string filename; // Variable to hold the file's location.
       if (fileRequest.ResourceKind == ResourceKind.FileOrDirectory
           /// Can the file be found in the virtual file table?
-          && TryGetFile(fileRequest.FileName, out filename))
+          && TryGetFile(fileRequest.Name, out filename))
         /// The file is found, return its full path.
-        return new FileTableEntry(fileRequest.FileName, Path.Combine(_root, filename), FileKind.Unspecified);
+        return new FileTableEntry(fileRequest.Name, Path.Combine(_root, filename), FileKind.Unspecified);
 
       /// The requested resource doesn't exist yet... How will the requester handle this?
       if (fileRequest.CreationDisposition == FileCreationDisposition.CREATE_ALWAYS
@@ -248,13 +254,13 @@ namespace AppStract.Server.FileSystem
       {
         /// The CreationDisposition specifies that the file will be created.
         /// Add a new entry to the file table and return it.
-        var entry = AddNewEntryToFileTable(fileRequest.FileName);
+        var entry = AddNewEntryToFileTable(fileRequest);
         entry.Value = Path.Combine(_root, entry.Value);
         GuestCore.Log(new LogMessage(LogLevel.Debug, "New FileTableEntry: " + entry));
         return entry;
       }
       /// Else, the file won't be created.
-      return new FileTableEntry(fileRequest.FileName, fileRequest.FileName, FileKind.Unspecified);
+      return new FileTableEntry(fileRequest.Name, fileRequest.Name, FileKind.Unspecified);
     }
 
     public virtual void DeleteFile(FileTableEntry fileTableEntry)

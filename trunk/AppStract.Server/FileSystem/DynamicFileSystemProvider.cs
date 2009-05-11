@@ -27,7 +27,7 @@ using AppStract.Core.Virtualization.FileSystem;
 namespace AppStract.Server.FileSystem
 {
   /// <summary>
-  /// <see cref="DynamicVirtualFileSystem"/> extends <see cref="FileSystemProvider"/>
+  /// <see cref="DynamicFileSystemProvider"/> extends <see cref="FileSystemProvider"/>
   /// by having the ability to release the virtual filesystem after a specified time interval.
   /// </summary>
   public class DynamicFileSystemProvider : FileSystemProvider
@@ -81,9 +81,9 @@ namespace AppStract.Server.FileSystem
 
     public override FileTableEntry GetFile(FileRequest fileRequest)
     {
-      if (!_released)
-        return base.GetFile(fileRequest);
-      return new FileTableEntry(fileRequest.FileName, fileRequest.FileName, FileKind.Unspecified);
+      return _released
+        ? new FileTableEntry(fileRequest.FullName, fileRequest.FullName, FileKind.Unspecified)
+        : base.GetFile(fileRequest);
     }
 
     #endregion
