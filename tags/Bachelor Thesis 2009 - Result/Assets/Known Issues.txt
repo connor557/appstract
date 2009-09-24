@@ -1,0 +1,36 @@
+Loading of Libraries
+======================================================================
+- Should the function SetDllDirectory be supported?
+    The injected code doesn't load extra libraries during runtime.
+    But what if the directory is changed to a virtual folder?
+    --> Will it be found without supporting SetDllDirectory?
+    
+Registry - API HOOKS
+======================================================================
+
+Most sizes in the registry are specified as "in bytes". What does this mean? How to handle it? Should it be multiplied by 8, to get the size in bits?
+
+HOOK IMPLEMENTATIONS -> QueryValue
+/// BUG: If lpValueName is NULL or an empty string, the function retrieves the type and data for the key's unnamed or default value, if any.
+
+HOOK IMPLEMENTATIONS -> DeleteKey
+/// Might happen on some rare occassions, should this be a transparent action?
+
+HOOK IMPLEMENTATIONS -> DeleteKeyValue
+/// Might happen on some rare occassions, should this be a transparent action?
+
+HOOK IMPLEMENTATIONS -> RegEnumKeyEx
+/// This is a very important function in the Windows API! Thus, it should be implemented.
+
+FileSystem - API HOOKS
+======================================================================
+Some arguments can be NULL, as documented by Microsoft. Not all of them are implemented as possible null values.
+
+How does Windows rename files?
+
+HOOK IMPLEMENTATIONS -> DeleteFile
+/// Might happen, should this be a transparent action?
+
+HOOK IMPLEMENTATIONS -> RemoveDirectory
+/// Might happen, should this be a transparent action?
+/// Note: Same as DeleteFile! It's expected that RemoveDirectory only passes the call to DeleteFile
