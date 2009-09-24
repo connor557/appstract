@@ -257,22 +257,26 @@ namespace AppStract.Core.Virtualization.Process
     /// <summary>
     /// Wraps and injects a process, used for .NET applications.
     /// </summary>
-    /// <exception cref="FileNotFoundException"></exception>
+    /// <exception cref="FileNotFoundException">
+    /// A <see cref="FileNotFoundException"/> is thrown if the executable for the wrapper process can't be found.
+    /// <br />=OR=<br />
+    /// A <see cref="FileNotFoundException"/> is thrown if the library to inject into the wrapper process can't be found.
+    /// </exception>
     private void WrapAndInject()
     {
       /// Get the location of the files needed.
-      string wrapperLocation = CoreBus.Configuration.AppConfig.WrapperExecutable;
-      string libraryLocation = CoreBus.Configuration.AppConfig.LibtoInject;
+      var wrapperLocation = CoreBus.Configuration.AppConfig.WrapperExecutable;
+      var libraryLocation = CoreBus.Configuration.AppConfig.LibtoInject;
       if (!File.Exists(wrapperLocation))
         throw new FileNotFoundException("Unable to locate the wrapper executable.", wrapperLocation);
       if (!File.Exists(libraryLocation))
         throw new FileNotFoundException("Unable to locate the library to inject.", libraryLocation);
       /// Start wrapper process.
-      ProcessStartInfo startInfo = new ProcessStartInfo
-                                     {
-                                       FileName = wrapperLocation,
-                                       CreateNoWindow = true
-                                     };
+      var startInfo = new ProcessStartInfo
+                        {
+                          FileName = wrapperLocation,
+                          CreateNoWindow = true
+                        };
       _process = SystemProcess.Start(startInfo);
       _process.EnableRaisingEvents = true;
       _process.Exited += Process_Exited;
