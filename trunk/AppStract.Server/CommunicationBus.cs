@@ -41,9 +41,9 @@ namespace AppStract.Server
   /// Actions are enqueued for a maximum of 500ms.
   /// If the <see cref="CommunicationBus"/> detects that the process is queried to shut down,
   /// the queues are flushed to the <see cref="ProcessSynchronizer"/> of the host process.
-  /// 
+  /// <br />
   /// Realize that in 500ms many actions can be enqueued,
-  /// and all these actions will be lost if the process would be killed by the Windows task manager.
+  /// and all these actions will be lost if the process would be killed by for example the Windows task manager.
   /// </remarks>
   public class CommunicationBus : IFileSystemLoader, IRegistryLoader
   {

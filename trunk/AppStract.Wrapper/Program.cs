@@ -38,7 +38,7 @@ namespace AppStract.Wrapper
       while (true)
       {
         Thread.Sleep(500);
-        if (GuestCore.Initialized && !GuestCore.ValidConnection)
+        if (GuestCore.Initialized && !GuestCore.Connected)
           return;
       }
     }

@@ -51,7 +51,7 @@ namespace AppStract.Inject
     /// </summary>
     /// <remarks>
     /// This call should only focus on initializing the variables and connecting to the host application.
-    /// All business logic should be invoked in the Run() method.
+    /// All business logic should be invoked in the <see cref="Run"/> method.
     /// Unhandled exception are redirected to the host application automatically.
     /// </remarks>
     /// <param name="inContext">Information about the environment in which the library main method has been invoked.</param>
@@ -63,8 +63,8 @@ namespace AppStract.Inject
       /// Initialize the guest's core.
       GuestCore.Initialize(sync);
       /// Validate connection.
-      if (!GuestCore.ValidConnection)
-        throw new GuestException("Failed to validate the inter-process connection while initializing the guest's process.");
+      if (!GuestCore.Connected)
+        throw new GuestException("Failed to validate the inter-process connection while initializing the guest's virtual environment.");
     }
 
     /// <summary>
@@ -84,13 +84,13 @@ namespace AppStract.Inject
     {
       /// Install all hooks.
       GuestCore.InstallHooks(this);
-      /// Run the main method of the wrapped process.
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "Invoking the main method of the virtualized process..."));
-      AssemblyHelper.RunMainMethod(wrappedProcessExecutable,
-                                   args.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
       /// Block a thread until the host becomes unreachable,
       /// this should keep the GC from collecting the current EntryPoint.
       new Thread(BlockThread).Start();
+      /// Run the main method of the wrapped process.
+      GuestCore.Log(new LogMessage(LogLevel.Debug, "Invoking main method of virtualized process..."));
+      AssemblyHelper.RunMainMethod(wrappedProcessExecutable,
+                                   args.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries));
     }
 
     #endregion
@@ -99,15 +99,17 @@ namespace AppStract.Inject
 
     /// <summary>
     /// The run code for the injected library.
-    /// The GC won't unload the library as long as this method doesn't return.
     /// </summary>
     /// <remarks>
+    /// The GC won't unload the library as long as this method doesn't return.
+    /// <br />
     /// Run(IContext, params) should return if you want the injected library needs to be unloaded.
-    /// Unhandled exceptions ARE NOT redirected automatically. As the connection to the host is made in Initialize().
-    /// Errors should be reported using ProcessHook (MarshalByRefObj).
+    /// Unhandled exceptions ARE NOT redirected automatically.
+    /// As the connection to the host is established in <see cref="GuestCore.Initialize"/>,
+    /// errors should be reported using the <see cref="GuestCore.Log(AppStract.Core.Logging.LogMessage)"/> function.
     /// </remarks>
-    /// <param name="inContext">Information about the environment in which the library main method has been invoked.</param>
-    /// <param name="channelName">The name of the inter-process communication channel to connect to.</param>
+    /// <param name="inContext">Information about the environment in which the library main method has been invoked, used by the EasyHook library.</param>
+    /// <param name="channelName">The name of the inter-process communication channel to connect to, used by the EasyHook library.</param>
     public void Run(RemoteHooking.IContext inContext, string channelName)
     {
       try
@@ -117,7 +119,7 @@ namespace AppStract.Inject
             Thread.CurrentThread.Name = string.Format("{0} (PID {1}) Run method",
               Process.GetCurrentProcess().ProcessName, RemoteHooking.GetCurrentProcessId());
         /// Validate the connection.
-        if (!GuestCore.ValidConnection)
+        if (!GuestCore.Connected)
           return; /// Return silently, can't log
         GuestCore.Log(new LogMessage(
           LogLevel.Information, "Guest process [{0}] entered the Run method.", GuestCore.ProcessId));
@@ -149,7 +151,7 @@ namespace AppStract.Inject
       while (true)
       {
         Thread.Sleep(500);
-        if (!GuestCore.ValidConnection)
+        if (!GuestCore.Connected)
           return;
       }
     }
