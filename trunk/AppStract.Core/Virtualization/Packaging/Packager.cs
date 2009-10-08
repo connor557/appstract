@@ -126,8 +126,7 @@ namespace AppStract.Core.Virtualization.Packaging
     {
       if (sender != _process)
         throw new ApplicationException("An unexpected exception occured in the application workflow."
-                                       + " Process_Exited event is called from an unknown Process."
-                                       + " Please contact the developers about this issue.");
+                                       + " Process_Exited event is called from an unknown Process.");
       _succeeded = exitCode == ExitCode.Success;
       if (_succeeded)
       {

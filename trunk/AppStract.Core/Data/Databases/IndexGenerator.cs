@@ -104,18 +104,18 @@ namespace AppStract.Core.Data.Databases
       ValidateUser(indexRequester);
       lock (_indicesLock)
       {
-        if (_freeIndices.Count == 0)
+        if (_freeIndices.Count != 0)
         {
-          do
-          {
-            _currentIndex++;
-          } while (IsExisting(_currentIndex)); 
-          return _currentIndex;
+          uint keyIndex = _freeIndices[_freeIndices.Count - 1];
+          _freeIndices.RemoveAt(_freeIndices.Count - 1);
+          return keyIndex;
         }
-        /// ELSE: get the index from the free indices.
-        uint keyIndex = _freeIndices[_freeIndices.Count - 1];
-        _freeIndices.RemoveAt(_freeIndices.Count - 1);
-        return keyIndex;
+        /// ELSE: find a new index.
+        do
+        {
+          _currentIndex++;
+        } while (IsExisting(_currentIndex));
+        return _currentIndex;
       }
     }
 

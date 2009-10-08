@@ -128,7 +128,7 @@ namespace AppStract.Core.Virtualization.Process
 
     /// <summary>
     /// Initializes a new instance of <see cref="VirtualizedProcess"/>,
-    /// using a default <see cref="ProcessSynchronizer"/> based on the specified <see cref="VirtualProcessStartInfo"/>.
+    /// using the <see cref="ProcessSynchronizer"/> specified.
     /// </summary>
     /// <param name="startInfo">
     /// The <see cref="VirtualProcessStartInfo"/> containing the information used to start the process with.

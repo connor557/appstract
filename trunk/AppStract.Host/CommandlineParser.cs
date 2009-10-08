@@ -28,7 +28,7 @@ namespace AppStract.Host
 {
   /// <summary>
   /// Parses an array of commandline argument strings
-  /// to by the application useable <see cref="CommandlineOption"/>s with values associated.
+  /// to by the application useable <see cref="CommandlineOption"/>s with associated values.
   /// </summary>
   public class CommandlineParser
   {
@@ -51,7 +51,7 @@ namespace AppStract.Host
     /// <summary>
     /// Initializes a new instance of <see cref="CommandlineParser"/>.
     /// </summary>
-    /// <param name="arguments"></param>
+    /// <param name="arguments">The arguments to parse.</param>
     public CommandlineParser(string[] arguments)
     {
       _arguments = arguments;
@@ -77,7 +77,7 @@ namespace AppStract.Host
     /// Returns the associated value for the specified <see cref="CommandlineOption"/>.
     /// </summary>
     /// <param name="option"><see cref="CommandlineOption"/> to return the associated value for.</param>
-    /// <returns></returns>
+    /// <returns>The value associated to the specified <see cref="CommandlineOption"/>.</returns>
     public object GetOption(CommandlineOption option)
     {
       if (_options == null)
