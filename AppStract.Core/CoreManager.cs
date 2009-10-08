@@ -44,7 +44,8 @@ namespace AppStract.Core
     static CoreManager()
     {
       /// Binding this event might cause a SecurityException.
-      /// This exception is not catched because it indicates that the process is running with insufficient rights.
+      /// This exception is not nested in a catch clause
+      /// because it indicates that the process is running with insufficient privileges.
       AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
     }
 

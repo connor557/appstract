@@ -39,7 +39,7 @@ namespace AppStract.Host
     /// <summary>
     /// The title of the console window.
     /// </summary>
-    private const string _consoleTitle = "AppStract - Host";
+    private const string _ConsoleTitle = "AppStract - Host";
 
     #endregion
 
@@ -52,7 +52,7 @@ namespace AppStract.Host
     private static void Main(string[] args)
     {
       System.Threading.Thread.CurrentThread.Name = "Main";
-      Console.Title = _consoleTitle;
+      Console.Title = _ConsoleTitle;
       CoreManager.InitializeCore();
       var parser = new CommandlineParser(args);
       ConfigureFromArgs(parser);
@@ -78,7 +78,7 @@ namespace AppStract.Host
         Console.WriteLine(" -> " + ex.Message);
       }
 #endif
-      Console.WriteLine("\r\nPress any key to exit.");
+      Console.WriteLine("\r\n\r\nPress any key to exit.\r\n");
       Console.ReadLine();
     }
 
@@ -115,7 +115,7 @@ namespace AppStract.Host
         object showWindow = argParser.GetOption(CommandlineOption.ShowWindow);
         bool sWindow = showWindow.ToString() == "1"
                        || showWindow.ToString().ToLowerInvariant() == "true";
-        CoreBus.Configuration.ShowWindow(sWindow, _consoleTitle);
+        CoreBus.Configuration.ShowWindow(sWindow, _ConsoleTitle);
       }
     }
 
