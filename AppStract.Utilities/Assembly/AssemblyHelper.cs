@@ -79,8 +79,7 @@ namespace AppStract.Utilities.Assembly
     public static void RunMainMethod(string executable, string[] args)
     {
       SystemAssembly assembly = SystemAssembly.LoadFrom(executable);
-      MethodInfo entryPoint = assembly.EntryPoint;
-      entryPoint.Invoke(null, new object[] { args });
+      assembly.EntryPoint.Invoke(null, (args == null || args.Length == 0 ? null : new object[] { args }));
     }
 
     #endregion
