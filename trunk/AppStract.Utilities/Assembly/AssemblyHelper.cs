@@ -76,10 +76,15 @@ namespace AppStract.Utilities.Assembly
     /// </summary>
     /// <param name="executable">The executable to run the main method from.</param>
     /// <param name="args">The arguments to pass to the main method.</param>
-    public static void RunMainMethod(string executable, string[] args)
+    /// <returns>Exit code returned by the main method.</returns>
+    public static int RunMainMethod(string executable, string[] args)
     {
-      SystemAssembly assembly = SystemAssembly.LoadFrom(executable);
-      assembly.EntryPoint.Invoke(null, (args == null || args.Length == 0 ? null : new object[] { args }));
+      var assembly = SystemAssembly.LoadFrom(executable);
+      var o = assembly.EntryPoint.Invoke(null, (args == null || args.Length == 0 ? null : new object[] { args }));
+      int exitCode;
+      if (o == null || !Int32.TryParse(o.ToString(), out exitCode))
+        return 0;
+      return exitCode;
     }
 
     #endregion
