@@ -82,15 +82,6 @@ namespace AppStract.Inject
     public ProcessEntryPoint(RemoteHooking.IContext inContext, string inChannelName, string wrappedProcessExecutable, string args)
       : this(inContext, inChannelName)
     {
-      /// Install all hooks.
-      GuestCore.InstallHooks(this);
-      /// Block a thread until the host becomes unreachable,
-      /// this should keep the GC from collecting the current EntryPoint.
-      new Thread(BlockThread).Start();
-      /// Run the main method of the wrapped process.
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "Invoking main method of virtualized process..."));
-      AssemblyHelper.RunMainMethod(wrappedProcessExecutable,
-                                   args.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries));
     }
 
     #endregion
@@ -116,8 +107,8 @@ namespace AppStract.Inject
       {
         /// Name the current thread.
         if (Thread.CurrentThread.Name == null)
-            Thread.CurrentThread.Name = string.Format("{0} (PID {1}) Run method",
-              Process.GetCurrentProcess().ProcessName, RemoteHooking.GetCurrentProcessId());
+          Thread.CurrentThread.Name = string.Format("{0} (PID {1}) Run method",
+            Process.GetCurrentProcess().ProcessName, RemoteHooking.GetCurrentProcessId());
         /// Validate the connection.
         if (!GuestCore.Connected)
           return; /// Return silently, can't log
@@ -137,6 +128,20 @@ namespace AppStract.Inject
                       false);
         Process.GetCurrentProcess().Kill();
       }
+    }
+
+    public void Run(RemoteHooking.IContext inContect, string channelName, string wrappedProcessExecutable, string args)
+    {
+      /// Install all hooks.
+      GuestCore.InstallHooks(this);
+      /// Block a thread until the host becomes unreachable,
+      /// this should keep the GC from collecting the current EntryPoint.
+      new Thread(BlockThread).Start();
+      /// Run the main method of the wrapped process.
+      string[] arguments = args.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+      GuestCore.Log(new LogMessage(LogLevel.Debug, "Invoking main method of virtualized process... "
+        + "using #" + args.Length + " method parameters" + (arguments.Length == 0 ? "" : ": " + args)));
+      AssemblyHelper.RunMainMethod(wrappedProcessExecutable, arguments.Length == 0 ? null : arguments);
     }
 
     #endregion
