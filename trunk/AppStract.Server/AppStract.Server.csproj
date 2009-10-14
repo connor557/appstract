@@ -53,9 +53,12 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommunicationBus.cs" />
+    <Compile Include="ExitRequestEventHandler.cs" />
     <Compile Include="FileSystem\DynamicFileSystemProvider.cs" />
     <Compile Include="FileSystem\FileAccessRedirector.cs" />
     <Compile Include="FileSystem\VirtualEnvironment.cs" />

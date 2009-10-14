@@ -22,6 +22,8 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using AppStract.Core.Logging;
 using AppStract.Core.Virtualization.Synchronization;
@@ -45,19 +47,15 @@ namespace AppStract.Server
     /// </summary>
     private static bool _initialized;
     /// <summary>
-    /// The object to lock when initializing the <see cref="GuestCore"/>.
-    /// </summary>
-    private static readonly object _initializationLock = new object();
-    /// <summary>
     /// The process ID of the current process.
     /// </summary>
     private static int _currentProcessId;
     /// <summary>
-    /// The object to use to report messages to the server and to test connectivity with.
+    /// Tests connectivity and reports messages to the server.
     /// </summary>
     private static IServerReporter _serverReporter;
     /// <summary>
-    /// The object responsible for communicating back-end database queries to the server.
+    /// Communicates queries to the server.
     /// </summary>
     private static CommunicationBus _commBus;
     /// <summary>
@@ -68,6 +66,18 @@ namespace AppStract.Server
     /// The maximum allowed <see cref="LogLevel"/> of <see cref="LogMessage"/>s to report.
     /// </summary>
     private static LogLevel _logLevel;
+    /// <summary>
+    /// Collection of eventhandlers to call when requesting a process exit.
+    /// </summary>
+    private static readonly List<ExitRequestEventHandler> _exitRequestEventHandlersCollection = new List<ExitRequestEventHandler>(1);
+    /// <summary>
+    /// The object to lock when initializing the <see cref="GuestCore"/>.
+    /// </summary>
+    private static readonly object _initializationLock = new object();
+    /// <summary>
+    /// The object to lock when performing actions on <see cref="_exitRequestEventHandlersCollection"/>.
+    /// </summary>
+    private static readonly object _exitRequestEventLock = new object();
 
     #endregion
 
@@ -106,6 +116,19 @@ namespace AppStract.Server
           return false;
         }
       }
+    }
+
+    #endregion
+
+    #region Events
+
+    /// <summary>
+    /// Occurs when a module requests the current process to exit.
+    /// </summary>
+    public static event ExitRequestEventHandler ExitRequestRaised
+    {
+      add { lock (_exitRequestEventLock) _exitRequestEventHandlersCollection.Add(value); }
+      remove { lock (_exitRequestEventLock) _exitRequestEventHandlersCollection.Remove(value); }
     }
 
     #endregion
@@ -227,6 +250,57 @@ namespace AppStract.Server
       {
         if (throwOnError)
           throw new GuestException("An unexpected exception occured.", e);
+      }
+    }
+
+    /// <summary>
+    /// Raises the <see cref="ExitRequestRaised"/> event.
+    /// The main purpose of raising this request is to kill the wrapper process while also providing an exit code.
+    /// 
+    /// </summary>
+    /// <param name="exitCode"></param>
+    public static bool RaiseExitRequest(int exitCode)
+    {
+      Log(new LogMessage(LogLevel.Debug, "Attempting a process exit with exit code " + exitCode + "."), false);
+      // Prematurely start the flush procedure.
+      new Thread(_commBus.Flush).Start();
+      // Make a copy of the eventhandlers before raising them.
+      IEnumerable<ExitRequestEventHandler> eventHandlers;
+      lock (_exitRequestEventLock)
+      {
+        eventHandlers = _exitRequestEventHandlersCollection == null
+                          ? new ExitRequestEventHandler[0]
+                          : _exitRequestEventHandlersCollection.ToArray();
+      }
+      // Raise all events.
+      bool exitRequestHandled = false;
+      foreach (var eventHandler in eventHandlers)
+        exitRequestHandled = eventHandler(exitCode) ? true : exitRequestHandled;
+      // Write log message according to the result.
+      if (exitRequestHandled)
+        Log(new LogMessage(LogLevel.Information, "Exit procedure is invoked."), false);
+      else
+        Log(new LogMessage(LogLevel.Error, "Exit procedure invocation FAILED."), false);
+      return exitRequestHandled;
+    }
+
+    /// <summary>
+    /// Attempts to immediately stop the guest process with reduced risk of loosing cached data.
+    /// </summary>
+    /// <returns></returns>
+    public static bool KillGuestProcess()
+    {
+      _commBus.Flush();
+      try
+      {
+        Process.GetCurrentProcess().Kill();
+        return true;
+      }
+      catch (Exception e)
+      {
+        Log(new LogMessage(LogLevel.Critical, "Failed to kill the guest process.", e),
+            false);
+        return false;
       }
     }
 
