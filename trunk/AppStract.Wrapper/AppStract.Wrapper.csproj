@@ -50,8 +50,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -61,10 +59,6 @@
     <ProjectReference Include="..\AppStract.Server\AppStract.Server.csproj">
       <Project>{4944058E-49BF-4CF8-968D-D905731EC728}</Project>
       <Name>AppStract.Server</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EasyHook\EasyHook.csproj">
-      <Project>{AB53862B-3B5C-4EFC-9787-1F01199EBFBF}</Project>
-      <Name>EasyHook</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

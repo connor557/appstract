@@ -89,12 +89,12 @@ namespace AppStract.Inject
     #region Public Methods
 
     /// <summary>
-    /// The run code for the injected library.
+    /// Run method for the injected library, invoked by EasyHook.
     /// </summary>
     /// <remarks>
     /// The GC won't unload the library as long as this method doesn't return.
     /// <br />
-    /// Run(IContext, params) should return if you want the injected library needs to be unloaded.
+    /// The Run() method should return if you want the injected library needs to be unloaded.
     /// Unhandled exceptions ARE NOT redirected automatically.
     /// As the connection to the host is established in <see cref="GuestCore.Initialize"/>,
     /// errors should be reported using the <see cref="GuestCore.Log(AppStract.Core.Logging.LogMessage)"/> function.
@@ -109,39 +109,58 @@ namespace AppStract.Inject
         if (Thread.CurrentThread.Name == null)
           Thread.CurrentThread.Name = string.Format("{0} (PID {1}) Run method",
             Process.GetCurrentProcess().ProcessName, RemoteHooking.GetCurrentProcessId());
-        /// Validate the connection.
+        // Validate the connection.
         if (!GuestCore.Connected)
-          return; /// Return silently, can't log
+          return; // Return silently, can't log
         GuestCore.Log(new LogMessage(
           LogLevel.Information, "Guest process [{0}] entered the Run method.", GuestCore.ProcessId));
-        /// Install all hooks.
+        // Install all hooks.
         GuestCore.InstallHooks(this);
-        /// Start the injected process.
+        // Start the injected process.
         RemoteHooking.WakeUpProcess();
-        /// Block the current thread until the host becomes unreachable,
-        /// this keeps the GC from collecting the current EntryPoint.
+        // Block the current thread until the host becomes unreachable,
+        // this keeps the GC from collecting the current EntryPoint.
         BlockThread();
       }
       catch (Exception e)
       {
         GuestCore.Log(new LogMessage(LogLevel.Critical, "An unexpected exception occured.", e),
                       false);
-        Process.GetCurrentProcess().Kill();
+        if (!GuestCore.RaiseExitRequest(1067) && !GuestCore.KillGuestProcess())
+          throw new ApplicationException("An unexpected fatal exception occured.", e);
       }
     }
 
-    public void Run(RemoteHooking.IContext inContect, string channelName, string wrappedProcessExecutable, string args)
+    /// <summary>
+    /// Run method for the injected library, invoked by EasyHook when injecting a wrapper process.
+    /// </summary>
+    /// <remarks>
+    /// The GC won't unload the library as long as this method doesn't return.
+    /// <br />
+    /// The Run() method should return if you want the injected library needs to be unloaded.
+    /// Unhandled exceptions ARE NOT redirected automatically.
+    /// As the connection to the host is established in <see cref="GuestCore.Initialize"/>,
+    /// errors should be reported using the <see cref="GuestCore.Log(AppStract.Core.Logging.LogMessage)"/> function.
+    /// </remarks>
+    /// <param name="inContext">Information about the environment in which the library main method has been invoked, used by the EasyHook library.</param>
+    /// <param name="channelName">The name of the inter-process communication channel to connect to, used by the EasyHook library.</param>
+    /// <param name="wrappedProcessExecutable">The executable containing the main method of the guest process.</param>
+    /// <param name="args">Optional arguments to pass to the guest's main method.</param>
+    public void Run(RemoteHooking.IContext inContext, string channelName, string wrappedProcessExecutable, string args)
     {
       /// Install all hooks.
       GuestCore.InstallHooks(this);
-      /// Block a thread until the host becomes unreachable,
-      /// this should keep the GC from collecting the current EntryPoint.
-      new Thread(BlockThread).Start();
       /// Run the main method of the wrapped process.
       string[] arguments = args.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "Invoking main method of virtualized process... "
-        + "using #" + args.Length + " method parameters" + (arguments.Length == 0 ? "" : ": " + args)));
-      AssemblyHelper.RunMainMethod(wrappedProcessExecutable, arguments.Length == 0 ? null : arguments);
+      GuestCore.Log(new LogMessage(LogLevel.Debug, "Invoking main method of targeted guest... "
+                                                   + "using #" + args.Length + " method parameters" +
+                                                   (arguments.Length == 0 ? "" : ": " + args)));
+      var exitCode = AssemblyHelper.RunMainMethod(wrappedProcessExecutable, arguments.Length == 0 ? null : arguments);
+      GuestCore.Log(new LogMessage(LogLevel.Debug, "Main method returned with exitcode " + exitCode));
+      // First attempt a clean shutdown, then try a forced shutdown.
+      if (!GuestCore.RaiseExitRequest(exitCode) && !GuestCore.KillGuestProcess())
+        // Both attempts failed, throw an exception to terminate the process completly.
+        throw new ApplicationException("Guest wrapper process is unable to safely exit with exit code " + exitCode);
     }
 
     #endregion

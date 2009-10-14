@@ -28,19 +28,46 @@ namespace AppStract.Wrapper
 {
   class Program
   {
+
+    #region Variables
+
+    private static bool _exit;
+    private static int _exitCode;
+
+    #endregion
+
+    #region Private Methods
+
     /// <summary>
     /// Entry point for the wrapper process.
     /// Hangs until the connection with the server process is lost.
     /// </summary>
     /// <param name="args"></param>
-    static void Main(string[] args)
+    private static int Main(string[] args)
     {
-      while (true)
+      GuestCore.ExitRequestRaised += ExitRequestEventHandler;
+      while (!_exit)
       {
         Thread.Sleep(500);
         if (GuestCore.Initialized && !GuestCore.Connected)
-          return;
+          break;
       }
+      return _exitCode;
     }
+
+    /// <summary>
+    /// Eventhandler for the <see cref="GuestCore.ExitRequestRaised"/> event.
+    /// </summary>
+    /// <param name="exitCode"></param>
+    /// <returns></returns>
+    private static bool ExitRequestEventHandler(int exitCode)
+    {
+      _exitCode = exitCode;
+      _exit = true;
+      return true;
+    }
+
+    #endregion
+
   }
 }
