@@ -316,7 +316,7 @@ namespace AppStract.Core.Virtualization.Process
     {
       if (Thread.CurrentThread.Name == null)
         Thread.CurrentThread.Name = "Process Finalizer";
-      CoreBus.Log.Message("Process Exited event is called");
+      CoreBus.Log.Message("Guest process' Exited event is called");
       if (!_process.HasExited)
         return;
       _hasExited = true;
@@ -329,12 +329,13 @@ namespace AppStract.Core.Virtualization.Process
           if (_process.ExitCode != -1)
           {
             CoreBus.Log.Error("Guest process exited with ExitCode [{0}] {1} and message {2}",
-              _process.ExitCode, WinError.GetErrorName((uint)_process.ExitCode), _process.StandardError.ReadToEnd());
+              _process.ExitCode, WinError.GetErrorName((uint)_process.ExitCode),
+              _process.StartInfo.RedirectStandardError ? _process.StandardError.ReadToEnd() : "NULL");
             RaiseExitEvent(this, ExitCode.Error);
           }
           else
           {
-            CoreBus.Log.Error("Guest process exited unexpectedly.");
+            CoreBus.Log.Error("Guest process exited unexpectedly");
             RaiseExitEvent(this, ExitCode.Unexpected);
           }
         }
