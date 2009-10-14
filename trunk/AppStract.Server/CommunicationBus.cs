@@ -113,7 +113,7 @@ namespace AppStract.Server
             return;
           _autoFlush = value;
           if (_autoFlush)
-            new Thread(StartFlushing).Start();
+            new Thread(StartFlushing) { IsBackground = true }.Start();
         }
       }
     }
@@ -169,7 +169,8 @@ namespace AppStract.Server
     #region Public Methods
 
     /// <summary>
-    /// Flushes all enqueued items to the <see cref="ProcessSynchronizer"/> specified during initialization.
+    /// Flushes all enqueued items to the <see cref="ProcessSynchronizer"/> 
+    /// attached to the current <see cref="CommunicationBus"/> instance.
     /// </summary>
     public void Flush()
     {
