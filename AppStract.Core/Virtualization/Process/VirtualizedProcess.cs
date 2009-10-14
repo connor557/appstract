@@ -281,6 +281,10 @@ namespace AppStract.Core.Virtualization.Process
       _process.EnableRaisingEvents = true;
       _process.Exited += Process_Exited;
       /// Inject wrapper.
+#if !DEBUG
+      try
+      {
+#endif
       RemoteHooking.Inject(
         /// The process to inject, in this case the wrapper.
         _process.Id,
@@ -292,6 +296,14 @@ namespace AppStract.Core.Virtualization.Process
         Path.Combine(_startInfo.WorkingDirectory.File, _startInfo.Files.Executable.File),
         /// The arguments to pass to the main method of the executable. 
         _startInfo.Arguments);
+#if !DEBUG
+      }
+      catch
+      {
+        _process.Kill();
+        throw;
+      }
+#endif
     }
 
     /// <summary>
@@ -311,22 +323,34 @@ namespace AppStract.Core.Virtualization.Process
       lock (_exitEventSyncRoot)
       {
         if (WinError.Succeeded(_process.ExitCode))
-          _exited(this, ExitCode.Success);
+          RaiseExitEvent(this, ExitCode.Success);
         else
         {
           if (_process.ExitCode != -1)
           {
             CoreBus.Log.Error("Guest process exited with ExitCode [{0}] {1} and message {2}",
               _process.ExitCode, WinError.GetErrorName((uint)_process.ExitCode), _process.StandardError.ReadToEnd());
-            _exited(this, ExitCode.Error);
+            RaiseExitEvent(this, ExitCode.Error);
           }
           else
           {
             CoreBus.Log.Error("Guest process exited unexpectedly.");
-            _exited(this, ExitCode.Unexpected);
+            RaiseExitEvent(this, ExitCode.Unexpected);
           }
         }
       }
+    }
+
+    /// <summary>
+    /// Raised the <see cref="Exited"/> eventhandler.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="exitCode"></param>
+    private void RaiseExitEvent(VirtualizedProcess sender, ExitCode exitCode)
+    {
+      lock (_exitEventSyncRoot)
+        if (_exited != null)
+          _exited(sender, exitCode);
     }
 
     #endregion
