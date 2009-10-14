@@ -173,8 +173,8 @@ namespace AppStract.Server
     /// </summary>
     public void Flush()
     {
-      IEnumerable<DatabaseAction<FileTableEntry>> fsActions;
-      IEnumerable<DatabaseAction<VirtualRegistryKey>> regActions;
+      DatabaseAction<FileTableEntry>[] fsActions;
+      DatabaseAction<VirtualRegistryKey>[] regActions;
       lock (_fileSystemSyncObject)
       {
         fsActions = _fileSystemQueue.ToArray();
@@ -185,8 +185,10 @@ namespace AppStract.Server
         regActions = _registryQueue.ToArray();
         _registryQueue.Clear();
       }
-      _synchronizer.SyncFileSystemActions(fsActions);
-      _synchronizer.SyncRegistryActions(regActions);
+      if (fsActions.Length > 0)
+        _synchronizer.SyncFileSystemActions(fsActions);
+      if (regActions.Length > 0)
+        _synchronizer.SyncRegistryActions(regActions);
     }
 
     #endregion
