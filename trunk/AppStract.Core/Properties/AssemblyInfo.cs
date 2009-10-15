@@ -31,9 +31,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("AppStract.Core")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
+[assembly: AssemblyCompany("Simon Allaeys")]
 [assembly: AssemblyProduct("AppStract.Core")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2009")]
+[assembly: AssemblyCopyright("Copyright © Simon Allaeys 2009")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
