@@ -25,6 +25,7 @@ using System;
 using System.IO;
 using System.Runtime.Remoting;
 using System.Threading;
+using AppStract.Utilities.Interop;
 using Microsoft.Win32.Interop;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Virtualization.Synchronization;
@@ -264,14 +265,14 @@ namespace AppStract.Core.Virtualization.Process
     /// </exception>
     private void WrapAndInject()
     {
-      /// Get the location of the files needed.
+      // Get the location of the files needed.
       var wrapperLocation = CoreBus.Configuration.AppConfig.WrapperExecutable;
       var libraryLocation = CoreBus.Configuration.AppConfig.LibtoInject;
       if (!File.Exists(wrapperLocation))
         throw new FileNotFoundException("Unable to locate the wrapper executable.", wrapperLocation);
       if (!File.Exists(libraryLocation))
         throw new FileNotFoundException("Unable to locate the library to inject.", libraryLocation);
-      /// Start wrapper process.
+      // Start wrapper process.
       var startInfo = new ProcessStartInfo
                         {
                           FileName = wrapperLocation,
@@ -286,15 +287,15 @@ namespace AppStract.Core.Virtualization.Process
       {
 #endif
       RemoteHooking.Inject(
-        /// The process to inject, in this case the wrapper.
+        // The process to inject, in this case the wrapper.
         _process.Id,
-        /// Absolute paths of the libraries to inject, we use the same one for 32bit and 64bit
+        // Absolute paths of the libraries to inject, we use the same one for 32bit and 64bit
         libraryLocation, libraryLocation,
-        /// The name of the channel to use for IPC.
+        // The name of the channel to use for IPC.
         _channelName,
-        /// The location of the executable to start the wrapped process from.
+        // The location of the executable to start the wrapped process from.
         Path.Combine(_startInfo.WorkingDirectory.File, _startInfo.Files.Executable.File),
-        /// The arguments to pass to the main method of the executable. 
+        // The arguments to pass to the main method of the executable. 
         _startInfo.Arguments);
 #if !DEBUG
       }
@@ -304,6 +305,8 @@ namespace AppStract.Core.Virtualization.Process
         throw;
       }
 #endif
+      // Hide wrapper console window.
+      ProcessHelpers.SetWindowState(_process.MainWindowHandle, WindowShowStyle.Hide);
     }
 
     /// <summary>
