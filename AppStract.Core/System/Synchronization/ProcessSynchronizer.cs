@@ -30,7 +30,7 @@ using AppStract.Core.Logging;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Core.Virtualization.Registry;
 
-namespace AppStract.Core.Virtualization.Synchronization
+namespace AppStract.Core.System.Synchronization
 {
   /// <summary>
   /// Provides a way of data synchronization between multiple processes.
@@ -92,11 +92,11 @@ namespace AppStract.Core.Virtualization.Synchronization
         throw new ArgumentException("The root location specified for the file system is not valid.", "fileSystemRoot");
       if (registryDatabaseFile.Type != FileType.Database)
         throw new ArgumentException("The filename specified for the registry database is not valid.", "registryDatabaseFile");
-      _fileSystemDatabase = FileSystemDatabase.CreateDefaultDatabase(fileSystemDatabaseFile.File);
-      _registryDatabase = RegistryDatabase.CreateDefaultDatabase(registryDatabaseFile.File);
+      _fileSystemDatabase = FileSystemDatabase.CreateDefaultDatabase(fileSystemDatabaseFile.FileName);
+      _registryDatabase = RegistryDatabase.CreateDefaultDatabase(registryDatabaseFile.FileName);
       _fileSystemDatabase.Initialize();
       _registryDatabase.Initialize();
-      _fileSystemRoot = fileSystemRoot.File;
+      _fileSystemRoot = fileSystemRoot.FileName;
     }
 
     /// <summary>
@@ -111,7 +111,7 @@ namespace AppStract.Core.Virtualization.Synchronization
         throw new ArgumentException("The root location specified for the file system is not valid.", "fileSystemRoot");
       _fileSystemDatabase = fileSystemDatabase;
       _registryDatabase = registryDatabase;
-      _fileSystemRoot = fileSystemRoot.File;
+      _fileSystemRoot = fileSystemRoot.FileName;
     }
 
     #endregion

@@ -46,7 +46,7 @@ namespace AppStract.Core.Data.Application
       get { return _type; }
     }
 
-    public string File
+    public string FileName
     {
       get { return _file; }
       set
@@ -65,7 +65,7 @@ namespace AppStract.Core.Data.Application
     public ApplicationFile(string file)
       : this()
     {
-      File = file;
+      FileName = file;
     }
 
     #endregion
@@ -78,7 +78,7 @@ namespace AppStract.Core.Data.Application
     /// <returns></returns>
     public bool Exists()
     {
-      return System.IO.File.Exists(File);
+      return File.Exists(FileName);
     }
 
     /// <summary>
@@ -87,7 +87,7 @@ namespace AppStract.Core.Data.Application
     /// <returns></returns>
     public override string ToString()
     {
-      return "[" + Type + "] " + File; 
+      return "[" + Type + "] " + FileName; 
     }
 
     #endregion
@@ -118,7 +118,7 @@ namespace AppStract.Core.Data.Application
         return FileType.Database;
       if (filename.EndsWithAny(new[] {".exe", ".dll"}))
       {
-        if (!System.IO.File.Exists(filename))
+        if (!File.Exists(filename))
           throw new FileNotFoundException("The assembly specified does not exist, making it impossible to retrieve its FileType.");
         return AssemblyHelper.GetAssemblyType(filename) == AssemblyType.Native
                  ? FileType.Assembly_Native

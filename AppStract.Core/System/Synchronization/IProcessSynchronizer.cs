@@ -23,17 +23,16 @@
 
 using System;
 
-namespace AppStract.Core.Virtualization.Synchronization
+namespace AppStract.Core.System.Synchronization
 {
-  public class ProcessSynchronizerInterface : MarshalByRefObject
+  /// <summary>
+  /// Interface offering complete support for data synchronization between multiple processes.
+  /// Wraps <see cref="IServerReporter"/>, <see cref="ISynchronizer"/>, and <see cref="IResourceLoader"/>.
+  /// </summary>
+  /// <remarks>
+  /// Classes implementing the <see cref="IProcessSynchronizer"/> interface must be marked with the <see cref="SerializableAttribute"/>.
+  /// </remarks>
+  public interface IProcessSynchronizer : IServerReporter, ISynchronizer, IResourceLoader
   {
-
-    public static IProcessSynchronizer SProcessSynchronizer;
-    public IProcessSynchronizer ProcessSynchronizer
-    {
-      get { return SProcessSynchronizer; }
-      set { SProcessSynchronizer = value; }
-    }
-
   }
 }

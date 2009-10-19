@@ -28,7 +28,7 @@ using System.Threading;
 using AppStract.Utilities.Interop;
 using Microsoft.Win32.Interop;
 using AppStract.Core.Data.Application;
-using AppStract.Core.Virtualization.Synchronization;
+using AppStract.Core.System.Synchronization;
 using EasyHook;
 using SystemProcess = System.Diagnostics.Process;
 using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
@@ -202,7 +202,7 @@ namespace AppStract.Core.Virtualization.Process
                                             " can't be used to start a process with.");
       }
       CoreBus.Log.Message("A virtualized process with PID {0} has been succesfully created for {1}.",
-                              _process.Id, _startInfo.Files.Executable.File);
+                              _process.Id, _startInfo.Files.Executable.FileName);
     }
 
     #endregion
@@ -238,7 +238,7 @@ namespace AppStract.Core.Virtualization.Process
       if (!File.Exists(libraryLocation))
         throw new FileNotFoundException("Unable to locate the library to inject.", libraryLocation);
       RemoteHooking.CreateAndInject(
-        Path.Combine(_startInfo.WorkingDirectory.File, _startInfo.Files.Executable.File),
+        Path.Combine(_startInfo.WorkingDirectory.FileName, _startInfo.Files.Executable.FileName),
         /// Optional command line parameters for process creation
         _startInfo.Arguments,
         /// ProcessCreationFlags, no conditions are set on the created process.
@@ -294,7 +294,7 @@ namespace AppStract.Core.Virtualization.Process
         // The name of the channel to use for IPC.
         _channelName,
         // The location of the executable to start the wrapped process from.
-        Path.Combine(_startInfo.WorkingDirectory.File, _startInfo.Files.Executable.File),
+        Path.Combine(_startInfo.WorkingDirectory.FileName, _startInfo.Files.Executable.FileName),
         // The arguments to pass to the main method of the executable. 
         _startInfo.Arguments);
 #if !DEBUG
