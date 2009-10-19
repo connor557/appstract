@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Core.Virtualization.Registry;
 
-namespace AppStract.Core.Virtualization.Synchronization
+namespace AppStract.Core.System.Synchronization
 {
   /// <summary>
   /// Provides resources needed by the guest process in order to be initializable.

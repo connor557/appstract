@@ -26,7 +26,7 @@ using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Core.Virtualization.Registry;
 
-namespace AppStract.Core.Virtualization.Synchronization
+namespace AppStract.Core.System.Synchronization
 {
   /// <summary>
   /// Interface for interprocess data synchronization.

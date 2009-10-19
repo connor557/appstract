@@ -103,11 +103,11 @@
     <Compile Include="Virtualization\Process\VirtualProcessStartInfo.cs" />
     <Compile Include="Virtualization\FileSystem\IFileSystemLoader.cs" />
     <Compile Include="Virtualization\Registry\IRegistryLoader.cs" />
-    <Compile Include="Virtualization\Synchronization\IProcessSynchronizer.cs" />
-    <Compile Include="Virtualization\Synchronization\IResourceLoader.cs" />
-    <Compile Include="Virtualization\Synchronization\IServerReporter.cs" />
-    <Compile Include="Virtualization\Synchronization\ISynchronizer.cs" />
-    <Compile Include="Virtualization\Synchronization\ProcessSynchronizer.cs" />
+    <Compile Include="System\Synchronization\IProcessSynchronizer.cs" />
+    <Compile Include="System\Synchronization\IResourceLoader.cs" />
+    <Compile Include="System\Synchronization\IServerReporter.cs" />
+    <Compile Include="System\Synchronization\ISynchronizer.cs" />
+    <Compile Include="System\Synchronization\ProcessSynchronizer.cs" />
     <Compile Include="Data\Application\ApplicationData.cs" />
     <Compile Include="Data\Application\ApplicationFile.cs" />
     <Compile Include="Data\Application\ApplicationFiles.cs" />
@@ -127,7 +127,7 @@
     <Compile Include="Virtualization\Registry\VirtualRegistryKey.cs" />
     <Compile Include="Virtualization\Registry\VirtualRegistryValue.cs" />
     <Compile Include="CoreManager.cs" />
-    <Compile Include="Virtualization\Synchronization\ProcessSynchronizerInterface.cs" />
+    <Compile Include="System\Synchronization\ProcessSynchronizerInterface.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppStract.Utilities\AppStract.Utilities.csproj">

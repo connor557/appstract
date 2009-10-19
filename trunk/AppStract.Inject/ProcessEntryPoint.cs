@@ -25,7 +25,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using AppStract.Core.Logging;
-using AppStract.Core.Virtualization.Synchronization;
+using AppStract.Core.System.Synchronization;
 using AppStract.Server;
 using AppStract.Utilities.Assembly;
 using EasyHook;

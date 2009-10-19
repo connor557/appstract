@@ -24,7 +24,7 @@
 using System;
 using AppStract.Core.Logging;
 
-namespace AppStract.Core.Virtualization.Synchronization
+namespace AppStract.Core.System.Synchronization
 {
   /// <summary>
   /// Enables different processes to test connectivity

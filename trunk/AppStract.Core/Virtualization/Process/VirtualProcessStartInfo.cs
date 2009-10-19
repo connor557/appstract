@@ -127,13 +127,13 @@ namespace AppStract.Core.Virtualization.Process
       _files = new ApplicationFiles
                  {
                    DatabaseFileSystem
-                     = new ApplicationFile(Path.Combine(workingDirectory.File, data.Files.DatabaseFileSystem.File)),
+                     = new ApplicationFile(Path.Combine(workingDirectory.FileName, data.Files.DatabaseFileSystem.FileName)),
                    DatabaseRegistry
-                     = new ApplicationFile(Path.Combine(workingDirectory.File, data.Files.DatabaseRegistry.File)),
+                     = new ApplicationFile(Path.Combine(workingDirectory.FileName, data.Files.DatabaseRegistry.FileName)),
                    Executable
-                     = new ApplicationFile(Path.Combine(workingDirectory.File, data.Files.Executable.File)),
+                     = new ApplicationFile(Path.Combine(workingDirectory.FileName, data.Files.Executable.FileName)),
                    RootDirectory
-                     = new ApplicationFile(Path.Combine(workingDirectory.File, data.Files.RootDirectory.File))
+                     = new ApplicationFile(Path.Combine(workingDirectory.FileName, data.Files.RootDirectory.FileName))
                  };
       _arguments = "";
       _workingDirectory = workingDirectory;

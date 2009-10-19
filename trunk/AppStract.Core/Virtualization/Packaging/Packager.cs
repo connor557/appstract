@@ -130,10 +130,10 @@ namespace AppStract.Core.Virtualization.Packaging
       _succeeded = exitCode == ExitCode.Success;
       if (_succeeded)
       {
-        _result = new PackagedApplication(_startInfo.WorkingDirectory.File,
+        _result = new PackagedApplication(_startInfo.WorkingDirectory.FileName,
                                           _process.GetExecutables(), /// We already checked if sender equals _process.
-                                          _startInfo.Files.DatabaseFileSystem.File,
-                                          _startInfo.Files.DatabaseRegistry.File);
+                                          _startInfo.Files.DatabaseFileSystem.FileName,
+                                          _startInfo.Files.DatabaseRegistry.FileName);
       }
       _waitHandle.Set();
     }

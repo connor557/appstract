@@ -27,7 +27,7 @@ using AppStract.Core.Data.Application;
 using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Core.Virtualization.Process;
-using AppStract.Core.Virtualization.Synchronization;
+using AppStract.Core.System.Synchronization;
 
 namespace AppStract.Core.Virtualization.Packaging
 {
@@ -76,9 +76,9 @@ namespace AppStract.Core.Virtualization.Packaging
       if (startInfo.Files.DatabaseRegistry.Type != FileType.Database)
         throw new ArgumentException("The destination file specified for the registry database is not valid.",
                                     "startInfo");
-      var registryDatabase = RegistryDatabase.CreateDefaultDatabase(startInfo.Files.DatabaseRegistry.File);
+      var registryDatabase = RegistryDatabase.CreateDefaultDatabase(startInfo.Files.DatabaseRegistry.FileName);
       registryDatabase.Initialize();
-      var fileSystemDatabase = WatchingFileSystemDatabase.CreateDefaultDatabase(startInfo.Files.DatabaseFileSystem.File);
+      var fileSystemDatabase = WatchingFileSystemDatabase.CreateDefaultDatabase(startInfo.Files.DatabaseFileSystem.FileName);
       fileSystemDatabase.Initialize();
       var synchronizer = new ProcessSynchronizer(fileSystemDatabase, startInfo.WorkingDirectory, registryDatabase);
       var process = new PackagingProcess(startInfo, synchronizer);
