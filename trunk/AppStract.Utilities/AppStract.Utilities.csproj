@@ -53,6 +53,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
@@ -60,7 +61,9 @@
     <Compile Include="Assembly\AssemblyType.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Interop\MarshallingHelpers.cs" />
-    <Compile Include="Interop\StateCode.cs" />
+    <Compile Include="Interop\ProcessHelpers.cs" />
+    <Compile Include="Interop\NativeResultCode.cs" />
+    <Compile Include="Interop\WindowShowStyle.cs" />
     <Compile Include="Observables\EventRaiser.cs" />
     <Compile Include="Observables\IObservableItem.cs" />
     <Compile Include="Observables\IObservableCollection.cs" />

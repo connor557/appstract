@@ -120,14 +120,14 @@ namespace AppStract.Server.Registry.Data
     /// </summary>
     /// <param name="hKey"></param>
     /// <returns>A <see cref="WinError"/> code.</returns>
-    public virtual StateCode DeleteKey(uint hKey)
+    public virtual NativeResultCode DeleteKey(uint hKey)
     {
       _keysSynchronizationLock.EnterWriteLock();
       try
       {
         return _keys.Remove(hKey)
-                 ? StateCode.Succes
-                 : StateCode.InvalidHandle;
+                 ? NativeResultCode.Succes
+                 : NativeResultCode.InvalidHandle;
       }
       finally
       {
@@ -142,7 +142,7 @@ namespace AppStract.Server.Registry.Data
     /// <param name="hKey">The allocated index.</param>
     /// <param name="creationDisposition">Whether the key is opened or created.</param>
     /// <returns>A <see cref="WinError"/> code.</returns>
-    public virtual StateCode CreateKey(string keyFullPath, out uint hKey, out RegCreationDisposition creationDisposition)
+    public virtual NativeResultCode CreateKey(string keyFullPath, out uint hKey, out RegCreationDisposition creationDisposition)
     {
       if(OpenKey(keyFullPath, out hKey))
       {
@@ -155,7 +155,7 @@ namespace AppStract.Server.Registry.Data
         WriteKey(key, false);
         hKey = key.Handle;
       }
-      return StateCode.Succes;
+      return NativeResultCode.Succes;
     }
 
     /// <summary>
@@ -174,7 +174,7 @@ namespace AppStract.Server.Registry.Data
     /// <param name="valueName"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    public abstract StateCode QueryValue(uint hKey, string valueName, out VirtualRegistryValue value);
+    public abstract NativeResultCode QueryValue(uint hKey, string valueName, out VirtualRegistryValue value);
 
     /// <summary>
     /// Sets a value for the key with the specified handle.
@@ -182,7 +182,7 @@ namespace AppStract.Server.Registry.Data
     /// <param name="hKey">Handle of the key to set a value for.</param>
     /// <param name="value">The data to set for the value.</param>
     /// <returns></returns>
-    public abstract StateCode SetValue(uint hKey, VirtualRegistryValue value);
+    public abstract NativeResultCode SetValue(uint hKey, VirtualRegistryValue value);
 
     /// <summary>
     /// Deletes a value from the key with the specified handle.
@@ -190,7 +190,7 @@ namespace AppStract.Server.Registry.Data
     /// <param name="hKey">Key to delete a value from.</param>
     /// <param name="valueName">The name of the value to delete.</param>
     /// <returns></returns>
-    public abstract StateCode DeleteValue(uint hKey, string valueName);
+    public abstract NativeResultCode DeleteValue(uint hKey, string valueName);
 
     #endregion
 

@@ -24,9 +24,9 @@
 namespace Microsoft.Win32.Interop
 {
   /// <summary>
-  /// Static error codes for registry actions.
+  /// Static error codes resulting from native API calls.
   /// </summary>
-  public enum StateCode
+  public enum NativeResultCode
   {
     /// <summary>
     /// The operation completed successfully.
