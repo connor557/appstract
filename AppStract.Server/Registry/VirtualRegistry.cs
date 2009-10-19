@@ -140,7 +140,7 @@ namespace AppStract.Server.Registry
     /// <param name="phkResult">The open handle to the created subkey.</param>
     /// <param name="creationDisposition">Whether the subkey is created or updated.</param>
     /// <returns>The error code representing the result of this operation.</returns>
-    public StateCode CreateKey(uint hKey, string subKeyName, out uint phkResult, out RegCreationDisposition creationDisposition)
+    public NativeResultCode CreateKey(uint hKey, string subKeyName, out uint phkResult, out RegCreationDisposition creationDisposition)
     {
       phkResult = 0;
       creationDisposition = RegCreationDisposition.INVALID;
@@ -150,7 +150,7 @@ namespace AppStract.Server.Registry
         /// The handle is not for a root key, check the databases.
         if (!_virtualRegistry.IsKnownKey(hKey, out keyName)
             && !_transparantRegistry.IsKnownKey(hKey, out keyName))
-          return StateCode.InvalidHandle;
+          return NativeResultCode.InvalidHandle;
       }
       keyName = RegistryHelper.CombineKeys(keyName, subKeyName);
       AccessMechanism access = RegistryHelper.DetermineAccessMechanism(keyName);
@@ -164,13 +164,13 @@ namespace AppStract.Server.Registry
     /// </summary>
     /// <param name="hKey">The open handle of key to delete.</param>
     /// <returns>The error code representing the result of this operation.</returns>
-    public StateCode DeleteKey(uint hKey)
+    public NativeResultCode DeleteKey(uint hKey)
     {
       if (RegistryHelper.IsHiveHandle(hKey))
         /// Not allowed to delete a root-key.
-        return StateCode.AccessDenied;
-      if (_virtualRegistry.DeleteKey(hKey) == StateCode.Succes)
-        return StateCode.Succes;
+        return NativeResultCode.AccessDenied;
+      if (_virtualRegistry.DeleteKey(hKey) == NativeResultCode.Succes)
+        return NativeResultCode.Succes;
       return _transparantRegistry.DeleteKey(hKey);
     }
 
@@ -182,18 +182,18 @@ namespace AppStract.Server.Registry
     /// <param name="valueName">The name of the <see cref="VirtualRegistryValue"/> to return.</param>
     /// <param name="value">The returned <see cref="VirtualRegistryValue"/>.</param>
     /// <returns>The error code representing the result of this operation.</returns>
-    public StateCode QueryValue(uint hKey, string valueName, out VirtualRegistryValue value)
+    public NativeResultCode QueryValue(uint hKey, string valueName, out VirtualRegistryValue value)
     {
       value = new VirtualRegistryValue(valueName, null, ValueType.INVALID);
       if (RegistryHelper.IsHiveHandle(hKey))
         /// Not allowed to access values of root-keys.
-        return StateCode.AccessDenied;
+        return NativeResultCode.AccessDenied;
       if (_virtualRegistry.IsKnownKey(hKey))
         return _virtualRegistry.QueryValue(hKey, valueName, out value);
       if (_transparantRegistry.IsKnownKey(hKey))
         return _transparantRegistry.QueryValue(hKey, valueName, out value);
       /// None of the registries knows the handle.
-      return StateCode.InvalidHandle;
+      return NativeResultCode.InvalidHandle;
     }
 
     /// <summary>
@@ -202,17 +202,17 @@ namespace AppStract.Server.Registry
     /// <param name="hKey">The key handle to set the <paramref name="value"/> for.</param>
     /// <param name="value">The <see cref="VirtualRegistryValue"/> to set.</param>
     /// <returns>The error code representing the result of this operation.</returns>
-    public StateCode SetValue(uint hKey, VirtualRegistryValue value)
+    public NativeResultCode SetValue(uint hKey, VirtualRegistryValue value)
     {
       if (RegistryHelper.IsHiveHandle(hKey))
         /// Not allowed to access values of root-keys.
-        return StateCode.AccessDenied;
+        return NativeResultCode.AccessDenied;
       if (_virtualRegistry.IsKnownKey(hKey))
         return _virtualRegistry.SetValue(hKey, value);
       if (_transparantRegistry.IsKnownKey(hKey))
         return _transparantRegistry.SetValue(hKey, value);
       /// None of the registries knows the handle.
-      return StateCode.InvalidHandle;
+      return NativeResultCode.InvalidHandle;
     }
 
     /// <summary>
@@ -221,17 +221,17 @@ namespace AppStract.Server.Registry
     /// <param name="hKey">The key handle to delete the value from.</param>
     /// <param name="valueName">The value to delete.</param>
     /// <returns>The error code representing the result of this operation.</returns>
-    public StateCode DeleteValue(uint hKey, string valueName)
+    public NativeResultCode DeleteValue(uint hKey, string valueName)
     {
       if (RegistryHelper.IsHiveHandle(hKey))
         /// Not allowed to access values of root-keys.
-        return StateCode.AccessDenied;
+        return NativeResultCode.AccessDenied;
       if (_virtualRegistry.IsKnownKey(hKey))
         return _virtualRegistry.DeleteValue(hKey, valueName);
       if (_transparantRegistry.IsKnownKey(hKey))
         return _transparantRegistry.DeleteValue(hKey, valueName);
       /// None of the registries knows the handle.
-      return StateCode.InvalidHandle;
+      return NativeResultCode.InvalidHandle;
     }
 
     #endregion

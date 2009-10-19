@@ -31,17 +31,17 @@ namespace Microsoft.Win32.Interop
   public class WinError
   {
 
-    public static uint FromStateCode(StateCode stateCode)
+    public static uint FromStateCode(NativeResultCode stateCode)
     {
-      if (stateCode == StateCode.Succes)
+      if (stateCode == NativeResultCode.Succes)
         return ERROR_SUCCESS;
-      if (stateCode == StateCode.InvalidHandle)
+      if (stateCode == NativeResultCode.InvalidHandle)
         return ERROR_INVALID_HANDLE;
-      if (stateCode == StateCode.FileNotFound)
+      if (stateCode == NativeResultCode.FileNotFound)
         return ERROR_FILE_NOT_FOUND;
-      if (stateCode == StateCode.NotFound)
+      if (stateCode == NativeResultCode.NotFound)
         return ERROR_NOT_FOUND;
-      if (stateCode == StateCode.AccessDenied)
+      if (stateCode == NativeResultCode.AccessDenied)
         return ERROR_ACCESS_DENIED;
       throw new NotImplementedException("The StateCode enumeration has been changed without updating WinError.FromStateCode(StateCode)");
     }

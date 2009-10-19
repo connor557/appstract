@@ -91,13 +91,13 @@ namespace AppStract.Server.Registry.Data
       }
     }
 
-    public override StateCode CreateKey(string keyFullPath, out uint hKey, out RegCreationDisposition creationDisposition)
+    public override NativeResultCode CreateKey(string keyFullPath, out uint hKey, out RegCreationDisposition creationDisposition)
     {
       keyFullPath = RegistryTranslator.ToVirtualPath(keyFullPath);
       return base.CreateKey(keyFullPath, out hKey, out creationDisposition);
     }
 
-    public override StateCode QueryValue(uint hkey, string valueName, out VirtualRegistryValue value)
+    public override NativeResultCode QueryValue(uint hkey, string valueName, out VirtualRegistryValue value)
     {
       value = new VirtualRegistryValue(valueName, null, ValueType.INVALID);
       VirtualRegistryKey key;
@@ -105,7 +105,7 @@ namespace AppStract.Server.Registry.Data
       try
       {
         if (!_keys.Keys.Contains(hkey))
-          return StateCode.InvalidHandle;
+          return NativeResultCode.InvalidHandle;
         key = _keys[hkey];
       }
       finally
@@ -115,7 +115,7 @@ namespace AppStract.Server.Registry.Data
       if (key.Values.Keys.Contains(valueName))
       {
         value = key.Values[valueName];
-        return StateCode.Succes;
+        return NativeResultCode.Succes;
       }
       AccessMechanism access = RegistryHelper.DetermineAccessMechanism(key.Path);
       if (access == AccessMechanism.Transparent)
@@ -125,26 +125,26 @@ namespace AppStract.Server.Registry.Data
         object defValue = new object();
         object o = Microsoft.Win32.Registry.GetValue(key.Path, valueName, defValue);
         if (o == defValue)
-          return StateCode.FileNotFound;
+          return NativeResultCode.FileNotFound;
         value = new VirtualRegistryValue(valueName, o, ValueType.REG_NONE);
       }
       catch
       {
-        return StateCode.AccessDenied;
+        return NativeResultCode.AccessDenied;
       }
       if (access == AccessMechanism.CreateAndCopy)
         key.Values.Add(valueName, value);
-      return StateCode.Succes;
+      return NativeResultCode.Succes;
     }
 
-    public override StateCode SetValue(uint hKey, VirtualRegistryValue value)
+    public override NativeResultCode SetValue(uint hKey, VirtualRegistryValue value)
     {
       VirtualRegistryKey key;
       _keysSynchronizationLock.EnterReadLock();
       try
       {
         if (!_keys.Keys.Contains(hKey))
-          return StateCode.InvalidHandle;
+          return NativeResultCode.InvalidHandle;
         key = _keys[hKey];
       }
       finally
@@ -155,17 +155,17 @@ namespace AppStract.Server.Registry.Data
         key.Values[value.Name] = value;
       else
         key.Values.Add(value.Name, value);
-      return StateCode.Succes;
+      return NativeResultCode.Succes;
     }
 
-    public override StateCode DeleteValue(uint hKey, string valueName)
+    public override NativeResultCode DeleteValue(uint hKey, string valueName)
     {
       VirtualRegistryKey key;
       _keysSynchronizationLock.EnterReadLock();
       try
       {
         if (!_keys.Keys.Contains(hKey))
-          return StateCode.InvalidHandle;
+          return NativeResultCode.InvalidHandle;
         key = _keys[hKey];
       }
       finally
@@ -173,8 +173,8 @@ namespace AppStract.Server.Registry.Data
         _keysSynchronizationLock.ExitReadLock();
       }
       return key.Values.Remove(valueName)
-               ? StateCode.Succes
-               : StateCode.NotFound;
+               ? NativeResultCode.Succes
+               : NativeResultCode.NotFound;
     }
 
     #endregion

@@ -92,27 +92,27 @@ namespace AppStract.Server.Registry.Data
       _indexGenerator.Release(hKey);
     }
 
-    public override StateCode CreateKey(string keyFullPath, out uint hKey, out RegCreationDisposition creationDisposition)
+    public override NativeResultCode CreateKey(string keyFullPath, out uint hKey, out RegCreationDisposition creationDisposition)
     {
       hKey = 0;
       /// Create the key in the real registry.
       RegistryKey registryKey = CreateKeyInHostRegistry(keyFullPath, out creationDisposition);
       if (registryKey == null)
-        return StateCode.AccessDenied;
+        return NativeResultCode.AccessDenied;
       registryKey.Close();
       /// Buffer the created key.
       return base.CreateKey(keyFullPath, out hKey, out creationDisposition);
     }
 
-    public override StateCode DeleteKey(uint hKey)
+    public override NativeResultCode DeleteKey(uint hKey)
     {
       /// Overriden, first delete the real key.
       string keyName;
       if (!IsKnownKey(hKey, out keyName))
-        return StateCode.InvalidHandle;
+        return NativeResultCode.InvalidHandle;
       int index = keyName.LastIndexOf(@"\");
       if (index < 1)
-        return StateCode.InvalidHandle;
+        return NativeResultCode.InvalidHandle;
       string subKeyName = keyName.Substring(index);
       keyName = keyName.Substring(0, index);
       RegistryKey registryKey = ReadKeyFromHostRegistry(keyName, true);
@@ -122,74 +122,74 @@ namespace AppStract.Server.Registry.Data
       }
       catch (System.Security.SecurityException)
       {
-        return StateCode.AccessDenied;  
+        return NativeResultCode.AccessDenied;  
       }
       catch (UnauthorizedAccessException)
       {
-        return StateCode.AccessDenied;
+        return NativeResultCode.AccessDenied;
       }
       /// Now call the base, to delete the key from the database/buffer.
       return base.DeleteKey(hKey);
     }
 
-    public override StateCode QueryValue(uint hKey, string valueName, out VirtualRegistryValue value)
+    public override NativeResultCode QueryValue(uint hKey, string valueName, out VirtualRegistryValue value)
     {
       value = new VirtualRegistryValue(valueName, null, ValueType.INVALID);
       string keyPath;
       if (!IsKnownKey(hKey, out keyPath))
-        return StateCode.InvalidHandle;
+        return NativeResultCode.InvalidHandle;
       try
       {
         object defValue = new object();
         object o = Microsoft.Win32.Registry.GetValue(keyPath, valueName, defValue);
         if (o == defValue)
-          return StateCode.FileNotFound;
+          return NativeResultCode.FileNotFound;
         /// ToDo: Get the ValueType from the Registry using RegistryKey.GetValueKind();
         value = new VirtualRegistryValue(valueName, o, ValueType.REG_NONE);
-        return StateCode.Succes;
+        return NativeResultCode.Succes;
       }
       catch
       {
-        return StateCode.AccessDenied;
+        return NativeResultCode.AccessDenied;
       }
     }
 
-    public override StateCode SetValue(uint hKey, VirtualRegistryValue value)
+    public override NativeResultCode SetValue(uint hKey, VirtualRegistryValue value)
     {
       string keyPath;
       if (!IsKnownKey(hKey, out keyPath))
-        return StateCode.InvalidHandle;
+        return NativeResultCode.InvalidHandle;
       try
       {
         Microsoft.Win32.Registry.SetValue(keyPath, value.Name, value.Data);
       }
       catch
       {
-        return StateCode.AccessDenied;
+        return NativeResultCode.AccessDenied;
       }
-      return StateCode.Succes;
+      return NativeResultCode.Succes;
     }
 
-    public override StateCode DeleteValue(uint hKey, string valueName)
+    public override NativeResultCode DeleteValue(uint hKey, string valueName)
     {
       string keyPath;
       if (!IsKnownKey(hKey, out keyPath))
-        return StateCode.InvalidHandle;
+        return NativeResultCode.InvalidHandle;
       try
       {
         RegistryKey registryKey = RegistryHelper.GetHiveAsKey(keyPath, out keyPath);
         if (registryKey == null)
-          return StateCode.NotFound;
+          return NativeResultCode.NotFound;
         registryKey.DeleteValue(valueName, true);
-        return StateCode.Succes;
+        return NativeResultCode.Succes;
       }
       catch (ArgumentException)
       {
-        return StateCode.NotFound;
+        return NativeResultCode.NotFound;
       }
       catch
       {
-        return StateCode.AccessDenied;
+        return NativeResultCode.AccessDenied;
       }
     }
 
