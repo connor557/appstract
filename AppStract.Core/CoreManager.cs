@@ -25,7 +25,7 @@ using System;
 using System.IO;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Data.Settings;
-using AppStract.Core.Logging;
+using AppStract.Core.System.Logging;
 using AppStract.Core.Virtualization.Process;
 
 namespace AppStract.Core

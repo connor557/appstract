@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Threading;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Data.Databases;
-using AppStract.Core.Logging;
+using AppStract.Core.System.Logging;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Core.Virtualization.Registry;
 

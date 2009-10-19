@@ -22,7 +22,7 @@
 #endregion
 
 using System;
-using AppStract.Core.Logging;
+using AppStract.Core.System.Logging;
 
 namespace AppStract.Host
 {

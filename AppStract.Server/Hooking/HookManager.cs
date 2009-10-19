@@ -24,7 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using AppStract.Core.Logging;
+using AppStract.Core.System.Logging;
 using EasyHook;
 
 namespace AppStract.Server.Hooking

@@ -21,7 +21,7 @@
 
 #endregion
 
-using AppStract.Core.Logging;
+using AppStract.Core.System.Logging;
 using AppStract.Core.Virtualization.Registry;
 using Microsoft.Win32.Interop;
 

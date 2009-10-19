@@ -21,7 +21,7 @@
 
 #endregion
 
-using AppStract.Core.Logging;
+using AppStract.Core.System.Logging;
 using AppStract.Server.Registry.Data;
 using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.Registry;

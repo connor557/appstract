@@ -24,7 +24,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
-using AppStract.Core.Logging;
+using AppStract.Core.System.Logging;
 using AppStract.Core.System.Synchronization;
 using AppStract.Server;
 using AppStract.Utilities.Assembly;
@@ -97,7 +97,7 @@ namespace AppStract.Inject
     /// The Run() method should return if you want the injected library needs to be unloaded.
     /// Unhandled exceptions ARE NOT redirected automatically.
     /// As the connection to the host is established in <see cref="GuestCore.Initialize"/>,
-    /// errors should be reported using the <see cref="GuestCore.Log(AppStract.Core.Logging.LogMessage)"/> function.
+    /// errors should be reported using the <see cref="GuestCore.Log(AppStract.Core.System.Logging.LogMessage)"/> function.
     /// </remarks>
     /// <param name="inContext">Information about the environment in which the library main method has been invoked, used by the EasyHook library.</param>
     /// <param name="channelName">The name of the inter-process communication channel to connect to, used by the EasyHook library.</param>
@@ -140,7 +140,7 @@ namespace AppStract.Inject
     /// The Run() method should return if you want the injected library needs to be unloaded.
     /// Unhandled exceptions ARE NOT redirected automatically.
     /// As the connection to the host is established in <see cref="GuestCore.Initialize"/>,
-    /// errors should be reported using the <see cref="GuestCore.Log(AppStract.Core.Logging.LogMessage)"/> function.
+    /// errors should be reported using the <see cref="GuestCore.Log(AppStract.Core.System.Logging.LogMessage)"/> function.
     /// </remarks>
     /// <param name="inContext">Information about the environment in which the library main method has been invoked, used by the EasyHook library.</param>
     /// <param name="channelName">The name of the inter-process communication channel to connect to, used by the EasyHook library.</param>

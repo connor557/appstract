@@ -21,20 +21,16 @@
 
 #endregion
 
-namespace AppStract.Core.Logging
+namespace AppStract.Core.System.Logging
 {
-  public class NullLogger : Logger
+  public enum LogLevel
   {
-
-    public NullLogger()
-      : base()
-    {
-      _logType = LogType.Null;
-    }
-
-    protected override void Write(string message)
-    {
-      return;
-    }
+    None = 0,
+    Critical = 1,
+    Error = 2,
+    Warning = 3,
+    Information = 4,
+    Debug = 5,
+    All = int.MaxValue
   }
 }

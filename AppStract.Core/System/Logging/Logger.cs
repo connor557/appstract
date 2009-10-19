@@ -26,7 +26,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 
-namespace AppStract.Core.Logging
+namespace AppStract.Core.System.Logging
 {
   public abstract class Logger
   {
