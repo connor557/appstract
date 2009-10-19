@@ -25,7 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using AppStract.Core.Logging;
+using AppStract.Core.System.Logging;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Utilities.Observables;
 

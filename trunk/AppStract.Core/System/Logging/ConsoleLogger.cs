@@ -23,7 +23,7 @@
 
 using System;
 
-namespace AppStract.Core.Logging
+namespace AppStract.Core.System.Logging
 {
   public class ConsoleLogger : Logger
   {

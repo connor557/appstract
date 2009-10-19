@@ -23,7 +23,7 @@
 
 using System;
 
-namespace AppStract.Core.Logging
+namespace AppStract.Core.System.Logging
 {
   /// <summary>
   /// Represents a message that needs to be written to the log.

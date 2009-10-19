@@ -23,7 +23,7 @@
 
 using System.IO;
 
-namespace AppStract.Core.Logging
+namespace AppStract.Core.System.Logging
 {
   public class FileLogger : Logger
   {

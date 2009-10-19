@@ -24,7 +24,7 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using AppStract.Core.Logging;
+using AppStract.Core.System.Logging;
 using AppStract.Utilities.Serialization;
 
 namespace AppStract.Core.Data.Settings
