@@ -254,16 +254,33 @@ namespace AppStract.Server
     }
 
     /// <summary>
+    /// Terminates the current process.
+    /// </summary>
+    /// <param name="exitCode">The exit code to return to the operating system.</param>
+    /// <param name="exitMethod">The method(s) to use for termination.</param>
+    /// <returns>True if the current process' termination code is invoked, false otherwise.</returns>
+    public static bool TerminateProcess(int exitCode, ExitMethod exitMethod)
+    {
+      Log(new LogMessage(LogLevel.Information, "Terminating process with " + exitCode + "."), false);
+      _commBus.Flush();
+      if ((exitMethod & ExitMethod.Request) == ExitMethod.Request
+          && RaiseExitRequest(exitCode))
+        return true;
+      return (exitMethod & ExitMethod.Kill) == ExitMethod.Kill && KillGuestProcess();
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    /// <summary>
     /// Raises the <see cref="ExitRequestRaised"/> event.
     /// The main purpose of raising this request is to kill the wrapper process while also providing an exit code.
     /// 
     /// </summary>
     /// <param name="exitCode"></param>
-    public static bool RaiseExitRequest(int exitCode)
+    private static bool RaiseExitRequest(int exitCode)
     {
-      Log(new LogMessage(LogLevel.Debug, "Attempting a process exit with exit code " + exitCode + "."), false);
-      // Prematurely start the flush procedure.
-      new Thread(_commBus.Flush).Start();
       // Make a copy of the eventhandlers before raising them.
       IEnumerable<ExitRequestEventHandler> eventHandlers;
       lock (_exitRequestEventLock)
@@ -278,9 +295,9 @@ namespace AppStract.Server
         exitRequestHandled = eventHandler(exitCode) ? true : exitRequestHandled;
       // Write log message according to the result.
       if (exitRequestHandled)
-        Log(new LogMessage(LogLevel.Information, "Exit procedure is invoked."), false);
+        Log(new LogMessage(LogLevel.Debug, "Exit procedure is invoked."), false);
       else
-        Log(new LogMessage(LogLevel.Error, "Exit procedure invocation FAILED."), false);
+        Log(new LogMessage(LogLevel.Warning, "Exit procedure invocation FAILED."), false);
       return exitRequestHandled;
     }
 
@@ -288,9 +305,9 @@ namespace AppStract.Server
     /// Attempts to immediately stop the guest process with reduced risk of loosing cached data.
     /// </summary>
     /// <returns></returns>
-    public static bool KillGuestProcess()
+    private static bool KillGuestProcess()
     {
-      _commBus.Flush();
+      Log(new LogMessage(LogLevel.Debug, "Sending kill signal to process..."), false);
       try
       {
         Process.GetCurrentProcess().Kill();
@@ -298,15 +315,11 @@ namespace AppStract.Server
       }
       catch (Exception e)
       {
-        Log(new LogMessage(LogLevel.Critical, "Failed to kill the guest process.", e),
+        Log(new LogMessage(LogLevel.Critical, "Failed to kill the process.", e),
             false);
         return false;
       }
     }
-
-    #endregion
-
-    #region Private Methods
 
     private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
     {
