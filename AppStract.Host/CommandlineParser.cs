@@ -42,7 +42,7 @@ namespace AppStract.Host
     /// <summary>
     /// The parsed arguments, only initialized after <see cref="Parse"/> has been called.
     /// </summary>
-    private Dictionary<CommandlineOption, object> _options;
+    private Dictionary<CommandlineOption, string> _options;
 
     #endregion
 
@@ -76,12 +76,15 @@ namespace AppStract.Host
     /// <summary>
     /// Returns the associated value for the specified <see cref="CommandlineOption"/>.
     /// </summary>
+    /// <exception cref="ArgumentException">
+    /// An <see cref="ArgumentException"/> is thrown when no value is associated to <paramref name="option"/>.
+    /// </exception>
     /// <param name="option"><see cref="CommandlineOption"/> to return the associated value for.</param>
     /// <returns>The value associated to the specified <see cref="CommandlineOption"/>.</returns>
-    public object GetOption(CommandlineOption option)
+    public string GetOption(CommandlineOption option)
     {
-      if (_options == null)
-        Parse();
+      if (!IsDefined(option))
+        throw new ArgumentException("There is no value associated to " + option);
       return _options[option];
     }
 
@@ -94,7 +97,7 @@ namespace AppStract.Host
     /// </summary>
     private void Parse()
     {
-      var options = new Dictionary<CommandlineOption, object>(_arguments.Length);
+      var options = new Dictionary<CommandlineOption, string>(_arguments.Length);
       foreach (var arg in _arguments)
       {
         KeyValuePair<CommandlineOption, string> parsedValue;

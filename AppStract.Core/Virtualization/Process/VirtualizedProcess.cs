@@ -25,7 +25,7 @@ using System;
 using System.IO;
 using System.Runtime.Remoting;
 using System.Threading;
-using AppStract.Utilities.Interop;
+using AppStract.Utilities.Helpers;
 using Microsoft.Win32.Interop;
 using AppStract.Core.Data.Application;
 using AppStract.Core.System.Synchronization;
@@ -306,7 +306,7 @@ namespace AppStract.Core.Virtualization.Process
       }
 #endif
       // Hide wrapper console window.
-      ProcessHelpers.SetWindowState(_process.MainWindowHandle, WindowShowStyle.Hide);
+      ProcessHelper.SetWindowState(_process.MainWindowHandle, WindowShowStyle.Hide);
     }
 
     /// <summary>

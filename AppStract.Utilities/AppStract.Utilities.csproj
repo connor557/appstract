@@ -53,17 +53,16 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data" />
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assembly\AssemblyHelper.cs" />
-    <Compile Include="Assembly\AssemblyType.cs" />
+    <Compile Include="Helpers\AssemblyHelper.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Helpers\ParserHelper.cs" />
     <Compile Include="Interop\MarshallingHelpers.cs" />
-    <Compile Include="Interop\ProcessHelpers.cs" />
+    <Compile Include="Helpers\ProcessHelper.cs" />
     <Compile Include="Interop\NativeResultCode.cs" />
-    <Compile Include="Interop\WindowShowStyle.cs" />
+    <Compile Include="Helpers\WindowShowStyle.cs" />
     <Compile Include="Observables\EventRaiser.cs" />
     <Compile Include="Observables\IObservableItem.cs" />
     <Compile Include="Observables\IObservableCollection.cs" />
@@ -74,11 +73,9 @@
     <Compile Include="Observables\ObservableDictionary.cs" />
     <Compile Include="Observables\ObservableList.cs" />
     <Compile Include="Observables\ObservableQueue.cs" />
-    <Compile Include="Path\PathHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Interop\WinError.cs" />
-    <Compile Include="Serialization\SerializationException.cs" />
-    <Compile Include="Serialization\Serializer.cs" />
+    <Compile Include="Helpers\XmlSerializationHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="AppStract.Utilities.Signature.snk" />

@@ -23,7 +23,7 @@
 
 using System;
 using System.IO;
-using AppStract.Utilities.Assembly;
+using AppStract.Utilities.Helpers;
 using AppStract.Utilities.Extensions;
 
 namespace AppStract.Core.Data.Application
@@ -120,9 +120,9 @@ namespace AppStract.Core.Data.Application
       {
         if (!File.Exists(filename))
           throw new FileNotFoundException("The assembly specified does not exist, making it impossible to retrieve its FileType.");
-        return AssemblyHelper.GetAssemblyType(filename) == AssemblyType.Native
-                 ? FileType.Assembly_Native
-                 : FileType.Assembly_Managed;
+        return AssemblyHelper.IsManagedAssembly(filename)
+                 ? FileType.Assembly_Managed
+                 : FileType.Assembly_Native;
       }
       return FileType.File;
     }

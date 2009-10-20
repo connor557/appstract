@@ -24,6 +24,7 @@
 using System;
 using AppStract.Core;
 using AppStract.Core.System.Logging;
+using AppStract.Utilities.Helpers;
 
 namespace AppStract.Host
 {
@@ -34,15 +35,6 @@ namespace AppStract.Host
   class ApplicationLauncher
   {
 
-    #region Constants
-
-    /// <summary>
-    /// The title of the console window.
-    /// </summary>
-    private const string _ConsoleTitle = "AppStract - Host";
-
-    #endregion
-
     #region Private Methods
 
     /// <summary>
@@ -52,7 +44,7 @@ namespace AppStract.Host
     private static void Main(string[] args)
     {
       System.Threading.Thread.CurrentThread.Name = "Main";
-      Console.Title = _ConsoleTitle;
+      Console.Title = "AppStract - Host";
       CoreManager.InitializeCore();
       var parser = new CommandlineParser(args);
       ConfigureFromArgs(parser);
@@ -60,16 +52,15 @@ namespace AppStract.Host
       try
       {
 #endif
-        if (parser.IsDefined(CommandlineOption.ApplicationDataFile))
-          CoreManager.StartProcess(parser.GetOption(CommandlineOption.ApplicationDataFile).ToString());
-        else
-          CoreManager.StartProcess();
+      CoreManager.StartProcess(parser.IsDefined(CommandlineOption.ApplicationDataFile)
+                                 ? parser.GetOption(CommandlineOption.ApplicationDataFile)
+                                 : CoreBus.Configuration.AppConfig.DefaultApplicationDataFile);
 #if !DEBUG
       }
       catch(Exception ex)
       {
         CoreBus.Log.Critical("A fatal exception occured.", ex);
-        CoreBus.Configuration.ShowWindow(true, _consoleTitle);
+        ProcessHelper.SetWindowState(WindowShowStyle.ShowNormal);
         Console.WriteLine("\r\n\r\n\r\n\r\n\r\n\r\n");
         Console.WriteLine("############################################################\r\n");
         Console.WriteLine(" A fatal exception occured, see below for more information.\r\n");
@@ -91,10 +82,10 @@ namespace AppStract.Host
       if (argParser.IsDefined(CommandlineOption.LogOutput))
       {
         LogType type;
-        if (ParserHelper.TryParseLogType(argParser.GetOption(CommandlineOption.LogOutput), out type))
+        if (ParserHelper.TryParseEnum(argParser.GetOption(CommandlineOption.LogOutput), out type))
         {
           if (argParser.IsDefined(CommandlineOption.LogFile))
-            CoreBus.Configuration.SetLogOutput(type, argParser.GetOption(CommandlineOption.LogFile).ToString());
+            CoreBus.Configuration.SetLogOutput(type, argParser.GetOption(CommandlineOption.LogFile));
           else
             CoreBus.Configuration.SetLogOutput(type);
         }
@@ -102,20 +93,19 @@ namespace AppStract.Host
       else if (argParser.IsDefined(CommandlineOption.LogFile)
                && CoreBus.Log.Type == LogType.File)
       {
-        CoreBus.Configuration.SetLogOutput(LogType.File, argParser.GetOption(CommandlineOption.LogFile).ToString());
+        CoreBus.Configuration.SetLogOutput(LogType.File, argParser.GetOption(CommandlineOption.LogFile));
       }
       if (argParser.IsDefined(CommandlineOption.LogLevel))
       {
         LogLevel logLevel;
-        if (ParserHelper.TryParseLogLevel(argParser.GetOption(CommandlineOption.LogLevel), out logLevel))
+        if (ParserHelper.TryParseEnum(argParser.GetOption(CommandlineOption.LogLevel), out logLevel))
           CoreBus.Configuration.SetLogLevel(logLevel);
       }
       if (argParser.IsDefined(CommandlineOption.ShowWindow))
       {
-        object showWindow = argParser.GetOption(CommandlineOption.ShowWindow);
-        bool sWindow = showWindow.ToString() == "1"
-                       || showWindow.ToString().ToLowerInvariant() == "true";
-        CoreBus.Configuration.ShowWindow(sWindow, _ConsoleTitle);
+        var showWindow = argParser.GetOption(CommandlineOption.ShowWindow);
+        if (showWindow != "1" && showWindow.ToUpperInvariant() != "TRUE")
+          ProcessHelper.SetWindowState(WindowShowStyle.Hide);
       }
     }
 

@@ -22,16 +22,19 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace AppStract.Utilities.Interop
+namespace AppStract.Utilities.Helpers
 {
 
   /// <summary>
   /// Helper class for process related actions.
   /// </summary>
-  public static class ProcessHelpers
+  public static class ProcessHelper
   {
+
+    #region DLL Imports
 
     /// <summary>Shows a Window</summary>
     /// <remarks>
@@ -73,6 +76,19 @@ namespace AppStract.Utilities.Interop
     [DllImport("user32.dll")]
     private static extern bool ShowWindow(IntPtr hWnd, WindowShowStyle nCmdShow);
 
+    #endregion
+
+    #region Public Methods
+
+    /// <summary>
+    /// Sets the <see cref="WindowShowStyle"/> for the current process' main window.
+    /// </summary>
+    /// <param name="windowShowStyle">Specifies how the window is to be shown.</param>
+    public static void SetWindowState(WindowShowStyle windowShowStyle)
+    {
+      SetWindowState(Process.GetCurrentProcess().MainWindowHandle, windowShowStyle);
+    }
+
     /// <summary>
     /// Sets the <see cref="WindowShowStyle"/> for the window with the specified <paramref name="windowHandle"/>.
     /// </summary>
@@ -88,6 +104,8 @@ namespace AppStract.Utilities.Interop
         throw new ArgumentException("The windowHandle parameter is an invalid pointer.", "windowHandle");
       ShowWindow(windowHandle, windowShowStyle);
     }
+
+    #endregion
 
   }
 

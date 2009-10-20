@@ -23,14 +23,15 @@
 
 using System;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Xml.Serialization;
 
-namespace AppStract.Utilities.Serialization
+namespace AppStract.Utilities.Helpers
 {
   /// <summary>
   /// Serializes and deserializes objects into and from XML documents.
   /// </summary>
-  public static class Serializer
+  public static class XmlSerializationHelper
   {
 
     /// <summary>

@@ -40,17 +40,6 @@ namespace AppStract.Core.System.Logging
 
     /// <summary>
     /// Creates a LogService which logs all message fitting the specified LogLevel
-    /// to the default log file.
-    /// </summary>
-    /// <param name="logLevel">Minimum level of log-entries to log.</param>
-    /// <returns></returns>
-    public static FileLogger CreateLogService(LogLevel logLevel)
-    {
-      return CreateLogService(logLevel, CoreBus.Configuration.UserConfig.LogFile);
-    }
-
-    /// <summary>
-    /// Creates a LogService which logs all message fitting the specified LogLevel
     /// to the specified log file.
     /// </summary>
     /// <param name="logLevel">Minimum level of log-entries to log.</param>
