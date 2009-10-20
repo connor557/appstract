@@ -126,7 +126,8 @@ namespace AppStract.Inject
       {
         GuestCore.Log(new LogMessage(LogLevel.Critical, "An unexpected exception occured.", e),
                       false);
-        if (!GuestCore.RaiseExitRequest(1067) && !GuestCore.KillGuestProcess())
+        // Exit code 1067 = ERROR_PROCESS_ABORTED "The process terminated unexpectedly."
+        if (!GuestCore.TerminateProcess(1067, ExitMethod.Request | ExitMethod.Kill))
           throw new ApplicationException("An unexpected fatal exception occured.", e);
       }
     }
@@ -156,11 +157,9 @@ namespace AppStract.Inject
                                                    + "using #" + args.Length + " method parameters" +
                                                    (arguments.Length == 0 ? "" : ": " + args)));
       var exitCode = AssemblyHelper.RunMainMethod(wrappedProcessExecutable, arguments.Length == 0 ? null : arguments);
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "Main method returned with exitcode " + exitCode));
+      GuestCore.Log(new LogMessage(LogLevel.Debug, "Main method returned exitcode " + exitCode));
       // First attempt a clean shutdown, then try a forced shutdown.
-      if (!GuestCore.RaiseExitRequest(exitCode) && !GuestCore.KillGuestProcess())
-        // Both attempts failed, throw an exception to terminate the process completly.
-        throw new ApplicationException("Guest wrapper process is unable to safely exit with exit code " + exitCode);
+      GuestCore.TerminateProcess(exitCode, ExitMethod.Request | ExitMethod.Kill);
     }
 
     #endregion
