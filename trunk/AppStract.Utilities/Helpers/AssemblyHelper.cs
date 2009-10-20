@@ -27,8 +27,9 @@ using System.Reflection;
 using System.Security;
 using SystemAssembly = System.Reflection.Assembly;
 
-namespace AppStract.Utilities.Assembly
+namespace AppStract.Utilities.Helpers
 {
+
   /// <summary>
   /// A helper class for simple actions related to assemblies.
   /// </summary>
@@ -47,7 +48,7 @@ namespace AppStract.Utilities.Assembly
     }
 
     /// <summary>
-    /// Returns the type of the assembly specified.
+    /// Returns whether the specified file is a managed assembly.
     /// </summary>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="ArgumentNullException"></exception>
@@ -56,18 +57,18 @@ namespace AppStract.Utilities.Assembly
     /// <exception cref="SecurityException"></exception>
     /// <param name="assemblyFile">The filename of the assembly.</param>
     /// <returns></returns>
-    public static AssemblyType GetAssemblyType(string assemblyFile)
+    public static bool IsManagedAssembly(string assemblyFile)
     {
       try
       { 
         AssemblyName.GetAssemblyName(assemblyFile);
-        return AssemblyType.Managed;
+        return true;
       }
       catch (BadImageFormatException)
       {
         /// The module doesn't contain an assembly-manifest.
         /// No way that this is managed code.
-        return AssemblyType.Native;
+        return false;
       }
     }
 
@@ -90,4 +91,5 @@ namespace AppStract.Utilities.Assembly
     #endregion
 
   }
+
 }

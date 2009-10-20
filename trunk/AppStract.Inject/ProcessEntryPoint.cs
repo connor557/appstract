@@ -27,7 +27,7 @@ using System.Threading;
 using AppStract.Core.System.Logging;
 using AppStract.Core.System.Synchronization;
 using AppStract.Server;
-using AppStract.Utilities.Assembly;
+using AppStract.Utilities.Helpers;
 using EasyHook;
 
 namespace AppStract.Inject

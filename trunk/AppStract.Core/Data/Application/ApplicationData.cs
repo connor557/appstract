@@ -22,7 +22,7 @@
 #endregion
 
 using System;
-using AppStract.Utilities.Serialization;
+using AppStract.Utilities.Helpers;
 
 namespace AppStract.Core.Data.Application
 {
@@ -73,10 +73,10 @@ namespace AppStract.Core.Data.Application
     {
       try
       {
-        Serializer.Serialize(filename, applicationData);
+        XmlSerializationHelper.Serialize(filename, applicationData);
         return true;
       }
-      catch (SerializationException e)
+      catch (Exception e)
       {
         CoreBus.Log.Warning("Failed to save instance of ApplicationData to " + filename, e);
         return false;
@@ -85,7 +85,7 @@ namespace AppStract.Core.Data.Application
 
     /// <summary>
     /// Initializes and returns an instance of <see cref="ApplicationData"/> from the specified <paramref name="filename"/>.
-    /// Returns null if the deserialization failed.
+    /// Returns null if the loading failed.
     /// </summary>
     /// <param name="filename">File containing the data to deserialize.</param>
     /// <returns>The <see cref="ApplicationData"/>, or null if deserialization failed.</returns>
@@ -93,9 +93,9 @@ namespace AppStract.Core.Data.Application
     {
       try
       {
-        return Serializer.Deserialize<ApplicationData>(filename);
+        return XmlSerializationHelper.Deserialize<ApplicationData>(filename);
       }
-      catch (SerializationException e)
+      catch (Exception e)
       {
         CoreBus.Log.Warning("Failed to load an instance of ApplicationData from " + filename, e);
         return null;

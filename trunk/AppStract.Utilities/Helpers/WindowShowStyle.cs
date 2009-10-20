@@ -21,10 +21,10 @@
 
 #endregion
 
-namespace AppStract.Utilities.Interop
+namespace AppStract.Utilities.Helpers
 {
   /// <summary>
-  /// Enumeration of the different ways of showing a window using <see cref="ProcessHelpers.SetWindowState"/>.
+  /// Enumeration of the different ways of showing a window using <see cref="ProcessHelper.SetWindowState"/>.
   /// </summary>
   public enum WindowShowStyle : uint
   {

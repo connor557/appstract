@@ -21,15 +21,36 @@
 
 #endregion
 
-namespace AppStract.Utilities.Assembly
+using System;
+
+namespace AppStract.Utilities.Helpers
 {
   /// <summary>
-  /// Representation of the type of an assembly,
-  /// which is whether Native or Managed.
+  /// Helper class for generic parser functions.
   /// </summary>
-  public enum AssemblyType
+  public static class ParserHelper
   {
-    Native,
-    Managed
+
+    #region Public Methods
+
+    /// <summary>
+    /// Tries to parse a string to a value of the specified <typeparamref name="EnumType"/>.
+    /// </summary>
+    /// <typeparam name="EnumType">The type of enumeration to parse to.</typeparam>
+    /// <param name="value"></param>
+    /// <param name="result"></param>
+    /// <returns></returns>
+    public static bool TryParseEnum<EnumType>(string value, out EnumType result)
+    {
+      result = default(EnumType);
+      var type = typeof(EnumType);
+      if (!type.IsEnum || !Enum.IsDefined(typeof(EnumType), value))
+        return false;
+      result = (EnumType)Enum.Parse(type, value);
+      return true;
+    }
+
+    #endregion
+
   }
 }

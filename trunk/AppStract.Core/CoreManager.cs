@@ -76,20 +76,11 @@ namespace AppStract.Core
     }
 
     /// <summary>
-    /// Starts a process from the applicationdata loaded from the default startup file.
+    /// Starts a process from the <see cref="ApplicationData"/> loaded from the filename specified.
     /// </summary>
-    /// <exception cref="CoreException">
-    /// A <see cref="CoreException"/> is thrown if the process can't be started.
+    /// <exception cref="FileNotFoundException">
+    /// A <see cref="FileNotFoundException"/> is thrown if the <paramref name="applicationDataFile"/> can not be found.
     /// </exception>
-    public static void StartProcess()
-    {
-      var appFile = CoreBus.Configuration.AppConfig.DefaultApplicationDataFile;
-      StartProcess(appFile);
-    }
-
-    /// <summary>
-    /// Starts a process from the applicationdata loaded from the filename specified.
-    /// </summary>
     /// <exception cref="CoreException">
     /// A <see cref="CoreException"/> is thrown if the process can't be started.
     /// </exception>
@@ -99,9 +90,11 @@ namespace AppStract.Core
     /// </param>
     public static void StartProcess(string applicationDataFile)
     {
+      if (!File.Exists(applicationDataFile))
+        throw new FileNotFoundException("Unable to locate the virtual application's datafile.", applicationDataFile);
       var data = ApplicationData.Load(applicationDataFile);
       if (data == null)
-        throw new CoreException(applicationDataFile
+        throw new CoreException("\"" + applicationDataFile + "\""
                                 + " could not be found or contains invalid data while trying"
                                 + " to start a new process based on this file.");
       var workingDirectory = new ApplicationFile(Path.GetDirectoryName(applicationDataFile));

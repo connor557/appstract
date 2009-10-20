@@ -23,9 +23,8 @@
 
 using System;
 using System.IO;
-using System.Runtime.InteropServices;
 using AppStract.Core.System.Logging;
-using AppStract.Utilities.Serialization;
+using AppStract.Utilities.Helpers;
 
 namespace AppStract.Core.Data.Settings
 {
@@ -97,9 +96,9 @@ namespace AppStract.Core.Data.Settings
     /// <param name="configuration"></param>
     public static void SaveConfiguration(Configuration configuration)
     {
-      if (!Serializer.TrySerialize(_appConfigFile, configuration.AppConfig))
+      if (!XmlSerializationHelper.TrySerialize(_appConfigFile, configuration.AppConfig))
         CoreBus.Log.Warning("Unable to save the application configuration.");
-      if (!Serializer.TrySerialize(_userConfigFile, configuration.UserConfig))
+      if (!XmlSerializationHelper.TrySerialize(_userConfigFile, configuration.UserConfig))
         CoreBus.Log.Warning("Unable to save the user configuration.");
     }
 
@@ -136,29 +135,8 @@ namespace AppStract.Core.Data.Settings
       else if (logType == LogType.Console)
         CoreBus.Log = new ConsoleLogger(CoreBus.Log.LogLevel);
       else if (logType == LogType.File)
-        CoreBus.Log
-          = filename == null
-              ? FileLogger.CreateLogService(CoreBus.Log.LogLevel)
-              : FileLogger.CreateLogService(CoreBus.Log.LogLevel, filename);
-    }
-
-    /// <summary>
-    /// Shows or hides the window with the windowname specified.
-    /// </summary>
-    /// <param name="showWindow">True if the window must be shown; false, otherwise.</param>
-    /// <param name="windowName">Name of the window to show or hide.</param>
-    public void ShowWindow(bool showWindow, string windowName)
-    {
-      bool visible = showWindow.ToString() == "1"
-                     || showWindow.ToString().ToLowerInvariant() == "true";
-      if (visible)
-        return;
-      /// Hide the window.
-      IntPtr hWnd = FindWindow(null, windowName);
-      if (hWnd != IntPtr.Zero)
-        ShowWindow(hWnd, 0); /// 0 = SW_HIDE
-      /// 1 = SW_SHOWNORMA  
-      /// Else, do nothing. There is not always a console window.
+        CoreBus.Log = FileLogger.CreateLogService(CoreBus.Log.LogLevel,
+                                                  filename ?? CoreBus.Configuration.UserConfig.LogFile);
     }
 
     #endregion
@@ -170,9 +148,9 @@ namespace AppStract.Core.Data.Settings
       try
       {
         if (File.Exists(_appConfigFile))
-          return Serializer.Deserialize<AppConfig>(_appConfigFile);
+          return XmlSerializationHelper.Deserialize<AppConfig>(_appConfigFile);
       }
-      catch (SerializationException ex)
+      catch (Exception ex)
       {
         CoreBus.Log.Error("Could not load the application configuration.", ex);
       }
@@ -186,9 +164,9 @@ namespace AppStract.Core.Data.Settings
       try
       {
         if (File.Exists(_appConfigFile))
-          return Serializer.Deserialize<UserConfig>(_userConfigFile);
+          return XmlSerializationHelper.Deserialize<UserConfig>(_userConfigFile);
       }
-      catch (SerializationException ex)
+      catch (Exception ex)
       {
         CoreBus.Log.Error("Could not load the user configuration.", ex);
       }
@@ -196,30 +174,6 @@ namespace AppStract.Core.Data.Settings
       r.LoadDefaults();
       return r;
     }
-
-    #endregion
-
-    #region DLL Imports
-
-    /// <summary>
-    /// The FindWindow function retrieves a handle to the top-level window whose class name
-    /// and window name match the specified strings. This function does not search child windows.
-    /// This function does not perform a case-sensitive search.
-    /// </summary>
-    /// <param name="lpClassName"></param>
-    /// <param name="lpWindowName"></param>
-    /// <returns></returns>
-    [DllImport("user32.dll")]
-    public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
-
-    /// <summary>
-    /// The ShowWindow function sets the specified window's show state.
-    /// </summary>
-    /// <param name="hWnd"></param>
-    /// <param name="nCmdShow"></param>
-    /// <returns></returns>
-    [DllImport("user32.dll")]
-    static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
     #endregion
 
