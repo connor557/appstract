@@ -23,6 +23,7 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using AppStract.Core.System.Logging;
 using AppStract.Core.System.Synchronization;
@@ -149,9 +150,11 @@ namespace AppStract.Inject
     /// <param name="args">Optional arguments to pass to the guest's main method.</param>
     public void Run(RemoteHooking.IContext inContext, string channelName, string wrappedProcessExecutable, string args)
     {
-      /// Install all hooks.
+      // Install all hooks.
       GuestCore.InstallHooks(this);
-      /// Run the main method of the wrapped process.
+      // Set the working directory to the one expected by the executable.
+      Directory.SetCurrentDirectory(Path.GetDirectoryName(wrappedProcessExecutable));
+      // Run the main method of the wrapped process.
       string[] arguments = args.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
       GuestCore.Log(new LogMessage(LogLevel.Debug, "Invoking main method of targeted guest... "
                                                    + "using #" + args.Length + " method parameters" +
