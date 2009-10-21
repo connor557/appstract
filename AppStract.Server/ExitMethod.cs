@@ -35,10 +35,10 @@ namespace AppStract.Server
     /// Raise a process-wide request to terminate.
     /// This method does not garantuee the actual termination of the process.
     /// </summary>
-    Request,
+    Request = 1,
     /// <summary>
     /// Send the kill signal to the process.
     /// </summary>
-    Kill
+    Kill = 2
   }
 }
