@@ -25,9 +25,9 @@ using System;
 using System.Collections.Generic;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Data.Databases;
+using AppStract.Core.System.Synchronization;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Core.Virtualization.Process;
-using AppStract.Core.System.Synchronization;
 
 namespace AppStract.Core.Virtualization.Packaging
 {
@@ -49,7 +49,7 @@ namespace AppStract.Core.Virtualization.Packaging
     /// <param name="synchronizer">
     /// The <see cref="ProcessSynchronizer"/> to use for data synchronization with the <see cref="VirtualizedProcess"/>.
     /// </param>
-    private PackagingProcess(VirtualProcessStartInfo startInfo, ProcessSynchronizer synchronizer)
+    private PackagingProcess(VirtualProcessStartInfo startInfo, IProcessSynchronizer synchronizer)
       : base(startInfo, synchronizer)
     {
 
@@ -94,14 +94,20 @@ namespace AppStract.Core.Virtualization.Packaging
     {
       if (!HasExited)
         return new List<string>(0);
-      var db = _processSynchronizer.FileSystemDatabase as WatchingFileSystemDatabase;
+      var ps = _connection.ProcessSynchronizer as ProcessSynchronizer;
+      if (ps == null) /// Should never occur.
+        throw new InvalidCastException("An unexpected exception occured in the application workflow."
+                                       + " Expected object of type "
+                                       + typeof(ProcessSynchronizer)
+                                       + " but received an object of type "
+                                       + _connection.ProcessSynchronizer.GetType());
+      var db = ps.FileSystemDatabase as WatchingFileSystemDatabase;
       if (db == null) /// Should never occur.
         throw new InvalidCastException("An unexpected exception occured in the application workflow."
                                        + " Expected object of type "
-                                       + typeof (WatchingFileSystemDatabase)
+                                       + typeof(WatchingFileSystemDatabase)
                                        + " but received an object of type "
-                                       + _processSynchronizer.FileSystemDatabase.GetType()
-                                       + " Please contact the developers about this issue.");
+                                       + ps.FileSystemDatabase.GetType());
       var executables = new List<string>();
       foreach (FileTableEntry entry in db.Executables)
         executables.Add(entry.Key); /// BUG? Use entry.Key or entry.Value?

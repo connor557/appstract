@@ -23,15 +23,14 @@
 
 using System;
 using System.IO;
-using System.Runtime.Remoting;
 using System.Threading;
-using AppStract.Utilities.Helpers;
-using Microsoft.Win32.Interop;
 using AppStract.Core.Data.Application;
 using AppStract.Core.System.Synchronization;
+using AppStract.Utilities.Helpers;
 using EasyHook;
-using SystemProcess = System.Diagnostics.Process;
+using Microsoft.Win32.Interop;
 using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
+using SystemProcess = System.Diagnostics.Process;
 
 namespace AppStract.Core.Virtualization.Process
 {
@@ -48,14 +47,9 @@ namespace AppStract.Core.Virtualization.Process
     /// </summary>
     protected readonly VirtualProcessStartInfo _startInfo;
     /// <summary>
-    /// The object responsible for the synchronization
-    /// between the current process and the virtualized process.
+    /// Manager object for the inter-process connection.
     /// </summary>
-    protected readonly ProcessSynchronizer _processSynchronizer;
-    /// <summary>
-    /// Name of the remoting-channel, created by RemoteHooking.IpcCreateServer
-    /// </summary>
-    private string _channelName;
+    protected readonly ConnectionManager _connection;
     /// <summary>
     /// The virtualized local system process.
     /// </summary>
@@ -118,13 +112,8 @@ namespace AppStract.Core.Virtualization.Process
     /// The <see cref="VirtualProcessStartInfo"/> containing the information used to start the process with.
     /// </param>
     protected VirtualizedProcess(VirtualProcessStartInfo startInfo)
+      : this(startInfo, new ProcessSynchronizer(startInfo.Files.DatabaseFileSystem, startInfo.Files.RootDirectory, startInfo.Files.DatabaseRegistry))
     {
-      _easyHookSyncRoot = new object();
-      _exitEventSyncRoot = new object();
-      _startInfo = startInfo;
-      _processSynchronizer = new ProcessSynchronizer(startInfo.Files.DatabaseFileSystem,
-                                                      startInfo.Files.RootDirectory,
-                                                      startInfo.Files.DatabaseRegistry);
     }
 
     /// <summary>
@@ -135,14 +124,14 @@ namespace AppStract.Core.Virtualization.Process
     /// The <see cref="VirtualProcessStartInfo"/> containing the information used to start the process with.
     /// </param>
     /// <param name="processSynchronizer">
-    /// The <see cref="ProcessSynchronizer"/> to use for data synchronization with the <see cref="VirtualizedProcess"/>.
+    /// The <see cref="IProcessSynchronizer"/> to use for data synchronization with the <see cref="VirtualizedProcess"/>.
     /// </param>
-    protected VirtualizedProcess(VirtualProcessStartInfo startInfo, ProcessSynchronizer processSynchronizer)
+    protected VirtualizedProcess(VirtualProcessStartInfo startInfo, IProcessSynchronizer processSynchronizer)
     {
       _easyHookSyncRoot = new object();
       _exitEventSyncRoot = new object();
       _startInfo = startInfo;
-      _processSynchronizer = processSynchronizer;
+      _connection = new ConnectionManager(processSynchronizer);
     }
 
     #endregion
@@ -187,6 +176,7 @@ namespace AppStract.Core.Virtualization.Process
     {
       /// Initialize the underlying resources.
       InitEasyHook();
+      _connection.Initialize();
       _hasExited = false;
       /// Start the process.
       switch (_startInfo.Files.Executable.Type)
@@ -219,8 +209,6 @@ namespace AppStract.Core.Virtualization.Process
         if (_iniEasyHook)
           return;
         Config.Register("AppStract", CoreBus.Configuration.AppConfig.LibsToRegister.ToArray());
-        ProcessSynchronizerInterface.SProcessSynchronizer = _processSynchronizer;
-        RemoteHooking.IpcCreateServer<ProcessSynchronizerInterface>(ref _channelName, WellKnownObjectMode.Singleton);
         _iniEasyHook = true;
       }
     }
@@ -248,7 +236,7 @@ namespace AppStract.Core.Virtualization.Process
         /// The process ID of the newly created process
         out processId,
         /// Extra parameters being passed to the injected library entry points Run() and Initialize()
-        _channelName);
+        _connection.ChannelName);
       /// The process has been created, set the _process variable.
       _process = SystemProcess.GetProcessById(processId, SystemProcess.GetCurrentProcess().MachineName);
       _process.EnableRaisingEvents = true;
@@ -292,7 +280,7 @@ namespace AppStract.Core.Virtualization.Process
         // Absolute paths of the libraries to inject, we use the same one for 32bit and 64bit
         libraryLocation, libraryLocation,
         // The name of the channel to use for IPC.
-        _channelName,
+        _connection.ChannelName,
         // The location of the executable to start the wrapped process from.
         Path.Combine(_startInfo.WorkingDirectory.FileName, _startInfo.Files.Executable.FileName),
         // The arguments to pass to the main method of the executable. 
