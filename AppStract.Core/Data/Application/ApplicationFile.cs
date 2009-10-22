@@ -51,6 +51,7 @@ namespace AppStract.Core.Data.Application
       get { return _file; }
       set
       {
+        value = Path.GetFullPath(value);
         _type = GetFileType(value);
         _file = value;
       }
