@@ -22,29 +22,40 @@
 #endregion
 
 using System.Collections.Generic;
-using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Core.Virtualization.Registry;
 
-namespace AppStract.Core.System.Synchronization
+namespace AppStract.Core.System.IPC
 {
   /// <summary>
-  /// Interface for interprocess data synchronization.
+  /// Provides resources needed by the guest process in order to be initializable.
   /// </summary>
-  public interface ISynchronizer
+  public interface IResourceLoader
   {
 
     /// <summary>
-    /// Commits the specified <see cref="DatabaseAction{T}"/>s to the file system database.
+    /// The root directory as used by the file system.
     /// </summary>
-    /// <param name="actions">Actions to commit.</param>
-    void SyncFileSystemActions(IEnumerable<DatabaseAction<FileTableEntry>> actions);
+    /// <remarks>
+    /// The file table only contains relative paths, while the file system should only provide absolute paths.
+    /// These relative paths must be combined with the root directory, which results in usable absolute paths.
+    /// </remarks>
+    string FileSystemRoot
+    {
+      get;
+    }
 
     /// <summary>
-    /// Commits the specified <see cref="DatabaseAction{T}"/>s to the registry database.
+    /// Returns all known <see cref="FileTableEntry"/> as an <see cref="IEnumerable{T}"/>.
     /// </summary>
-    /// <param name="actions">Actions to commit.</param>
-    void SyncRegistryActions(IEnumerable<DatabaseAction<VirtualRegistryKey>> actions);
+    /// <returns></returns>
+    IEnumerable<FileTableEntry> LoadFileSystemTable();
+
+    /// <summary>
+    /// Returns all known <see cref="VirtualRegistryKey"/> as an <see cref="IEnumerable{T}"/>.
+    /// </summary>
+    /// <returns></returns>
+    IEnumerable<VirtualRegistryKey> LoadRegistry();
 
   }
 }

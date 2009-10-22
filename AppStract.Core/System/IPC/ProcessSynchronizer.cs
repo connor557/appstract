@@ -30,7 +30,7 @@ using AppStract.Core.System.Logging;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Core.Virtualization.Registry;
 
-namespace AppStract.Core.System.Synchronization
+namespace AppStract.Core.System.IPC
 {
   /// <summary>
   /// Provides a way of data synchronization between multiple processes.

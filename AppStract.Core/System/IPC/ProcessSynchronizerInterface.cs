@@ -23,7 +23,7 @@
 
 using System;
 
-namespace AppStract.Core.System.Synchronization
+namespace AppStract.Core.System.IPC
 {
   public class ProcessSynchronizerInterface : MarshalByRefObject
   {
