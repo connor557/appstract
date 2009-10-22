@@ -24,7 +24,7 @@
 using System;
 using AppStract.Core.System.Logging;
 
-namespace AppStract.Core.System.Synchronization
+namespace AppStract.Core.System.IPC
 {
   /// <summary>
   /// Enables different processes to test connectivity

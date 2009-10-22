@@ -24,7 +24,7 @@
 using System.Runtime.Remoting;
 using EasyHook;
 
-namespace AppStract.Core.System.Synchronization
+namespace AppStract.Core.System.IPC
 {
   /// <summary>
   /// <see cref="ConnectionManager"/> manages the connection used for inter-process communication

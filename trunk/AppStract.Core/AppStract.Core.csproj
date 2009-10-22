@@ -93,7 +93,7 @@
     <Compile Include="Data\Settings\AppConfig.cs" />
     <Compile Include="Data\Settings\Configuration.cs" />
     <Compile Include="Data\Settings\UserConfig.cs" />
-    <Compile Include="System\Synchronization\ConnectionManager.cs" />
+    <Compile Include="System\IPC\ConnectionManager.cs" />
     <Compile Include="Virtualization\Packaging\PackageException.cs" />
     <Compile Include="Virtualization\Packaging\Packager.cs" />
     <Compile Include="Virtualization\Packaging\PackagedApplication.cs" />
@@ -104,11 +104,11 @@
     <Compile Include="Virtualization\Process\VirtualProcessStartInfo.cs" />
     <Compile Include="Virtualization\FileSystem\IFileSystemLoader.cs" />
     <Compile Include="Virtualization\Registry\IRegistryLoader.cs" />
-    <Compile Include="System\Synchronization\IProcessSynchronizer.cs" />
-    <Compile Include="System\Synchronization\IResourceLoader.cs" />
-    <Compile Include="System\Synchronization\IServerReporter.cs" />
-    <Compile Include="System\Synchronization\ISynchronizer.cs" />
-    <Compile Include="System\Synchronization\ProcessSynchronizer.cs" />
+    <Compile Include="System\IPC\IProcessSynchronizer.cs" />
+    <Compile Include="System\IPC\IResourceLoader.cs" />
+    <Compile Include="System\IPC\IServerReporter.cs" />
+    <Compile Include="System\IPC\ISynchronizer.cs" />
+    <Compile Include="System\IPC\ProcessSynchronizer.cs" />
     <Compile Include="Data\Application\ApplicationData.cs" />
     <Compile Include="Data\Application\ApplicationFile.cs" />
     <Compile Include="Data\Application\ApplicationFiles.cs" />
@@ -128,7 +128,7 @@
     <Compile Include="Virtualization\Registry\VirtualRegistryKey.cs" />
     <Compile Include="Virtualization\Registry\VirtualRegistryValue.cs" />
     <Compile Include="CoreManager.cs" />
-    <Compile Include="System\Synchronization\ProcessSynchronizerInterface.cs" />
+    <Compile Include="System\IPC\ProcessSynchronizerInterface.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppStract.Utilities\AppStract.Utilities.csproj">

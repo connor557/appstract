@@ -23,7 +23,7 @@
 
 using System;
 
-namespace AppStract.Core.System.Synchronization
+namespace AppStract.Core.System.IPC
 {
   /// <summary>
   /// Interface offering complete support for data synchronization between multiple processes.

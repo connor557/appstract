@@ -25,7 +25,7 @@ using System;
 using System.Collections.Generic;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Data.Databases;
-using AppStract.Core.System.Synchronization;
+using AppStract.Core.System.IPC;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Core.Virtualization.Process;
 

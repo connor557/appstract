@@ -27,7 +27,7 @@ using System.Threading;
 using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Core.Virtualization.Registry;
-using AppStract.Core.System.Synchronization;
+using AppStract.Core.System.IPC;
 using AppStract.Utilities.Observables;
 
 namespace AppStract.Server

@@ -25,7 +25,7 @@ using System;
 using System.IO;
 using System.Threading;
 using AppStract.Core.Data.Application;
-using AppStract.Core.System.Synchronization;
+using AppStract.Core.System.IPC;
 using AppStract.Utilities.Helpers;
 using EasyHook;
 using Microsoft.Win32.Interop;
