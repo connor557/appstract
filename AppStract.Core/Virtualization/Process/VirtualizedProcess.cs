@@ -25,6 +25,7 @@ using System;
 using System.IO;
 using System.Threading;
 using AppStract.Core.Data.Application;
+using AppStract.Core.System.GAC;
 using AppStract.Core.System.IPC;
 using AppStract.Utilities.Helpers;
 using EasyHook;
@@ -51,13 +52,13 @@ namespace AppStract.Core.Virtualization.Process
     /// </summary>
     protected readonly ConnectionManager _connection;
     /// <summary>
+    /// Manager object for all GAC related actions.
+    /// </summary>
+    private readonly GacManager _gacManager;
+    /// <summary>
     /// The virtualized local system process.
     /// </summary>
     private SystemProcess _process;
-    /// <summary>
-    /// True if EasyHook has been initialized already.
-    /// </summary>
-    private bool _iniEasyHook;
     /// <summary>
     /// Whether the current <see cref="VirtualizedProcess"/> has been terminated.
     /// </summary>
@@ -67,11 +68,7 @@ namespace AppStract.Core.Virtualization.Process
     /// </summary>
     private ProcessExitEventHandler _exited;
     /// <summary>
-    /// The object to lock while initializing EasyHook.
-    /// </summary>
-    private readonly object _easyHookSyncRoot;
-    /// <summary>
-    /// The object to lock when calling <see cref="_exited"/>.
+    /// The object to lock when performing actions related to finalizing the process when it exited.
     /// </summary>
     private readonly object _exitEventSyncRoot;
 
@@ -128,10 +125,11 @@ namespace AppStract.Core.Virtualization.Process
     /// </param>
     protected VirtualizedProcess(VirtualProcessStartInfo startInfo, IProcessSynchronizer processSynchronizer)
     {
-      _easyHookSyncRoot = new object();
       _exitEventSyncRoot = new object();
       _startInfo = startInfo;
       _connection = new ConnectionManager(processSynchronizer);
+      _gacManager = new GacManager(startInfo.Files.Executable.FileName,
+                                   CoreBus.Configuration.AppConfig.LibsToRegister);
     }
 
     #endregion
@@ -149,7 +147,6 @@ namespace AppStract.Core.Virtualization.Process
     /// </returns>
     public static VirtualizedProcess Start(VirtualProcessStartInfo startInfo)
     {
-      /// Create an instance of VirtualizedProcess.
       var process = new VirtualizedProcess(startInfo);
       process.Start();
       return process;
@@ -175,7 +172,7 @@ namespace AppStract.Core.Virtualization.Process
     protected void Start()
     {
       /// Initialize the underlying resources.
-      InitEasyHook();
+      _gacManager.Initialize();
       _connection.Initialize();
       _hasExited = false;
       /// Start the process.
@@ -198,20 +195,6 @@ namespace AppStract.Core.Virtualization.Process
     #endregion
 
     #region Private Methods
-
-    /// <summary>
-    /// Initializes all components related to <see cref="EasyHook"/>.
-    /// </summary>
-    private void InitEasyHook()
-    {
-      lock (_easyHookSyncRoot)
-      {
-        if (_iniEasyHook)
-          return;
-        Config.Register("AppStract", CoreBus.Configuration.AppConfig.LibsToRegister.ToArray());
-        _iniEasyHook = true;
-      }
-    }
 
     /// <summary>
     /// Creates and injects the current <see cref="VirtualizedProcess"/>,
