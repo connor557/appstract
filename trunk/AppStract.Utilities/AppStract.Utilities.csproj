@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{29578947-FFF4-4A0A-9C75-AE3C5E03F746}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -53,9 +53,37 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\IntPtrExtensions.cs" />
+    <Compile Include="Fusion\AssemblyCache.cs" />
+    <Compile Include="Fusion\AssemblyEnumerator.cs" />
+    <Compile Include="Fusion\GacException.cs" />
+    <Compile Include="Fusion\InstallBehaviour.cs" />
+    <Compile Include="Fusion\InstallerDescription.cs" />
+    <Compile Include="Fusion\InstallerType.cs" />
+    <Compile Include="Fusion\InstallerTypeExt.cs" />
+    <Compile Include="Fusion\UninstallDisposition.cs" />
+    <Compile Include="Fusion\WrappedAPI\AssemblyCacheFlags.cs" />
+    <Compile Include="Fusion\WrappedAPI\AssemblyCompareFlags.cs" />
+    <Compile Include="Fusion\WrappedAPI\AssemblyInfo.cs" />
+    <Compile Include="Fusion\WrappedAPI\AssemblyInfoFlags.cs" />
+    <Compile Include="Fusion\WrappedAPI\AssemblyNameExt.cs" />
+    <Compile Include="Fusion\WrappedAPI\AssemblyNamePropertyId.cs" />
+    <Compile Include="Fusion\WrappedAPI\CreateDisposition.cs" />
+    <Compile Include="Fusion\WrappedAPI\DisplayNameFlags.cs" />
+    <Compile Include="Fusion\WrappedAPI\FusionInstallReference.cs" />
+    <Compile Include="Fusion\WrappedAPI\IApplicationContext.cs" />
+    <Compile Include="Fusion\WrappedAPI\IAssemblyCache.cs" />
+    <Compile Include="Fusion\WrappedAPI\IAssemblyCacheItem.cs" />
+    <Compile Include="Fusion\WrappedAPI\IAssemblyEnum.cs" />
+    <Compile Include="Fusion\WrappedAPI\IAssemblyName.cs" />
+    <Compile Include="Fusion\WrappedAPI\IHistoryReader.cs" />
+    <Compile Include="Fusion\WrappedAPI\IInstallReferenceEnum.cs" />
+    <Compile Include="Fusion\WrappedAPI\IInstallReferenceItem.cs" />
+    <Compile Include="Fusion\WrappedAPI\QueryTypeId.cs" />
     <Compile Include="Helpers\AssemblyHelper.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Helpers\ParserHelper.cs" />
