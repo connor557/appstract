@@ -44,10 +44,17 @@ namespace AppStract.Utilities.Helpers
     {
       result = default(EnumType);
       var type = typeof(EnumType);
-      if (!type.IsEnum || !Enum.IsDefined(typeof(EnumType), value))
-        return false;
-      result = (EnumType)Enum.Parse(type, value);
-      return true;
+      if (!type.IsEnum) return false;
+      value = value.ToUpperInvariant();
+      var names = Enum.GetNames(type);
+      foreach (var name in names)
+      {
+        if (name.ToUpperInvariant() != value)
+          continue;
+        result = (EnumType)Enum.Parse(type, value, true);
+        return true;
+      }
+      return false;
     }
 
     #endregion
