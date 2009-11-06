@@ -18,6 +18,7 @@
 /******************************************************************************/
 using System;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.Win32.Interop
 {
@@ -43,7 +44,7 @@ namespace Microsoft.Win32.Interop
         return ERROR_NOT_FOUND;
       if (stateCode == NativeResultCode.AccessDenied)
         return ERROR_ACCESS_DENIED;
-      throw new NotImplementedException("The StateCode enumeration has been changed without updating WinError.FromStateCode(StateCode)");
+      throw new NotSupportedException("Converting \"NativeResultCode." + stateCode + "\" to an error-code is not supported.");
     }
 
     public static string GetErrorName(uint result)
@@ -57,13 +58,32 @@ namespace Microsoft.Win32.Interop
 
     public static bool Succeeded(int result)
     {
-      return result >= 0;
+      return result == (int) ERROR_SUCCESS;
     }
 
-    public static bool Failed(int result)
+    /// <summary>
+    /// Returns an <see cref="Exception"/> for the specified <paramref name="errorCode"/>.
+    /// The error is retrieved by calling <see cref="Marshal.ThrowExceptionForHR(int)"/>,
+    /// making this a relatively expensive operation.
+    /// </summary>
+    /// <param name="errorCode"></param>
+    /// <returns></returns>
+    public static Exception AsException(int errorCode)
     {
-      return result < 0;
+      if (Succeeded(errorCode))
+        return null;
+      try
+      {
+        Marshal.ThrowExceptionForHR(errorCode);
+      }
+      catch (Exception e)
+      {
+        return e;
+      }
+      return null;
     }
+
+    #region ErrorCode Declarations
 
     /// <summary>
     /// The operation completed successfully.
@@ -7459,6 +7479,9 @@ namespace Microsoft.Win32.Interop
     /// ERROR_IPSEC_IKE_NEG_STATUS_END
     /// </summary>
     public const uint ERROR_IPSEC_IKE_NEG_STATUS_END = 13884;
+
+    #endregion
+
   }
 
   public class ResultCom
@@ -12091,6 +12114,3 @@ namespace Microsoft.Win32.Interop
 
   }
 }
-/******************************************************************************/
-/*                END OF FILE                 */
-/******************************************************************************/
