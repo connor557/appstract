@@ -25,9 +25,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Security.Cryptography;
+using System.Reflection.GAC;
 using AppStract.Core.Data.Application;
-using EasyHook;
 using SystemProcess = System.Diagnostics.Process;
 
 namespace AppStract.Core.System.GAC
@@ -38,10 +37,7 @@ namespace AppStract.Core.System.GAC
   /// </summary>
   /// <remarks>
   /// ToDo:
-  ///   - Verify if the assembly doesn't already exist in the GAC before registering it
-  ///   - Support for disaster recovery
-  ///     -> store changes made to the GAC in the system's registry until they are undone
-  ///     -> in case they are not undone during the current run, GacManager can automatically clean them on the next run
+  ///   - Support for disaster recovery depending upon GacCleanUpInsurance
   ///   - Implement ForceGacCleanUp() method
   /// </remarks>
   public class GacManager : IDisposable
@@ -52,20 +48,19 @@ namespace AppStract.Core.System.GAC
     private readonly ApplicationFile _thisAppExe;
     private readonly ApplicationFile _otherAppExe;
     /// <summary>
-    /// All assemblies that are shared by both the host and guest application.
+    /// All assemblies shared by both the current and the other application.
     /// </summary>
     private readonly List<ApplicationFile> _sharedAssemblies;
-
     /// <summary>
     /// All assemblies that can only be shared by registering them to the GAC.
     /// </summary>
-    private List<ApplicationFile> _gacAssemblies;
+    private List<AssemblyName> _gacAssemblies;
     /// <summary>
     /// Indicates whether the <see cref="_gacAssemblies"/> have been registered to the GAC.
     /// </summary>
     private bool _gacRegistered;
 
-    private readonly string _gacUniqueId;
+    private AssemblyCache _assemblyCache;
     private readonly object _gacSyncRoot;
 
     #endregion
@@ -82,22 +77,17 @@ namespace AppStract.Core.System.GAC
     public GacManager(string otherAppExe, IEnumerable<string> sharedAssemblies)
     {
       _gacSyncRoot = new object();
-      // Create unique installation identifier
-      byte[] uniqueIdBytes = new byte[30];
-      new RNGCryptoServiceProvider().GetBytes(uniqueIdBytes);
-      _gacUniqueId = Convert.ToBase64String(uniqueIdBytes);
-      // Get and verify all associated files
       _thisAppExe = new ApplicationFile(SystemProcess.GetCurrentProcess().MainModule.FileName);
       _otherAppExe = new ApplicationFile(otherAppExe);
-      if (_otherAppExe.Type != FileType.Assembly_Managed && _otherAppExe.Type != FileType.Assembly_Native)
+      if (_otherAppExe.Type != FileType.Assembly_Managed
+          && _otherAppExe.Type != FileType.Assembly_Native)
         throw new GacException("\"" + _otherAppExe.FileName + "\" is no valid executable.");
       _sharedAssemblies = new List<ApplicationFile>();
       foreach (var sharedAssembly in sharedAssemblies)
       {
         var file = new ApplicationFile(sharedAssembly);
-        if (file.Type != FileType.Assembly_Managed && file.Type != FileType.Assembly_Native)
-          throw new GacException("\"" + file.FileName + "\" is no valid assembly.");
-        _sharedAssemblies.Add(file);
+        if (file.Type == FileType.Assembly_Managed)
+          _sharedAssemblies.Add(file);
       }
     }
 
@@ -122,9 +112,11 @@ namespace AppStract.Core.System.GAC
       lock (_gacSyncRoot)
       {
         if (_gacRegistered) return;
-        GC.ReRegisterForFinalize(this);
         if (_gacAssemblies == null)
           _gacAssemblies = DetermineGacAssemblies();
+        if (_assemblyCache == null)
+          _assemblyCache = new AssemblyCache(CoreBus.Configuration.Application.GacInstallerDescription);
+        GC.ReRegisterForFinalize(this);
         RegisterGacAssemblies();
       }
     }
@@ -150,9 +142,9 @@ namespace AppStract.Core.System.GAC
     /// <exception cref="GacException">
     /// A <see cref="GacException"/> is thrown if one of the files is not a .NET assembly with valid metadata, like a strong name.
     /// </exception>
-    private List<ApplicationFile> DetermineGacAssemblies()
+    private List<AssemblyName> DetermineGacAssemblies()
     {
-      var gacAssemblies = new List<ApplicationFile>();
+      var gacAssemblies = new List<AssemblyName>();
       var otherBinDir = Path.GetDirectoryName(_otherAppExe.FileName).ToUpperInvariant();
       var thisBinDir = Path.GetDirectoryName(_thisAppExe.FileName).ToUpperInvariant();
       var sameBinDir = otherBinDir == thisBinDir;
@@ -163,10 +155,11 @@ namespace AppStract.Core.System.GAC
         var dir = Path.GetDirectoryName(file.FileName).ToUpperInvariant();
         if (sameBinDir && dir == otherBinDir)
           continue;
+        var assembly = Assembly.ReflectionOnlyLoadFrom(file.FileName);
         // Verify that the file is a .NET assembly with valid metadata
-        if (Assembly.ReflectionOnlyLoadFrom(file.FileName).GetName().GetPublicKey().Length == 0)
+        if (assembly.GetName().GetPublicKey().Length == 0)
           throw new GacException("\"" + file.FileName + "\" is not strongly signed.");
-        gacAssemblies.Add(file);
+        gacAssemblies.Add(new AssemblyName(assembly.FullName));
       }
       return gacAssemblies;
     }
@@ -184,17 +177,10 @@ namespace AppStract.Core.System.GAC
       {
         if (_gacRegistered) return;
         if (_gacAssemblies == null)
-          throw new GacException("Can't unregister asssemblies from the GAC if they have not been determined yet.");
-        var gacContext = NativeAPI.GacCreateContext();
-        try
-        {
-          foreach (var assembly in _gacAssemblies)
-            NativeAPI.GacInstallAssembly(gacContext, assembly.FileName, "AppStract GAC Manager", _gacUniqueId);
-        }
-        finally
-        {
-          NativeAPI.GacReleaseContext(ref gacContext);
-        }
+          throw new GacException("Can't register asssemblies to the GAC if they have not been determined yet.");
+        foreach (var assembly in _gacAssemblies)
+          if (!_assemblyCache.IsInstalled(assembly))
+            _assemblyCache.InstallAssembly(assembly, InstallBehaviour.Default);
         _gacRegistered = true;
       }
     }
@@ -213,25 +199,8 @@ namespace AppStract.Core.System.GAC
         if (!_gacRegistered) return;
         if (_gacAssemblies == null)
           throw new GacException("Can't unregister asssemblies from the GAC if they have not been determined yet.");
-        var gacContext = NativeAPI.GacCreateContext();
-        try
-        {
-          foreach (var assembly in _gacAssemblies)
-          {
-            try
-            {
-              NativeAPI.GacUninstallAssembly(gacContext, assembly.FileName, "AppStract GAC Manager", _gacUniqueId);
-            }
-            catch (Exception e)
-            {
-              CoreBus.Log.Critical("Unable to clean \"{0}\" from Global Assembly Cache.", e, assembly);
-            }
-          }
-        }
-        finally
-        {
-          NativeAPI.GacReleaseContext(ref gacContext);
-        }
+        foreach (var assembly in _gacAssemblies)
+          _assemblyCache.UninstallAssembly(assembly);
         _gacRegistered = false;
       }
     }
