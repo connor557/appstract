@@ -60,7 +60,6 @@
     <Compile Include="Extensions\IntPtrExtensions.cs" />
     <Compile Include="Fusion\AssemblyCache.cs" />
     <Compile Include="Fusion\AssemblyEnumerator.cs" />
-    <Compile Include="Fusion\GacException.cs" />
     <Compile Include="Fusion\InstallBehaviour.cs" />
     <Compile Include="Fusion\InstallerDescription.cs" />
     <Compile Include="Fusion\InstallerType.cs" />

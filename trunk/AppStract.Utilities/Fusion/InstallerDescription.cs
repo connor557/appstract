@@ -29,6 +29,7 @@ namespace System.Reflection.GAC
   /// <summary>
   /// Descriptor class for applications manipulating the GAC using an instance of <see cref="AssemblyCache"/>.
   /// </summary>
+  [Serializable]
   public class InstallerDescription
   {
 
