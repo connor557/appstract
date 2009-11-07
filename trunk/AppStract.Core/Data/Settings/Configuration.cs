@@ -21,10 +21,7 @@
 
 #endregion
 
-using System;
-using System.IO;
 using AppStract.Core.System.Logging;
-using AppStract.Utilities.Helpers;
 
 namespace AppStract.Core.Data.Settings
 {
@@ -52,7 +49,7 @@ namespace AppStract.Core.Data.Settings
     /// <summary>
     /// Gets or sets the configuration of the application's constants.
     /// </summary>
-    public AppConfig AppConfig
+    public AppConfig Application
     {
       get; private set;
     }
@@ -60,7 +57,7 @@ namespace AppStract.Core.Data.Settings
     /// <summary>
     /// Gets or sets the configuration variables defined by the user.
     /// </summary>
-    public UserConfig UserConfig
+    public UserConfig User
     {
       get; private set;
     }
@@ -69,15 +66,12 @@ namespace AppStract.Core.Data.Settings
 
     #region Constructors
 
-    public Configuration(AppConfig appConfig, UserConfig userConfig)
-    {
-      AppConfig = appConfig;
-      UserConfig = userConfig;
-    }
+    private Configuration()
+    { }
 
     #endregion
 
-    #region Public Methods
+    #region Static Members
 
     /// <summary>
     /// Returns a fully loaded configuration.
@@ -85,9 +79,11 @@ namespace AppStract.Core.Data.Settings
     /// <returns></returns>
     public static Configuration LoadConfiguration()
     {
-      var appConfig = LoadAppConfig();
-      var userConfig = LoadUserConfig();
-      return new Configuration(appConfig, userConfig);
+      return new Configuration
+               {
+                 Application = AppConfig.LoadFrom(_appConfigFile),
+                 User = UserConfig.LoadFrom(_userConfigFile)
+               };
     }
 
     /// <summary>
@@ -96,11 +92,15 @@ namespace AppStract.Core.Data.Settings
     /// <param name="configuration"></param>
     public static void SaveConfiguration(Configuration configuration)
     {
-      if (!XmlSerializationHelper.TrySerialize(_appConfigFile, configuration.AppConfig))
+      if (!AppConfig.SaveTo(configuration.Application, _appConfigFile))
         CoreBus.Log.Warning("Unable to save the application configuration.");
-      if (!XmlSerializationHelper.TrySerialize(_userConfigFile, configuration.UserConfig))
+      if (!UserConfig.SaveTo(configuration.User, _userConfigFile))
         CoreBus.Log.Warning("Unable to save the user configuration.");
     }
+
+    #endregion
+
+    #region Public Methods
 
     /// <summary>
     /// Configures the log service to use the <see cref="LogLevel"/> specified.
@@ -136,43 +136,7 @@ namespace AppStract.Core.Data.Settings
         CoreBus.Log = new ConsoleLogger(CoreBus.Log.LogLevel);
       else if (logType == LogType.File)
         CoreBus.Log = FileLogger.CreateLogService(CoreBus.Log.LogLevel,
-                                                  filename ?? CoreBus.Configuration.UserConfig.LogFile);
-    }
-
-    #endregion
-
-    #region Private Methods
-
-    private static AppConfig LoadAppConfig()
-    {
-      try
-      {
-        if (File.Exists(_appConfigFile))
-          return XmlSerializationHelper.Deserialize<AppConfig>(_appConfigFile);
-      }
-      catch (Exception ex)
-      {
-        CoreBus.Log.Error("Could not load the application configuration.", ex);
-      }
-      var r = new AppConfig();
-      r.LoadDefaults();
-      return r;
-    }
-
-    private static UserConfig LoadUserConfig()
-    {
-      try
-      {
-        if (File.Exists(_appConfigFile))
-          return XmlSerializationHelper.Deserialize<UserConfig>(_userConfigFile);
-      }
-      catch (Exception ex)
-      {
-        CoreBus.Log.Error("Could not load the user configuration.", ex);
-      }
-      var r = new UserConfig();
-      r.LoadDefaults();
-      return r;
+                                                  filename ?? CoreBus.Configuration.User.LogFile);
     }
 
     #endregion

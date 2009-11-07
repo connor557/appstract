@@ -87,7 +87,7 @@ namespace AppStract.Manager
           return; /// ToDo: Clean up first!
         /// Save the resulting data.
         var dataFilename = System.IO.Path.Combine(preWizard.Result.InstallerOutputDestination,
-                                                  CoreBus.Configuration.AppConfig.DefaultApplicationDataFile);
+                                                  CoreBus.Configuration.Application.DefaultApplicationDataFile);
         if (!ApplicationData.Save(postWizard.Result, dataFilename))
             /// ToDo: Add some proper error handling here!
             /// ToDo: Clean up?
