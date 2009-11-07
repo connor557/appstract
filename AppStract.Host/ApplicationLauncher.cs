@@ -54,7 +54,7 @@ namespace AppStract.Host
 #endif
       CoreManager.StartProcess(parser.IsDefined(CommandlineOption.ApplicationDataFile)
                                  ? parser.GetOption(CommandlineOption.ApplicationDataFile)
-                                 : CoreBus.Configuration.AppConfig.DefaultApplicationDataFile);
+                                 : CoreBus.Configuration.Application.DefaultApplicationDataFile);
 #if !DEBUG
       }
       catch(Exception ex)

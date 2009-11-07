@@ -23,11 +23,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection.GAC;
+using AppStract.Utilities.Helpers;
 
 namespace AppStract.Core.Data.Settings
 {
   [Serializable]
-  public class AppConfig : IConfigurationObject
+  public class AppConfig
   {
 
     #region Properties
@@ -37,7 +40,8 @@ namespace AppStract.Core.Data.Settings
     /// </summary>
     public string DefaultApplicationDataFile
     {
-      get; set;
+      get;
+      set;
     }
 
     /// <summary>
@@ -45,7 +49,8 @@ namespace AppStract.Core.Data.Settings
     /// </summary>
     public string LibtoInject
     {
-      get; set;
+      get;
+      set;
     }
 
     /// <summary>
@@ -53,27 +58,63 @@ namespace AppStract.Core.Data.Settings
     /// </summary>
     public string WrapperExecutable
     {
-      get; set;
+      get;
+      set;
     }
 
     /// <summary>
-    /// Gets or sets all libraries to register with EasyHook.
+    /// Gets or sets all libraries that must be shared between the current process and the other/guest process.
     /// </summary>
-    public List<string> LibsToRegister
+    public List<string> LibsToShare
     {
-      get; set;
+      get;
+      set;
+    }
+
+    /// <summary>
+    /// Gets or sets the <see cref="InstallerDescription"/> to use for manipulating the global assembly cache.
+    /// </summary>
+    public InstallerDescription GacInstallerDescription
+    {
+      get;
+      set;
     }
 
     #endregion
 
-    #region IConfigurationObject Members
+    #region Static Methods
 
-    public void LoadDefaults()
+    public static AppConfig LoadFrom(string filename)
+    {
+      try
+      {
+        if (File.Exists(filename))
+          return XmlSerializationHelper.Deserialize<AppConfig>(filename);
+      }
+      catch (Exception ex)
+      {
+        CoreBus.Log.Error("Could not load the application configuration.", ex);
+      }
+      var r = new AppConfig();
+      r.LoadDefaults();
+      return r;
+    }
+
+    public static bool SaveTo(AppConfig cnf, string filename)
+    {
+      return XmlSerializationHelper.TrySerialize(filename, cnf);
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    private void LoadDefaults()
     {
       DefaultApplicationDataFile = "ApplicationData.xml";
       LibtoInject = "AppStract.Inject.dll";
       WrapperExecutable = "Appstract.Wrapper.exe";
-      LibsToRegister = new List<string>(
+      LibsToShare = new List<string>(
         new[]
           {
             "EasyHook.dll",
@@ -84,6 +125,8 @@ namespace AppStract.Core.Data.Settings
             "AppStract.Server.dll",
             "AppStract.Utilities.dll"
           });
+      GacInstallerDescription
+        = InstallerDescription.CreateForFile("AppStract Server", global::System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
     }
 
     #endregion

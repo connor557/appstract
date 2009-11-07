@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{73CC3214-9CAD-4723-BBBB-79BE7482E639}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -78,7 +78,6 @@
     <Compile Include="Data\Databases\IndexGenerator.cs" />
     <Compile Include="Data\Databases\IndexRange.cs" />
     <Compile Include="Data\Databases\RegistryDatabase.cs" />
-    <Compile Include="Data\Settings\IConfigurationObject.cs" />
     <Compile Include="System\GAC\GacException.cs" />
     <Compile Include="System\GAC\GacManager.cs" />
     <Compile Include="System\Logging\ConsoleLogger.cs" />

@@ -22,25 +22,53 @@
 #endregion
 
 using System;
+using System.IO;
+using AppStract.Utilities.Helpers;
 
 namespace AppStract.Core.Data.Settings
 {
   [Serializable]
-  public class UserConfig : IConfigurationObject
+  public class UserConfig
   {
 
     #region Properties
 
     public string LogFile
     {
-      get; set;
+      get;
+      set;
     }
 
     #endregion
 
-    #region IConfigurationObject Members
+    #region Static Methods
 
-    public void LoadDefaults()
+    public static UserConfig LoadFrom(string filename)
+    {
+      try
+      {
+        if (File.Exists(filename))
+          return XmlSerializationHelper.Deserialize<UserConfig>(filename);
+      }
+      catch (Exception ex)
+      {
+        CoreBus.Log.Error("Could not load the user configuration.", ex);
+      }
+      var r = new UserConfig();
+      r.LoadDefaults();
+      return r;
+    }
+
+    public static bool SaveTo(UserConfig cnf, string filename)
+    {
+      return XmlSerializationHelper.TrySerialize(filename, cnf);
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    private void LoadDefaults()
     {
       LogFile = "AppStract.log";
     }

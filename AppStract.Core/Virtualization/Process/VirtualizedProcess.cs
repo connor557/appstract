@@ -129,7 +129,7 @@ namespace AppStract.Core.Virtualization.Process
       _startInfo = startInfo;
       _connection = new ConnectionManager(processSynchronizer);
       _gacManager = new GacManager(startInfo.Files.Executable.FileName,
-                                   CoreBus.Configuration.AppConfig.LibsToRegister);
+                                   CoreBus.Configuration.Application.LibsToShare);
     }
 
     #endregion
@@ -205,7 +205,7 @@ namespace AppStract.Core.Virtualization.Process
     {
       int processId;
       /// Get the location of the library to inject
-      string libraryLocation = CoreBus.Configuration.AppConfig.LibtoInject;
+      string libraryLocation = CoreBus.Configuration.Application.LibtoInject;
       if (!File.Exists(libraryLocation))
         throw new FileNotFoundException("Unable to locate the library to inject.", libraryLocation);
       RemoteHooking.CreateAndInject(
@@ -237,8 +237,8 @@ namespace AppStract.Core.Virtualization.Process
     private void WrapAndInject()
     {
       // Get the location of the files needed.
-      var wrapperLocation = CoreBus.Configuration.AppConfig.WrapperExecutable;
-      var libraryLocation = CoreBus.Configuration.AppConfig.LibtoInject;
+      var wrapperLocation = CoreBus.Configuration.Application.WrapperExecutable;
+      var libraryLocation = CoreBus.Configuration.Application.LibtoInject;
       if (!File.Exists(wrapperLocation))
         throw new FileNotFoundException("Unable to locate the wrapper executable.", wrapperLocation);
       if (!File.Exists(libraryLocation))
