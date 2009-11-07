@@ -77,7 +77,7 @@ namespace AppStract.Core.System.GAC
     public GacManager(string otherAppExe, IEnumerable<string> sharedAssemblies)
     {
       _gacSyncRoot = new object();
-      _thisAppExe = new ApplicationFile(SystemProcess.GetCurrentProcess().MainModule.FileName);
+      _thisAppExe = new ApplicationFile(CoreBus.Configuration.Runtime.RunningExecutable);
       _otherAppExe = new ApplicationFile(otherAppExe);
       if (_otherAppExe.Type != FileType.Assembly_Managed
           && _otherAppExe.Type != FileType.Assembly_Native)
