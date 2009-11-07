@@ -78,6 +78,7 @@
     <Compile Include="Data\Databases\IndexGenerator.cs" />
     <Compile Include="Data\Databases\IndexRange.cs" />
     <Compile Include="Data\Databases\RegistryDatabase.cs" />
+    <Compile Include="Data\Settings\RuntimeConfig.cs" />
     <Compile Include="System\GAC\GacException.cs" />
     <Compile Include="System\GAC\GacManager.cs" />
     <Compile Include="System\Logging\ConsoleLogger.cs" />

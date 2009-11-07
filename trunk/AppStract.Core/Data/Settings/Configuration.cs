@@ -47,7 +47,7 @@ namespace AppStract.Core.Data.Settings
     #region Properties
 
     /// <summary>
-    /// Gets or sets the configuration of the application's constants.
+    /// Gets the configuration of the application's constants.
     /// </summary>
     public AppConfig Application
     {
@@ -55,7 +55,16 @@ namespace AppStract.Core.Data.Settings
     }
 
     /// <summary>
-    /// Gets or sets the configuration variables defined by the user.
+    /// Gets the configuration values for the current runtime.
+    /// </summary>
+    public RuntimeConfig Runtime
+    {
+      get;
+      private set;
+    }
+
+    /// <summary>
+    /// Gets the configuration variables defined by the user.
     /// </summary>
     public UserConfig User
     {
@@ -82,6 +91,7 @@ namespace AppStract.Core.Data.Settings
       return new Configuration
                {
                  Application = AppConfig.LoadFrom(_appConfigFile),
+                 Runtime = RuntimeConfig.Load(),
                  User = UserConfig.LoadFrom(_userConfigFile)
                };
     }
