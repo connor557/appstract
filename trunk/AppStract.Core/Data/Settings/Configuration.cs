@@ -55,15 +55,6 @@ namespace AppStract.Core.Data.Settings
     }
 
     /// <summary>
-    /// Gets the configuration values for the current runtime.
-    /// </summary>
-    public RuntimeConfig Runtime
-    {
-      get;
-      private set;
-    }
-
-    /// <summary>
     /// Gets the configuration variables defined by the user.
     /// </summary>
     public UserConfig User
@@ -91,7 +82,6 @@ namespace AppStract.Core.Data.Settings
       return new Configuration
                {
                  Application = AppConfig.LoadFrom(_appConfigFile),
-                 Runtime = RuntimeConfig.Load(),
                  User = UserConfig.LoadFrom(_userConfigFile)
                };
     }

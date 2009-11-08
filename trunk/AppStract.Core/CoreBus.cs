@@ -22,13 +22,14 @@
 #endregion
 
 using AppStract.Core.Data.Settings;
+using AppStract.Core.System;
 using AppStract.Core.System.Logging;
 
 namespace AppStract.Core
 {
   /// <summary>
   /// The static core class of AppStract,
-  /// used as a communication bus between the different components.
+  /// used as a communication bus to the different core components.
   /// </summary>
   public static class CoreBus
   {
@@ -39,6 +40,14 @@ namespace AppStract.Core
     /// The current instance's configuration.
     /// </summary>
     public static Configuration Configuration
+    {
+      get; set;
+    }
+
+    /// <summary>
+    /// The current instance's runtime information.
+    /// </summary>
+    public static Runtime Runtime
     {
       get; set;
     }

@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Reflection.GAC;
 using AppStract.Utilities.Helpers;
 
@@ -127,7 +126,7 @@ namespace AppStract.Core.Data.Settings
             "AppStract.Utilities.dll"
           });
       GacInstallerDescription
-        = InstallerDescription.CreateForFile("AppStract Server", Assembly.GetEntryAssembly().CodeBase.Substring("file:///".Length));
+        = InstallerDescription.CreateForFile("AppStract Server", CoreBus.Runtime.RunningExecutable);
     }
 
     #endregion
