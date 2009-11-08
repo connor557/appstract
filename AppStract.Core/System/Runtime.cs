@@ -21,11 +21,16 @@
 
 #endregion
 
+using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 
-namespace AppStract.Core.Data.Settings
+namespace AppStract.Core.System
 {
-  public class RuntimeConfig
+  /// <summary>
+  /// Provides information about the current application instance's runtime.
+  /// </summary>
+  public sealed class Runtime
   {
 
     #region Properties
@@ -35,28 +40,50 @@ namespace AppStract.Core.Data.Settings
     /// </summary>
     public string RunningExecutable
     {
-      get; private set;
+      get;
+      private set;
+    }
+
+    /// <summary>
+    /// Gets the name of the directory from which the process originally started.
+    /// </summary>
+    public string StartUpDirectory
+    {
+      get;
+      private set;
+    }
+
+    /// <summary>
+    /// Gets the current process.
+    /// </summary>
+    public Process CurrentProcess
+    {
+      get;
+      private set;
     }
 
     #endregion
 
     #region Constructors
 
-    private RuntimeConfig()
+    private Runtime()
     {
-      
+
     }
 
     #endregion
 
     #region Static Methods
 
-    public static RuntimeConfig Load()
+    public static Runtime Load()
     {
-      return new RuntimeConfig
-               {
-                 RunningExecutable = Assembly.GetEntryAssembly().CodeBase.Substring("file:///".Length)
-               };
+      var runningExe = Assembly.GetEntryAssembly().CodeBase.Substring("file:///".Length);
+      return new Runtime
+      {
+        RunningExecutable = runningExe,
+        StartUpDirectory = Path.GetDirectoryName(runningExe),
+        CurrentProcess = Process.GetCurrentProcess()
+      };
     }
 
     #endregion

@@ -25,6 +25,7 @@ using System;
 using System.IO;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Data.Settings;
+using AppStract.Core.System;
 using AppStract.Core.System.Logging;
 using AppStract.Core.Virtualization.Process;
 
@@ -72,6 +73,7 @@ namespace AppStract.Core
       /// How to initialize the configuration without logservice?
       throw new NotImplementedException();
 #endif
+      CoreBus.Runtime = Runtime.Load();
       CoreBus.Configuration = Configuration.LoadConfiguration();
     }
 
