@@ -95,13 +95,29 @@ namespace System.Reflection.GAC
     private readonly InstallerDescription _installer;
 
     #endregion
-    
+
+    #region Properties
+
+    /// <summary>
+    /// Gets the <see cref="InstallerDescription"/> for the application using the current instance of <see cref="AssemblyCache"/>.
+    /// </summary>
+    public InstallerDescription InstallerDescription
+    {
+      get { return _installer; }
+    }
+
+    #endregion
+
     #region Constructors
 
-    public AssemblyCache(InstallerDescription installerReference)
+    /// <summary>
+    /// Initializes a new instance of <see cref="AssemblyCache"/> for the specified installer.
+    /// </summary>
+    /// <param name="installerDescription"></param>
+    public AssemblyCache(InstallerDescription installerDescription)
     {
       CreateAssemblyCache(out _gac, 0);
-      _installer = installerReference;
+      _installer = installerDescription;
     }
 
     #endregion
