@@ -63,6 +63,15 @@ namespace AppStract.Core.Data.Settings
     }
 
     /// <summary>
+    /// Gets or sets the executable of the watcher to use for cleaning the GAC after process termination.
+    /// </summary>
+    public string WatcherExecutable
+    {
+      get;
+      set;
+    }
+
+    /// <summary>
     /// Gets or sets all libraries that must be shared between the current process and the other/guest process.
     /// </summary>
     public List<string> LibsToShare
