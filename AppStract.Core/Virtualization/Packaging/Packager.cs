@@ -81,7 +81,7 @@ namespace AppStract.Core.Virtualization.Packaging
       var workingDirectory = new ApplicationFile(outputFolder);
       if (workingDirectory.Type != FileType.Directory)
         throw new ArgumentException("The value specified for the outputFolder is invalid.", "outputFolder");
-      data.Files.RootDirectory = new ApplicationFile("");
+      data.Files.RootDirectory = new ApplicationFile(".");
       data.Files.Executable = new ApplicationFile(executable);
       if (data.Files.Executable.Type != FileType.Assembly_Managed
           && data.Files.Executable.Type != FileType.Assembly_Native)
