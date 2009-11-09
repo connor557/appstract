@@ -78,7 +78,12 @@
     <Compile Include="Data\Databases\IndexGenerator.cs" />
     <Compile Include="Data\Databases\IndexRange.cs" />
     <Compile Include="Data\Databases\RegistryDatabase.cs" />
+    <Compile Include="System\GAC\InsuranceBase.cs" />
+    <Compile Include="System\GAC\InsuranceFile.cs" />
+    <Compile Include="System\GAC\InsuranceRegistryKey.cs" />
     <Compile Include="System\Runtime.cs" />
+    <Compile Include="System\GAC\CleanUpInsurance.cs" />
+    <Compile Include="System\GAC\CleanUpInsuranceFlags.cs" />
     <Compile Include="System\GAC\GacException.cs" />
     <Compile Include="System\GAC\GacManager.cs" />
     <Compile Include="System\Logging\ConsoleLogger.cs" />
