@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Reflection.GAC;
 
 namespace AppStract.Core.System.GAC
 {
@@ -44,6 +45,7 @@ namespace AppStract.Core.System.GAC
 
     #region Variables
 
+    private readonly InstallerDescription _installerDescription;
     private readonly string _insuranceId;
     private readonly string _machineId;
     private readonly DateTime _dateTime;
@@ -59,6 +61,14 @@ namespace AppStract.Core.System.GAC
     public string InsuranceIdentifier
     {
       get { return _insuranceId; }
+    }
+
+    /// <summary>
+    /// Gets the <see cref="InstallerDescription"/> for the application that requested the insurance.
+    /// </summary>
+    public InstallerDescription InstallerDescription
+    {
+      get { return _installerDescription; }
     }
 
     /// <summary>
@@ -89,9 +99,10 @@ namespace AppStract.Core.System.GAC
 
     #region Constructors
 
-    protected InsuranceBase(string insuranceIdentifier, string machineId, DateTime creationDateTime, IEnumerable<AssemblyName> assemblies)
+    protected InsuranceBase(string insuranceIdentifier, InstallerDescription installerDescription, string machineId, DateTime creationDateTime, IEnumerable<AssemblyName> assemblies)
     {
       _insuranceId = insuranceIdentifier;
+      _installerDescription = installerDescription;
       _machineId = machineId;
       _dateTime = creationDateTime;
       _assemblies = new List<AssemblyName>(assemblies);
@@ -137,4 +148,34 @@ namespace AppStract.Core.System.GAC
     #endregion
 
   }
+
+  internal static class InsuranceBaseExtensions
+  {
+
+    public static InsuranceBase FindElement(this IEnumerable<InsuranceBase> items, string identifier)
+    {
+      foreach (var item in items)
+        if (item.InsuranceIdentifier == identifier)
+          return item;
+      return null;
+    }
+
+    public static InsuranceFile FindElement(this IEnumerable<InsuranceFile> items, string identifier)
+    {
+      foreach (var item in items)
+        if (item.InsuranceIdentifier == identifier)
+          return item;
+      return null;
+    }
+
+    public static InsuranceRegistryKey FindElement(this IEnumerable<InsuranceRegistryKey> items, string identifier)
+    {
+      foreach (var item in items)
+        if (item.InsuranceIdentifier == identifier)
+          return item;
+      return null;
+    }
+
+  }
+
 }

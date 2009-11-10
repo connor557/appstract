@@ -103,7 +103,7 @@ namespace AppStract.Core.System.GAC
 
     #endregion
 
-    #region Methods
+    #region Public Methods
 
     /// <summary>
     /// Initializes the current instance of <see cref="GacManager"/>,
@@ -176,7 +176,7 @@ namespace AppStract.Core.System.GAC
         if (_gacAssemblies == null)
           throw new GacException("Can't register asssemblies to the GAC if they have not been determined yet.");
         // First insure the removal of those assemblies.
-        _insurance = CleanUpInsurance.CreateInsurance(_gacAssemblies);
+        _insurance = CleanUpInsurance.CreateInsurance(_assemblyCache.InstallerDescription, _gacAssemblies);
         // Then install the assemblies.
         foreach (var assembly in _gacAssemblies)
           _assemblyCache.InstallAssembly(assembly, InstallBehaviour.Default);

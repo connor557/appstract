@@ -24,9 +24,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Reflection.GAC;
 using System.Security.Cryptography;
 using AppStract.Utilities.Helpers;
 using Microsoft.Win32;
@@ -53,7 +54,7 @@ namespace AppStract.Core.System.GAC
     /// <summary>
     /// The registry key, under <see cref="Registry.CurrentUser"/>, containing the subkeys used to track the installed assemblies.
     /// </summary>
-    private const string _TrackingRegistryKey = @"Software\AppStract";
+    private const string _TrackingRegistryKey = @"Software\AppStract\";
 
     #endregion
 
@@ -63,6 +64,10 @@ namespace AppStract.Core.System.GAC
     /// The flags to base the method of insurance on.
     /// </summary>
     private readonly CleanUpInsuranceFlags _flags;
+    /// <summary>
+    /// The <see cref="InstallerDescription"/> for the application that's installing and uninstalling the insured assemblies.
+    /// </summary>
+    private readonly InstallerDescription _assemblyInstallerDescription;
     /// <summary>
     /// The assemblies to ensure GAC-cleanup for.
     /// </summary>
@@ -112,6 +117,18 @@ namespace AppStract.Core.System.GAC
 
     #region Constructors
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="CleanUpInsurance"/> built from the data specified.
+    /// </summary>
+    /// <exception cref="ArgumentException">
+    /// An <see cref="ArgumentException"/> is thrown if <paramref name="insuranceFile"/> and <paramref name="insuranceRegistryKey"/> don't match.
+    /// </exception>
+    /// <exception cref="ArgumentNullException">
+    /// An <see cref="ArgumentNullException"/> is thrown if both <paramref name="insuranceFile"/> and <paramref name="insuranceRegistryKey"/> are null.
+    /// </exception>
+    /// <param name="insuranceFile"></param>
+    /// <param name="insuranceRegistryKey"></param>
+    /// <param name="insuranceProcess"></param>
     private CleanUpInsurance(InsuranceFile insuranceFile, InsuranceRegistryKey insuranceRegistryKey, Process insuranceProcess)
     {
       _insuranceFile = insuranceFile;
@@ -124,93 +141,38 @@ namespace AppStract.Core.System.GAC
       if (_insuranceFile != null)
       {
         insuranceBase = _insuranceFile;
-        if (insuranceBase.MatchesWith(_insuranceRegistryKey, false))
+        if (_insuranceRegistryKey != null)
+        {
+          if (!insuranceBase.MatchesWith(_insuranceRegistryKey, false))
+            throw new ArgumentException("The InsuranceFile and InsuranceRegistryKey don't match.", "insuranceFile");
           insuranceBase.JoinWith(_insuranceRegistryKey);
+        }
       }
       else if (_insuranceRegistryKey != null)
         insuranceBase = _insuranceRegistryKey;
-      if (insuranceBase != null)
-      {
-        _assemblies = new List<AssemblyName>(insuranceBase.Assemblies);
-        _creationDateTime = insuranceBase.CreationDateTime;
-        _uniqueId = insuranceBase.InsuranceIdentifier;
-      }
-      else
-      {
-        _assemblies = new List<AssemblyName>(0);
-        _creationDateTime = DateTime.Now;
-        _uniqueId = "-1";
-      }
+      if (insuranceBase == null)
+        throw new ArgumentNullException("insuranceFile",
+                                        "At least one of both insuranceFile and insuranceRegistryKey needs to be initialized.");
+      _assemblyInstallerDescription = insuranceBase.InstallerDescription;
+      _assemblies = new List<AssemblyName>(insuranceBase.Assemblies);
+      _creationDateTime = insuranceBase.CreationDateTime;
+      _uniqueId = insuranceBase.InsuranceIdentifier;
     }
 
-    private CleanUpInsurance(IEnumerable<AssemblyName> assemblyNames)
+    /// <summary>
+    /// Initializes a new instance of <see cref="CleanUpInsurance"/> built from the data specified.
+    /// </summary>
+    /// <param name="installerDescription"></param>
+    /// <param name="assemblyNames"></param>
+    private CleanUpInsurance(InstallerDescription installerDescription, IEnumerable<AssemblyName> assemblyNames)
     {
       _flags = CoreBus.Configuration.User.GacCleanUpInsurance;
+      _assemblyInstallerDescription = installerDescription;
       _assemblies = new List<AssemblyName>(assemblyNames);
       _creationDateTime = DateTime.Now;
       var uniqueId = new byte[10];
       new RNGCryptoServiceProvider().GetBytes(uniqueId);
       _uniqueId = Convert.ToBase64String(uniqueId);
-    }
-
-    #endregion
-
-    #region Static Methods
-
-    /// <summary>
-    /// Creates an insurance for the <paramref name="assemblyNames"/>.
-    /// The method of insuring is based on the <see cref="CleanUpInsuranceFlags"/> set in the user's configuration.
-    /// </summary>
-    /// <param name="assemblyNames">The assemblies to insure cleanup for.</param>
-    /// <returns></returns>
-    public static CleanUpInsurance CreateInsurance(IEnumerable<AssemblyName> assemblyNames)
-    {
-      var insurance = new CleanUpInsurance(assemblyNames);
-      if (insurance._assemblies.Count == 0)
-        return insurance;
-      insurance.CreateFileInsurance();
-      insurance.CreateRegistryInsurance();
-      insurance.CreateWatchingProcessInsurance();
-      return insurance;
-    }
-
-    /// <summary>
-    /// Returns all insurances found in the local system.
-    /// </summary>
-    /// <returns></returns>
-    public static List<CleanUpInsurance> LoadFromSystem()
-    {
-      // Check _trackingFilesDirectory for entries
-      // Check registry for entries
-      // Possible to check for running processes?
-      throw new NotImplementedException();
-    }
-
-    /// <summary>
-    /// Returns the <see cref="CleanUpInsurance"/> matching the identifier specified.
-    /// If no match is found, null is returned.
-    /// </summary>
-    /// <param name="uniqueId"></param>
-    /// <param name="flags"></param>
-    /// <returns></returns>
-    public static CleanUpInsurance LoadFromSystem(string uniqueId, CleanUpInsuranceFlags flags)
-    {
-      InsuranceFile insuranceFile = null;
-      InsuranceRegistryKey insuranceRegKey = null;
-      if (flags.IsSpecified(CleanUpInsuranceFlags.TrackByFile)
-          && Directory.Exists(InsuranceDirectory)
-          && File.Exists(InsuranceDirectory + uniqueId))
-        insuranceFile = InsuranceFile.Read(InsuranceDirectory + uniqueId);
-      if (flags.IsSpecified(CleanUpInsuranceFlags.TrackByRegistry))
-      {
-        using (var regKey = Registry.CurrentUser.OpenSubKey(_TrackingRegistryKey))
-          if (regKey != null)      // Verify existence of key holding all insurances
-            using (var subKey = regKey.OpenSubKey(uniqueId, false))
-              if (subKey != null) // Verify existence of key holding the specific insurance
-                insuranceRegKey = InsuranceRegistryKey.Read(subKey);
-      }
-      // Possible to check for a running process?
-      return new CleanUpInsurance(insuranceFile, insuranceRegKey, null);
     }
 
     #endregion
@@ -224,9 +186,9 @@ namespace AppStract.Core.System.GAC
     {
       if (_assemblies.Count == 0)
         return;
-      CleanFiles();
-      CleanRegistry();
-      CleanProcesses();
+      CleanFileInsurance();
+      CleanRegistryInsurance();
+      CleanProcessInsurance();
     }
 
     #endregion
@@ -238,7 +200,8 @@ namespace AppStract.Core.System.GAC
       if (!_flags.IsSpecified(CleanUpInsuranceFlags.TrackByFile))
         return;
       Directory.CreateDirectory(InsuranceDirectory);
-      _insuranceFile = new InsuranceFile(InsuranceDirectory + _uniqueId, LocalMachine.Identifier, _creationDateTime, _assemblies);
+      _insuranceFile = new InsuranceFile(InsuranceDirectory + _uniqueId, _assemblyInstallerDescription,
+                                         LocalMachine.Identifier, _creationDateTime, _assemblies);
       InsuranceFile.Write(_insuranceFile);
     }
 
@@ -249,7 +212,8 @@ namespace AppStract.Core.System.GAC
       RegistryKey key;
       using (var rootKey = Registry.CurrentUser.CreateSubKey(_TrackingRegistryKey))
         key = rootKey.CreateSubKey(_uniqueId);
-      _insuranceRegistryKey = new InsuranceRegistryKey(key, LocalMachine.Identifier, _creationDateTime, _assemblies);
+      _insuranceRegistryKey = new InsuranceRegistryKey(key, _assemblyInstallerDescription,
+                                                       LocalMachine.Identifier, _creationDateTime, _assemblies);
       InsuranceRegistryKey.Write(_insuranceRegistryKey);
     }
 
@@ -266,16 +230,17 @@ namespace AppStract.Core.System.GAC
       _insuranceProcess = Process.Start(startInfo);
     }
 
-    private void CleanFiles()
+    private void CleanFileInsurance()
     {
-      if (!_flags.IsSpecified(CleanUpInsuranceFlags.TrackByFile))
+      if (!_flags.IsSpecified(CleanUpInsuranceFlags.TrackByFile)
+          || !Directory.Exists(InsuranceDirectory))
         return;
       File.Delete(_insuranceFile.FileName);
       if (Directory.GetFiles(InsuranceDirectory).Length == 0)
         Directory.Delete(InsuranceDirectory);
     }
 
-    private void CleanRegistry()
+    private void CleanRegistryInsurance()
     {
       if (!_flags.IsSpecified(CleanUpInsuranceFlags.TrackByRegistry)
         || _insuranceRegistryKey == null)
@@ -283,6 +248,7 @@ namespace AppStract.Core.System.GAC
       bool deleteTree;
       using (var key = Registry.CurrentUser.OpenSubKey(_TrackingRegistryKey))
       {
+        if (key == null) return;
         var subKeys = key.GetSubKeyNames();
         if (subKeys.Contains(_uniqueId))
           key.DeleteSubKeyTree(_uniqueId);
@@ -292,7 +258,7 @@ namespace AppStract.Core.System.GAC
         Registry.CurrentUser.DeleteSubKey(_TrackingRegistryKey);
     }
 
-    private void CleanProcesses()
+    private void CleanProcessInsurance()
     {
       if (!_flags.IsSpecified(CleanUpInsuranceFlags.ByWatchService)
           || _insuranceProcess == null)
@@ -300,6 +266,117 @@ namespace AppStract.Core.System.GAC
       _insuranceProcess.Refresh();
       if (!_insuranceProcess.HasExited)
         _insuranceProcess.Kill();
+    }
+
+    #endregion
+
+    #region Public Static Methods
+
+    /// <summary>
+    /// Creates an insurance for the <paramref name="assemblyNames"/>.
+    /// The method of insuring is based on the <see cref="CleanUpInsuranceFlags"/> set in the user's configuration.
+    /// </summary>
+    /// <param name="installerDescription">The installer that's creating the new <see cref="CleanUpInsurance"/>.</param>
+    /// <param name="assemblyNames">The assemblies to insure cleanup for.</param>
+    /// <returns></returns>
+    public static CleanUpInsurance CreateInsurance(InstallerDescription installerDescription, IEnumerable<AssemblyName> assemblyNames)
+    {
+      var insurance = new CleanUpInsurance(installerDescription, assemblyNames);
+      if (insurance._assemblies.Count == 0)
+        return insurance;
+      insurance.CreateFileInsurance();
+      insurance.CreateRegistryInsurance();
+      insurance.CreateWatchingProcessInsurance();
+      return insurance;
+    }
+
+    /// <summary>
+    /// Returns all insurances found in the local system.
+    /// </summary>
+    /// <returns></returns>
+    public static List<CleanUpInsurance> LoadFromSystem()
+    {
+      // Find valid InsuranceFiles
+      var files = GetFileInsurances(_TrackingFilesDirectory);
+      // Find valid InsuranceRegistryKeys
+      var keys = GetRegistryInsurances(_TrackingRegistryKey);
+      // Build the result
+      var result = new List<CleanUpInsurance>();
+      // Enumerate all files, while trying to find matching registrykeys
+      foreach (var file in files)
+      {
+        var key = keys.FindElement(file.InsuranceIdentifier);
+        keys.Remove(key);
+        result.Add(new CleanUpInsurance(file, key, null));
+      }
+      // Now enumerate the keys that didn't match to a file.
+      foreach (var key in keys)
+        result.Add(new CleanUpInsurance(null, key, null));
+      return result;
+    }
+
+    /// <summary>
+    /// Returns the <see cref="CleanUpInsurance"/> matching the identifier specified.
+    /// If no match is found, null is returned.
+    /// </summary>
+    /// <param name="uniqueId"></param>
+    /// <returns></returns>
+    public static CleanUpInsurance LoadFromSystem(string uniqueId)
+    {
+      if (string.IsNullOrEmpty(uniqueId))
+        throw new ArgumentNullException("uniqueId");
+      InsuranceFile insuranceFile = null;
+      InsuranceRegistryKey insuranceRegKey = null;
+      // Load from file
+      if (File.Exists(InsuranceDirectory + uniqueId))
+        InsuranceFile.TryRead(InsuranceDirectory + uniqueId, out insuranceFile);
+      // Load from registry
+      using (var regKey = Registry.CurrentUser.OpenSubKey(_TrackingRegistryKey + uniqueId, false))
+        if (regKey != null) // Verify existence of the key
+          InsuranceRegistryKey.TryRead(regKey, out insuranceRegKey);
+      // Possible to check for a running process?
+      // Return null if no CleanUpInsurance can be built from the retrieved data
+      if (insuranceFile == null && insuranceRegKey == null)
+        return null;
+      return new CleanUpInsurance(insuranceFile, insuranceRegKey, null);
+    }
+
+    #endregion
+
+    #region Private Static Methods
+
+    private static List<InsuranceFile> GetFileInsurances(string directory)
+    {
+      var identifiers = Directory.GetFiles(directory);
+      var files = new List<InsuranceFile>();
+      foreach (var file in identifiers)
+      {
+        InsuranceFile insuranceFile;
+        if (InsuranceFile.TryRead(file, out insuranceFile))
+          files.Add(insuranceFile);
+      }
+      return files;
+    }
+
+    private static List<InsuranceRegistryKey> GetRegistryInsurances(string regKeyName)
+    {
+      using (var regKey = Registry.CurrentUser.OpenSubKey(regKeyName))
+      {
+        if (regKey == null)
+          return new List<InsuranceRegistryKey>(0);
+        var items = new List<InsuranceRegistryKey>();
+        var subKeys = regKey.GetSubKeyNames();
+        foreach (var subKeyName in subKeys)
+        {
+          using (var subKey = regKey.OpenSubKey(subKeyName))
+          {
+            InsuranceRegistryKey item;
+            if (InsuranceRegistryKey.TryRead(subKey, out item))
+              items.Add(item);
+          }
+        }
+        return items;
+      }
     }
 
     #endregion
