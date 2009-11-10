@@ -176,7 +176,12 @@ namespace AppStract.Core.System.GAC
         if (_gacAssemblies == null)
           throw new GacException("Can't register asssemblies to the GAC if they have not been determined yet.");
         // First insure the removal of those assemblies.
-        _insurance = CleanUpInsurance.CreateInsurance(_assemblyCache.InstallerDescription, _gacAssemblies);
+        var creationData = new InsuranceData(_assemblyCache.InstallerDescription,
+                                                     CoreBus.Configuration.User.GacCleanUpInsuranceFlags,
+                                                     CoreBus.Configuration.Application.GacCleanUpInsuranceFolder,
+                                                     CoreBus.Configuration.Application.GacCleanUpInsuranceRegistryKey,
+                                                     CoreBus.Configuration.Application.WatcherExecutable);
+        _insurance = CleanUpInsurance.CreateInsurance(creationData, _gacAssemblies);
         // Then install the assemblies.
         foreach (var assembly in _gacAssemblies)
           _assemblyCache.InstallAssembly(assembly, InstallBehaviour.Default);

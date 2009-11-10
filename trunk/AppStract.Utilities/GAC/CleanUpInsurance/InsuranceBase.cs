@@ -21,12 +21,9 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Reflection.GAC;
 
-namespace AppStract.Core.System.GAC
+namespace System.Reflection.GAC
 {
   /// <summary>
   /// Base class for insurances on assembly cache cleanup.
@@ -112,17 +109,37 @@ namespace AppStract.Core.System.GAC
 
     #region Public Methods
 
+    /// <summary>
+    /// Joins the data specified in <paramref name="otherInsurance"/> with the current <see cref="InsuranceBase"/>.
+    /// In essence this means that the list of assemblies specified in the current instance is joined with those specified in <paramref name="otherInsurance"/>.
+    /// </summary>
+    /// <exception cref="ArgumentException">
+    /// An <see cref="ArgumentException"/> is thrown if <paramref name="otherInsurance"/> doesn't match the current instance.
+    /// Whether or not they match can be determined with the <see cref="MatchesWith"/> method.
+    /// </exception>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <param name="otherInsurance">The <see cref="InsuranceBase"/> to join with the current instance.</param>
     public virtual void JoinWith(InsuranceBase otherInsurance)
     {
+      if (otherInsurance == null)
+        throw new ArgumentNullException("otherInsurance");
       if (_machineId != otherInsurance._machineId)
-        throw new Exception();
+        throw new ArgumentException();
       if (_dateTime != otherInsurance._dateTime)
-        throw new Exception();
+        throw new ArgumentException();
       foreach (var item in otherInsurance._assemblies)
         if (!_assemblies.Contains(item))
           _assemblies.Add(item);
     }
 
+    /// <summary>
+    /// Determines if the data specified in <paramref name="otherInsurance"/> matches with the current <see cref="InsuranceBase"/>.
+    /// </summary>
+    /// <remarks>
+    /// The data of matching <see cref="InsuranceBase"/> instances can be joined by calling <see cref="JoinWith"/> on one of the instances.
+    /// </remarks>
+    /// <param name="otherInsurance"><see cref="InsuranceBase"/> to determine matchability for.</param>
+    /// <param name="includeAssemblies">Whether to also verify if <paramref name="otherInsurance"/> also specifies the same insured assemblies.</param>
     public virtual bool MatchesWith(InsuranceBase otherInsurance, bool includeAssemblies)
     {
       if (otherInsurance == null
@@ -140,42 +157,15 @@ namespace AppStract.Core.System.GAC
       return true;
     }
 
+    /// <summary>
+    /// Returns a <see cref="string"/> that represents the current <see cref="InsuranceBase"/>.
+    /// </summary>
+    /// <returns></returns>
     public override string ToString()
     {
       return "Insurance [" + _dateTime.ToString(_DateTimeFormat) + "] " + _assemblies.Count + " assemblies";
     }
 
     #endregion
-
   }
-
-  internal static class InsuranceBaseExtensions
-  {
-
-    public static InsuranceBase FindElement(this IEnumerable<InsuranceBase> items, string identifier)
-    {
-      foreach (var item in items)
-        if (item.InsuranceIdentifier == identifier)
-          return item;
-      return null;
-    }
-
-    public static InsuranceFile FindElement(this IEnumerable<InsuranceFile> items, string identifier)
-    {
-      foreach (var item in items)
-        if (item.InsuranceIdentifier == identifier)
-          return item;
-      return null;
-    }
-
-    public static InsuranceRegistryKey FindElement(this IEnumerable<InsuranceRegistryKey> items, string identifier)
-    {
-      foreach (var item in items)
-        if (item.InsuranceIdentifier == identifier)
-          return item;
-      return null;
-    }
-
-  }
-
 }

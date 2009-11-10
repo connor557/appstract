@@ -59,6 +59,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\IntPtrExtensions.cs" />
+    <Compile Include="GAC\CleanUpInsurance\CleanUpInsurance.cs" />
+    <Compile Include="GAC\CleanUpInsurance\CleanUpInsuranceFlags.cs" />
+    <Compile Include="GAC\CleanUpInsurance\InsuranceBase.cs" />
+    <Compile Include="GAC\CleanUpInsurance\InsuranceBaseExtensions.cs" />
+    <Compile Include="GAC\CleanUpInsurance\InsuranceData.cs" />
+    <Compile Include="GAC\CleanUpInsurance\InsuranceFile.cs" />
+    <Compile Include="GAC\CleanUpInsurance\InsuranceRegistryKey.cs" />
     <Compile Include="GAC\Fusion.ManagedAPI\AssemblyCache.cs" />
     <Compile Include="GAC\Fusion.ManagedAPI\AssemblyEnumerator.cs" />
     <Compile Include="GAC\Fusion.ManagedAPI\InstallBehaviour.cs" />
