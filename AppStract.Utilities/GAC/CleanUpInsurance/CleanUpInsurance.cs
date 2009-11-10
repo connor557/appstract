@@ -78,11 +78,35 @@ namespace System.Reflection.GAC
     #region Properties
 
     /// <summary>
-    /// The assemblies for which cleanup is insured by the current instance.
+    /// Gets the assemblies for which cleanup is insured by the current instance.
     /// </summary>
-    public IEnumerable<AssemblyName> InsuredAssemblies
+    public IEnumerable<AssemblyName> Assemblies
     { 
       get { return _assemblies; }
+    }
+
+    /// <summary>
+    /// Gets the <see cref="InstallerDescription"/> needed to install and uninstall the insured assemblies.
+    /// </summary>
+    public InstallerDescription Installer
+    {
+      get { return _data.Installer; }
+    }
+
+    /// <summary>
+    /// Gets the flags used to base the insurance-methods on.
+    /// </summary>
+    public CleanUpInsuranceFlags Flags
+    {
+      get { return _data.Flags; }
+    }
+
+    /// <summary>
+    /// Gets the date and time on which the insurance has be created.
+    /// </summary>
+    public DateTime DateTime
+    {
+      get { return _creationDateTime; }
     }
 
     #endregion
@@ -154,7 +178,7 @@ namespace System.Reflection.GAC
     #region Public Methods
 
     /// <summary>
-    /// Removes all insurance methods from the local system.
+    /// Removes all traces of the current <see cref="CleanFileInsurance"/> from the local system.
     /// </summary>
     public void Dispose()
     {
