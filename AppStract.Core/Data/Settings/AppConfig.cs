@@ -80,6 +80,28 @@ namespace AppStract.Core.Data.Settings
       set;
     }
 
+
+    /// <summary>
+    /// Gets or sets the folder containing the 'GAC-CleanUp-Insurances'.
+    /// </summary>
+    public string GacCleanUpInsuranceFolder
+    {
+      get;
+      set;
+    }
+
+    /// <summary>
+    /// Gets or sets the registry key containing the 'GAC-CleanUp-Insurances'.
+    /// </summary>
+    /// <remarks>
+    /// The specified key is always interpreted as a subkey of the CurrentUser rootkey.
+    /// </remarks>
+    public string GacCleanUpInsuranceRegistryKey
+    {
+      get;
+      set;
+    }
+
     /// <summary>
     /// Gets or sets the <see cref="InstallerDescription"/> to use for manipulating the global assembly cache.
     /// </summary>
@@ -134,6 +156,8 @@ namespace AppStract.Core.Data.Settings
             "AppStract.Server.dll",
             "AppStract.Utilities.dll"
           });
+      GacCleanUpInsuranceFolder = CoreBus.Runtime.StartUpDirectory + @"\GAC";
+      GacCleanUpInsuranceRegistryKey = @"Software\AppStract";
       GacInstallerDescription
         = InstallerDescription.CreateForFile("AppStract Server", CoreBus.Runtime.RunningExecutable);
     }

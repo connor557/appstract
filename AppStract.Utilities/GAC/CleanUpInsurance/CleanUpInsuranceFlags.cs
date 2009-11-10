@@ -21,9 +21,7 @@
 
 #endregion
 
-using System;
-
-namespace AppStract.Core.System.GAC
+namespace System.Reflection.GAC
 {
   /// <summary>
   /// Specifies the additional means of protection for the local global assembly cache.

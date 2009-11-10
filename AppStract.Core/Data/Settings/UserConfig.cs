@@ -23,7 +23,7 @@
 
 using System;
 using System.IO;
-using AppStract.Core.System.GAC;
+using System.Reflection.GAC;
 using AppStract.Utilities.Helpers;
 
 namespace AppStract.Core.Data.Settings
@@ -34,13 +34,19 @@ namespace AppStract.Core.Data.Settings
 
     #region Properties
 
+    /// <summary>
+    /// Gets or sets the file to use as logfile.
+    /// </summary>
     public string LogFile
     {
       get;
       set;
     }
 
-    public CleanUpInsuranceFlags GacCleanUpInsurance
+    /// <summary>
+    /// Gets or sets the method to use for insuring a clean GAC.
+    /// </summary>
+    public CleanUpInsuranceFlags GacCleanUpInsuranceFlags
     {
       get;
       set;
@@ -78,7 +84,7 @@ namespace AppStract.Core.Data.Settings
     private void LoadDefaults()
     {
       LogFile = "AppStract.log";
-      GacCleanUpInsurance = CleanUpInsuranceFlags.TrackByFile; // | CleanUpInsuranceFlags.ByWatchService;
+      GacCleanUpInsuranceFlags = CleanUpInsuranceFlags.TrackByFile; // | CleanUpInsuranceFlags.ByWatchService;
     }
 
     #endregion

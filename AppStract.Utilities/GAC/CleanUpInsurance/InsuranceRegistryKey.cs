@@ -21,14 +21,11 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Reflection.GAC;
 using AppStract.Utilities.Helpers;
 using Microsoft.Win32;
 
-namespace AppStract.Core.System.GAC
+namespace System.Reflection.GAC
 {
   /// <summary>
   /// Represents an insurance as saved to the local host's registry.

@@ -21,14 +21,11 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
-using System.Reflection.GAC;
 using AppStract.Utilities.Helpers;
 
-namespace AppStract.Core.System.GAC
+namespace System.Reflection.GAC
 {
   /// <summary>
   /// Represents an insurance as saved in a file.
