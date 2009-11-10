@@ -128,8 +128,20 @@ namespace System.Reflection.GAC
       if (_dateTime != otherInsurance._dateTime)
         throw new ArgumentException();
       foreach (var item in otherInsurance._assemblies)
-        if (!_assemblies.Contains(item))
+      {
+        // Can't use _assemblies.Contains() because AssemblyName.Equals() is inherited from Object
+        bool contains = false;
+        foreach (var assembly in _assemblies)
+        {
+          if (assembly.FullName == item.FullName)
+          {
+            contains = true;
+            break;
+          }
+        }
+        if (!contains)
           _assemblies.Add(item);
+      }
     }
 
     /// <summary>
@@ -152,8 +164,20 @@ namespace System.Reflection.GAC
       if (_assemblies.Count != otherInsurance._assemblies.Count)
         return false;
       foreach (var item in otherInsurance._assemblies)
-        if (!_assemblies.Contains(item))
+      {
+        // Can't use _assemblies.Contains() because AssemblyName.Equals() is inherited from Object
+        bool contains = false;
+        foreach (var assembly in _assemblies)
+        {
+          if (assembly.FullName == item.FullName)
+          {
+            contains = true;
+            break;
+          }
+        }
+        if (!contains)
           return false;
+      }
       return true;
     }
 
@@ -167,5 +191,6 @@ namespace System.Reflection.GAC
     }
 
     #endregion
+
   }
 }
