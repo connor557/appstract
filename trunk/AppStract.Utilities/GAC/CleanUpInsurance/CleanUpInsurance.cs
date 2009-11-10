@@ -130,7 +130,7 @@ namespace System.Reflection.GAC
       _uniqueId = insuranceBase.InsuranceIdentifier;
       _data = new InsuranceData(insuranceBase.InstallerDescription, flags,
                                         _insuranceFile != null ? Path.GetDirectoryName(_insuranceFile.FileName) : null,
-                                        _insuranceRegistryKey != null ? Path.GetDirectoryName(_insuranceRegistryKey.RegistryKey.Name) : null,
+                                        _insuranceRegistryKey != null ? Path.GetDirectoryName(_insuranceRegistryKey.RegistryKeyName) : null,
                                         null);
     }
 
@@ -183,11 +183,11 @@ namespace System.Reflection.GAC
     {
       if (!_data.Flags.IsSpecified(CleanUpInsuranceFlags.TrackByRegistry))
         return;
-      RegistryKey key;
       using (var rootKey = Registry.CurrentUser.CreateSubKey(_data.TrackingRegistryKey))
-        key = rootKey.CreateSubKey(_uniqueId);
-      _insuranceRegistryKey = new InsuranceRegistryKey(key, _data.Installer,
-                                                       LocalMachine.Identifier, _creationDateTime, _assemblies);
+        rootKey.CreateSubKey(_uniqueId);
+      _insuranceRegistryKey = new InsuranceRegistryKey(Path.Combine(_data.TrackingRegistryKey, _uniqueId),
+                                                       _data.Installer, LocalMachine.Identifier, _creationDateTime,
+                                                       _assemblies);
       InsuranceRegistryKey.Write(_insuranceRegistryKey);
     }
 
@@ -310,8 +310,8 @@ namespace System.Reflection.GAC
       InsuranceFile insuranceFile = null;
       InsuranceRegistryKey insuranceRegKey = null;
       // Load from file
-      if (trackingFilesFolder != null && File.Exists(trackingFilesFolder + uniqueId))
-        InsuranceFile.TryRead(trackingFilesFolder + uniqueId, out insuranceFile);
+      if (trackingFilesFolder != null && File.Exists(Path.Combine(trackingFilesFolder, uniqueId)))
+        InsuranceFile.TryRead(Path.Combine(trackingFilesFolder, uniqueId), out insuranceFile);
       // Load from registry
       if (trackingRegistryKey != null)
         using (var regKey = Registry.CurrentUser.OpenSubKey(trackingRegistryKey + uniqueId, false))
@@ -335,6 +335,8 @@ namespace System.Reflection.GAC
     /// <returns></returns>
     private static List<InsuranceFile> GetFileInsurances(string folder)
     {
+      if (!Directory.Exists(folder))
+        return new List<InsuranceFile>(0);
       var identifiers = Directory.GetFiles(folder);
       var files = new List<InsuranceFile>();
       foreach (var file in identifiers)

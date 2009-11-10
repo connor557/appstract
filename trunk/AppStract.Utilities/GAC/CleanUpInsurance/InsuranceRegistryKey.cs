@@ -35,31 +35,28 @@ namespace System.Reflection.GAC
 
     #region Variables
 
-    private readonly RegistryKey _registryKey;
+    private readonly string _registryKeyName;
 
     #endregion
 
     #region Properties
 
-    public RegistryKey RegistryKey
+    /// <summary>
+    /// Gets the name of the subkey of HKEY_CURRENT_USER where the current <see cref="InsuranceRegistryKey"/> stores all its data.
+    /// </summary>
+    public string RegistryKeyName
     {
-      get { return _registryKey; }
+      get { return _registryKeyName; }
     }
 
     #endregion
 
     #region Constructors
 
-    public InsuranceRegistryKey(RegistryKey registryKey, InstallerDescription installerDescription, string machineId, DateTime creationDateTime, IEnumerable<AssemblyName> assemblies)
-      : base(registryKey.Name.Substring(registryKey.Name.LastIndexOf('\\') + 1), installerDescription, machineId, creationDateTime, assemblies)
+    public InsuranceRegistryKey(string registryKey, InstallerDescription installerDescription, string machineId, DateTime creationDateTime, IEnumerable<AssemblyName> assemblies)
+      : base(registryKey.Substring(registryKey.LastIndexOf('\\') + 1), installerDescription, machineId, creationDateTime, assemblies)
     {
-      _registryKey = registryKey;
-    }
-
-    ~InsuranceRegistryKey()
-    {
-      if (_registryKey != null)
-        _registryKey.Close();
+      _registryKeyName = registryKey;
     }
 
     #endregion
@@ -73,20 +70,22 @@ namespace System.Reflection.GAC
     /// <returns></returns>
     public static void Write(InsuranceRegistryKey insuranceRegistryKey)
     {
-      if (insuranceRegistryKey.RegistryKey.GetValueNames().Length != 0)
-        throw new Exception();
-      var regKey = insuranceRegistryKey.RegistryKey;
-      regKey.SetValue("machineId", insuranceRegistryKey.MachineId);
-      regKey.SetValue("creationDateTime", insuranceRegistryKey.CreationDateTime.ToString(_DateTimeFormat));
-      var i = 0;
-      foreach (var assembly in insuranceRegistryKey.Assemblies)
-        regKey.SetValue("assembly" + ++i, assembly.ToString(), RegistryValueKind.String);
-      // Write the InstallerDescription
-      regKey = regKey.CreateSubKey("Installer");
-      if (regKey == null) throw new Exception();
-      regKey.SetValue("type", insuranceRegistryKey.InstallerDescription.Type, RegistryValueKind.String);
-      regKey.SetValue("id", insuranceRegistryKey.InstallerDescription.Id, RegistryValueKind.String);
-      regKey.SetValue("descr", insuranceRegistryKey.InstallerDescription.Description, RegistryValueKind.String);
+      using (var regKey = Registry.CurrentUser.OpenSubKey(insuranceRegistryKey.RegistryKeyName, true))
+      {
+        if (regKey == null || regKey.GetValueNames().Length != 0)
+          throw new ArgumentException("The specified InsuranceRegistryKey points to an invalid registry key.", "insuranceRegistryKey");
+        regKey.SetValue("machineId", insuranceRegistryKey.MachineId);
+        regKey.SetValue("creationDateTime", insuranceRegistryKey.CreationDateTime.ToString(_DateTimeFormat));
+        var i = 0;
+        foreach (var assembly in insuranceRegistryKey.Assemblies)
+          regKey.SetValue("assembly" + ++i, assembly.ToString(), RegistryValueKind.String);
+        // Write the InstallerDescription
+        var regKeyInstaller = regKey.CreateSubKey("Installer");
+        if (regKeyInstaller == null) throw new Exception();
+        regKeyInstaller.SetValue("type", insuranceRegistryKey.InstallerDescription.Type, RegistryValueKind.String);
+        regKeyInstaller.SetValue("id", insuranceRegistryKey.InstallerDescription.Id, RegistryValueKind.String);
+        regKeyInstaller.SetValue("descr", insuranceRegistryKey.InstallerDescription.Description, RegistryValueKind.String);
+      }
     }
 
     /// <summary>
@@ -134,8 +133,7 @@ namespace System.Reflection.GAC
       using (var installerKey = registryKey.OpenSubKey("Installer"))
       {
         if (installerKey == null)
-          throw new ArgumentException("The specified registry key doesn't contain a subkey for \"Installer\"",
-                                      "registryKey");
+          throw new ArgumentException("The specified registry key doesn't contain a subkey for \"Installer\"", "registryKey");
         installer = ReadInstallerDescription(installerKey);
       }
       // Read the insured assemblies
@@ -143,7 +141,8 @@ namespace System.Reflection.GAC
       foreach (var value in values)
         if (value.StartsWith("assembly"))
           assemblies.Add(new AssemblyName(registryKey.GetValue(value).ToString()));
-      return new InsuranceRegistryKey(registryKey, installer, machineId, DateTime.Parse(creationDatetime), assemblies);
+      return new InsuranceRegistryKey(registryKey.Name.Substring(Registry.CurrentUser.Name.Length), installer, machineId,
+                                      DateTime.Parse(creationDatetime), assemblies);
     }
 
     #endregion

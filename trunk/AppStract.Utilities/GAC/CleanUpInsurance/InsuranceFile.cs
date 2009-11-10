@@ -82,9 +82,9 @@ namespace System.Reflection.GAC
       {
         using (var writer = new StreamWriter(str))
         {
-          writer.WriteLine("MachineId={0}" + Environment.NewLine + "CreationDateTime={1}" + Environment.NewLine,
+          writer.WriteLine("MachineId=\"{0}\"" + Environment.NewLine + "CreationDateTime=\"{1}\"" + Environment.NewLine,
                            insuranceFile.MachineId, insuranceFile.CreationDateTime.ToString(_DateTimeFormat));
-          writer.WriteLine("Installer=[Type={0}, Id={1}, Description={2}]" + Environment.NewLine,
+          writer.WriteLine("Installer=[Type=\"{0}\", Id=\"{1}\", Description=\"{2}\"]" + Environment.NewLine,
                            insuranceFile.InstallerDescription.Type, insuranceFile.InstallerDescription.Id,
                            insuranceFile.InstallerDescription.Description);
           foreach (var item in insuranceFile.Assemblies)
@@ -111,11 +111,11 @@ namespace System.Reflection.GAC
           string machineId, creationDateTime;
           // Get MachineId
           var line = reader.ReadLine();
-          if (!ReadValue(line, "MachineId", out machineId))
+          if (!ReadValue(line, "MachineId", "\"", out machineId))
             return false;
           // Get CreationDate
           line = reader.ReadLine();
-          if (!ReadValue(line, "CreationDateTime", out creationDateTime))
+          if (!ReadValue(line, "CreationDateTime", "\"", out creationDateTime))
             return false;
           // Skip empty line
           reader.ReadLine();
@@ -166,39 +166,29 @@ namespace System.Reflection.GAC
     #region Private Methods
 
     /// <summary>
-    /// Reads a <paramref name="value"/> for the specified <paramref name="key"/> from the given <paramref name="line"/>.
-    /// </summary>
-    /// <param name="line">The line to find the key in and read the value from.</param>
-    /// <param name="key">The key to read the value for.</param>
-    /// <param name="value">The resulting value.</param>
-    /// <returns>Whether the requested value is read.</returns>
-    private static bool ReadValue(string line, string key, out string value)
-    {
-      return ReadValue(line, key, null, out value);
-    }
-
-    /// <summary>
     /// Reads a <paramref name="value"/>, delimited by the <paramref name="delimiter"/>, for the specified <paramref name="key"/> from the given <paramref name="line"/>.
     /// </summary>
     /// <param name="line">The line to find the key in and read the value from.</param>
     /// <param name="key">The key to read the value for.</param>
-    /// <param name="delimiter">String thats trailing the value.</param>
+    /// <param name="delimiter">String thats trailing the value, allowed to be null.</param>
     /// <param name="value">The resulting value.</param>
     /// <returns>Whether the requested value is read.</returns>
     private static bool ReadValue(string line, string key, string delimiter, out string value)
     {
       value = null;
-      if (!line.Contains(key + "="))
+      if (delimiter == null)
+        delimiter = "";
+      if (!line.Contains("=" + delimiter))
         return false;
-      var i = line.IndexOf(key + "=") + key.Length + 1; // +1 because of trailing '='
+      var i = line.IndexOf(key + "=" + delimiter) + key.Length + 1 + delimiter.Length;  // +1 because of "="
       if (line.Length < i) return false;
       value = line.Substring(i);
-      if (delimiter == null)
+      if (delimiter == "")
         return true;
       i = value.IndexOf(delimiter);
       if (i == -1)
         return false;
-      value = line.Substring(0, i);
+      value = value.Substring(0, i);
       return true;
     }
 
@@ -211,10 +201,10 @@ namespace System.Reflection.GAC
     private static InstallerDescription ReadInstallerDescriptionFromLine(string line)
     {
       string irTypeString, irId, irDescr;
-      if (!ReadValue(line, "Installer", out line)
-          || !ReadValue(line, "Type", ", ", out irTypeString)
-          || !ReadValue(line, "Id", ", ", out irId)
-          || !ReadValue(line, "Description", "]", out irDescr))
+      if (!ReadValue(line, "Installer", null, out line)
+          || !ReadValue(line, "Type", "\"", out irTypeString)
+          || !ReadValue(line, "Id", "\"", out irId)
+          || !ReadValue(line, "Description", "\"", out irDescr))
         return null;
       InstallerType irType;
       if (!ParserHelper.TryParseEnum(irTypeString, out irType))
