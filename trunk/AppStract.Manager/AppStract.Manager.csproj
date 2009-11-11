@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{9497B6D7-48A2-4B3F-B0A3-880A2A8724C3}</ProjectGuid>
     <OutputType>WinExe</OutputType>
@@ -216,8 +216,9 @@
 xcopy "$(SolutionDir)External Libraries\sqlite3.dll" "$(TargetDir)" /i /r /y
 xcopy "$(SolutionDir)AppStract.Inject\bin\x86\Debug\AppStract.Inject.dll" "$(TargetDir)" /i /r /y
 xcopy "$(SolutionDir)AppStract.Server\bin\x86\Debug\AppStract.Server.dll" "$(TargetDir)" /i /r /y
-xcopy "$(SolutionDir)AppStract.Wrapper\bin\x86\Debug\AppStract.Wrapper.exe" "$(TargetDir)" /i /r /y
 xcopy "$(SolutionDir)AppStract.Host\bin\x86\Debug\AppStract.Host.exe" "$(TargetDir)" /i /r /y
+xcopy "$(SolutionDir)AppStract.Watcher\bin\x86\Debug\AppStract.Watcher.exe" "$(TargetDir)" /i /r /y
+xcopy "$(SolutionDir)AppStract.Wrapper\bin\x86\Debug\AppStract.Wrapper.exe" "$(TargetDir)" /i /r /y
 xcopy "$(SolutionDir)EasyHook\bin\x86\Debug" "$(TargetDir)" /i /r /y</PostBuildEvent>
   </PropertyGroup>
 </Project>

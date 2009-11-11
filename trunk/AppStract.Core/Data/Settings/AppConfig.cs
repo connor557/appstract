@@ -144,6 +144,7 @@ namespace AppStract.Core.Data.Settings
     {
       DefaultApplicationDataFile = "ApplicationData.xml";
       LibtoInject = "AppStract.Inject.dll";
+      WatcherExecutable = "AppStract.Watcher.exe";
       WrapperExecutable = "Appstract.Wrapper.exe";
       LibsToShare = new List<string>(
         new[]
