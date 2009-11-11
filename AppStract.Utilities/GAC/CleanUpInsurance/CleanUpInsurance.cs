@@ -168,7 +168,7 @@ namespace System.Reflection.GAC
       _data = creationData;
       _assemblies = new List<AssemblyName>(assemblyNames);
       _creationDateTime = DateTime.Now;
-      var uniqueId = new byte[10];
+      var uniqueId = new byte[8];
       new RNGCryptoServiceProvider().GetBytes(uniqueId);
       _uniqueId = Convert.ToBase64String(uniqueId);
     }
@@ -195,8 +195,6 @@ namespace System.Reflection.GAC
 
     private void CreateFileInsurance()
     {
-      if (!_data.Flags.IsSpecified(CleanUpInsuranceFlags.TrackByFile))
-        return;
       Directory.CreateDirectory(_data.TrackingFilesFolder);
       _insuranceFile = new InsuranceFile(Path.Combine(_data.TrackingFilesFolder, _uniqueId), _data.Installer,
                                          LocalMachine.Identifier, _creationDateTime, _assemblies);
@@ -205,8 +203,6 @@ namespace System.Reflection.GAC
 
     private void CreateRegistryInsurance()
     {
-      if (!_data.Flags.IsSpecified(CleanUpInsuranceFlags.TrackByRegistry))
-        return;
       using (var rootKey = Registry.CurrentUser.CreateSubKey(_data.TrackingRegistryKey))
         rootKey.CreateSubKey(_uniqueId);
       _insuranceRegistryKey = new InsuranceRegistryKey(Path.Combine(_data.TrackingRegistryKey, _uniqueId),
@@ -217,14 +213,20 @@ namespace System.Reflection.GAC
 
     private void CreateWatchingProcessInsurance()
     {
-      if (!_data.Flags.IsSpecified(CleanUpInsuranceFlags.ByWatchService))
-        return;
+      if (!_data.Flags.IsSpecified(CleanUpInsuranceFlags.TrackByFile)
+        && !_data.Flags.IsSpecified(CleanUpInsuranceFlags.TrackByRegistry))
+        CreateFileInsurance();  // Used to pass data to the watcher process,
+                                // the watcher process is responsible for deleting this file after usage.
       var startInfo = new ProcessStartInfo
-      {
-        FileName = _data.TrackingProcessExecutable,
-        Arguments = Process.GetCurrentProcess().Id + " FLAGS=" + _data.Flags + " ID=" + _uniqueId,
-        CreateNoWindow = true
-      };
+                        {
+                          FileName = _data.TrackingProcessExecutable,
+                          Arguments = "IID=" + _uniqueId
+                                      + " FLAGS=" + (int) _data.Flags
+                                      + " FILE=" + _data.TrackingFilesFolder
+                                      + " REG=" + _data.TrackingRegistryKey
+                                      + " PID=" + Process.GetCurrentProcess().Id,
+                          CreateNoWindow = true
+                        };
       _insuranceProcess = Process.Start(startInfo);
     }
 
@@ -282,9 +284,12 @@ namespace System.Reflection.GAC
       var insurance = new CleanUpInsurance(creationData, assemblyNames);
       if (insurance._assemblies.Count == 0)
         return insurance;
-      insurance.CreateFileInsurance();
-      insurance.CreateRegistryInsurance();
-      insurance.CreateWatchingProcessInsurance();
+      if (creationData.Flags.IsSpecified(CleanUpInsuranceFlags.TrackByFile))
+        insurance.CreateFileInsurance();
+      if (creationData.Flags.IsSpecified(CleanUpInsuranceFlags.TrackByRegistry))
+        insurance.CreateRegistryInsurance();
+      if (creationData.Flags.IsSpecified(CleanUpInsuranceFlags.ByWatchService))
+        insurance.CreateWatchingProcessInsurance();
       return insurance;
     }
 

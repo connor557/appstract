@@ -84,7 +84,7 @@ namespace AppStract.Core.Data.Settings
     private void LoadDefaults()
     {
       LogFile = "AppStract.log";
-      GacCleanUpInsuranceFlags = CleanUpInsuranceFlags.TrackByFile; // | CleanUpInsuranceFlags.ByWatchService;
+      GacCleanUpInsuranceFlags = CleanUpInsuranceFlags.TrackByFile | CleanUpInsuranceFlags.ByWatchService;
     }
 
     #endregion
