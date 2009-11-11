@@ -59,7 +59,7 @@ namespace System.Reflection.GAC
     /// <param name="creationDate"></param>
     /// <param name="assemblies"></param>
     public InsuranceFile(string fileName, InstallerDescription installerDescription, string machineId, DateTime creationDate, IEnumerable<AssemblyName> assemblies)
-      : base(Path.GetFileNameWithoutExtension(fileName), installerDescription, machineId, creationDate, assemblies)
+      : base(new Guid(Path.GetFileNameWithoutExtension(fileName)), installerDescription, machineId, creationDate, assemblies)
     {
       if (!Path.IsPathRooted(fileName))
         throw new ArgumentException("The filename specified must be a rooted path.", "fileName");
@@ -176,6 +176,8 @@ namespace System.Reflection.GAC
     private static bool ReadValue(string line, string key, string delimiter, out string value)
     {
       value = null;
+      if (string.IsNullOrEmpty(line) || string.IsNullOrEmpty(key))
+        return false;
       if (delimiter == null)
         delimiter = "";
       if (!line.Contains("=" + delimiter))

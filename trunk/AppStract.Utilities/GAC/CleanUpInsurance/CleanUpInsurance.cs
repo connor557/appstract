@@ -25,7 +25,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using AppStract.Utilities.Helpers;
 using Microsoft.Win32;
 
@@ -59,7 +58,7 @@ namespace System.Reflection.GAC
     /// <summary>
     /// The unique ID for the current instance.
     /// </summary>
-    private readonly string _uniqueId;
+    private readonly Guid _uniqueId;
     /// <summary>
     /// The file holding the insured assemblies.
     /// </summary>
@@ -168,9 +167,7 @@ namespace System.Reflection.GAC
       _data = creationData;
       _assemblies = new List<AssemblyName>(assemblyNames);
       _creationDateTime = DateTime.Now;
-      var uniqueId = new byte[8];
-      new RNGCryptoServiceProvider().GetBytes(uniqueId);
-      _uniqueId = Convert.ToBase64String(uniqueId);
+      _uniqueId = Guid.NewGuid();
     }
 
     #endregion
@@ -196,7 +193,7 @@ namespace System.Reflection.GAC
     private void CreateFileInsurance()
     {
       Directory.CreateDirectory(_data.TrackingFilesFolder);
-      _insuranceFile = new InsuranceFile(Path.Combine(_data.TrackingFilesFolder, _uniqueId), _data.Installer,
+      _insuranceFile = new InsuranceFile(Path.Combine(_data.TrackingFilesFolder, _uniqueId.ToString()), _data.Installer,
                                          LocalMachine.Identifier, _creationDateTime, _assemblies);
       InsuranceFile.Write(_insuranceFile);
     }
@@ -204,8 +201,8 @@ namespace System.Reflection.GAC
     private void CreateRegistryInsurance()
     {
       using (var rootKey = Registry.CurrentUser.CreateSubKey(_data.TrackingRegistryKey))
-        rootKey.CreateSubKey(_uniqueId);
-      _insuranceRegistryKey = new InsuranceRegistryKey(Path.Combine(_data.TrackingRegistryKey, _uniqueId),
+        rootKey.CreateSubKey(_uniqueId.ToString());
+      _insuranceRegistryKey = new InsuranceRegistryKey(Path.Combine(_data.TrackingRegistryKey, _uniqueId.ToString()),
                                                        _data.Installer, LocalMachine.Identifier, _creationDateTime,
                                                        _assemblies);
       InsuranceRegistryKey.Write(_insuranceRegistryKey);
@@ -250,8 +247,8 @@ namespace System.Reflection.GAC
       {
         if (key == null) return;
         var subKeys = key.GetSubKeyNames();
-        if (subKeys.Contains(_uniqueId))
-          key.DeleteSubKeyTree(_uniqueId);
+        if (subKeys.Contains(_uniqueId.ToString()))
+          key.DeleteSubKeyTree(_uniqueId.ToString());
         deleteTree = subKeys.Length == 1;
       }
       if (deleteTree)
@@ -328,22 +325,23 @@ namespace System.Reflection.GAC
     /// Returns the <see cref="CleanUpInsurance"/> matching the identifier specified.
     /// If no match is found, null is returned.
     /// </summary>
+    /// <exception cref="ArgumentException"></exception>
     /// <param name="trackingFilesFolder"></param>
     /// <param name="trackingRegistryKey"></param>
-    /// <param name="uniqueId"></param>
+    /// <param name="insuranceId"></param>
     /// <returns></returns>
-    public static CleanUpInsurance LoadFromSystem(string trackingFilesFolder, string trackingRegistryKey, string uniqueId)
+    public static CleanUpInsurance LoadFromSystem(string trackingFilesFolder, string trackingRegistryKey, Guid insuranceId)
     {
-      if (string.IsNullOrEmpty(uniqueId))
-        throw new ArgumentNullException("uniqueId");
+      if (insuranceId == Guid.Empty)
+        throw new ArgumentException("The specified insurance identifier is not a valid GUID", "insuranceId");
       InsuranceFile insuranceFile = null;
       InsuranceRegistryKey insuranceRegKey = null;
       // Load from file
-      if (trackingFilesFolder != null && File.Exists(Path.Combine(trackingFilesFolder, uniqueId)))
-        InsuranceFile.TryRead(Path.Combine(trackingFilesFolder, uniqueId), out insuranceFile);
+      if (trackingFilesFolder != null && File.Exists(Path.Combine(trackingFilesFolder, insuranceId.ToString())))
+        InsuranceFile.TryRead(Path.Combine(trackingFilesFolder, insuranceId.ToString()), out insuranceFile);
       // Load from registry
       if (trackingRegistryKey != null)
-        using (var regKey = Registry.CurrentUser.OpenSubKey(trackingRegistryKey + uniqueId, false))
+        using (var regKey = Registry.CurrentUser.OpenSubKey(trackingRegistryKey + insuranceId, false))
           if (regKey != null) // Verify existence of the key
             InsuranceRegistryKey.TryRead(regKey, out insuranceRegKey);
       // Possible to check for a running process?
