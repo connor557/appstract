@@ -183,8 +183,16 @@ namespace AppStract.Core.System.GAC
                                                      CoreBus.Configuration.Application.WatcherExecutable);
         _insurance = CleanUpInsurance.CreateInsurance(creationData, _gacAssemblies);
         // Then install the assemblies.
-        foreach (var assembly in _gacAssemblies)
-          _assemblyCache.InstallAssembly(assembly, InstallBehaviour.Default);
+        try
+        {
+          foreach (var assembly in _gacAssemblies)
+            _assemblyCache.InstallAssembly(assembly, InstallBehaviour.Default);
+        }
+        catch (UnauthorizedAccessException)
+        {
+          _insurance.Dispose();
+          throw;
+        }
         _gacRegistered = true;
       }
     }

@@ -183,6 +183,9 @@ namespace System.Reflection.GAC
         throw new ArgumentNullException("assemblyName");
       if (string.IsNullOrEmpty(assemblyName.CodeBase))
         throw new ArgumentException("The CodeBase property of the AssemblyName \"assembly\" parameter needs to be specified.");
+      assemblyName.CodeBase = assemblyName.CodeBase.StartsWith("file:///")
+                                ? assemblyName.CodeBase.Substring("file:///".Length)
+                                : assemblyName.CodeBase;
       if (!File.Exists(assemblyName.CodeBase))
         throw new FileNotFoundException("The assembly to install to the GAC doesn't exist.", assemblyName.CodeBase);
       var refPtr = _installer.ToFusionStruct().ToPointer();
