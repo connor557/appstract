@@ -43,7 +43,7 @@ namespace System.Reflection.GAC
     #region Variables
 
     private readonly InstallerDescription _installerDescription;
-    private readonly string _insuranceId;
+    private readonly Guid _insuranceId;
     private readonly string _machineId;
     private readonly DateTime _dateTime;
     private readonly List<AssemblyName> _assemblies;
@@ -55,7 +55,7 @@ namespace System.Reflection.GAC
     /// <summary>
     /// Gets the string which identifies the current insurance.
     /// </summary>
-    public string InsuranceIdentifier
+    public Guid InsuranceIdentifier
     {
       get { return _insuranceId; }
     }
@@ -96,7 +96,7 @@ namespace System.Reflection.GAC
 
     #region Constructors
 
-    protected InsuranceBase(string insuranceIdentifier, InstallerDescription installerDescription, string machineId, DateTime creationDateTime, IEnumerable<AssemblyName> assemblies)
+    protected InsuranceBase(Guid insuranceIdentifier, InstallerDescription installerDescription, string machineId, DateTime creationDateTime, IEnumerable<AssemblyName> assemblies)
     {
       _insuranceId = insuranceIdentifier;
       _installerDescription = installerDescription;

@@ -28,26 +28,26 @@ namespace System.Reflection.GAC
   internal static class InsuranceBaseExtensions
   {
 
-    public static InsuranceBase FindElement(this IEnumerable<InsuranceBase> items, string identifier)
+    public static InsuranceBase FindElement(this IEnumerable<InsuranceBase> items, Guid identifier)
     {
       foreach (var item in items)
-        if (item.InsuranceIdentifier == identifier)
+        if (item.InsuranceIdentifier.Equals(identifier))
           return item;
       return null;
     }
 
-    public static InsuranceFile FindElement(this IEnumerable<InsuranceFile> items, string identifier)
+    public static InsuranceFile FindElement(this IEnumerable<InsuranceFile> items, Guid identifier)
     {
       foreach (var item in items)
-        if (item.InsuranceIdentifier == identifier)
+        if (item.InsuranceIdentifier.Equals(identifier))
           return item;
       return null;
     }
 
-    public static InsuranceRegistryKey FindElement(this IEnumerable<InsuranceRegistryKey> items, string identifier)
+    public static InsuranceRegistryKey FindElement(this IEnumerable<InsuranceRegistryKey> items, Guid identifier)
     {
       foreach (var item in items)
-        if (item.InsuranceIdentifier == identifier)
+        if (item.InsuranceIdentifier.Equals(identifier))
           return item;
       return null;
     }

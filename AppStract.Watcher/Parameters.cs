@@ -54,7 +54,7 @@ namespace AppStract.Watcher
     /// <summary>
     /// The identifier of the insurance.
     /// </summary>
-    public string InsuranceId;
+    public Guid InsuranceId;
     /// <summary>
     /// The identifier of the process to watch.
     /// </summary>
@@ -71,7 +71,7 @@ namespace AppStract.Watcher
       foreach (var param in parameters)
       {
         if (param.StartsWith("IID="))
-          InsuranceId = param.Substring("IID=".Length);
+          InsuranceId = new Guid(param.Substring("IID=".Length));
         else if (param.StartsWith("FILE="))
           InsuranceFile = param.Substring("FILE=".Length);
         else if (param.StartsWith("REG="))

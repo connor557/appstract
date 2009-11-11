@@ -54,7 +54,7 @@ namespace System.Reflection.GAC
     #region Constructors
 
     public InsuranceRegistryKey(string registryKey, InstallerDescription installerDescription, string machineId, DateTime creationDateTime, IEnumerable<AssemblyName> assemblies)
-      : base(registryKey.Substring(registryKey.LastIndexOf('\\') + 1), installerDescription, machineId, creationDateTime, assemblies)
+      : base(new Guid(registryKey.Substring(registryKey.LastIndexOf('\\') + 1)), installerDescription, machineId, creationDateTime, assemblies)
     {
       _registryKeyName = registryKey;
     }
