@@ -91,7 +91,6 @@ namespace System.Reflection.GAC
 
     #region Variables
 
-    private readonly IAssemblyCache _gac;
     private readonly InstallerDescription _installer;
 
     #endregion
@@ -106,6 +105,20 @@ namespace System.Reflection.GAC
       get { return _installer; }
     }
 
+    /// <summary>
+    /// Gets an instance of <see cref="IAssemblyCache"/>.
+    /// </summary>
+    /// <returns></returns>
+    private static IAssemblyCache CacheInterface
+    {
+      get
+      {
+        IAssemblyCache gac;
+        CreateAssemblyCache(out gac, 0);
+        return gac;
+      }
+    }
+
     #endregion
 
     #region Constructors
@@ -116,7 +129,6 @@ namespace System.Reflection.GAC
     /// <param name="installerDescription"></param>
     public AssemblyCache(InstallerDescription installerDescription)
     {
-      CreateAssemblyCache(out _gac, 0);
       _installer = installerDescription;
     }
 
@@ -128,7 +140,7 @@ namespace System.Reflection.GAC
     /// Returns the storage location of the Global Assembly Cache.
     /// </summary>
     /// <returns></returns>
-    public static string GetGACLocation()
+    public static string GetGacLocation()
     {
       return GetPath(AssemblyCacheFlags.GAC);
     }
@@ -192,7 +204,7 @@ namespace System.Reflection.GAC
       int hResult;
       try
       {
-        hResult = _gac.InstallAssembly(disposition, assemblyName.CodeBase, refPtr);
+        hResult = CacheInterface.InstallAssembly(disposition, assemblyName.CodeBase, refPtr);
       }
       finally
       {
@@ -217,7 +229,7 @@ namespace System.Reflection.GAC
       {
         UninstallDisposition uninstallDisposition;
         var descr = assemblyName.GetFusionCompatibleFullName();
-        var hResult = _gac.UninstallAssembly(0, descr, refPtr, out uninstallDisposition);
+        var hResult = CacheInterface.UninstallAssembly(0, descr, refPtr, out uninstallDisposition);
         Marshal.ThrowExceptionForHR(hResult);
         return uninstallDisposition;
       }
@@ -238,7 +250,7 @@ namespace System.Reflection.GAC
       assemblyInfo.currentAssemblyPathSize = 255;
       assemblyInfo.currentAssemblyPath = new String('\0', (int) assemblyInfo.currentAssemblyPathSize);
       var descr = assemblyName.GetFusionCompatibleFullName();
-      var hResult = _gac.QueryAssemblyInfo(QueryTypeId.Validate, descr, ref assemblyInfo);
+      var hResult = CacheInterface.QueryAssemblyInfo(QueryTypeId.Validate, descr, ref assemblyInfo);
       return WinError.Succeeded(hResult)
              && assemblyInfo.assemblyFlags == AssemblyInfoFlags.Installed;
     }
