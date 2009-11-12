@@ -54,12 +54,13 @@ namespace System.Reflection.GAC
     /// Initializes a new instance of <see cref="InsuranceFile"/>, which represents an insurance with the specified data.
     /// </summary>
     /// <param name="fileName"></param>
+    /// <param name="guid"></param>
     /// <param name="installerDescription"></param>
     /// <param name="machineId"></param>
     /// <param name="creationDate"></param>
     /// <param name="assemblies"></param>
-    public InsuranceFile(string fileName, InstallerDescription installerDescription, string machineId, DateTime creationDate, IEnumerable<AssemblyName> assemblies)
-      : base(new Guid(Path.GetFileNameWithoutExtension(fileName)), installerDescription, machineId, creationDate, assemblies)
+    public InsuranceFile(string fileName, Guid guid, InstallerDescription installerDescription, string machineId, DateTime creationDate, IEnumerable<AssemblyName> assemblies)
+      : base(guid, installerDescription, machineId, creationDate, assemblies)
     {
       if (!Path.IsPathRooted(fileName))
         throw new ArgumentException("The filename specified must be a rooted path.", "fileName");
@@ -82,8 +83,8 @@ namespace System.Reflection.GAC
       {
         using (var writer = new StreamWriter(str))
         {
-          writer.WriteLine("MachineId=\"{0}\"" + Environment.NewLine + "CreationDateTime=\"{1}\"" + Environment.NewLine,
-                           insuranceFile.MachineId, insuranceFile.CreationDateTime.ToString(_DateTimeFormat));
+          writer.WriteLine("GUID=\"{0}\"" + Environment.NewLine + "MachineId=\"{0}\"" + Environment.NewLine + "CreationDateTime=\"{1}\"" + Environment.NewLine,
+                           insuranceFile.InsuranceIdentifier, insuranceFile.MachineId, insuranceFile.CreationDateTime.ToString(_DateTimeFormat));
           writer.WriteLine("Installer=[Type=\"{0}\", Id=\"{1}\", Description=\"{2}\"]" + Environment.NewLine,
                            insuranceFile.InstallerDescription.Type, insuranceFile.InstallerDescription.Id,
                            insuranceFile.InstallerDescription.Description);
@@ -108,9 +109,13 @@ namespace System.Reflection.GAC
       {
         using (var reader = new StreamReader(str))
         {
-          string machineId, creationDateTime;
-          // Get MachineId
+          string guidValue, machineId, creationDateTime;
+          // Get GUID
           var line = reader.ReadLine();
+          if (!ReadValue(line, "GUID", "\"", out guidValue))
+            return false;
+          // Get MachineId
+          line = reader.ReadLine();
           if (!ReadValue(line, "MachineId", "\"", out machineId))
             return false;
           // Get CreationDate
@@ -140,7 +145,17 @@ namespace System.Reflection.GAC
               return false;
             }
           }
-          insuranceFile = new InsuranceFile(fileName, installer, machineId, DateTime.Parse(creationDateTime), assemblies);
+          // Construct the GUID
+          Guid guid;
+          try
+          {
+            guid = new Guid(guidValue);
+          }
+          catch
+          {
+            return false;
+          }
+          insuranceFile = new InsuranceFile(fileName, guid, installer, machineId, DateTime.Parse(creationDateTime), assemblies);
           return true;
         }
       }

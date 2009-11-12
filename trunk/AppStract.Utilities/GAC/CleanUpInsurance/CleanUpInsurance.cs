@@ -193,8 +193,8 @@ namespace System.Reflection.GAC
     private void CreateFileInsurance()
     {
       Directory.CreateDirectory(_data.TrackingFilesFolder);
-      _insuranceFile = new InsuranceFile(Path.Combine(_data.TrackingFilesFolder, _uniqueId.ToString()), _data.Installer,
-                                         LocalMachine.Identifier, _creationDateTime, _assemblies);
+      _insuranceFile = new InsuranceFile(Path.Combine(_data.TrackingFilesFolder, _uniqueId.ToString()), _uniqueId,
+                                         _data.Installer, LocalMachine.Identifier, _creationDateTime, _assemblies);
       InsuranceFile.Write(_insuranceFile);
     }
 
@@ -203,8 +203,8 @@ namespace System.Reflection.GAC
       using (var rootKey = Registry.CurrentUser.CreateSubKey(_data.TrackingRegistryKey))
         rootKey.CreateSubKey(_uniqueId.ToString());
       _insuranceRegistryKey = new InsuranceRegistryKey(Path.Combine(_data.TrackingRegistryKey, _uniqueId.ToString()),
-                                                       _data.Installer, LocalMachine.Identifier, _creationDateTime,
-                                                       _assemblies);
+                                                       _uniqueId, _data.Installer, LocalMachine.Identifier,
+                                                       _creationDateTime, _assemblies);
       InsuranceRegistryKey.Write(_insuranceRegistryKey);
     }
 

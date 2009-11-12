@@ -53,8 +53,8 @@ namespace System.Reflection.GAC
 
     #region Constructors
 
-    public InsuranceRegistryKey(string registryKey, InstallerDescription installerDescription, string machineId, DateTime creationDateTime, IEnumerable<AssemblyName> assemblies)
-      : base(new Guid(registryKey.Substring(registryKey.LastIndexOf('\\') + 1)), installerDescription, machineId, creationDateTime, assemblies)
+    public InsuranceRegistryKey(string registryKey, Guid guid, InstallerDescription installerDescription, string machineId, DateTime creationDateTime, IEnumerable<AssemblyName> assemblies)
+      : base(guid, installerDescription, machineId, creationDateTime, assemblies)
     {
       _registryKeyName = registryKey;
     }
@@ -74,6 +74,7 @@ namespace System.Reflection.GAC
       {
         if (regKey == null || regKey.GetValueNames().Length != 0)
           throw new ArgumentException("The specified InsuranceRegistryKey points to an invalid registry key.", "insuranceRegistryKey");
+        regKey.SetValue("guid", insuranceRegistryKey.InsuranceIdentifier.ToString(), RegistryValueKind.String);
         regKey.SetValue("machineId", insuranceRegistryKey.MachineId);
         regKey.SetValue("creationDateTime", insuranceRegistryKey.CreationDateTime.ToString(_DateTimeFormat));
         var i = 0;
@@ -122,18 +123,36 @@ namespace System.Reflection.GAC
     {
       var values = new List<string>(registryKey.GetValueNames());
       if (values.Count < 2) throw new Exception();
-      var machineId = registryKey.GetValue("machineId").ToString();
-      var creationDatetime = registryKey.GetValue("creationDateTime").ToString();
+      var guidValue = registryKey.GetValue("guid");
+      var machineId = registryKey.GetValue("machineId");
+      var creationDatetimeValue = registryKey.GetValue("creationDateTime");
+      if (guidValue == null)
+        throw new ArgumentException("The specified registry key doesn't contain a value for \"guid\"", "registryKey");
       if (machineId == null)
         throw new ArgumentException("The specified registry key doesn't contain a value for \"machineId\"", "registryKey");
-      if (creationDatetime == null)
+      if (creationDatetimeValue == null)
         throw new ArgumentException("The specified registry key doesn't contain a value for \"creationDateTime\"", "registryKey");
+      // Construct the GUID
+      Guid guid;
+      try
+      {
+        guid = new Guid(guidValue.ToString());
+      }
+      catch (Exception e)
+      {
+        throw new ArgumentException("The specified registry key contains a corrupt value for \"guid\"", "registryKey", e);
+      }
+      // Construct the DateTime
+      DateTime creationDateTime;
+      if (!DateTime.TryParse(creationDatetimeValue.ToString(), out creationDateTime))
+        throw new ArgumentException("The specified registry key contains a corrupt value for \"creationDateTime\"", "registryKey");
       // Read the InstallerDescription
       InstallerDescription installer;
       using (var installerKey = registryKey.OpenSubKey("Installer"))
       {
         if (installerKey == null)
-          throw new ArgumentException("The specified registry key doesn't contain a subkey for \"Installer\"", "registryKey");
+          throw new ArgumentException("The specified registry key doesn't contain a subkey for \"Installer\"",
+                                      "registryKey");
         installer = ReadInstallerDescription(installerKey);
       }
       // Read the insured assemblies
@@ -141,8 +160,8 @@ namespace System.Reflection.GAC
       foreach (var value in values)
         if (value.StartsWith("assembly"))
           assemblies.Add(new AssemblyName(registryKey.GetValue(value).ToString()));
-      return new InsuranceRegistryKey(registryKey.Name.Substring(Registry.CurrentUser.Name.Length), installer, machineId,
-                                      DateTime.Parse(creationDatetime), assemblies);
+      return new InsuranceRegistryKey(registryKey.Name.Substring(Registry.CurrentUser.Name.Length), guid, installer,
+                                      machineId.ToString(), creationDateTime, assemblies);
     }
 
     #endregion
