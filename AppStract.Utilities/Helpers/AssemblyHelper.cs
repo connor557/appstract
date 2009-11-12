@@ -25,11 +25,11 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Security;
+using Microsoft.Win32.Interop;
 using SystemAssembly = System.Reflection.Assembly;
 
 namespace AppStract.Utilities.Helpers
 {
-
   /// <summary>
   /// A helper class for simple actions related to assemblies.
   /// </summary>
@@ -81,7 +81,14 @@ namespace AppStract.Utilities.Helpers
     public static int RunMainMethod(string executable, string[] args)
     {
       var assembly = SystemAssembly.LoadFrom(executable);
-      var o = assembly.EntryPoint.Invoke(null, (args == null || args.Length == 0 ? null : new object[] { args }));
+      var parameters = assembly.EntryPoint.GetParameters();
+      if (parameters.Length > 1)
+        // Main methods are expected to have zero or one parameter
+        return (int) WinError.ERROR_INVALID_PARAMETER;
+      var invokeParams = parameters.Length == 0
+                           ? null
+                           : (args == null || args.Length == 0 ? new object[0] : new object[] { args });
+      var o = assembly.EntryPoint.Invoke(null, invokeParams);
       int exitCode;
       if (o == null || !Int32.TryParse(o.ToString(), out exitCode))
         return 0;
@@ -91,5 +98,4 @@ namespace AppStract.Utilities.Helpers
     #endregion
 
   }
-
 }
