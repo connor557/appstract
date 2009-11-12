@@ -52,67 +52,48 @@ namespace AppStract.Manager
     private void InitializeComponent()
     {
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmManager));
-      this.lblIntroduction = new System.Windows.Forms.Label();
-      this._lnkPackage = new System.Windows.Forms.LinkLabel();
-      this._lnkLoad = new System.Windows.Forms.LinkLabel();
+      this._btnPackageNew = new System.Windows.Forms.Button();
+      this._btnCleanSystem = new System.Windows.Forms.Button();
       this.SuspendLayout();
       // 
-      // lblIntroduction
+      // _btnPackageNew
       // 
-      this.lblIntroduction.AutoSize = true;
-      this.lblIntroduction.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this.lblIntroduction.Location = new System.Drawing.Point(12, 28);
-      this.lblIntroduction.Name = "lblIntroduction";
-      this.lblIntroduction.Size = new System.Drawing.Size(300, 48);
-      this.lblIntroduction.TabIndex = 2;
-      this.lblIntroduction.Text = "Welcome to the AppStract Control Center window.\r\nHere you can either package a ne" +
-          "w application,\r\nor you can load a packaged applications.";
+      this._btnPackageNew.Location = new System.Drawing.Point(12, 12);
+      this._btnPackageNew.Name = "_btnPackageNew";
+      this._btnPackageNew.Size = new System.Drawing.Size(301, 43);
+      this._btnPackageNew.TabIndex = 5;
+      this._btnPackageNew.Text = "Package a new application";
+      this._btnPackageNew.UseVisualStyleBackColor = true;
+      this._btnPackageNew.Click += new System.EventHandler(this._btnPackageNew_Click);
       // 
-      // _lnkPackage
+      // _btnCleanSystem
       // 
-      this._lnkPackage.AutoSize = true;
-      this._lnkPackage.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this._lnkPackage.Location = new System.Drawing.Point(131, 44);
-      this._lnkPackage.Name = "_lnkPackage";
-      this._lnkPackage.Size = new System.Drawing.Size(169, 16);
-      this._lnkPackage.TabIndex = 3;
-      this._lnkPackage.TabStop = true;
-      this._lnkPackage.Text = "package a new application";
-      this._lnkPackage.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this._lnkPackage_LinkClicked);
+      this._btnCleanSystem.Location = new System.Drawing.Point(12, 61);
+      this._btnCleanSystem.Name = "_btnCleanSystem";
+      this._btnCleanSystem.Size = new System.Drawing.Size(301, 30);
+      this._btnCleanSystem.TabIndex = 6;
+      this._btnCleanSystem.Text = "Clean the local system";
+      this._btnCleanSystem.UseVisualStyleBackColor = true;
+      this._btnCleanSystem.Click += new System.EventHandler(this._btnCleanSystem_Click);
       // 
-      // _lnkLoad
-      // 
-      this._lnkLoad.AutoSize = true;
-      this._lnkLoad.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this._lnkLoad.Location = new System.Drawing.Point(79, 60);
-      this._lnkLoad.Name = "_lnkLoad";
-      this._lnkLoad.Size = new System.Drawing.Size(180, 16);
-      this._lnkLoad.TabIndex = 4;
-      this._lnkLoad.TabStop = true;
-      this._lnkLoad.Text = "load a packaged application";
-      this._lnkLoad.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this._lnkLoad_LinkClicked);
-      // 
-      // FrmPackager
+      // FrmManager
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(325, 108);
-      this.Controls.Add(this._lnkLoad);
-      this.Controls.Add(this._lnkPackage);
-      this.Controls.Add(this.lblIntroduction);
+      this.ClientSize = new System.Drawing.Size(325, 103);
+      this.Controls.Add(this._btnCleanSystem);
+      this.Controls.Add(this._btnPackageNew);
       this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-      this.Name = "FrmPackager";
+      this.Name = "FrmManager";
       this.Text = "AppStract Control Center";
       this.ResumeLayout(false);
-      this.PerformLayout();
 
     }
 
     #endregion
 
-    private System.Windows.Forms.Label lblIntroduction;
-    private System.Windows.Forms.LinkLabel _lnkPackage;
-    private System.Windows.Forms.LinkLabel _lnkLoad;
+    private System.Windows.Forms.Button _btnPackageNew;
+    private System.Windows.Forms.Button _btnCleanSystem;
 
   }
 }

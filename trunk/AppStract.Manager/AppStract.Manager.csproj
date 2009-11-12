@@ -67,6 +67,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FrmCleanUp.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmCleanUp.Designer.cs">
+      <DependentUpon>FrmCleanUp.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmManager.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -75,6 +81,10 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="FrmCleanUp.resx">
+      <DependentUpon>FrmCleanUp.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="FrmManager.resx">
       <DependentUpon>FrmManager.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -194,6 +204,10 @@
     <ProjectReference Include="..\AppStract.Core\AppStract.Core.csproj">
       <Project>{73CC3214-9CAD-4723-BBBB-79BE7482E639}</Project>
       <Name>AppStract.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AppStract.Utilities\AppStract.Utilities.csproj">
+      <Project>{29578947-FFF4-4A0A-9C75-AE3C5E03F746}</Project>
+      <Name>AppStract.Utilities</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
