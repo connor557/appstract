@@ -181,10 +181,8 @@ namespace System.Reflection.GAC
     {
       if (_assemblies.Count == 0)
         return;
-      if (LocalMachine.Identifier == _insuranceFile.MachineId)
-        CleanFileInsurance();
-      if (LocalMachine.Identifier == _insuranceRegistryKey.MachineId)
-        CleanRegistryInsurance();
+      CleanFileInsurance();
+      CleanRegistryInsurance();
       CleanProcessInsurance();
     }
 
@@ -241,6 +239,8 @@ namespace System.Reflection.GAC
     private void CleanFileInsurance()
     {
       if (!_data.Flags.IsSpecified(CleanUpInsuranceFlags.TrackByFile)
+          || _insuranceFile == null
+          || _insuranceFile.MachineId != LocalMachine.Identifier
           || !Directory.Exists(_data.TrackingFilesFolder))
         return;
       File.Delete(_insuranceFile.FileName);
@@ -251,7 +251,8 @@ namespace System.Reflection.GAC
     private void CleanRegistryInsurance()
     {
       if (!_data.Flags.IsSpecified(CleanUpInsuranceFlags.TrackByRegistry)
-        || _insuranceRegistryKey == null)
+          || _insuranceRegistryKey == null
+          || _insuranceRegistryKey.MachineId != LocalMachine.Identifier)
         return;
       bool deleteTree;
       using (var key = Registry.CurrentUser.OpenSubKey(_data.TrackingRegistryKey))
