@@ -136,6 +136,7 @@ namespace AppStract.Core.Virtualization.Packaging
                                           _startInfo.Files.DatabaseRegistry.FileName);
       }
       _waitHandle.Set();
+      sender.Dispose();
     }
 
     #endregion
