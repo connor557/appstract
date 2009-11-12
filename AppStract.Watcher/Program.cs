@@ -63,6 +63,7 @@ namespace AppStract.Watcher
 #endif
         return;
       }
+      Console.WriteLine("\tThe necessary data has been read from the system");
       // Check if ByWatchService is the only flag specified.
       // If so, clean up the file or registry key used to pass data to the current watcher.
       if (!_parameters.Flags.IsSpecified(CleanUpInsuranceFlags.TrackByFile)
@@ -80,7 +81,7 @@ namespace AppStract.Watcher
         foreach (var assembly in _cleanUpInsurance.Assemblies)
         {
           var disposition = cache.UninstallAssembly(assembly);
-          Console.WriteLine("   [" + disposition + "]\t" + assembly.FullName);
+          Console.WriteLine("   [" + disposition + "]  " + assembly.FullName);
         }
         Console.WriteLine(DateTime.Now + "\tFinished cleanup procedure");
       }
