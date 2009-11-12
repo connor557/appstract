@@ -21,7 +21,9 @@
 
 #endregion
 
+using System;
 using System.Threading;
+using AppStract.Core.System.Logging;
 using AppStract.Server;
 
 namespace AppStract.Wrapper
@@ -40,11 +42,13 @@ namespace AppStract.Wrapper
 
     /// <summary>
     /// Entry point for the wrapper process.
-    /// Hangs until the connection with the server process is lost.
+    /// Hangs until the connection with the server process is lost
+    /// or until the <see cref="_exit"/> flag is set to true.
     /// </summary>
     /// <param name="args"></param>
     private static int Main(string[] args)
     {
+      AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
       GuestCore.ExitRequestRaised += ExitRequestEventHandler;
       while (!_exit)
       {
@@ -52,7 +56,21 @@ namespace AppStract.Wrapper
         if (GuestCore.Initialized && !GuestCore.Connected)
           break;
       }
+      GuestCore.Log(new LogMessage(LogLevel.Debug, "Main method returning with exit code " + _exitCode), false);
       return _exitCode;
+    }
+
+    /// <summary>
+    /// Tries to log unhandled exceptions to the server process.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+      GuestCore.Log(new LogMessage(LogLevel.Critical, "Target process threw an unhandled exception.", e.ExceptionObject), false);
+      // Not sure if the following is necessary since the process is already dying from the unhandled exception
+      _exitCode = -1;
+      _exit = true;
     }
 
     /// <summary>
