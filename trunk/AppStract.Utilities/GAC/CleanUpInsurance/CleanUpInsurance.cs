@@ -181,8 +181,10 @@ namespace System.Reflection.GAC
     {
       if (_assemblies.Count == 0)
         return;
-      CleanFileInsurance();
-      CleanRegistryInsurance();
+      if (LocalMachine.Identifier == _insuranceFile.MachineId)
+        CleanFileInsurance();
+      if (LocalMachine.Identifier == _insuranceRegistryKey.MachineId)
+        CleanRegistryInsurance();
       CleanProcessInsurance();
     }
 
