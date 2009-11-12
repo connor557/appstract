@@ -83,7 +83,7 @@ namespace System.Reflection.GAC
       {
         using (var writer = new StreamWriter(str))
         {
-          writer.WriteLine("GUID=\"{0}\"" + Environment.NewLine + "MachineId=\"{0}\"" + Environment.NewLine + "CreationDateTime=\"{1}\"" + Environment.NewLine,
+          writer.WriteLine("GUID=\"{0}\"" + Environment.NewLine + "MachineId=\"{1}\"" + Environment.NewLine + "CreationDateTime=\"{2}\"" + Environment.NewLine,
                            insuranceFile.InsuranceIdentifier, insuranceFile.MachineId, insuranceFile.CreationDateTime.ToString(_DateTimeFormat));
           writer.WriteLine("Installer=[Type=\"{0}\", Id=\"{1}\", Description=\"{2}\"]" + Environment.NewLine,
                            insuranceFile.InstallerDescription.Type, insuranceFile.InstallerDescription.Id,
