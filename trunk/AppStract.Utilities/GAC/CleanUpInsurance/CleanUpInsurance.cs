@@ -188,6 +188,15 @@ namespace System.Reflection.GAC
       CleanProcessInsurance();
     }
 
+    /// <summary>
+    /// Returns a <see cref="string"/> that represents the current <see cref="CleanUpInsurance"/>.
+    /// </summary>
+    /// <returns></returns>
+    public override string ToString()
+    {
+      return string.Format("[{0}] {1} ({2} items)", _creationDateTime, _uniqueId, _assemblies.Count);
+    }
+
     #endregion
 
     #region Private Methods
