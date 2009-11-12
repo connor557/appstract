@@ -55,7 +55,7 @@ namespace AppStract.Manager
 
     #region Private Methods
 
-    private void _lnkPackage_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+    private void _btnPackageNew_Click(object sender, System.EventArgs e)
     {
       if (Thread.CurrentThread.Name == null)
         Thread.CurrentThread.Name = "Packager";
@@ -89,9 +89,9 @@ namespace AppStract.Manager
         var dataFilename = System.IO.Path.Combine(preWizard.Result.InstallerOutputDestination,
                                                   CoreBus.Configuration.Application.DefaultApplicationDataFile);
         if (!ApplicationData.Save(postWizard.Result, dataFilename))
-            /// ToDo: Add some proper error handling here!
-            /// ToDo: Clean up?
-            MessageBox.Show("Failed to save the application data to " + dataFilename);
+          /// ToDo: Add some proper error handling here!
+          /// ToDo: Clean up?
+          MessageBox.Show("Failed to save the application data to " + dataFilename);
         /// Start the application, if requested.
         if (preWizard.Result.Autostart)
           CoreManager.StartProcess(dataFilename);
@@ -102,9 +102,12 @@ namespace AppStract.Manager
       }
     }
 
-    private void _lnkLoad_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+    private void _btnCleanSystem_Click(object sender, System.EventArgs e)
     {
-      MessageBox.Show("Not yet implemented.", "Not implemented", MessageBoxButtons.OK, MessageBoxIcon.Information);
+      FrmCleanUp frm = new FrmCleanUp();
+      Hide();
+      frm.ShowDialog();
+      Show();
     }
 
     #endregion
