@@ -159,7 +159,6 @@ namespace AppStract.Core.Virtualization.Process
     public void Kill()
     {
       _process.Kill();
-      _process.Dispose();
     }
 
     #endregion
@@ -332,9 +331,13 @@ namespace AppStract.Core.Virtualization.Process
 
     #region IDisposable Members
 
+    /// <summary>
+    /// Releases all resources.
+    /// </summary>
     public void Dispose()
     {
-      throw new NotImplementedException();
+      _process.Dispose();
+      _gacManager.Dispose();
     }
 
     #endregion
