@@ -93,8 +93,10 @@ namespace System.Runtime.Interop.Fusion
     public static string GetFusionCompatibleFullName(this AssemblyName assemblyName)
     {
       return assemblyName.Name
-             + (assemblyName.Version == null? "" : ", Version=" + assemblyName.Version)
-             + (string.IsNullOrEmpty(assemblyName.CultureInfo.Name) ? "" : ", Culture=" + assemblyName.CultureInfo.Name);
+             + (assemblyName.Version == null ? "" : ", Version=" + assemblyName.Version)
+             + (assemblyName.CultureInfo == null || string.IsNullOrEmpty(assemblyName.CultureInfo.Name)
+                  ? ""
+                  : ", Culture=" + assemblyName.CultureInfo.Name);
     }
 
     #endregion
