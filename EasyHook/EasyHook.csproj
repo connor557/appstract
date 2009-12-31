@@ -66,8 +66,10 @@
     <Compile Include="Debugging.cs" />
     <Compile Include="DllImport.cs" />
     <Compile Include="HelperServiceInterface.cs" />
+    <Compile Include="IEasyLog.cs" />
     <Compile Include="InjectionLoader.cs" />
     <Compile Include="LocalHook.cs" />
+    <Compile Include="LogService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RemoteHook.cs" />
     <Compile Include="ServiceMgmt.cs" />

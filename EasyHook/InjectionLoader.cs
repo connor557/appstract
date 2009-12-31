@@ -169,7 +169,7 @@ namespace EasyHook
         }
         catch (Exception ExtInfo)
         {
-          Config.PrintError(ExtInfo.ToString());
+          Config.Log.Error(ExtInfo.ToString());
           return new HostConnectionData { _state = ConnectionState.Invalid };
         }
         return data;
@@ -211,7 +211,7 @@ namespace EasyHook
       }
       catch (Exception ExtInfo)
       {
-        Config.PrintWarning(ExtInfo.ToString());
+        Config.Log.Warning(ExtInfo.ToString());
         return -1;
       }
       finally
