@@ -68,6 +68,7 @@ namespace AppStract.Core
     {
 #if DEBUG
       CoreBus.Log = new ConsoleLogger();
+      EasyHook.Config.Log = new EasyHookLogService();
 #else
       /// How to initialize the log service without configuration?
       /// How to initialize the configuration without logservice?
@@ -112,6 +113,34 @@ namespace AppStract.Core
     {
       if (Exiting != null)
         Exiting(sender, e);
+    }
+
+    #endregion
+
+    #region Private Classes
+
+    private class EasyHookLogService : EasyHook.IEasyLog
+    {
+
+      #region IEasyLog Members
+
+      public void Error(string message)
+      {
+        CoreBus.Log.Error("[EasyHook] " + message);
+      }
+
+      public void Warning(string message)
+      {
+        CoreBus.Log.Warning("[EasyHook] " + message);
+      }
+
+      public void Information(string message)
+      {
+        CoreBus.Log.Message("[EasyHook] " + message);
+      }
+
+      #endregion
+
     }
 
     #endregion
