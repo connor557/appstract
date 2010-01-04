@@ -33,7 +33,7 @@ namespace System.Reflection.GAC
   /// <summary>
   /// Represents and provides an insurance for specified assemblies to be uninstalled
   /// from the global assembly cache after they are not needed anymore.
-  /// As soon as the assemblies do not need to be insured anymore, <see cref="Dispose"/> should be called.
+  /// As soon as the assemblies do not need to be insured anymore, <see cref="Dispose()"/> should be called.
   /// </summary>
   /// <remarks>
   /// The way the insurance is provided depends on the <see cref="CleanUpInsuranceFlags"/> set in the user's configuration.
@@ -179,11 +179,22 @@ namespace System.Reflection.GAC
     /// </summary>
     public void Dispose()
     {
-      if (_assemblies.Count == 0)
-        return;
       CleanFileInsurance();
       CleanRegistryInsurance();
       CleanProcessInsurance();
+    }
+
+    /// <summary>
+    /// Removes all specified ways of insuring from the local system, for the current <see cref="CleanFileInsurance"/>.
+    /// </summary>
+    public void Dispose(CleanUpInsuranceFlags flags)
+    {
+      if (flags.IsSpecified(CleanUpInsuranceFlags.TrackByFile))
+        CleanFileInsurance();
+      if (flags.IsSpecified((CleanUpInsuranceFlags.TrackByRegistry)))
+        CleanRegistryInsurance();
+      if (flags.IsSpecified(CleanUpInsuranceFlags.ByWatchService))
+        CleanProcessInsurance();
     }
 
     /// <summary>
