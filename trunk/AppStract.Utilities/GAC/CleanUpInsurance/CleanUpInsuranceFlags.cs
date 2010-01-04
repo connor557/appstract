@@ -34,11 +34,11 @@ namespace System.Reflection.GAC
     /// </summary>
     None = 0x00,
     /// <summary>
-    /// Keep track of installed assemblies by saving them in a file untill they are uninstalled.
+    /// Keep track of installed assemblies by saving them in a file until they are uninstalled.
     /// </summary>
     TrackByFile = 0x01,
     /// <summary>
-    /// Keep track of installed assemblies by saving them in the local registry untill they are uninstalled.
+    /// Keep track of installed assemblies by saving them in the local registry until they are uninstalled.
     /// </summary>
     TrackByRegistry = 0x02,
     /// <summary>
@@ -51,14 +51,21 @@ namespace System.Reflection.GAC
     All = 0x07
   }
 
+  /// <summary>
+  /// Provides extension methods for <see cref="CleanUpInsuranceFlags"/>.
+  /// </summary>
   public static class  CleanUpInsuranceFlagsExtensions
   {
-    
+    /// <summary>
+    /// Returns whether the <see cref="CleanUpInsuranceFlags"/> specified is/are defined in the current <see cref="CleanUpInsuranceFlags"/>.
+    /// </summary>
+    /// <param name="flags"></param>
+    /// <param name="flag"></param>
+    /// <returns></returns>
     public static bool IsSpecified(this CleanUpInsuranceFlags flags, CleanUpInsuranceFlags flag)
     {
       return ((flags & flag) == flag);
     }
-
   }
 
 }

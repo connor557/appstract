@@ -30,81 +30,103 @@ namespace AppStract.Watcher
   class Program
   {
 
+    /// <summary>
+    /// The parameters provided to the current watcher.
+    /// </summary>
     private static Parameters _parameters;
+    /// <summary>
+    /// The <see cref="CleanUpInsurance"/> for which the current watcher is created.
+    /// </summary>
     private static CleanUpInsurance _cleanUpInsurance;
 
+    /// <summary>
+    /// Main entry point for <see cref="AppStract.Watcher"/> processes.
+    /// </summary>
+    /// <param name="args"></param>
     static void Main(string[] args)
     {
       _parameters = new Parameters(args);
-      Console.WriteLine(DateTime.Now + "\tWatching with the following parameters:");
-      Console.WriteLine("   Flags\t" + _parameters.Flags);
-      Console.WriteLine("   File\t\t" + _parameters.InsuranceFile);
-      Console.WriteLine("   Registry\t" + _parameters.InsuranceRegistryKey);
-      Console.WriteLine("   Insurance\t" + _parameters.InsuranceId);
-      Console.WriteLine("   Process\t" + _parameters.ProcessId);
+      ReportMessage("Watching with the following parameters:");
+      ReportMessage("  Flags\t" + _parameters.Flags);
+      ReportMessage("  File\t\t" + _parameters.InsuranceFile);
+      ReportMessage("  Registry\t" + _parameters.InsuranceRegistryKey);
+      ReportMessage("  Insurance\t" + _parameters.InsuranceId);
+      ReportMessage("  Process\t" + _parameters.ProcessId);
       if (!_parameters.Flags.IsSpecified(CleanUpInsuranceFlags.ByWatchService))
       {
-        Console.WriteLine(DateTime.Now + "\tA watch service is not required");
+        ReportMessage("A watch service is not required");
 #if DEBUG
-        Console.WriteLine(DateTime.Now + "\tPress any key to exit...");
+        ReportMessage("Press any key to exit...");
         Console.ReadKey();
 #endif
         return;
       }
-      _cleanUpInsurance = CleanUpInsurance.LoadFromSystem(_parameters.InsuranceFile, _parameters.InsuranceRegistryKey,
-                                                          _parameters.InsuranceId);
+      if (_parameters.InsuranceId != Guid.Empty)
+        _cleanUpInsurance = CleanUpInsurance.LoadFromSystem(_parameters.InsuranceFile, _parameters.InsuranceRegistryKey,
+                                                            _parameters.InsuranceId);
       if (_cleanUpInsurance == null)
       {
-        Console.WriteLine(DateTime.Now + "\tCan't read the required data for IID." + _parameters.InsuranceId +
-                          " from \"" + _parameters.InsuranceFile + "\"");
+        ReportMessage("Can't read the required data for IID." + _parameters.InsuranceId +
+                          " from \"" + _parameters.InsuranceFile + "\" or \"" + _parameters.InsuranceRegistryKey + "\"");
 #if DEBUG
-        Console.WriteLine(DateTime.Now + "\tPress any key to exit...");
+        ReportMessage("Press any key to exit...");
         Console.ReadKey();
 #endif
         return;
       }
-      Console.WriteLine("\tThe necessary data has been read from the system");
-      // Check if ByWatchService is the only flag specified.
-      // If so, clean up the file or registry key used to pass data to the current watcher.
-      if (!_parameters.Flags.IsSpecified(CleanUpInsuranceFlags.TrackByFile)
-          && !_parameters.Flags.IsSpecified(CleanUpInsuranceFlags.TrackByRegistry))
-        _cleanUpInsurance.Dispose();
-      Console.WriteLine(DateTime.Now + "\tRetrieving a handle for the process with PID." + _parameters.ProcessId);
+      ReportMessage("The insurance has been read from the system");
+      // If allowed, clean up the file or registry key used to pass data to the current watcher.
+      _cleanUpInsurance.Dispose((!_parameters.Flags.IsSpecified(CleanUpInsuranceFlags.TrackByFile)
+                                   ? CleanUpInsuranceFlags.TrackByFile
+                                   : CleanUpInsuranceFlags.None)
+                                | (!_parameters.Flags.IsSpecified(CleanUpInsuranceFlags.TrackByRegistry)
+                                     ? CleanUpInsuranceFlags.TrackByRegistry
+                                     : CleanUpInsuranceFlags.None));
+      ReportMessage("tRetrieving a handle for the process with PID." + _parameters.ProcessId);
       var process = Process.GetProcessById(_parameters.ProcessId);
-      Console.WriteLine(DateTime.Now + "\tWaiting for the process to exit...");
+      ReportMessage("tWaiting for the process to exit...");
       process.WaitForExit();
-      Console.WriteLine(DateTime.Now + "\tProcess has exited");
-      Console.WriteLine(DateTime.Now + "\tInvoking cleanup procedure...");
+      ReportMessage("Process has exited");
+      ReportMessage("Invoking cleanup procedure...");
       try
       {
         var cache = new AssemblyCache(_cleanUpInsurance.Installer);
         foreach (var assembly in _cleanUpInsurance.Assemblies)
         {
           var disposition = cache.UninstallAssembly(assembly);
-          Console.WriteLine("   [" + disposition + "]  " + assembly.FullName);
+          ReportMessage("  [" + disposition + "]  " + assembly.FullName);
         }
-        Console.WriteLine(DateTime.Now + "\tFinished cleanup procedure");
+        ReportMessage("Finished cleanup procedure");
       }
       catch (UnauthorizedAccessException e)
       {
-        Console.WriteLine(DateTime.Now + "\tFAILED to uninstall any of the following assemblies...");
+        ReportMessage("FAILED to uninstall any of the following assemblies...");
         foreach (var assembly in _cleanUpInsurance.Assemblies)
-          Console.WriteLine("   " + assembly.FullName);
-        Console.WriteLine("\n" + e + "\n");
+          ReportMessage("  " + assembly.FullName);
+        ReportMessage("\n" + e + "\n");
 #if DEBUG
-        Console.WriteLine(DateTime.Now + "\tPress any key to exit...");
+        ReportMessage("Press any key to exit...");
         Console.ReadKey();
 #endif
         return;
       }
-      Console.WriteLine(DateTime.Now + "\tDisposing insurance...");
+      ReportMessage("Disposing insurance...");
       _cleanUpInsurance.Dispose();
-      Console.WriteLine(DateTime.Now + "\tInsurance is disposed");
-      Console.WriteLine(DateTime.Now + "\tExiting...");
+      ReportMessage("Insurance is disposed");
+      ReportMessage("Exiting...");
 #if DEBUG
-      Console.WriteLine(DateTime.Now + "\tPress any key to exit...");
+      ReportMessage("Press any key to exit...");
       Console.ReadKey();
 #endif
+    }
+
+    /// <summary>
+    /// Reports a message to the user.
+    /// </summary>
+    /// <param name="message"></param>
+    private static void ReportMessage(string message)
+    {
+      Console.WriteLine(DateTime.Now + "  " + message);
     }
 
   }
