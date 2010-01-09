@@ -23,7 +23,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using AppStract.Core.System.Logging;
 using EasyHook;
 
@@ -90,53 +89,50 @@ namespace AppStract.Server.Hooking
           return;
         try
         {
-          GuestCore.Log(new LogMessage(LogLevel.Debug,
-                                                       "HookManager starts initializing."));
-          List<HookData> hooks = new List<HookData>();
-          /// Hooks regarding the filesystem
+          GuestCore.Log(new LogMessage(LogLevel.Debug, "HookManager starts initialization procedure."));
+          var hooks = new List<HookData>(8);
+          // Hooks regarding the filesystem
           hooks.Add(new HookData("Create Directory",
-                      LocalHook.GetProcAddress("kernel32.dll", "CreateDirectoryW"),
-                      new HookDelegates.DCreateDirectory(hookHandler.DoCreateDirectory),
-                      inCallback));
+                                 LocalHook.GetProcAddress("kernel32.dll", "CreateDirectoryW"),
+                                 new HookDelegates.DCreateDirectory(hookHandler.DoCreateDirectory),
+                                 inCallback));
           hooks.Add(new HookData("Create File",
-                      LocalHook.GetProcAddress("kernel32.dll", "CreateFileW"),
-                      new HookDelegates.DCreateFile(hookHandler.DoCreateFile),
-                      inCallback));
+                                 LocalHook.GetProcAddress("kernel32.dll", "CreateFileW"),
+                                 new HookDelegates.DCreateFile(hookHandler.DoCreateFile),
+                                 inCallback));
           hooks.Add(new HookData("Load Library",
-                      LocalHook.GetProcAddress("kernel32.dll", "LoadLibraryExW"),
-                      new HookDelegates.DLoadLibraryEx(hookHandler.DoLoadLibraryEx),
-                      inCallback));
-          /// Hooks regarding the registry
+                                 LocalHook.GetProcAddress("kernel32.dll", "LoadLibraryExW"),
+                                 new HookDelegates.DLoadLibraryEx(hookHandler.DoLoadLibraryEx),
+                                 inCallback));
+          // Hooks regarding the registry
           hooks.Add(new HookData("Set Registry Value",
-                      LocalHook.GetProcAddress("advapi32.dll", "RegSetValueExW"),
-                      new HookDelegates.DSetValue(hookHandler.RegSetValueEx),
-                      inCallback));
+                                 LocalHook.GetProcAddress("advapi32.dll", "RegSetValueExW"),
+                                 new HookDelegates.DSetValue(hookHandler.RegSetValueEx),
+                                 inCallback));
           hooks.Add(new HookData("Query Registry Value",
-                      LocalHook.GetProcAddress("advapi32.dll", "RegQueryValueExW"),
-                      new HookDelegates.DQueryValue(hookHandler.RegQueryValue_Hooked),
-                      inCallback));
+                                 LocalHook.GetProcAddress("advapi32.dll", "RegQueryValueExW"),
+                                 new HookDelegates.DQueryValue(hookHandler.RegQueryValue_Hooked),
+                                 inCallback));
           hooks.Add(new HookData("Open Registry Key",
-                      LocalHook.GetProcAddress("advapi32.dll", "RegOpenKeyExW"),
-                      new HookDelegates.DOpenKey(hookHandler.RegOpenKey_Hooked),
-                      inCallback));
+                                 LocalHook.GetProcAddress("advapi32.dll", "RegOpenKeyExW"),
+                                 new HookDelegates.DOpenKey(hookHandler.RegOpenKey_Hooked),
+                                 inCallback));
           hooks.Add(new HookData("Create Registry Key",
-                      LocalHook.GetProcAddress("advapi32.dll", "RegCreateKeyExW"),
-                      new HookDelegates.DCreateKey(hookHandler.RegCreateKeyEx_Hooked),
-                      inCallback));
+                                 LocalHook.GetProcAddress("advapi32.dll", "RegCreateKeyExW"),
+                                 new HookDelegates.DCreateKey(hookHandler.RegCreateKeyEx_Hooked),
+                                 inCallback));
           hooks.Add(new HookData("Close Registry Key",
-                      LocalHook.GetProcAddress("advapi32.dll", "RegCloseKey"),
-                      new HookDelegates.DCloseKey(hookHandler.RegCloseKey_Hooked),
-                      inCallback));
+                                 LocalHook.GetProcAddress("advapi32.dll", "RegCloseKey"),
+                                 new HookDelegates.DCloseKey(hookHandler.RegCloseKey_Hooked),
+                                 inCallback));
           _hooks = hooks;
           _initialized = true;
-          GuestCore.Log(new LogMessage(LogLevel.Information,
-                                                       "HookManager is initialized."));
+          GuestCore.Log(new LogMessage(LogLevel.Information, "HookManager is initialized."));
         }
         catch (Exception e)
         {
-          GuestCore.Log(new LogMessage(LogLevel.Critical, "HookManager failed to initialize the API Hooks", e),
-                        false);
-          Process.GetCurrentProcess().Kill();
+          GuestCore.Log(new LogMessage(LogLevel.Critical, "HookManager failed to initialize the API Hooks", e), false);
+          GuestCore.TerminateProcess(-1, ExitMethod.Kill);
         }
       }
     }
@@ -169,7 +165,7 @@ namespace AppStract.Server.Hooking
           {
             GuestCore.Log(new LogMessage(LogLevel.Critical, "HookManager failed to install API Hook: " + hook.Description, e),
                           false);
-            Process.GetCurrentProcess().Kill();
+            GuestCore.TerminateProcess(-1, ExitMethod.Kill);
           }
         }
       }
