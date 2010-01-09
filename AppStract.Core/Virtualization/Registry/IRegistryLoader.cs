@@ -25,9 +25,16 @@ using AppStract.Utilities.Observables;
 
 namespace AppStract.Core.Virtualization.Registry
 {
+  /// <summary>
+  /// Defines a method to load the virtual registry to an <see cref="ObservableDictionary{TKey,TValue}"/>.
+  /// </summary>
   public interface IRegistryLoader
   {
 
+    /// <summary>
+    /// Loads all known registry keys and their associated values to an <see cref="ObservableDictionary{TKey,TValue}"/>.
+    /// </summary>
+    /// <param name="keyList">The <see cref="ObservableDictionary{TKey,TValue}"/> to load the registry to.</param>
     void LoadRegistryTo(ObservableDictionary<uint, VirtualRegistryKey> keyList);
 
   }

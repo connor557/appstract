@@ -23,17 +23,56 @@
 
 namespace AppStract.Core.Virtualization.Registry
 {
+  /// <summary>
+  /// Provides access to the virtual registry.
+  /// </summary>
   public interface IRegistryProvider
   {
 
+    /// <summary>
+    /// Sets the data for the specified value in the specified registry key.
+    /// </summary>
+    /// <param name="hKey"></param>
+    /// <param name="valueName"></param>
+    /// <param name="valueType"></param>
+    /// <param name="data"></param>
+    /// <returns></returns>
     uint SetValue(uint hKey, string valueName, uint valueType, object data);
 
+    /// <summary>
+    /// Opens the specified registry key.
+    /// </summary>
+    /// <param name="hKey"></param>
+    /// <param name="subKey"></param>
+    /// <param name="hSubKey">The handle to the opened key.</param>
+    /// <returns></returns>
     uint OpenKey(uint hKey, string subKey, out uint hSubKey);
 
+    /// <summary>
+    /// Creates the specified registry key.
+    /// </summary>
+    /// <param name="hKey"></param>
+    /// <param name="subKey"></param>
+    /// <param name="hSubKey"></param>
+    /// <param name="lpdwDisposition"></param>
+    /// <returns></returns>
     uint CreateKey(uint hKey, string subKey, out uint hSubKey, out int lpdwDisposition);
 
+    /// <summary>
+    /// Retrieves the type and data for a specified value name associated with an open registry key.
+    /// </summary>
+    /// <param name="hKey"></param>
+    /// <param name="valueName"></param>
+    /// <param name="value"></param>
+    /// <param name="valueType"></param>
+    /// <returns></returns>
     uint QueryValue(uint hKey, string valueName, out object value, out uint valueType);
 
+    /// <summary>
+    /// Closes a handle to the specified registry key.
+    /// </summary>
+    /// <param name="hKey"></param>
+    /// <returns></returns>
     uint CloseKey(uint hKey);
 
   }

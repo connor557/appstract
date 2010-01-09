@@ -102,13 +102,14 @@ namespace AppStract.Server.Registry
 
     public uint QueryValue(uint hKey, string valueName, out object value, out uint valueType)
     {
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "Query value {0} from HKey {1}",
-        valueName, hKey));
+      GuestCore.Log(new LogMessage(LogLevel.Debug, "Query value {0} from HKey {1}", valueName, hKey));
       VirtualRegistryValue virtualRegistryValue;
-      NativeResultCode code = _virtualRegistry.QueryValue(hKey, valueName, out virtualRegistryValue);
+      var hResult = _virtualRegistry.QueryValue(hKey, valueName, out virtualRegistryValue);
       value = virtualRegistryValue.Data;
-      valueType = RegistryHelper.ValueTypeIdFromValueType(virtualRegistryValue.Type);
-      return WinError.FromStateCode(code);
+      valueType = hResult == NativeResultCode.Succes
+                    ? RegistryHelper.ValueTypeIdFromValueType(virtualRegistryValue.Type)
+                    : RegistryHelper.ValueTypeIdFromValueType(ValueType.REG_NONE);
+      return WinError.FromStateCode(hResult);
     }
 
     public uint CloseKey(uint hKey)

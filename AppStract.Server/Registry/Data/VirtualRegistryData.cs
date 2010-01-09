@@ -34,7 +34,7 @@ namespace AppStract.Server.Registry.Data
   /// <summary>
   /// Database for all the keys known by the virtual registry.
   /// </summary>
-  public class VirtualRegistryData : RegistryBase
+  public sealed class VirtualRegistryData : RegistryBase
   {
 
     #region Constructors
