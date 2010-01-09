@@ -34,7 +34,7 @@ namespace AppStract.Server.Registry.Data
   /// Buffers keys that are read from the host's registry
   /// without being saved to the virtual registry.
   /// </summary>
-  public class TransparentRegistry : RegistryBase
+  public sealed class TransparentRegistry : RegistryBase
   {
 
     #region Variables
@@ -207,7 +207,7 @@ namespace AppStract.Server.Registry.Data
     {
       string subKeyName;
       RegistryKey registryKey = RegistryHelper.GetHiveAsKey(keyFullPath, out subKeyName);
-      creationDisposition = RegCreationDisposition.INVALID;
+      creationDisposition = RegCreationDisposition.NoKeyCreated;
       if (registryKey == null)
         return null;
       if (subKeyName == null)
@@ -218,12 +218,12 @@ namespace AppStract.Server.Registry.Data
         subRegistryKey = registryKey.OpenSubKey(subKeyName);
         if (subRegistryKey != null)
         {
-          creationDisposition = RegCreationDisposition.REG_OPENED_EXISTING_KEY;
+          creationDisposition = RegCreationDisposition.OpenedExistingKey;
         }
         else
         {
           subRegistryKey = registryKey.CreateSubKey(subKeyName);
-          creationDisposition = RegCreationDisposition.REG_CREATED_NEW_KEY;
+          creationDisposition = RegCreationDisposition.CreatedNewKey;
         }
         registryKey.Close();
       }

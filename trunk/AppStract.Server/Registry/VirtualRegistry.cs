@@ -143,7 +143,7 @@ namespace AppStract.Server.Registry
     public NativeResultCode CreateKey(uint hKey, string subKeyName, out uint phkResult, out RegCreationDisposition creationDisposition)
     {
       phkResult = 0;
-      creationDisposition = RegCreationDisposition.INVALID;
+      creationDisposition = RegCreationDisposition.NoKeyCreated;
       string keyName = RegistryHelper.GetHiveAsString(hKey);
       if (keyName == null)
       {

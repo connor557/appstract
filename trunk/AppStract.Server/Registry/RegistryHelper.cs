@@ -136,9 +136,9 @@ namespace AppStract.Server.Registry
     public static string GetHiveAsString(uint hKey)
     {
       RegistryHive hive;
-      if (!IsHiveHandle(hKey, out hive))
-        return null;
-      return GetHiveAsString(hive);
+      return IsHiveHandle(hKey, out hive)
+               ? GetHiveAsString(hive)
+               : null;
     }
 
     /// <summary>
@@ -260,7 +260,7 @@ namespace AppStract.Server.Registry
       if (registryHive == RegistryHive.PerformanceData
           || registryHive == RegistryHive.DynData)
         return AccessMechanism.Transparent;
-      throw new ApplicationException("Can't determine required action for unknown keys of the " + registryHive);
+      throw new ApplicationException("Can't determine required action for unknown subkeys of  \"" + registryHive + "\"");
     }
 
     /// <summary>
@@ -372,9 +372,9 @@ namespace AppStract.Server.Registry
     /// <returns></returns>
     public static byte DispositionFromRegCreationDisposition(RegCreationDisposition creationDisposition)
     {
-      if (creationDisposition == RegCreationDisposition.REG_CREATED_NEW_KEY)
+      if (creationDisposition == RegCreationDisposition.CreatedNewKey)
         return 0x00000001;
-      if (creationDisposition == RegCreationDisposition.REG_OPENED_EXISTING_KEY)
+      if (creationDisposition == RegCreationDisposition.OpenedExistingKey)
         return 0x00000002;
       return 0x00000000;
     }

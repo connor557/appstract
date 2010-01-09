@@ -23,19 +23,26 @@
 
 namespace AppStract.Core.Virtualization.Registry
 {
+  /// <summary>
+  /// Represents how a key handle is retrieved from the registry, when using a create function.
+  /// </summary>
   public enum RegCreationDisposition
   {
     /// <summary>
-    /// Represents exceptions during the creation of a key.
+    /// The key is not created, mostly due to an exception caused by for example an invalid handle.
     /// </summary>
-    INVALID = 0,
+    /// <remarks>
+    /// In most cases an error code is returned by methods using <see cref="RegCreationDisposition"/>,
+    /// the value of that code can potentially provide more information on why the key is not created.
+    /// </remarks>
+    NoKeyCreated = 0,
     /// <summary>
     /// The key did not exist and was created.
     /// </summary>
-    REG_CREATED_NEW_KEY = 1,
+    CreatedNewKey = 1,
     /// <summary>
     /// The key existed and was simply opened without being changed.
     /// </summary>
-    REG_OPENED_EXISTING_KEY = 2
+    OpenedExistingKey = 2
   }
 }

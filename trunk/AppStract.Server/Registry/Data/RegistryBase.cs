@@ -146,11 +146,11 @@ namespace AppStract.Server.Registry.Data
     {
       if(OpenKey(keyFullPath, out hKey))
       {
-        creationDisposition = RegCreationDisposition.REG_OPENED_EXISTING_KEY;
+        creationDisposition = RegCreationDisposition.OpenedExistingKey;
       }
       else
       {
-        creationDisposition = RegCreationDisposition.REG_CREATED_NEW_KEY;
+        creationDisposition = RegCreationDisposition.CreatedNewKey;
         VirtualRegistryKey key = ConstructRegistryKey(keyFullPath);
         WriteKey(key, false);
         hKey = key.Handle;
