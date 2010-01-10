@@ -24,7 +24,8 @@
 namespace AppStract.Core.Data.Databases
 {
   /// <summary>
-  /// Represents a class using one or more instances of <see cref="IndexGenerator"/>.
+  /// <see cref="IIndexUser"/> is an interface that must be implemented by classes
+  /// which make use of one ore more instances of <see cref="IndexGenerator"/>.
   /// </summary>
   public interface IIndexUser
   {

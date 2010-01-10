@@ -28,7 +28,7 @@ namespace AppStract.Core.Data.Databases
   /// <summary>
   /// Represents an action that needs to be performed on a <see cref="Database{T}"/>.
   /// </summary>
-  /// <typeparam name="T"></typeparam>
+  /// <typeparam name="T">The type providing data for the specified action.</typeparam>
   [Serializable]
   public class DatabaseAction<T> : EventArgs
   {

@@ -64,6 +64,10 @@ namespace AppStract.Core.Data.Databases
 
     #region Properties
 
+    /// <summary>
+    /// Gets a collection of the ranges of indices that are excluded by the current <see cref="IndexGenerator"/>.
+    /// Indices within these ranges will thereby never be returned by <see cref="Next"/>.
+    /// </summary>
     public ICollection<IndexRange> ExcludedRanges
     {
       get { return _excludedRanges; }
@@ -86,7 +90,7 @@ namespace AppStract.Core.Data.Databases
     public IndexGenerator(IEnumerable<IndexRange> excludedRanges)
       : this()
     {
-      foreach (IndexRange range in excludedRanges)
+      foreach (var range in excludedRanges)
         _excludedRanges.Add(range);
     }
 
@@ -95,26 +99,26 @@ namespace AppStract.Core.Data.Databases
     #region Public Methods
 
     /// <summary>
-    /// Returns the first free index for registry keys.
+    /// Returns the first free index.
     /// </summary>
-    /// <param name="indexRequester">The instance requesting the new key, usually "this".</param>
+    /// <param name="indexRequester">The object requesting the new key, usually the object invoking this method.</param>
     /// <returns></returns>
     public uint Next(IIndexUser indexRequester)
     {
-      ValidateUser(indexRequester);
+      RegisterUser(indexRequester);
       lock (_indicesLock)
       {
         if (_freeIndices.Count != 0)
         {
-          uint keyIndex = _freeIndices[_freeIndices.Count - 1];
+          var freeIndex = _freeIndices[_freeIndices.Count - 1];
           _freeIndices.RemoveAt(_freeIndices.Count - 1);
-          return keyIndex;
+          return freeIndex;
         }
         /// ELSE: find a new index.
         do
         {
           _currentIndex++;
-        } while (IsExisting(_currentIndex));
+        } while (IsInUse(_currentIndex));
         return _currentIndex;
       }
     }
@@ -131,11 +135,14 @@ namespace AppStract.Core.Data.Databases
 
     /// <summary>
     /// Detaches the specified <see cref="IIndexUser"/> from the current <see cref="IndexGenerator"/>.
-    /// This means that new indices, generated with <see cref="Next"/>, may be simultaneously used
-    /// by the detached object.
+    /// This means that new indices, generated with <see cref="Next"/>, will not be verified anymore
+    /// from <paramref name="indexUser"/> and may thereby be simultaneously used by the detached object.
     /// </summary>
-    /// <param name="indexUser"></param>
-    /// <returns></returns>
+    /// <param name="indexUser">The <see cref="IIndexUser"/> to detach.</param>
+    /// <returns>
+    /// True if the specified <see cref="IIndexUser"/> was successfully detached from the <see cref="IndexGenerator"/>; otherwise, false.
+    /// This method also returns false if the <paramref name="indexUser"/> is not found to be registered with the current <see cref="IndexGenerator"/>.
+    /// </returns>
     public bool Detach(IIndexUser indexUser)
     {
       _usersLock.EnterWriteLock();
@@ -159,7 +166,7 @@ namespace AppStract.Core.Data.Databases
     /// if the user isn't known by the current <see cref="IndexGenerator"/>.
     /// </summary>
     /// <param name="user"></param>
-    private void ValidateUser(IIndexUser user)
+    private void RegisterUser(IIndexUser user)
     {
       _usersLock.EnterUpgradeableReadLock();
       try
@@ -188,7 +195,7 @@ namespace AppStract.Core.Data.Databases
     /// </summary>
     /// <param name="indexToValidate"></param>
     /// <returns></returns>
-    private bool IsExisting(uint indexToValidate)
+    private bool IsInUse(uint indexToValidate)
     {
       /// First check the ranges with indices to exclude.
       foreach (IndexRange range in _excludedRanges)

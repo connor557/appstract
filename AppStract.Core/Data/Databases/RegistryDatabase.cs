@@ -27,7 +27,8 @@ using System.Data;
 using System.Data.SQLite;
 using System.IO;
 using AppStract.Core.Virtualization.Registry;
-using ValueType=AppStract.Core.Virtualization.Registry.ValueType;
+using AppStract.Utilities.Helpers;
+using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
 
 namespace AppStract.Core.Data.Databases
 {
@@ -37,25 +38,51 @@ namespace AppStract.Core.Data.Databases
   public class RegistryDatabase : Database<VirtualRegistryKey>
   {
 
-    #region Variables
+    #region Constants
 
+    /// <summary>
+    /// The name, as used in the database, of the table containing all known registry keys.
+    /// </summary>
     private const string _DatabaseKeyTable = "registrykeys";
-    private const string _DatabaseValueTable = "registryvalues";
+    /// <summary>
+    /// The name of the column in <see cref="_DatabaseKeyTable"/> which holds the identifiers of the known keys.
+    /// </summary>
     private const string _DatabaseKeyHandle = "id";
+    /// <summary>
+    /// The name of the column in <see cref="_DatabaseKeyTable"/> which holds the names of the known keys.
+    /// </summary>
     private const string _DatabaseKeyName = "name";
+    /// <summary>
+    /// The name, as used in the database, of the table containing all known registry values.
+    /// </summary>
+    private const string _DatabaseValueTable = "registryvalues";
+    /// <summary>
+    /// The name of the column in <see cref="_DatabaseValueTable"/> which holds for each known value
+    /// the identifier of the key under which the value is stored.
+    /// </summary>
     private const string _DatabaseValueKey = "key";
+    /// <summary>
+    /// The name of the column in <see cref="_DatabaseValueTable"/> which holds the names of the registry values.
+    /// </summary>
     private const string _DatabaseValueName = "name";
+    /// <summary>
+    /// The name of the column in <see cref="_DatabaseValueTable"/> which holds the value data of the registry values.
+    /// </summary>
     private const string _DatabaseValueValue = "value";
+    /// <summary>
+    /// The name of the column in <see cref="_DatabaseValueTable"/> which holds the types of the registry values.
+    /// </summary>
     private const string _DatabaseValueType = "type";
-
-    #endregion
-
-    #region Properties
 
     #endregion
 
     #region Constructors
 
+    /// <summary>
+    /// Initializes a new <see cref="RegistryDatabase"/> using the <paramref name="connectionString"/> provided.
+    /// </summary>
+    /// <exception cref="ArgumentException">An <see cref="ArgumentException"/> is thrown if the <paramref name="connectionString"/> is invalid.</exception>
+    /// <param name="connectionString">The <see cref="string"/> to use for connecting to the underlying database.</param>
     public RegistryDatabase(string connectionString)
       : base(connectionString)
     {
@@ -70,7 +97,7 @@ namespace AppStract.Core.Data.Databases
     /// Returns a <see cref="FileSystemDatabase"/> using the default connectionstring.
     /// </summary>
     /// <remarks>
-    /// <see cref="Initialize"/> must be called before being able to use the returned instance,
+    /// <see cref="Initialize"/> must be called on the returned instance before being able to use it,
     /// just as with any other instance of <see cref="RegistryDatabase"/>.
     /// </remarks>
     /// <param name="filename">The path of the file to use as data source.</param>
@@ -97,16 +124,21 @@ namespace AppStract.Core.Data.Databases
       var index = _connectionString.IndexOf("data source=");
       if (index == -1)
         throw new DatabaseException("The database's connection string is invalid.");
+      // The string "data source=" contains 12 characters
       var filename = _connectionString.Substring(index + 12, _connectionString.IndexOf(';') - 12);
       if (!File.Exists(filename))
         File.Create(filename).Close();
       var creationQuery = string.Format("CREATE TABLE {0} ({1} INTEGER PRIMARY KEY, {2} TEXT);",
                                         _DatabaseKeyTable, _DatabaseKeyHandle, _DatabaseKeyName);
-      VerifyTable(_DatabaseKeyTable, creationQuery, false);
+      if (!TableExists(_DatabaseKeyTable, creationQuery))
+        throw new DatabaseException("Unable to create table\"" + _DatabaseKeyTable
+                                    + "\" with the following query: " + creationQuery);
       creationQuery = string.Format("CREATE TABLE {0} ({1} TEXT, {2} INTEGER, {3} BLOB, {4} TEXT);",
                                     _DatabaseValueTable, _DatabaseValueName, _DatabaseValueKey, _DatabaseValueValue,
                                     _DatabaseValueType);
-      VerifyTable(_DatabaseValueTable, creationQuery, false);
+      if (!TableExists(_DatabaseValueTable, creationQuery))
+        throw new DatabaseException("Unable to create table\"" + _DatabaseValueTable
+                                    + "\" with the following query: " + creationQuery);
     }
 
     /// <summary>
@@ -115,26 +147,20 @@ namespace AppStract.Core.Data.Databases
     /// <returns></returns>
     public override IEnumerable<VirtualRegistryKey> ReadAll()
     {
-      /// Read the keys.
-      var keys = ReadAll<VirtualRegistryKey>(new[] {_DatabaseKeyTable},
-                                             new[] {_DatabaseKeyHandle, _DatabaseKeyName},
-                                             BuildKeyFromReadAllQuery);
-      /// Read the values
-      foreach (var key in keys)
+      // Declare the constant parameters for the Read() method.
+      var keyTables = new[] {_DatabaseKeyTable};
+      var keyColumns = new[] {_DatabaseKeyHandle, _DatabaseKeyName};
+      var valueTables = new[] {_DatabaseValueTable};
+      var valueColumns = new[] {_DatabaseValueKey, _DatabaseValueName, _DatabaseValueValue, _DatabaseValueType};
+      // Read all known keys.
+      foreach (var key in Read<VirtualRegistryKey>(keyTables, keyColumns, BuildKeyFromReadAllQuery))
       {
-        var values = ReadAll<VirtualRegistryValue>(new[] {_DatabaseValueTable},
-                                                   new[]
-                                                     {
-                                                       _DatabaseValueKey, _DatabaseValueName,
-                                                       _DatabaseValueValue, _DatabaseValueType
-                                                     },
-                                                   new[]
-                                                     {new KeyValuePair<object, object>(_DatabaseValueKey, key.Handle)},
-                                                   BuildValueFromReadAllQuery);
-        foreach (var value in values)
+        // Declare the condinationals for the values associated to the current key, and read those values.
+        var valueConditionals = new[] {new KeyValuePair<object, object>(_DatabaseValueKey, key.Handle)};
+        foreach (var value in Read<VirtualRegistryValue>(valueTables, valueColumns, valueConditionals, BuildValueFromReadAllQuery))
           key.Values.Add(value.Name, value);
+        yield return key;
       }
-      return keys;
     }
 
     /// <summary>
@@ -152,7 +178,7 @@ namespace AppStract.Core.Data.Databases
 
     protected override void AppendDeleteQuery(SQLiteCommand command, ParameterGenerator seed, VirtualRegistryKey item)
     {
-      string param = seed.Next();
+      var param = seed.Next();
       command.CommandText += string.Format("DELETE FROM {0} WHERE {1} = {2}; DELETE FROM {3} WHERE {4} = {2};",
                                            _DatabaseKeyTable, _DatabaseKeyHandle, param,
                                            _DatabaseValueTable, _DatabaseValueKey);
@@ -185,7 +211,7 @@ namespace AppStract.Core.Data.Databases
                                            _DatabaseKeyHandle, paramHandle);
       command.Parameters.AddWithValue(paramHandle, item.Handle);
       command.Parameters.AddWithValue(paramName, item.Path);
-      /// Delete all values. It's not possible to use an update query.
+      /// Delete all values. It's too complicated to use an update query.
       paramHandle = seed.Next();
       command.CommandText += string.Format("DELETE FROM {0} WHERE {1} = {2};",
                                            _DatabaseValueTable, _DatabaseValueKey, paramHandle);
@@ -205,12 +231,9 @@ namespace AppStract.Core.Data.Databases
 
     private static VirtualRegistryValue BuildValueFromReadAllQuery(IDataRecord dataRecord)
     {
-      var value = new VirtualRegistryValue(dataRecord.GetString(1), dataRecord.GetValue(2), ValueType.REG_NONE);
-      string valueType = dataRecord.GetString(3);
-      var enumType = typeof (ValueType);
-      if (Enum.IsDefined(enumType, valueType))
-        value.Type = (ValueType)Enum.Parse(enumType, valueType, true);
-      return value;
+      ValueType valueType;
+      ParserHelper.TryParseEnum(dataRecord.GetString(3), out valueType);
+      return new VirtualRegistryValue(dataRecord.GetString(1), dataRecord.GetValue(2), valueType);
     }
 
     private static void AppendInsertQueryForValues(SQLiteCommand command, ParameterGenerator seed, object keyHandle, IEnumerable<VirtualRegistryValue> values)
