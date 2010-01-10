@@ -50,11 +50,11 @@ namespace AppStract.Core.Data.Databases
     /// </summary>
     private readonly ObservableQueue<DatabaseAction<T>> _actionQueue;
     /// <summary>
-    /// Lock to use when working with <see cref="_actionQueue"/>.
+    /// Object to acquire a write-lock on when flushing <see cref="_actionQueue"/>.
     /// </summary>
-    private readonly ReaderWriterLockSlim _actionQueueLock;
+    private readonly ReaderWriterLockSlim _flushLock;
     /// <summary>
-    /// Lock to use when using the database file.
+    /// Lock to use while a connection to the database is open and used.
     /// </summary>
     private readonly ReaderWriterLockSlim _sqliteLock;
 
@@ -92,16 +92,16 @@ namespace AppStract.Core.Data.Databases
     /// <summary>
     /// Initializes a new instance of <see cref="Database{T}"/>.
     /// </summary>
-    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="ArgumentException">An <see cref="ArgumentException"/> is thrown if the <paramref name="connectionString"/> is invalid.</exception>
     /// <param name="connectionString">The connectionstring to use to connect to the SQLite database.</param>
     protected Database(string connectionString)
     {
       _connectionString = connectionString.ToLowerInvariant();
-      /// Do a basic check on the connectionstring.
+      // Do a basic check on the connectionstring.
       if (!_connectionString.Contains("data source="))
         throw new ArgumentException("The connectionstring must at least specify a data source.");
       _sqliteLock = new ReaderWriterLockSlim();
-      _actionQueueLock = new ReaderWriterLockSlim();
+      _flushLock = new ReaderWriterLockSlim();
       _actionQueue = new ObservableQueue<DatabaseAction<T>>();
       _actionQueue.ItemEnqueued += OnActionEnqueued;
     }
@@ -124,24 +124,24 @@ namespace AppStract.Core.Data.Databases
     public abstract IEnumerable<T> ReadAll();
 
     /// <summary>
-    /// Enqueues an action to be commited to the database.
+    /// Enqueues an action to be committed to the database.
     /// </summary>
     /// <param name="databaseAction"></param>
     public void EnqueueAction(DatabaseAction<T> databaseAction)
     {
-      /// Don't acquire a write lock, this class can handle the enqueueing of new items while flushing.
-      /// A lock is only necessary when dequeueing items.
+      // Don't acquire a write lock, this class can handle the enqueueing of new items while flushing.
+      // A lock is only necessary when dequeueing items.
       _actionQueue.Enqueue(databaseAction);
     }
 
     /// <summary>
-    /// Enqueues multiple actions to be commited to the database.
+    /// Enqueues multiple actions to be committed to the database.
     /// </summary>
     /// <param name="databaseActions"></param>
     public void EnqueueAction(IEnumerable<DatabaseAction<T>> databaseActions)
     {
-      /// Don't acquire a write lock, this class can handle the enqueueing of new items while flushing.
-      /// A lock is only necessary when dequeueing items.
+      // Don't acquire a write lock, this class can handle the enqueueing of new items while flushing.
+      // A lock is only necessary when dequeueing items.
       _actionQueue.Enqueue(databaseActions, false);
     }
 
@@ -151,23 +151,29 @@ namespace AppStract.Core.Data.Databases
 
     /// <summary>
     /// Returns whether the table with the specified <paramref name="tableName"/> exists.
+    /// </summary>
+    /// <exception cref="ArgumentNullException">
+    /// An <see cref="ArgumentNullException"/> is thrown if <paramref name="tableName"/> is null.
+    /// </exception>
+    /// <param name="tableName">Table to verify.</param>
+    protected bool TableExists(string tableName)
+    {
+      return TableExists(tableName, null);
+    }
+
+    /// <summary>
+    /// Returns whether the table with the specified <paramref name="tableName"/> exists.
     /// If the table does not exist and <paramref name="creationQuery"/> is not null, the table is created.
     /// </summary>
     /// <exception cref="ArgumentNullException">
     /// An <see cref="ArgumentNullException"/> is thrown if <paramref name="tableName"/> is null.
     /// </exception>
-    /// <exception cref="DatabaseException">
-    /// A <see cref="DatabaseException"/> is thrown when the method is unable to create the table.
-    /// </exception>
     /// <param name="tableName">Table to verify.</param>
     /// <param name="creationQuery">
     /// Query to use if the table needs to be created.
-    /// If this parameter is null, the method behaves like an Exists() method.
+    /// If this parameter is null, the method behaves like the <see cref="TableExists(string)"/> method.
     /// </param>
-    /// <param name="clearTableIfExists">
-    /// Whether the table must be cleared if it already exists, this deletes all rows from the table.
-    /// </param>
-    protected bool VerifyTable(string tableName, string creationQuery, bool clearTableIfExists)
+    protected bool TableExists(string tableName, string creationQuery)
     {
       if (tableName == null)
         throw new ArgumentNullException("tableName");
@@ -181,29 +187,22 @@ namespace AppStract.Core.Data.Databases
           try
           {
             command.ExecuteReader().Close();
-            if (!clearTableIfExists)
-              return true;
-            try
-            {
-              command.CommandText = "DELETE FROM \"" + tableName + "\"";
-              command.ExecuteNonQuery();
-            }
-            catch (Exception e)
-            {
-              CoreBus.Log.Debug("[Database] Failed to clear table \"{0}\"", e, tableName);
-            }
             return true;
           }
           catch (SQLiteException)
           {
             CoreBus.Log.Debug("[Database] Failed to verify existance of table \"{0}\"", tableName);
-            /// Create the table.
+            // Create the table?
             if (creationQuery != null)
             {
               command = new SQLiteCommand(creationQuery, connection);
-              if (!ExecuteCommand(command))
-                throw new Exception("[Database] Unable to create table\"" + tableName
-                                    + "\" with the following query: " + creationQuery);
+              if (ExecuteCommand(command) && TableExists(tableName))
+              {
+                CoreBus.Log.Debug("[Database] Created table \"{0}\"", tableName);
+                return true;
+              }
+              CoreBus.Log.Error("[Database] Failed to create table \"{0}\" with the following query: {1}",
+                                tableName, creationQuery);
             }
             return false;
           }
@@ -225,24 +224,31 @@ namespace AppStract.Core.Data.Databases
     /// <param name="columns">The columns to read all values from.</param>
     /// <param name="itemBuilder">
     /// The method to use when building the item. The <see cref="IDataRecord"/>'s fields
-    /// are in the same order as the columns in the <paramref name="columns"/> parameter.
+    /// are provided in the same order as the column-definitions in the <paramref name="columns"/> parameter.
     /// </param>
     /// <returns>A list of all items.</returns>
-    protected IList<ItemType> ReadAll<ItemType>(IEnumerable<string> tables, IEnumerable<string> columns,
+    protected IList<ItemType> Read<ItemType>(IEnumerable<string> tables, IEnumerable<string> columns,
       BuildItemFromQueryData<ItemType> itemBuilder)
     {
-      List<ItemType> entries = new List<ItemType>();
+      // The list of read values,
+      // don't use a 'yield return' statement because the used resources must be freed as soon as possible.
+      // These resources include the lock on _sqliteLock and the open SQLiteConnection.
+      var entries = new List<ItemType>();
       try
       {
         _sqliteLock.EnterReadLock();
-        using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
+        using (var connection = new SQLiteConnection(_connectionString))
         {
-          string query = BuildSelectQuery(tables, columns).ToString();
-          SQLiteCommand command = new SQLiteCommand(query.EndsWith(";") ? query : query + ";", connection);
-          command.Connection.Open();
-          SQLiteDataReader reader = command.ExecuteReader();
-          while (reader.Read())
-            entries.Add(itemBuilder(reader));
+          var query = BuildSelectQuery(tables, columns).ToString();
+          using (var command = new SQLiteCommand(query.EndsWith(";") ? query : query + ";", connection))
+          {
+            command.Connection.Open();
+            using (var reader = command.ExecuteReader())
+            {
+              while (reader.Read())
+                entries.Add(itemBuilder(reader));
+            }
+          }
         }
       }
       finally
@@ -266,21 +272,28 @@ namespace AppStract.Core.Data.Databases
     /// are in the same order as the columns in the <paramref name="columns"/> parameter.
     /// </param>
     /// <returns>A list of all items.</returns>
-    protected IList<ItemType> ReadAll<ItemType>(IEnumerable<string> tables, IEnumerable<string> columns,
+    protected IEnumerable<ItemType> Read<ItemType>(IEnumerable<string> tables, IEnumerable<string> columns,
       IEnumerable<KeyValuePair<object, object>> conditionals, BuildItemFromQueryData<ItemType> itemBuilder)
     {
-      List<ItemType> entries = new List<ItemType>();
+      // The list of read values,
+      // don't use a 'yield return' statement because the used resources must be freed as soon as possible.
+      // These resources include the lock on _sqliteLock and the open SQLiteConnection.
+      var entries = new List<ItemType>();
       try
       {
         _sqliteLock.EnterReadLock();
-        using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
+        using (var connection = new SQLiteConnection(_connectionString))
         {
-          string query = BuildSelectQuery(tables, columns, conditionals).ToString();
-          SQLiteCommand command = new SQLiteCommand(query.EndsWith(";") ? query : query + ";", connection);
-          command.Connection.Open();
-          SQLiteDataReader reader = command.ExecuteReader();
-          while (reader.Read())
-            entries.Add(itemBuilder(reader));
+          var query = BuildSelectQuery(tables, columns, conditionals).ToString();
+          using (var command = new SQLiteCommand(query.EndsWith(";") ? query : query + ";", connection))
+          {
+            command.Connection.Open();
+            using (var reader = command.ExecuteReader())
+            {
+              while (reader.Read())
+                entries.Add(itemBuilder(reader));
+            }
+          }
         }
       }
       finally
@@ -373,66 +386,99 @@ namespace AppStract.Core.Data.Databases
       ItemEnqueued(this, action);
       try
       {
-        Flush();
+        Flush(false);
       }
-      catch (Exception e)
+      catch (DatabaseException e)
       {
-        CoreBus.Log.Error("Failed to flush to database", e);
+        CoreBus.Log.Error("[Database] Failed to flush to database [" + _connectionString + "]", e);
       }
     }
 
     /// <summary>
     /// Flushes all queued <see cref="DatabaseAction{TItem}"/>s to the physical database.
-    /// It's not guaranteed that it's the current thread that will perform the flushing!
+    /// It's not guaranteed that it's the current thread that will perform the flushing.
     /// </summary>
-    /// <exception cref="Exception">
-    /// An <see cref="Exception"/> is thrown if flushing failes.
+    /// <exception cref="DatabaseException">
+    /// An <see cref="DatabaseException"/> is thrown if flushing failes.
     /// </exception>
-    private void Flush()
+    /// <exception cref="TimeoutException">
+    /// A <see cref="TimeoutException"/> is thrown if <paramref name="awaitRunningSequence"/> is set to true
+    /// and if the other flush sequence takes more than 2000ms to finish.
+    /// </exception>
+    /// <param name="awaitRunningSequence">
+    /// Specifies, in case a flush sequence is already running, whether or not this method needs to wait before returning until the other sequence ended.
+    /// If waiting takes more then 2000ms, a <see cref="TimeoutException"/> is thrown.
+    /// </param>
+    private void Flush(bool awaitRunningSequence)
     {
-      if (!_actionQueueLock.TryEnterWriteLock(200))
-        /// Already flushing, return.
-        return;
-      SQLiteConnection connection = new SQLiteConnection(_connectionString);
-      SQLiteCommand command = new SQLiteCommand(connection);
       try
       {
+        if (!_flushLock.TryEnterWriteLock(2))
+        {
+          // Already flushing, wait for flushing to end before return statement?
+          if (awaitRunningSequence)
+          {
+            if (!_flushLock.TryEnterWriteLock(2000))
+              throw new TimeoutException("Failed to wait for database-flushing to end.");
+            _flushLock.ExitWriteLock();
+          }
+          return;
+        }
+        var connection = new SQLiteConnection(_connectionString);
+        var command = new SQLiteCommand(connection);
         try
         {
-          ParameterGenerator seed = new ParameterGenerator();
-          while (_actionQueue.Count > 0)
+          // The 'items' array is used to cache all dequeued items
+          // untill it's made sure that they are written to the database.
+          var items = new List<DatabaseAction<T>>(_actionQueue.Count);
+          try
           {
-            var item = _actionQueue.Dequeue();
-            if (item.ActionType == DatabaseActionType.Update)
-              AppendUpdateQuery(command, seed, item.Item);
-            else if (item.ActionType == DatabaseActionType.Set)
-              AppendInsertQuery(command, seed, item.Item);
-            else if (item.ActionType == DatabaseActionType.Remove)
-              AppendDeleteQuery(command, seed, item.Item);
-            else
-              throw new NotImplementedException(
-                "DatabaseActionType is changed without adding an extra handler to the Database.FlushQueue() method.");
+            var seed = new ParameterGenerator();
+            while (_actionQueue.Count > 0)
+            {
+              var item = _actionQueue.Dequeue();
+              items.Add(item);
+              if (item.ActionType == DatabaseActionType.Update)
+                AppendUpdateQuery(command, seed, item.Item);
+              else if (item.ActionType == DatabaseActionType.Set)
+                AppendInsertQuery(command, seed, item.Item);
+              else if (item.ActionType == DatabaseActionType.Remove)
+                AppendDeleteQuery(command, seed, item.Item);
+              else
+                throw new NotImplementedException(
+                  "DatabaseActionType is changed without adding an extra handler to the Database.Flush() method.");
+            }
+          }
+          finally
+          {
+            _flushLock.ExitWriteLock();
+          }
+          // Execute the command as a single transaction to improve speed.
+          command.CommandText = "BEGIN;" + command.CommandText + "COMMIT;";
+          if (!ExecuteCommand(command))
+          {
+            // Failed to write items to database, enqueue them again.
+            _actionQueue.Enqueue(items, false);
+            throw new DatabaseException("Failed to flush the database.");
           }
         }
         finally
         {
-          _actionQueueLock.ExitWriteLock();
+          command.Dispose();
+          connection.Dispose();
         }
-        /// Execute the command as a single transaction to improve speed.
-        command.CommandText = "BEGIN;" + command.CommandText + "COMMIT;";
-        if (!ExecuteCommand(command))
-          throw new Exception("Failed to flush the database.");
       }
       finally
       {
-        command.Dispose();
-        connection.Dispose();
+        // This finally clause exists to make sure _flushLock is released in case of for example a ThreadAbortException
+        if (_flushLock.IsWriteLockHeld)
+          _flushLock.ExitWriteLock();
       }
     }
 
     /// <summary>
     /// Executes the given <paramref name="command"/> as a NonQuery.
-    /// This method will enter a writelock on <see cref="_sqliteLock"/>..
+    /// This method acquires a writelock on <see cref="_sqliteLock"/>.
     /// </summary>
     /// <param name="command"></param>
     /// <returns></returns>
@@ -446,8 +492,9 @@ namespace AppStract.Core.Data.Databases
         command.ExecuteNonQuery();
         return true;
       }
-      catch
+      catch (Exception e)
       {
+        CoreBus.Log.Debug("Failed to execute an SQL statement against the database.", e);
         return false;
       }
       finally
@@ -460,7 +507,7 @@ namespace AppStract.Core.Data.Databases
     /// Returns a query which selects the specified <paramref name="fields"/> from the specified <paramref name="tables"/>.
     /// </summary>
     /// <param name="tables">The tables to select fields from.</param>
-    /// <param name="fields">The fields to select from the tables.</param>
+    /// <param name="fields">The fields to select from the tables. If no fields are specified, a wildcard is used for the select query.</param>
     /// <returns></returns>
     private static StringBuilder BuildSelectQuery(IEnumerable<string> tables, IEnumerable<string> fields)
     {
@@ -468,51 +515,51 @@ namespace AppStract.Core.Data.Databases
         throw new ArgumentNullException("tables");
       if (fields == null)
         throw new ArgumentNullException("fields");
-      StringBuilder queryBuilder = new StringBuilder("SELECT ");
+      var queryString = new StringBuilder("SELECT ");
       /// Add columns to the query.
-      foreach (string field in fields)
-        queryBuilder.Append(field + ", ");
-      if (queryBuilder.ToString().EndsWith(", "))
-        queryBuilder.Remove(queryBuilder.Length - 2, 2);
+      foreach (var field in fields)
+        queryString.Append(field + ", ");
+      if (queryString.ToString().EndsWith(", "))
+        queryString.Remove(queryString.Length - 2, 2);
       else
         /// No columns to select? Select everything.
-        queryBuilder.Append("*");
-      queryBuilder.Append(" FROM ");
+        queryString.Append("*");
+      queryString.Append(" FROM ");
       /// Add tables to the query.
       foreach (string table in tables)
-        queryBuilder.Append(table + ", ");
-      if (queryBuilder.ToString().EndsWith(", "))
-        queryBuilder.Remove(queryBuilder.Length - 2, 2);
+        queryString.Append(table + ", ");
+      if (queryString.ToString().EndsWith(", "))
+        queryString.Remove(queryString.Length - 2, 2);
       else
-        /// No tables? Can't build a query without tables!
+        /// No tables? Can't build a query without tables.
         throw new ArgumentException("Unable to build the query because there are no tables defined.", "tables");
-      return queryBuilder;
+      return queryString;
     }
 
     /// <summary>
     /// Returns a query which selects the specified <paramref name="fields"/> from the specified <paramref name="tables"/>.
     /// </summary>
     /// <param name="tables">The tables to select fields from.</param>
-    /// <param name="fields">The fields to select from the tables.</param>
+    /// <param name="fields">The fields to select from the tables. If no fields are specified, a wildcard is used for the select query.</param>
     /// <param name="conditions">The conditions to select on using the WHERE keyword.</param>
     /// <returns></returns>
     private static StringBuilder BuildSelectQuery(IEnumerable<string> tables, IEnumerable<string> fields, IEnumerable<KeyValuePair<object, object>> conditions)
     {
       if (conditions == null)
         throw new ArgumentNullException("conditions");
-      StringBuilder queryBuilder = BuildSelectQuery(tables, fields);
-      if (queryBuilder[queryBuilder.Length - 1] == ';')
-        queryBuilder.Remove(queryBuilder.Length - 1, 1);
-      queryBuilder.Append(" WHERE ");
+      var queryString = BuildSelectQuery(tables, fields);
+      if (queryString[queryString.Length - 1] == ';')
+        queryString.Remove(queryString.Length - 1, 1);
+      queryString.Append(" WHERE ");
       /// Add the conditions.
-      foreach (KeyValuePair<object, object> condition in conditions)
-        queryBuilder.Append(condition.Key + " = " + condition.Value + " AND ");
-      if (queryBuilder.ToString().EndsWith(" AND "))
-        queryBuilder.Remove(queryBuilder.Length - 5, 5);
+      foreach (var condition in conditions)
+        queryString.Append(condition.Key + " = " + condition.Value + " AND ");
+      if (queryString.ToString().EndsWith(" AND "))
+        queryString.Remove(queryString.Length - 5, 5);
       else
-        /// No conditions? Remove the "WHERE keyword.
-        queryBuilder.Remove(queryBuilder.Length - 7, 7);
-      return queryBuilder;
+        /// No conditions? Remove the "WHERE" keyword.
+        queryString.Remove(queryString.Length - 7, 7);
+      return queryString;
     }
 
     #endregion
@@ -521,11 +568,11 @@ namespace AppStract.Core.Data.Databases
 
     public void Dispose()
     {
-      /// BUG: This call could return before the current instance is really flushed.
       try
       {
-        Flush();
+        Flush(true);
       }
+      // Catch all exceptions in order to avoid unexcepted exceptions to slip through.
       catch (Exception e)
       {
         CoreBus.Log.Error("Failed to flush to database", e);

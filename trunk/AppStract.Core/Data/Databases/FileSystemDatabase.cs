@@ -21,6 +21,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -38,7 +39,7 @@ namespace AppStract.Core.Data.Databases
     #region Constants
 
     /// <summary>
-    /// The name of the table in the database containing all key/values for the Filetable.
+    /// The name of the table in the database containing all key/value pairs for the Filetable.
     /// </summary>
     private const string _DatabaseFileTable = "filetable";
     /// <summary>
@@ -54,6 +55,11 @@ namespace AppStract.Core.Data.Databases
 
     #region Constructors
 
+    /// <summary>
+    /// Initializes a new <see cref="RegistryDatabase"/> using the <paramref name="connectionString"/> provided.
+    /// </summary>
+    /// <exception cref="ArgumentException">An <see cref="ArgumentException"/> is thrown if the <paramref name="connectionString"/> is invalid.</exception>
+    /// <param name="connectionString">The <see cref="string"/> to use for connecting to the underlying database.</param>
     public FileSystemDatabase(string connectionString)
       : base(connectionString)
     {
@@ -100,7 +106,9 @@ namespace AppStract.Core.Data.Databases
         File.Create(filename).Close();
       var creationQuery = string.Format("CREATE TABLE {0} ({1} TEXT, {2} TEXT);",
                                         _DatabaseFileTable, _DatabaseFileTableKey, _DatabaseFileTableValue);
-      VerifyTable(_DatabaseFileTable, creationQuery, false);
+      if (!TableExists(_DatabaseFileTable, creationQuery))
+        throw new DatabaseException("Unable to create table\"" + _DatabaseFileTable
+                                    + "\" with the following query: " + creationQuery);
     }
 
     /// <summary>
@@ -109,7 +117,7 @@ namespace AppStract.Core.Data.Databases
     /// <returns></returns>
     public override IEnumerable<FileTableEntry> ReadAll()
     {
-      return ReadAll<FileTableEntry>(new[] {_DatabaseFileTable},
+      return Read<FileTableEntry>(new[] {_DatabaseFileTable},
                                      new[] {_DatabaseFileTableKey, _DatabaseFileTableValue},
                                      BuildItemFromReadAllQuery);
     }
@@ -129,7 +137,7 @@ namespace AppStract.Core.Data.Databases
 
     protected override void AppendDeleteQuery(SQLiteCommand command, ParameterGenerator seed, FileTableEntry item)
     {
-      string paramKey = seed.Next();
+      var paramKey = seed.Next();
       command.CommandText += string.Format("DELETE FROM {0} WHERE {1} = {2};",
                                            _DatabaseFileTable, _DatabaseFileTableKey, paramKey);
       command.Parameters.AddWithValue(paramKey, item.Key);
@@ -137,8 +145,8 @@ namespace AppStract.Core.Data.Databases
 
     protected override void AppendInsertQuery(SQLiteCommand command, ParameterGenerator seed, FileTableEntry item)
     {
-      string paramKey = seed.Next();
-      string paramValue = seed.Next();
+      var paramKey = seed.Next();
+      var paramValue = seed.Next();
       command.CommandText += string.Format("INSERT INTO [{0}] ({1}, {2}) VALUES ({3}, {4});",
                                            _DatabaseFileTable, _DatabaseFileTableKey, _DatabaseFileTableValue,
                                            paramKey, paramValue);
@@ -148,8 +156,8 @@ namespace AppStract.Core.Data.Databases
 
     protected override void AppendUpdateQuery(SQLiteCommand command, ParameterGenerator seed, FileTableEntry item)
     {
-      string paramKey = seed.Next();
-      string paramValue = seed.Next();
+      var paramKey = seed.Next();
+      var paramValue = seed.Next();
       command.CommandText += string.Format("UPDATE {0} SET {1} = {2} WHERE \"{3}\" = {4};",
                                            _DatabaseFileTable,
                                            _DatabaseFileTableValue, paramValue,
