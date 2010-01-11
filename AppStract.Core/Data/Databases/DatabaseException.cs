@@ -25,13 +25,13 @@ using System;
 
 namespace AppStract.Core.Data.Databases
 {
+  [Serializable]
   public class DatabaseException : CoreException
   {
 
     #region Constructors
 
     public DatabaseException()
-      : base()
     { }
 
     public DatabaseException(string message)

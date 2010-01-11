@@ -30,7 +30,7 @@ namespace AppStract.Core.Data.Databases
   /// </summary>
   /// <typeparam name="T">The type providing data for the specified action.</typeparam>
   [Serializable]
-  public class DatabaseAction<T> : EventArgs
+  public sealed class DatabaseAction<T> : EventArgs
   {
 
     #region Variables
