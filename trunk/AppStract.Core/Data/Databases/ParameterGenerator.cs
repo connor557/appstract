@@ -28,7 +28,7 @@ namespace AppStract.Core.Data.Databases
   /// This class is intended to be used when building large queries
   /// by using different methods and/or threads.
   /// </summary>
-  public class ParameterGenerator
+  public sealed class ParameterGenerator
   {
 
     #region Variables
@@ -66,10 +66,7 @@ namespace AppStract.Core.Data.Databases
     public string Next()
     {
       lock (_indexLock)
-      {
-        _index++;
-        return "@param" + _index;
-      }
+        return "@param" + ++_index;
     }
 
     #endregion

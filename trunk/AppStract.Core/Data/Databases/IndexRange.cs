@@ -25,6 +25,9 @@ using System;
 
 namespace AppStract.Core.Data.Databases
 {
+  /// <summary>
+  /// Defines a range of indices.
+  /// </summary>
   public class IndexRange
   {
 
@@ -37,12 +40,18 @@ namespace AppStract.Core.Data.Databases
 
     #region Properties
 
+    /// <summary>
+    /// The start of the range.
+    /// </summary>
     public uint Start
     {
       get { return _start; }
       set { _start = value; }
     }
 
+    /// <summary>
+    /// The end of the range.
+    /// </summary>
     public uint End
     {
       get { return _end; }
@@ -53,6 +62,12 @@ namespace AppStract.Core.Data.Databases
 
     #region Constructor
 
+    /// <summary>
+    /// Instantiates a new <see cref="IndexRange"/> based on the values specified for
+    /// <paramref name="start"/> and <paramref name="end"/>.
+    /// </summary>
+    /// <param name="start">The start of the range.</param>
+    /// <param name="end">The end of the range.</param>
     public IndexRange(uint start, uint end)
     {
       if (end < start)
@@ -65,6 +80,11 @@ namespace AppStract.Core.Data.Databases
 
     #region Public Methods
 
+    /// <summary>
+    /// Returns whether the <paramref name="value"/> specified falls within range of the current <see cref="IndexRange"/>.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
     public bool IsInRange(uint value)
     {
       return value >= _start

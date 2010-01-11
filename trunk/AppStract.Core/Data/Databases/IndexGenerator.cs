@@ -30,7 +30,7 @@ namespace AppStract.Core.Data.Databases
   /// Generates indices to be used in a database.
   /// Users must first register before being able to acquire indices.
   /// </summary>
-  public class IndexGenerator
+  public sealed class IndexGenerator
   {
 
     #region Variables
