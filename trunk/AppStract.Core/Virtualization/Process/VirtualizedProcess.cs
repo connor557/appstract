@@ -38,7 +38,7 @@ namespace AppStract.Core.Virtualization.Process
   /// <summary>
   /// Provides access to local virtualized processes.
   /// </summary>
-  public class VirtualizedProcess : IDisposable
+  internal class VirtualizedProcess : IDisposable
   {
 
     #region Variables
@@ -172,7 +172,7 @@ namespace AppStract.Core.Virtualization.Process
     {
       /// Initialize the underlying resources.
       _gacManager.Initialize();
-      _connection.Initialize();
+      _connection.Connect();
       _hasExited = false;
       /// Start the process.
       switch (_startInfo.Files.Executable.Type)
@@ -220,7 +220,7 @@ namespace AppStract.Core.Virtualization.Process
         /// Extra parameters being passed to the injected library entry points Run() and Initialize()
         _connection.ChannelName);
       /// The process has been created, set the _process variable.
-      _process = SystemProcess.GetProcessById(processId, SystemProcess.GetCurrentProcess().MachineName);
+      _process = SystemProcess.GetProcessById(processId, CoreBus.Runtime.CurrentProcess.MachineName);
       _process.EnableRaisingEvents = true;
       _process.Exited += Process_Exited;
     }

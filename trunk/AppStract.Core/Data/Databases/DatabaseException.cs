@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using System.Runtime.Serialization;
 
 namespace AppStract.Core.Data.Databases
 {
@@ -41,6 +42,9 @@ namespace AppStract.Core.Data.Databases
     public DatabaseException(string message, Exception innerException)
       : base (message, innerException)
     { }
+
+    protected DatabaseException(SerializationInfo info, StreamingContext ctxt)
+      : base(info, ctxt) { }
 
     #endregion
 

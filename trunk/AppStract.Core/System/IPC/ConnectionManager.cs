@@ -30,18 +30,17 @@ namespace AppStract.Core.System.IPC
   /// <see cref="ConnectionManager"/> manages the connection used for inter-process communication
   /// between the current server process and a guest process.
   /// </summary>
-  public class ConnectionManager
+  internal sealed class ConnectionManager
   {
 
     #region Variables
 
     /// <summary>
-    /// Flag indicating whether <see cref="Initialize"/> is called.
+    /// Flag indicating whether <see cref="Connect"/> is called.
     /// </summary>
-    private bool _initialized;
+    private bool _connected;
     /// <summary>
-    /// The object responsible for the synchronization
-    /// between the server process and the virtualized process.
+    /// The object responsible for the synchronization between the server process and the virtualized process.
     /// </summary>
     private readonly IProcessSynchronizer _processSynchronizer;
     /// <summary>
@@ -60,22 +59,22 @@ namespace AppStract.Core.System.IPC
     /// <summary>
     /// Gets whether the connection is initialized and can be used for IPC.
     /// </summary>
-    public bool Initialized
+    public bool Connected
     {
-      get { return _initialized; }
+      get { return _connected; }
     }
 
     /// <summary>
     /// Name of the remoting-channel connecting the guest process to the server process.
     /// </summary>
     /// <exception cref="CoreException">
-    /// A <see cref="CoreException"/> is thrown if the channel name is requested before the <see cref="Initialize"/> method is called.
+    /// A <see cref="CoreException"/> is thrown if the channel name is requested while there is no connection initialized.
     /// </exception>
     public string ChannelName
     {
       get
       {
-        if (!_initialized)
+        if (!_connected)
           throw new CoreException("The resources have to be initialized before a channel name can be provided.");
         return _channelName;
       }
@@ -96,9 +95,9 @@ namespace AppStract.Core.System.IPC
 
     /// <summary>
     /// Initializes a new instance of <see cref="ConnectionManager"/>.
-    /// Before the underlying IPC-channel can be used, <see cref="Initialize"/> must be called.
+    /// Before the underlying IPC-channel can be used, <see cref="Connect"/> must be called.
     /// </summary>
-    /// <param name="processSynchronizer"></param>
+    /// <param name="processSynchronizer">The object responsible for the synchronization between the server process and the virtualized process.</param>
     public ConnectionManager(IProcessSynchronizer processSynchronizer)
     {
       _syncRoot = new object();
@@ -112,14 +111,14 @@ namespace AppStract.Core.System.IPC
     /// <summary>
     /// Initializes the connection between the server and guest process.
     /// </summary>
-    public void Initialize()
+    public void Connect()
     {
       lock (_syncRoot)
       {
-        if (_initialized) return;
+        if (_connected) return;
         ProcessSynchronizerInterface.SProcessSynchronizer = _processSynchronizer;
         RemoteHooking.IpcCreateServer<ProcessSynchronizerInterface>(ref _channelName, WellKnownObjectMode.Singleton);
-        _initialized = true;
+        _connected = true;
       }
     }
 

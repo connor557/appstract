@@ -35,7 +35,7 @@ namespace AppStract.Core.System.IPC
   /// <summary>
   /// Provides a way of data synchronization between multiple processes.
   /// </summary>
-  public class ProcessSynchronizer : MarshalByRefObject, IProcessSynchronizer
+  internal sealed class ProcessSynchronizer : MarshalByRefObject, IProcessSynchronizer
   {
 
     #region Variables

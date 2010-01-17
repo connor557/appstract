@@ -33,12 +33,18 @@ namespace AppStract.Core.Virtualization.Packaging
   /// To achieve this, the application's installer is executed
   /// and the data is intercepted to a <see cref="PackagedApplication"/>.
   /// </summary>
-  public class Packager
+  public sealed class Packager
   {
 
     #region Constants
 
+    /// <summary>
+    /// The filename of the database containing the filesystem data.
+    /// </summary>
     private const string _dbFileSystem = "AppStract.FileSystem.db3";
+    /// <summary>
+    /// The filename of the database containing the registry data.
+    /// </summary>
     private const string _dbRegistry = "AppStract.Registry.db3";
 
     #endregion

@@ -25,10 +25,20 @@ using System;
 
 namespace AppStract.Core.System.IPC
 {
-  public class ProcessSynchronizerInterface : MarshalByRefObject
+  /// <summary>
+  /// Enables access to an instance of <see cref="IProcessSynchronizer"/> across application domain boundaries.
+  /// </summary>
+  public sealed class ProcessSynchronizerInterface : MarshalByRefObject
   {
 
+    /// <summary>
+    /// The object providing means of synchronization between guest and host process.
+    /// </summary>
     public static IProcessSynchronizer SProcessSynchronizer;
+
+    /// <summary>
+    /// Gets or sets <see cref="SProcessSynchronizer"/>, which is the object providing means of synchronization between guest and host process.
+    /// </summary>
     public IProcessSynchronizer ProcessSynchronizer
     {
       get { return SProcessSynchronizer; }
