@@ -34,26 +34,26 @@ namespace AppStract.Utilities.Helpers
     #region Public Methods
 
     /// <summary>
-    /// Tries to parse an integer to a value of the specified <typeparamref name="EnumType"/>.
+    /// Tries to parse an object to a value of the specified <typeparamref name="EnumType"/>.
     /// </summary>
     /// <typeparam name="EnumType">The type of enumeration to parse to.</typeparam>
     /// <param name="value"></param>
     /// <param name="result"></param>
     /// <returns></returns>
-    public static bool TryParseEnum<EnumType>(int value, out EnumType result)
+    public static bool TryParseEnum<EnumType>(object value, out EnumType result)
     {
       result = default(EnumType);
-      var type = typeof (EnumType);
+      var type = typeof(EnumType);
       if (!type.IsEnum) return false;
       try
       {
-        result = (EnumType) Enum.ToObject(type, value);
-        return true;
-      }
-      catch
-      {
-        return false;
-      }
+        if (Enum.IsDefined(type, value))
+        {
+          result = (EnumType) value;
+          return true;
+        }
+      } catch (InvalidOperationException) { }
+      return false;
     }
 
     /// <summary>
