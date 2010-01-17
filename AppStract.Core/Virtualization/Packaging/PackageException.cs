@@ -22,19 +22,20 @@
 #endregion
 
 using System;
+using System.Runtime.Serialization;
 
 namespace AppStract.Core.Virtualization.Packaging
 {
   /// <summary>
   /// Represents an error related to the packaging of an application.
   /// </summary>
+  [Serializable]
   public class PackageException : CoreException
   {
 
     #region Constructors
 
     public PackageException()
-      : base()
     { }
 
     public PackageException(string message)
@@ -44,6 +45,9 @@ namespace AppStract.Core.Virtualization.Packaging
     public PackageException(string message, Exception innerException)
       : base (message, innerException)
     { }
+
+    protected PackageException(SerializationInfo info, StreamingContext ctxt)
+      : base(info, ctxt) { }
 
     #endregion
 

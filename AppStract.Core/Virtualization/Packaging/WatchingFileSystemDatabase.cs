@@ -31,7 +31,7 @@ namespace AppStract.Core.Virtualization.Packaging
   /// Watches the incoming <see cref="DatabaseAction{T}"/> for variables needed to created
   /// an instance of <see cref="PackagedApplication"/> when packaging has completed.
   /// </summary>
-  class WatchingFileSystemDatabase : FileSystemDatabase
+  internal sealed class WatchingFileSystemDatabase : FileSystemDatabase
   {
 
     #region Variables

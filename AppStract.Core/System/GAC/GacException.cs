@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using System.Runtime.Serialization;
 
 namespace AppStract.Core.System.GAC
 {
@@ -29,14 +30,13 @@ namespace AppStract.Core.System.GAC
   /// <summary>
   /// Represents errors that occur when performing actions on the local system's Global Assembly Cache.
   /// </summary>
+  [Serializable]
   public class GacException : CoreException
   {
-
 
     #region Constructors
 
     public GacException()
-      : base()
     { }
 
     public GacException(string message)
@@ -46,6 +46,9 @@ namespace AppStract.Core.System.GAC
     public GacException(string message, Exception innerException)
       : base(message, innerException)
     { }
+
+    protected GacException(SerializationInfo info, StreamingContext ctxt)
+      : base(info, ctxt) { }
 
     #endregion
 

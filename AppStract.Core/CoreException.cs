@@ -22,19 +22,20 @@
 #endregion
 
 using System;
+using System.Runtime.Serialization;
 
 namespace AppStract.Core
 {
   /// <summary>
-  /// Represents errors that occur during code execution in the application's core.
+  /// Represents errors that occur in the application's core.
   /// </summary>
+  [Serializable]
   public class CoreException : Exception
   {
 
     #region Constructors
 
     public CoreException()
-      : base()
     { }
 
     public CoreException(string message)
@@ -44,6 +45,9 @@ namespace AppStract.Core
     public CoreException(string message, Exception innerException)
       : base (message, innerException)
     { }
+
+    protected CoreException(SerializationInfo info, StreamingContext ctxt)
+      : base(info, ctxt) { }
 
     #endregion
 

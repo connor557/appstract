@@ -22,19 +22,20 @@
 #endregion
 
 using System;
+using System.Runtime.Serialization;
 
 namespace AppStract.Core.Virtualization.Process
 {
   /// <summary>
   /// Represents errors related to a <see cref="VirtualizedProcess"/>.
   /// </summary>
+  [Serializable]
   public class VirtualProcessException : CoreException
   {
 
     #region Constructors
 
     public VirtualProcessException()
-      : base()
     { }
 
     public VirtualProcessException(string message)
@@ -44,6 +45,9 @@ namespace AppStract.Core.Virtualization.Process
     public VirtualProcessException(string message, Exception innerException)
       : base (message, innerException)
     { }
+
+    protected VirtualProcessException(SerializationInfo info, StreamingContext ctxt)
+      : base(info, ctxt) { }
 
     #endregion
 

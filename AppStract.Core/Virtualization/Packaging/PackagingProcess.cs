@@ -35,7 +35,7 @@ namespace AppStract.Core.Virtualization.Packaging
   /// Derived from <see cref="VirtualizedProcess"/>
   /// and extended with functionality specific to the packaging of applications.
   /// </summary>
-  class PackagingProcess : VirtualizedProcess
+  internal sealed class PackagingProcess : VirtualizedProcess
   {
 
     #region Constructors
