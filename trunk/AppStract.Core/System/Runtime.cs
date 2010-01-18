@@ -77,7 +77,11 @@ namespace AppStract.Core.System
 
     public static Runtime Load()
     {
+#if !UnitTesting
       var runningExe = Assembly.GetEntryAssembly().CodeBase.Substring("file:///".Length);
+#else
+      var runningExe = Assembly.GetExecutingAssembly().CodeBase.Substring("file:///".Length);
+#endif
       return new Runtime
       {
         RunningExecutable = runningExe,

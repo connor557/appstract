@@ -5,15 +5,13 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{35F16113-D3A5-4D1A-AFCB-F778D5197D4E}</ProjectGuid>
+    <ProjectGuid>{915639C5-BB43-474F-97CB-B29033BFE922}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AppStract.Inject</RootNamespace>
-    <AssemblyName>AppStract.Inject</AssemblyName>
+    <RootNamespace>AppStract.UnitTesting</RootNamespace>
+    <AssemblyName>AppStract.UnitTesting</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>AppStract.Inject.Signature.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,6 +30,14 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'UnitTesting|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\UnitTesting\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -48,24 +55,28 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'UnitTesting|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\UnitTesting\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'UnitTesting|x86' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\UnitTesting\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="nunit.framework, Version=2.5.3.9345, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL" />
     <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -75,6 +86,18 @@
       <Project>{73CC3214-9CAD-4723-BBBB-79BE7482E639}</Project>
       <Name>AppStract.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\AppStract.Host\AppStract.Host.csproj">
+      <Project>{735A66C3-D42E-4C07-9125-5304D1F1C542}</Project>
+      <Name>AppStract.Host</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AppStract.Inject\AppStract.Inject.csproj">
+      <Project>{35F16113-D3A5-4D1A-AFCB-F778D5197D4E}</Project>
+      <Name>AppStract.Inject</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AppStract.Manager\AppStract.Manager.csproj">
+      <Project>{9497B6D7-48A2-4B3F-B0A3-880A2A8724C3}</Project>
+      <Name>AppStract.Manager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AppStract.Server\AppStract.Server.csproj">
       <Project>{4944058E-49BF-4CF8-968D-D905731EC728}</Project>
       <Name>AppStract.Server</Name>
@@ -83,16 +106,18 @@
       <Project>{29578947-FFF4-4A0A-9C75-AE3C5E03F746}</Project>
       <Name>AppStract.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\AppStract.Watcher\AppStract.Watcher.csproj">
+      <Project>{CF485022-F4D9-4B3B-B112-B3119564478B}</Project>
+      <Name>AppStract.Watcher</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AppStract.Wrapper\AppStract.Wrapper.csproj">
+      <Project>{0D55D71A-B787-4550-B450-E245BB6BCEE1}</Project>
+      <Name>AppStract.Wrapper</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EasyHook\EasyHook.csproj">
       <Project>{AB53862B-3B5C-4EFC-9787-1F01199EBFBF}</Project>
       <Name>EasyHook</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ProcessEntryPoint.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="AppStract.Inject.Signature.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -102,4 +127,14 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <PropertyGroup>
+    <PostBuildEvent>xcopy "$(SolutionDir)External Libraries\EasyHook" "$(TargetDir)" /i /r /y
+xcopy "$(SolutionDir)External Libraries\sqlite3.dll" "$(TargetDir)" /i /r /y
+xcopy "$(SolutionDir)AppStract.Inject\bin\x86\Debug\AppStract.Inject.dll" "$(TargetDir)" /i /r /y
+xcopy "$(SolutionDir)AppStract.Server\bin\x86\Debug\AppStract.Server.dll" "$(TargetDir)" /i /r /y
+xcopy "$(SolutionDir)AppStract.Host\bin\x86\Debug\AppStract.Host.exe" "$(TargetDir)" /i /r /y
+xcopy "$(SolutionDir)AppStract.Watcher\bin\x86\Debug\AppStract.Watcher.exe" "$(TargetDir)" /i /r /y
+xcopy "$(SolutionDir)AppStract.Wrapper\bin\x86\Debug\AppStract.Wrapper.exe" "$(TargetDir)" /i /r /y
+xcopy "$(SolutionDir)EasyHook\bin\x86\Debug" "$(TargetDir)" /i /r /y</PostBuildEvent>
+  </PropertyGroup>
 </Project>
