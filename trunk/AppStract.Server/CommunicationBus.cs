@@ -45,17 +45,17 @@ namespace AppStract.Server
   /// Realize that in 500ms many actions can be enqueued,
   /// and all these actions will be lost if the process would be killed by for example the Windows task manager.
   /// </remarks>
-  public class CommunicationBus : IFileSystemLoader, IRegistryLoader
+  internal sealed class CommunicationBus : IFileSystemLoader, IRegistryLoader
   {
 
     #region Variables
 
     /// <summary>
-    /// The <see cref="IResourceLoader"/>to use for loading the resources.
+    /// The <see cref="IResourceLoader"/> to use for loading the resources.
     /// </summary>
     private readonly IResourceLoader _loader;
     /// <summary>
-    /// The <see cref="ISynchronizer"/>to use for synchronization
+    /// The <see cref="ISynchronizer"/> to use for synchronization
     /// between the current guest process and the host process.
     /// </summary>
     private readonly ISynchronizer _synchronizer;
@@ -113,7 +113,7 @@ namespace AppStract.Server
             return;
           _autoFlush = value;
           if (_autoFlush)
-            new Thread(StartFlushing) { IsBackground = true }.Start();
+            new Thread(StartFlushing) { IsBackground = true, Name = "CommBus-AutoFlushing" }.Start();
         }
       }
     }

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{4944058E-49BF-4CF8-968D-D905731EC728}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -60,7 +60,6 @@
     <Compile Include="CommunicationBus.cs" />
     <Compile Include="ExitMethod.cs" />
     <Compile Include="ExitRequestEventHandler.cs" />
-    <Compile Include="FileSystem\DynamicFileSystemProvider.cs" />
     <Compile Include="FileSystem\FileAccessRedirector.cs" />
     <Compile Include="FileSystem\VirtualEnvironment.cs" />
     <Compile Include="FileSystem\VirtualFolder.cs" />
@@ -73,6 +72,7 @@
     <Compile Include="Hooking\HookImplementations.cs" />
     <Compile Include="Hooking\HookImplementations.FileSystem.cs" />
     <Compile Include="Hooking\HookImplementations.Registry.cs" />
+    <Compile Include="Hooking\HookingException.cs" />
     <Compile Include="Hooking\HookManager.cs" />
     <Compile Include="Registry\Data\TransparentRegistry.cs" />
     <Compile Include="Registry\Data\RegistryBase.cs" />

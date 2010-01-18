@@ -29,7 +29,7 @@ namespace AppStract.Server.Hooking
   /// <summary>
   /// The data needed for creating a managed hook.
   /// </summary>
-  public struct HookData
+  internal struct HookData
   {
 
     #region Variables
@@ -39,9 +39,13 @@ namespace AppStract.Server.Hooking
     /// </summary>
     private readonly string _description;
     /// <summary>
-    /// Target entry point that should be hooked.
+    /// A system DLL name like "kernel32.dll" or a full qualified path to any DLL.
     /// </summary>
-    private readonly IntPtr _targetEntryPoint;
+    private readonly string _targetLibraryName;
+    /// <summary>
+    /// An exported symbol name like "CreateFileW".
+    /// </summary>
+    private readonly string _targetSymbolName;
     /// <summary>
     /// Handler with the same signature as the original entry point that will
     /// be invoked for every call that has passed the Fiber Deadlock Barrier
@@ -49,7 +53,7 @@ namespace AppStract.Server.Hooking
     /// </summary>
     private readonly Delegate _handler;
     /// <summary>
-    /// Uninterpreted callback that will later be available through <seealso cref="HookRuntimeInfo.Callback"/>.
+    /// Uninterpreted callback that will later be available through <see cref="HookRuntimeInfo.Callback"/>.
     /// </summary>
     private readonly object _callback;
 
@@ -66,11 +70,19 @@ namespace AppStract.Server.Hooking
     }
 
     /// <summary>
-    /// Gets the target entry point that should be hooked.
+    /// Gets the name of the library containing the to-be-hooked symbol.
     /// </summary>
-    public IntPtr TargetEntryPoint
+    public string TargetLibrary
     {
-      get { return _targetEntryPoint; }
+      get { return _targetLibraryName; }
+    }
+
+    /// <summary>
+    /// Gets the name of the symbol that can be hooked with the data from the current <see cref="HookData"/>.
+    /// </summary>
+    public string TargetSymbol
+    {
+      get { return _targetSymbolName; }
     }
 
     /// <summary>
@@ -99,21 +111,26 @@ namespace AppStract.Server.Hooking
     /// <param name="description">
     /// The description of the API hook that can be installed with this <see cref="HookData"/>.
     /// </param>
-    /// <param name="targetEntryPoint">
-    /// The target entry point that must be hooked.
+    /// <param name="targetLibrary">
+    /// The name or a full qualified path of the system DLL containing <paramref name="targetSymbol"/>.
     /// </param>
-    /// <param name="handler">The handler with the same signature as the original entry
-    /// point that will be invoked for every call that has passed the Fiber Deadlock Barrier
-    /// and various integrity checks.
+    /// <param name="targetSymbol">
+    /// The exported symbol name of the target function, for example "CreateFileW".
+    /// </param>
+    /// <param name="handler">
+    /// The handler with the same signature as the function described by
+    /// the combination of <paramref name="targetLibrary"/> and <paramref name="targetSymbol"/>.
+    /// After the hooks are installed, this is the handler that will be invoked for every call
+    /// that has passed the various integrity checks conducted by EasyHook.
     /// </param>
     /// <param name="callback">
-    /// Uninterpreted callback that will later be available through
-    /// <seealso cref="HookRuntimeInfo.Callback"/>.
+    /// Uninterpreted callback that will later be available through <see cref="HookRuntimeInfo.Callback"/>.
     /// </param>
-    public HookData(string description, IntPtr targetEntryPoint, Delegate handler, object callback)
+    public HookData(string description, string targetLibrary, string targetSymbol, Delegate handler, object callback)
     {
       _description = description;
-      _targetEntryPoint = targetEntryPoint;
+      _targetLibraryName = targetLibrary;
+      _targetSymbolName = targetSymbol;
       _handler = handler;
       _callback = callback;
     }
@@ -123,12 +140,32 @@ namespace AppStract.Server.Hooking
     #region Public Methods
 
     /// <summary>
+    /// Gets the target entry point that should be hooked.
+    /// </summary>
+    /// <exception cref="HookingException">
+    /// A <see cref="HookingException"/> is thrown if no <see cref="IntPtr"/> can be retrieved
+    /// for the API hook described by the current <see cref="HookData"/>.
+    /// </exception>
+    public IntPtr GetTargetEntryPoint()
+    {
+      try
+      {
+        return LocalHook.GetProcAddress(_targetLibraryName, _targetSymbolName);
+      }
+      catch (SystemException e)
+      {
+        throw new HookingException("Failed to get pointer for API Hook: " + _description,
+                                   _targetLibraryName, _targetSymbolName, e);
+      }
+    }
+
+    /// <summary>
     /// Returns a string representation of the current <see cref="HookData"/>.
     /// </summary>
     /// <returns></returns>
     public override string ToString()
     {
-      return "[" + _targetEntryPoint + "] " + _handler.Method.Name;
+      return "[" + _targetLibraryName + "." + _targetSymbolName + "] " + _handler.Method.Name;
     }
 
     #endregion

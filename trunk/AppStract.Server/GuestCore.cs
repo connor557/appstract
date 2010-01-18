@@ -188,12 +188,19 @@ namespace AppStract.Server
     public static void InstallHooks(object inCallBack)
     {
       lock (_initializationLock)
-      {
         if (!_initialized)
           throw new GuestException("The GuestCore must be initialized before hook installation can start.");
-      }
       HookManager.Initialize(inCallBack, _hookImplementations);
-      HookManager.InstallHooks();
+      try
+      {
+        HookManager.InstallHooks();
+      }
+      catch (HookingException e)
+      {
+        Log(new LogMessage(LogLevel.Critical, "Failed to install API Hooks in target process", e), false);
+        TerminateProcess(-1, ExitMethod.Kill);
+        throw; // In case TerminateProcess didn't do it's job
+      }
       Log(new LogMessage(LogLevel.Information, "Process [PID{0}] is hooked.", _currentProcessId));
       Log(new LogMessage(LogLevel.Information, "Process [PID{0}] is ready to wake up.", _currentProcessId));
     }
@@ -238,7 +245,6 @@ namespace AppStract.Server
         return;
       try
       {
-        /// Note: Queue these message, similar to CommunicationBus?
         _serverReporter.ReportMessage(message);
       }
       catch (NullReferenceException e)
@@ -290,9 +296,9 @@ namespace AppStract.Server
                           : _exitRequestEventHandlersCollection.ToArray();
       }
       // Raise all events.
-      bool exitRequestHandled = false;
+      bool exitRequestHandled = true;
       foreach (var eventHandler in eventHandlers)
-        exitRequestHandled = eventHandler(exitCode) ? true : exitRequestHandled;
+        exitRequestHandled = eventHandler(exitCode) ? exitRequestHandled : false;
       // Write log message according to the result.
       if (exitRequestHandled)
         Log(new LogMessage(LogLevel.Debug, "Exit procedure is invoked."), false);

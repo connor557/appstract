@@ -34,7 +34,7 @@ namespace AppStract.Server.FileSystem
   /// <summary>
   /// The default implementation of <see cref="IFileSystemProvider"/>.
   /// </summary>
-  public class FileSystemProvider : IFileSystemProvider
+  public sealed class FileSystemProvider : IFileSystemProvider
   {
 
     #region Variables
@@ -75,7 +75,10 @@ namespace AppStract.Server.FileSystem
     /// Initializes a new instance of <see cref="FileSystemProvider"/>,
     /// using the <paramref name="rootDirectory"/> specified as root.
     /// </summary>
-    /// <param name="rootDirectory">The path to use as root directory.</param>
+    /// <param name="rootDirectory">
+    /// The path to use as root directory.
+    /// All filenames going in and out of the current <see cref="FileSystemProvider"/> should be interpreted as relatives to this path.
+    /// </param>
     public FileSystemProvider(string rootDirectory)
     {
       if (rootDirectory == null)
@@ -139,21 +142,21 @@ namespace AppStract.Server.FileSystem
     /// </summary>
     /// <param name="libraryPath">Library to search for.</param>
     /// <returns>Full path to the specified library.</returns>
-    private string TryFindLibrary(string libraryPath)
+    private string FindLibrary(string libraryPath)
     {
       string result;
-      /// Check the file table.
+      // Check the file table.
       if (TryGetFile(libraryPath, out result))
         return result;
-      /// Still not found? Redirect the request and see if then the library can be found.
+      // Still not found? Redirect the request and see if then the library can be found.
       string redirectedPath = FileAccessRedirector.Redirect(libraryPath);
       if (File.Exists(redirectedPath))
-        /// The file exists in the virtual file system, return it.
+        // The file exists in the virtual file system, return it.
         return redirectedPath;
-      /// Still not found?
-      /// We're sure the virtual folders don't contain the dll (because of TryGetFile and the redirection).
-      /// NOTE: Are we sure? Need to debug this!
-      /// Return the parameter and let Windows handle the search.
+      // Still not found?
+      // We're sure the virtual folders don't contain the dll (because of TryGetFile and the redirection).
+      // NOTE: Are we sure? Need to debug this!
+      // Return the parameter and let Windows handle the search.
       return libraryPath;
     }
 
@@ -165,7 +168,7 @@ namespace AppStract.Server.FileSystem
     private FileTableEntry AddNewEntryToFileTable(FileRequest fileRequest)
     {
       string fileEntryValue = FileAccessRedirector.Redirect(fileRequest.FullName);
-      /// Verify if fileEntryValue is a unique filename in the virtual environment.
+      // Verify if fileEntryValue is a unique filename in the virtual environment.
       string fullVirtualPath = Path.Combine(_root, fileEntryValue);
       int cnt = 0;
       while (File.Exists(fullVirtualPath))
@@ -178,24 +181,12 @@ namespace AppStract.Server.FileSystem
         fileEntryValue = fileEntryValue.Replace(filename, newFilename);
         fullVirtualPath = Path.Combine(_root, fileEntryValue);
       }
-      /// The value is now (probably?) unique, write it to the file table.
-      /// Why probably?
-      ///   A concurrent thread might use the same value,
-      ///   but the chance that this happens is almost zero
-      ///   and is not worth the overhead of adding a lock statement.
+      // The value is now (probably?) unique, write it to the file table.
+      // Why probably?
+      //   A concurrent thread might use the same value,
+      //   but the chance that this happens is almost zero
+      //   and is not worth the overhead of adding a lock statement.
       return WriteEntryToTable(fileRequest.Name, fileEntryValue, false);
-    }
-
-    /// <summary>
-    /// Returns the full path of a unique, zero-filled, temporary file.
-    /// </summary>
-    /// <param name="createFileOnDisk">Specifies whether the file needs to be created by this method.</param>
-    /// <returns>The full path to the temporary file.</returns>
-    private string GetTemporaryFile(bool createFileOnDisk)
-    {
-      string tempFolder = Path.Combine(_root,
-                                       VirtualEnvironment.GetFolderPath(VirtualFolder.Temporary));
-      return VirtualEnvironment.GetUniqueFile(tempFolder, createFileOnDisk);
     }
 
     /// <summary>
@@ -229,41 +220,41 @@ namespace AppStract.Server.FileSystem
 
     #region IFileSystemProvider Members
 
-    public virtual FileTableEntry GetFile(FileRequest fileRequest)
+    public FileTableEntry GetFile(FileRequest fileRequest)
     {
-      if (fileRequest.Name.StartsWith(@"\\.\")) /// Don't bother to try to redirect pipes.
-        return new FileTableEntry(fileRequest.Name, fileRequest.Name, FileKind.Unspecified);
-      if (FileAccessRedirector.IsTemporaryLocation(fileRequest.FullName)) /// Don't redirect temporary locations.
+      // Don't redirect pipes and temporary locations
+      if (fileRequest.Name.StartsWith(@"\\.\")
+          || FileAccessRedirector.IsTemporaryLocation(fileRequest.FullName))
         return new FileTableEntry(fileRequest.FullName, fileRequest.FullName, FileKind.Unspecified);
       GuestCore.Log(new LogMessage(LogLevel.Debug, "Guest process requested file: " + fileRequest));
-      /// Are we looking for a library?
+      // Are we looking for a library?
       if (fileRequest.ResourceKind == ResourceKind.Library)
-        return new FileTableEntry(fileRequest.Name, TryFindLibrary(fileRequest.Name), FileKind.File);
-      /// Are we looking for a regular file?
+        return new FileTableEntry(fileRequest.Name, FindLibrary(fileRequest.Name), FileKind.File);
+      // Are we looking for a regular file?
       string filename; // Variable to hold the file's location.
       if (fileRequest.ResourceKind == ResourceKind.FileOrDirectory
-          /// Can the file be found in the virtual file table?
+          // Can the file be found in the virtual file table?
           && TryGetFile(fileRequest.Name, out filename))
-        /// The file is found, return its full path.
+        // The file is found, return its full path.
         return new FileTableEntry(fileRequest.Name, Path.Combine(_root, filename), FileKind.Unspecified);
 
-      /// The requested resource doesn't exist yet... How will the requester handle this?
+      // The requested resource doesn't exist yet... How will the requester handle this?
       if (fileRequest.CreationDisposition == FileCreationDisposition.CREATE_ALWAYS
           || fileRequest.CreationDisposition == FileCreationDisposition.CREATE_NEW
           || fileRequest.CreationDisposition == FileCreationDisposition.OPEN_ALWAYS)
       {
-        /// The CreationDisposition specifies that the file will be created.
-        /// Add a new entry to the file table and return it.
+        // The CreationDisposition specifies that the file will be created.
+        // Add a new entry to the file table and return it.
         var entry = AddNewEntryToFileTable(fileRequest);
         entry.Value = Path.Combine(_root, entry.Value);
         GuestCore.Log(new LogMessage(LogLevel.Debug, "New FileTableEntry: " + entry));
         return entry;
       }
-      /// Else, the file won't be created.
+      // Else, the file won't be created.
       return new FileTableEntry(fileRequest.Name, fileRequest.Name, FileKind.Unspecified);
     }
 
-    public virtual void DeleteFile(FileTableEntry fileTableEntry)
+    public void DeleteFile(FileTableEntry fileTableEntry)
     {
       _fileTableLock.EnterWriteLock();
       try
@@ -271,8 +262,8 @@ namespace AppStract.Server.FileSystem
         _fileTable.Remove(new KeyValuePair<string, string>(fileTableEntry.Key, fileTableEntry.Value));
         if (fileTableEntry.FileKind != FileKind.Directory)
           return;
-        /// Else, delete all subdirectories and subfiles, if any.
-        /// NOTE: Won't Windows API handle this? Not sure...
+        // Else, delete all subdirectories and subfiles, if any.
+        // NOTE: Won't Windows API handle this? Not sure...
         var markedForRemoval = new List<KeyValuePair<string, string>>();
         foreach (var entry in _fileTable)
             if (entry.Value.StartsWith(fileTableEntry.Value))

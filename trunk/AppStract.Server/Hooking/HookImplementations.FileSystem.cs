@@ -25,6 +25,7 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using AppStract.Core.Virtualization.FileSystem;
+using AppStract.Utilities.Helpers;
 using Microsoft.Win32.Interop;
 
 namespace AppStract.Server.Hooking
@@ -37,6 +38,7 @@ namespace AppStract.Server.Hooking
     /// <summary>
     /// If a file management function fails, the return value is INVALID_HANDLE_VALUE
     /// </summary>
+    /// Bug? Isn't 6 the correct value?
     private const int INVALID_HANDLE_VALUE = -1;
     /// <summary>
     /// If the <see cref="CreateDirectory"/> function, the return value is zero.
@@ -61,18 +63,15 @@ namespace AppStract.Server.Hooking
     public IntPtr DoCreateFile(String InFileName, UInt32 InDesiredAccess, UInt32 InShareMode,
       IntPtr InSecurityAttributes, UInt32 InCreationDisposition, UInt32 InFlagsAndAttributes, IntPtr InTemplateFile)
     {
-      FileCreationDisposition creationDisposition
-        = InCreationDisposition > 0
-          && Enum.GetNames(typeof (FileCreationDisposition)).Length > InCreationDisposition
-            ? (FileCreationDisposition) Enum.ToObject(typeof (FileCreationDisposition), InCreationDisposition)
-            : FileCreationDisposition.UNSPECIFIED;
-      FileRequest request = new FileRequest(InFileName, ResourceKind.FileOrDirectory, creationDisposition);
-      FileTableEntry entry = _fileSystem.GetFile(request);
-      IntPtr pointer = CreateFile(entry.Value, InDesiredAccess, InShareMode, InSecurityAttributes, InCreationDisposition,
-                        InFlagsAndAttributes, InTemplateFile);
-      if (pointer.ToInt32() == INVALID_HANDLE_VALUE)
+      FileCreationDisposition creationDisposition;
+      ParserHelper.TryParseEnum(InCreationDisposition, out creationDisposition);
+      var request = new FileRequest(InFileName, ResourceKind.FileOrDirectory, creationDisposition);
+      var entry = _fileSystem.GetFile(request);
+      var ptr = CreateFile(entry.Value, InDesiredAccess, InShareMode, InSecurityAttributes, InCreationDisposition,
+                           InFlagsAndAttributes, InTemplateFile);
+      if (ptr.ToInt32() == INVALID_HANDLE_VALUE)
         HandleFailedCreation(entry);
-      return pointer;
+      return ptr;
     }
 
     /// <summary>
@@ -82,8 +81,8 @@ namespace AppStract.Server.Hooking
     /// <returns></returns>
     public bool DoDeleteFile(String lpFileName)
     {
-      FileRequest request = new FileRequest(lpFileName, ResourceKind.FileOrDirectory, FileCreationDisposition.UNSPECIFIED);
-      FileTableEntry entry = _fileSystem.GetFile(request);
+      var request = new FileRequest(lpFileName, ResourceKind.FileOrDirectory, FileCreationDisposition.UNSPECIFIED);
+      var entry = _fileSystem.GetFile(request);
       try
       {
         if ((entry.FileKind == FileKind.File || entry.FileKind == FileKind.Unspecified)
@@ -117,10 +116,10 @@ namespace AppStract.Server.Hooking
     {
       var request = new FileRequest(InFileName, ResourceKind.FileOrDirectory, FileCreationDisposition.CREATE_NEW);
       var entry = _fileSystem.GetFile(request);
-      IntPtr result = CreateDirectory(entry.Value, InSecurityAttributes);
-      if (result.ToInt32() == CREATE_DIRECTORY_FAILED)
+      var resultPtr = CreateDirectory(entry.Value, InSecurityAttributes);
+      if (resultPtr.ToInt32() == CREATE_DIRECTORY_FAILED)
         HandleFailedCreation(entry);
-      return result;
+      return resultPtr;
     }
 
     /// <summary>
@@ -148,7 +147,7 @@ namespace AppStract.Server.Hooking
     /// <param name="fileTableEntry"></param>
     private void HandleFailedCreation(FileTableEntry fileTableEntry)
     {
-      int error = Marshal.GetLastWin32Error();
+      var error = Marshal.GetLastWin32Error();
       if (error != WinError.ERROR_ALREADY_EXISTS)
         _fileSystem.DeleteFile(fileTableEntry);
     }
@@ -166,10 +165,6 @@ namespace AppStract.Server.Hooking
         UInt32 InCreationDisposition,
         UInt32 InFlagsAndAttributes,
         IntPtr InTemplateFile);
-
-    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true, CallingConvention = CallingConvention.StdCall)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    static extern bool DeleteFile(String lpFileName);
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true, CallingConvention = CallingConvention.StdCall)]
     private static extern IntPtr CreateDirectory(
