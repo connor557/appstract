@@ -89,6 +89,10 @@ namespace AppStract.Server.Hooking
                                "kernel32.dll", "CreateFileW",
                                new HookDelegates.DCreateFile(hookHandler.DoCreateFile),
                                inCallback));
+        hooks.Add(new HookData("Delete File",
+                               "kernel32.dll", "DeleteFileW",
+                               new HookDelegates.DDeleteFile(hookHandler.DoDeleteFile),
+                               inCallback));
         hooks.Add(new HookData("Load Library",
                                "kernel32.dll", "LoadLibraryExW",
                                new HookDelegates.DLoadLibraryEx(hookHandler.DoLoadLibraryEx),

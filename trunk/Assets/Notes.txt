@@ -6,3 +6,9 @@ PRAGMA synchronous=OFF
   This setting can be different from the default_synchronous value loaded from the database. In typical use the library may spend a lot of
   time just waiting on the file system. Setting "PRAGMA synchronous=OFF" can make a major speed difference.
   
+  
+Unicode version of a function:
+DeleteFileW
+AINSI version of a function:
+DeleteFileA
+--> Support both??

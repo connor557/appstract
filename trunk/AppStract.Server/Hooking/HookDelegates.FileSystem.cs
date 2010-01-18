@@ -50,6 +50,11 @@ namespace AppStract.Server.Hooking
       );
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+    public delegate bool DDeleteFile(
+        String InFileName
+      );
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
     public delegate IntPtr DLoadLibraryEx(
         String dllFileName,
         IntPtr handel,
