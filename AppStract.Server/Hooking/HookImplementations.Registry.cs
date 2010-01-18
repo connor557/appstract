@@ -47,7 +47,7 @@ namespace AppStract.Server.Hooking
       uint handle;
       if (!TryParse(hKey, out handle))
       {
-        phkResult = new IntPtr();
+        phkResult = IntPtr.Zero;
         return WinError.ERROR_INVALID_HANDLE;
       }
       uint hResult;
@@ -192,6 +192,12 @@ namespace AppStract.Server.Hooking
 
     #region Private Methods
 
+    /// <summary>
+    /// Tries to parse the <see cref="Int64"/> value of <paramref name="pointer"/> to an <see cref="UInt32"/>
+    /// </summary>
+    /// <param name="pointer"></param>
+    /// <param name="result"></param>
+    /// <returns></returns>
     private static bool TryParse(IntPtr pointer, out uint result)
     {
       var lHandle = pointer.ToInt64();

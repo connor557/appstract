@@ -56,15 +56,6 @@ namespace AppStract.Server.Hooking
 
     #endregion
 
-    #region Properties
-
-    public static IEnumerable<LocalHook> InstalledHooks
-    {
-      get{ lock (_syncRoot) return _installedHooks; }
-    }
-
-    #endregion
-
     #region Constructors
 
     static HookManager()
@@ -87,53 +78,45 @@ namespace AppStract.Server.Hooking
       {
         if (_initialized)
           return;
-        try
-        {
-          GuestCore.Log(new LogMessage(LogLevel.Debug, "HookManager starts initialization procedure."));
-          var hooks = new List<HookData>(8);
-          // Hooks regarding the filesystem
-          hooks.Add(new HookData("Create Directory",
-                                 LocalHook.GetProcAddress("kernel32.dll", "CreateDirectoryW"),
-                                 new HookDelegates.DCreateDirectory(hookHandler.DoCreateDirectory),
-                                 inCallback));
-          hooks.Add(new HookData("Create File",
-                                 LocalHook.GetProcAddress("kernel32.dll", "CreateFileW"),
-                                 new HookDelegates.DCreateFile(hookHandler.DoCreateFile),
-                                 inCallback));
-          hooks.Add(new HookData("Load Library",
-                                 LocalHook.GetProcAddress("kernel32.dll", "LoadLibraryExW"),
-                                 new HookDelegates.DLoadLibraryEx(hookHandler.DoLoadLibraryEx),
-                                 inCallback));
-          // Hooks regarding the registry
-          hooks.Add(new HookData("Set Registry Value",
-                                 LocalHook.GetProcAddress("advapi32.dll", "RegSetValueExW"),
-                                 new HookDelegates.DSetValue(hookHandler.RegSetValueEx),
-                                 inCallback));
-          hooks.Add(new HookData("Query Registry Value",
-                                 LocalHook.GetProcAddress("advapi32.dll", "RegQueryValueExW"),
-                                 new HookDelegates.DQueryValue(hookHandler.RegQueryValue_Hooked),
-                                 inCallback));
-          hooks.Add(new HookData("Open Registry Key",
-                                 LocalHook.GetProcAddress("advapi32.dll", "RegOpenKeyExW"),
-                                 new HookDelegates.DOpenKey(hookHandler.RegOpenKey_Hooked),
-                                 inCallback));
-          hooks.Add(new HookData("Create Registry Key",
-                                 LocalHook.GetProcAddress("advapi32.dll", "RegCreateKeyExW"),
-                                 new HookDelegates.DCreateKey(hookHandler.RegCreateKeyEx_Hooked),
-                                 inCallback));
-          hooks.Add(new HookData("Close Registry Key",
-                                 LocalHook.GetProcAddress("advapi32.dll", "RegCloseKey"),
-                                 new HookDelegates.DCloseKey(hookHandler.RegCloseKey_Hooked),
-                                 inCallback));
-          _hooks = hooks;
-          _initialized = true;
-          GuestCore.Log(new LogMessage(LogLevel.Information, "HookManager is initialized."));
-        }
-        catch (Exception e)
-        {
-          GuestCore.Log(new LogMessage(LogLevel.Critical, "HookManager failed to initialize the API Hooks", e), false);
-          GuestCore.TerminateProcess(-1, ExitMethod.Kill);
-        }
+        GuestCore.Log(new LogMessage(LogLevel.Debug, "HookManager starts initialization procedure."));
+        var hooks = new List<HookData>(8);
+        // Hooks regarding the filesystem
+        hooks.Add(new HookData("Create Directory",
+                               "kernel32.dll", "CreateDirectoryW",
+                               new HookDelegates.DCreateDirectory(hookHandler.DoCreateDirectory),
+                               inCallback));
+        hooks.Add(new HookData("Create File",
+                               "kernel32.dll", "CreateFileW",
+                               new HookDelegates.DCreateFile(hookHandler.DoCreateFile),
+                               inCallback));
+        hooks.Add(new HookData("Load Library",
+                               "kernel32.dll", "LoadLibraryExW",
+                               new HookDelegates.DLoadLibraryEx(hookHandler.DoLoadLibraryEx),
+                               inCallback));
+        // Hooks regarding the registry
+        hooks.Add(new HookData("Set Registry Value",
+                               "advapi32.dll", "RegSetValueExW",
+                               new HookDelegates.DSetValue(hookHandler.RegSetValueEx),
+                               inCallback));
+        hooks.Add(new HookData("Query Registry Value",
+                               "advapi32.dll", "RegQueryValueExW",
+                               new HookDelegates.DQueryValue(hookHandler.RegQueryValue_Hooked),
+                               inCallback));
+        hooks.Add(new HookData("Open Registry Key",
+                               "advapi32.dll", "RegOpenKeyExW",
+                               new HookDelegates.DOpenKey(hookHandler.RegOpenKey_Hooked),
+                               inCallback));
+        hooks.Add(new HookData("Create Registry Key",
+                               "advapi32.dll", "RegCreateKeyExW",
+                               new HookDelegates.DCreateKey(hookHandler.RegCreateKeyEx_Hooked),
+                               inCallback));
+        hooks.Add(new HookData("Close Registry Key",
+                               "advapi32.dll", "RegCloseKey",
+                               new HookDelegates.DCloseKey(hookHandler.RegCloseKey_Hooked),
+                               inCallback));
+        _hooks = hooks;
+        _initialized = true;
+        GuestCore.Log(new LogMessage(LogLevel.Information, "HookManager is initialized."));
       }
     }
 
@@ -142,6 +125,9 @@ namespace AppStract.Server.Hooking
     /// </summary>
     /// <exception cref="ApplicationException">
     /// An <see cref="ApplicationException"/> is thrown if <see cref="Initialize"/> hasn't been called before the current call.
+    /// </exception>
+    /// <exception cref="HookingException">
+    /// A <see cref="HookingException"/> is thrown if the installation of any of the API hooks fails.
     /// </exception>
     public static void InstallHooks()
     {
@@ -155,17 +141,20 @@ namespace AppStract.Server.Hooking
         {
           try
           {
-            var localHook = LocalHook.Create(hook.TargetEntryPoint, hook.Handler, hook.Callback);
-            /// 0-value in exclusive access control list: don't intercept calls from current thread
-            localHook.ThreadACL.SetExclusiveACL(new[] { 0 });
+            var localHook = LocalHook.Create(hook.GetTargetEntryPoint(), hook.Handler, hook.Callback);
+            // 0-value in exclusive access control list = don't intercept calls from current thread
+            // Bug? Why wouldn't we intercept these?
+            localHook.ThreadACL.SetExclusiveACL(new[] {0});
             _installedHooks.Add(localHook);
             GuestCore.Log(new LogMessage(LogLevel.Debug, "HookManager installed API Hook: " + hook.Description));
           }
           catch (Exception e)
           {
-            GuestCore.Log(new LogMessage(LogLevel.Critical, "HookManager failed to install API Hook: " + hook.Description, e),
-                          false);
-            GuestCore.TerminateProcess(-1, ExitMethod.Kill);
+            GuestCore.Log(
+              new LogMessage(LogLevel.Error, "HookManager failed to install API Hook: " + hook.Description, e),
+              false);
+            throw new HookingException("HookManager failed to install API Hook: " + hook.Description,
+                                       hook.TargetLibrary, hook.TargetSymbol, e);
           }
         }
       }

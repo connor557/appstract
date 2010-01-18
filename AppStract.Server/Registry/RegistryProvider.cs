@@ -31,7 +31,7 @@ namespace AppStract.Server.Registry
   /// Default implementation of <see cref="IRegistryProvider"/>;
   /// Makes use of <see cref="VirtualRegistry"/> to handle requests.
   /// </summary>
-  public class RegistryProvider : IRegistryProvider
+  public sealed class RegistryProvider : IRegistryProvider
   {
 
     #region Variables

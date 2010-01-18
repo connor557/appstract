@@ -56,7 +56,7 @@ namespace AppStract.Server.FileSystem
 
     /// <summary>
     /// Gets the path to the system virtual folder identified by the <see cref="VirtualFolder"/> specified.
-    /// The returned path is relative to the file system's root directory.
+    /// The returned path is relative to the filesystem's root directory.
     /// </summary>
     /// <remarks> The returned path is not guaranteed to exist.</remarks>
     /// <param name="virtualFolder">An enumerated constant that identifies a system virtual folder.</param>
@@ -123,12 +123,12 @@ namespace AppStract.Server.FileSystem
     {
       GuestCore.Log(new LogMessage(LogLevel.Information,
                                    "Creating system folders for a virtual environment with root \"{0}\"", rootFolder));
-      bool failed = false;
+      bool succeeded = true;
       foreach (VirtualFolder virtualFolder in Enum.GetValues(typeof (VirtualFolder)))
-        failed = TryCreateDirectory(Path.Combine(rootFolder, GetFolderPath(virtualFolder)))
-                   ? failed
-                   : true;
-      return failed;
+        succeeded = TryCreateDirectory(Path.Combine(rootFolder, GetFolderPath(virtualFolder)))
+                      ? succeeded
+                      : false;
+      return succeeded;
     }
 
     /// <summary>
@@ -142,13 +142,13 @@ namespace AppStract.Server.FileSystem
       {
         if (!Directory.Exists(path))
           Directory.CreateDirectory(path);
+        return true;
       }
       catch (IOException)
       {
         GuestCore.Log(new LogMessage(LogLevel.Warning, "Failed to create directory: " + path));
         return false;
       }
-      return true;
     }
 
     #endregion

@@ -33,7 +33,7 @@ namespace AppStract.Server.Registry
   /// Implementation of a virtualized Windows registry. <see cref="VirtualRegistry"/> functions as a switch between
   /// the caller and <see cref="VirtualRegistryData"/> &amp; <see cref="TransparentRegistry"/>.
   /// </summary>
-  public class VirtualRegistry
+  public sealed class VirtualRegistry
   {
 
     #region Variables
@@ -56,10 +56,10 @@ namespace AppStract.Server.Registry
     /// </summary>
     public VirtualRegistry()
     {
-      IndexGenerator indexGenerator = new IndexGenerator();
-      /// Reserved indices for static virtual keys.
+      var indexGenerator = new IndexGenerator();
+      // Reserve the first 20 indices for static virtual keys.
       indexGenerator.ExcludedRanges.Add(new IndexRange(0, 20));
-      /// Reserved indices for registry rootkeys.
+      // Reserved indices for registry rootkeys.
       indexGenerator.ExcludedRanges.Add(new IndexRange(0x80000000, 0x80000006));
       _virtualRegistry = new VirtualRegistryData(indexGenerator);
       _transparantRegistry = new TransparentRegistry(indexGenerator);
@@ -103,8 +103,8 @@ namespace AppStract.Server.Registry
     /// <returns>Whether the subkey could be opened.</returns>
     public bool OpenKey(uint hKey, string subKeyName, out uint hResult)
     {
-      /// Combine subkey and the key associated with the hKey
-      /// to one single keyname, and pass it to OpenKey(string, out uint).
+      // Combine subkey and the key associated with the hKey
+      // to one single keyname, and pass it to OpenKey(string, out uint).
       string keyName = RegistryHelper.GetHiveAsString(hKey);
       if (keyName != null
           || _virtualRegistry.IsKnownKey(hKey, out keyName)
@@ -112,8 +112,8 @@ namespace AppStract.Server.Registry
       {
         return OpenKey(RegistryHelper.CombineKeys(keyName, subKeyName), out hResult);
       }
-      /// Can't find the hKey.
-      /// -> Bug? Where did the process get it from?
+      // Can't find the hKey.
+      // -> Bug? Where did the process get it from?
       GuestCore.Log(new LogMessage(LogLevel.Error,
                                    "The external process [PID{0}] tried to open a key from an unknown key handle. Parameters: hKey={1};subKeyName={2}",
                                    GuestCore.ProcessId, hKey, subKeyName));
@@ -127,8 +127,8 @@ namespace AppStract.Server.Registry
     /// <param name="hKey">The key handle to close.</param>
     public void CloseKey(uint hKey)
     {
-      /// The virtual registry doesn't close keys,
-      /// so only call the buffer to close the key.
+      // The virtual registry doesn't close keys,
+      // so only call the buffer to close the key.
       _transparantRegistry.CloseKey(hKey);
     }
 
@@ -147,7 +147,7 @@ namespace AppStract.Server.Registry
       string keyName = RegistryHelper.GetHiveAsString(hKey);
       if (keyName == null)
       {
-        /// The handle is not for a root key, check the databases.
+        // The handle is not for a root key, check the databases.
         if (!_virtualRegistry.IsKnownKey(hKey, out keyName)
             && !_transparantRegistry.IsKnownKey(hKey, out keyName))
           return NativeResultCode.InvalidHandle;
@@ -167,7 +167,7 @@ namespace AppStract.Server.Registry
     public NativeResultCode DeleteKey(uint hKey)
     {
       if (RegistryHelper.IsHiveHandle(hKey))
-        /// Not allowed to delete a root-key.
+        // Not allowed to delete a root-key.
         return NativeResultCode.AccessDenied;
       if (_virtualRegistry.DeleteKey(hKey) == NativeResultCode.Succes)
         return NativeResultCode.Succes;
@@ -186,13 +186,13 @@ namespace AppStract.Server.Registry
     {
       value = new VirtualRegistryValue(valueName, null, ValueType.INVALID);
       if (RegistryHelper.IsHiveHandle(hKey))
-        /// Not allowed to access values of root-keys.
+        // Not allowed to access values of root-keys.
         return NativeResultCode.AccessDenied;
       if (_virtualRegistry.IsKnownKey(hKey))
         return _virtualRegistry.QueryValue(hKey, valueName, out value);
       if (_transparantRegistry.IsKnownKey(hKey))
         return _transparantRegistry.QueryValue(hKey, valueName, out value);
-      /// None of the registries knows the handle.
+      // None of the registries knows the handle.
       return NativeResultCode.InvalidHandle;
     }
 
@@ -205,13 +205,13 @@ namespace AppStract.Server.Registry
     public NativeResultCode SetValue(uint hKey, VirtualRegistryValue value)
     {
       if (RegistryHelper.IsHiveHandle(hKey))
-        /// Not allowed to access values of root-keys.
+        // Not allowed to access values of root-keys.
         return NativeResultCode.AccessDenied;
       if (_virtualRegistry.IsKnownKey(hKey))
         return _virtualRegistry.SetValue(hKey, value);
       if (_transparantRegistry.IsKnownKey(hKey))
         return _transparantRegistry.SetValue(hKey, value);
-      /// None of the registries knows the handle.
+      // None of the registries knows the handle.
       return NativeResultCode.InvalidHandle;
     }
 
@@ -224,13 +224,13 @@ namespace AppStract.Server.Registry
     public NativeResultCode DeleteValue(uint hKey, string valueName)
     {
       if (RegistryHelper.IsHiveHandle(hKey))
-        /// Not allowed to access values of root-keys.
+        // Not allowed to access values of root-keys.
         return NativeResultCode.AccessDenied;
       if (_virtualRegistry.IsKnownKey(hKey))
         return _virtualRegistry.DeleteValue(hKey, valueName);
       if (_transparantRegistry.IsKnownKey(hKey))
         return _transparantRegistry.DeleteValue(hKey, valueName);
-      /// None of the registries knows the handle.
+      // None of the registries knows the handle.
       return NativeResultCode.InvalidHandle;
     }
 

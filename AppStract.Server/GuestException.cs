@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using System.Runtime.Serialization;
 using AppStract.Core;
 
 namespace AppStract.Server
@@ -29,13 +30,13 @@ namespace AppStract.Server
   /// <summary>
   /// Represents errors that occur during code execution in the guest's core.
   /// </summary>
+  [Serializable]
   public class GuestException : CoreException
   {
 
     #region Constructors
 
     public GuestException()
-      : base()
     { }
 
     public GuestException(string message)
@@ -45,6 +46,9 @@ namespace AppStract.Server
     public GuestException(string message, Exception innerException)
       : base (message, innerException)
     { }
+
+    protected GuestException(SerializationInfo info, StreamingContext ctxt)
+      : base(info, ctxt) { }
 
     #endregion
 
