@@ -139,7 +139,7 @@ namespace AppStract.Core.Virtualization.FileSystem
       }
       catch (SerializationException)
       {
-        _fileKind = FileSystem.FileKind.Unspecified;
+        _fileKind = FileKind.Unspecified;
         CoreBus.Log.Warning("Unable to deserialize the FileKind of a FileTableEntry."
                             + _key != null
                               ? "With key " + _key

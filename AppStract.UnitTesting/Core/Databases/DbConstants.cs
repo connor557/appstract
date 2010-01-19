@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2008-2009 Simon Allaeys
+﻿#region Copyright (C) 2009-2010 Simon Allaeys
 
 /*
-    Copyright (C) 2008-2009 Simon Allaeys
+    Copyright (C) 2009-2010 Simon Allaeys
  
     This file is part of AppStract
 
@@ -21,23 +21,10 @@
 
 #endregion
 
-using System;
-
-namespace AppStract.Core.Data.Databases
+namespace AppStract.UnitTesting.Core.Databases
 {
-  /// <summary>
-  /// Specifies the type of action to take for the database-call.
-  /// </summary>
-  [Serializable]
-  public enum DatabaseActionType
+  static class DbConstants
   {
-    /// <summary>
-    /// Update the values if the key exists, otherwise add the new key and its values.
-    /// </summary>
-    Set,
-    /// <summary>
-    /// Remove the values for the specified key, if the key exists.
-    /// </summary>
-    Remove
+    public const string DatabaseFile = "unitTestDb.db3";
   }
 }

@@ -104,16 +104,24 @@ namespace AppStract.Core.Virtualization.Packaging
     /// <param name="item">Item to check.</param>
     private void InstallerFileSystemDatabase_ItemEnqueued(object sender, DatabaseAction<FileTableEntry> item)
     {
-      if (item.ActionType == DatabaseActionType.Update
-          || !item.Item.Value.ToLowerInvariant().EndsWith(".exe"))
+      if (item.ActionType == DatabaseActionType.Set
+          || !item.Item.Value.ToUpperInvariant().EndsWith(".EXE"))
         return;
       lock (_listExecutablesSyncLock)
       {
-        if (item.ActionType == DatabaseActionType.Set
-            && !_executables.Contains(item.Item))
-          _executables.Add(item.Item);
-        else if (item.ActionType == DatabaseActionType.Remove)
-          _executables.Remove(item.Item);
+        var itemIndex = _executables.IndexOf(item.Item);
+        switch (item.ActionType)
+        {
+          case DatabaseActionType.Set:
+            if (itemIndex == -1)
+              _executables.Add(item.Item);
+            else
+              _executables[itemIndex] = item.Item;
+            break;
+          case DatabaseActionType.Remove:
+            _executables.Remove(item.Item);
+            break;
+        }
       }
     }
 

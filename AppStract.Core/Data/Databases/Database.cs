@@ -38,6 +38,16 @@ namespace AppStract.Core.Data.Databases
   public abstract class Database<T> : IDisposable
   {
 
+    #region Constants
+
+    /// <summary>
+    /// A format string for the default connectionstring.
+    /// Use like: <code>string.Format(DefaultConnectionStringFormat, myDataSourceVariable)</code>
+    /// </summary>
+    protected const string DefaultConnectionStringFormat = "Data Source={0};Version=3;PRAGMA synchronous=OFF;FailIfMissing=True;Journal Mode=Off;";
+
+    #endregion
+
     #region Variables
 
     /// <summary>
@@ -177,9 +187,12 @@ namespace AppStract.Core.Data.Databases
     {
       if (tableName == null)
         throw new ArgumentNullException("tableName");
+      // Determine if an UpgradeableReadLock must be entered and exited by the current method call
+      var requireLock = !_sqliteLock.IsUpgradeableReadLockHeld;
       try
       {
-        _sqliteLock.EnterUpgradeableReadLock();
+        if (requireLock)
+          _sqliteLock.EnterUpgradeableReadLock();
         using (var connection = new SQLiteConnection(_connectionString))
         {
           var command = new SQLiteCommand("SELECT * FROM \"" + tableName + "\" LIMIT 1", connection);
@@ -210,7 +223,8 @@ namespace AppStract.Core.Data.Databases
       }
       finally
       {
-        _sqliteLock.ExitUpgradeableReadLock();
+        if (requireLock)
+          _sqliteLock.ExitUpgradeableReadLock();
       }
     }
 
@@ -304,6 +318,46 @@ namespace AppStract.Core.Data.Databases
     }
 
     /// <summary>
+    /// Returns whether the specified <paramref name="item"/> exists in the database.
+    /// </summary>
+    /// <param name="item"></param>
+    /// <returns></returns>
+    protected abstract bool ItemExists(T item);
+
+    /// <summary>
+    /// Appends a delete-query for <paramref name="item"/> to <paramref name="command"/>.
+    /// The parameters are added to the Parameters of <paramref name="command"/>,
+    /// the (unique) naming of these parameters is done by using <paramref name="seed"/>.
+    /// </summary>
+    /// <param name="command">The command to append the query to.</param>
+    /// <param name="seed">The object to use for the generation of unique names.</param>
+    /// <param name="item"></param>
+    /// <returns></returns>
+    protected abstract void AppendDeleteQuery(SQLiteCommand command, ParameterGenerator seed, T item);
+
+    /// <summary>
+    /// Appends an insert-query for <paramref name="item"/> to <paramref name="command"/>.
+    /// The parameters are added to the Parameters of <paramref name="command"/>,
+    /// the (unique) naming of these parameters is done by using <paramref name="seed"/>.
+    /// </summary>
+    /// <param name="command"></param>
+    /// <param name="seed"></param>
+    /// <param name="item"></param>
+    /// <returns></returns>
+    protected abstract void AppendInsertQuery(SQLiteCommand command, ParameterGenerator seed, T item);
+
+    /// <summary>
+    /// Appends an update-query for <paramref name="item"/> to <paramref name="command"/>.
+    /// The parameters are added to the Parameters of <paramref name="command"/>,
+    /// the (unique) naming of these parameters is done by using <paramref name="seed"/>.
+    /// </summary>
+    /// <param name="command"></param>
+    /// <param name="seed"></param>
+    /// <param name="item"></param>
+    /// <returns></returns>
+    protected abstract void AppendUpdateQuery(SQLiteCommand command, ParameterGenerator seed, T item);
+
+    /// <summary>
     /// Escapes a minimal set of characters by replacing them with their escape codes. 
     /// This instructs the database engine to interpret these characters literally rather than as metacharacters.
     /// </summary>
@@ -340,39 +394,6 @@ namespace AppStract.Core.Data.Databases
 
     }
 
-    /// <summary>
-    /// Appends a delete-query for <paramref name="item"/> to <paramref name="command"/>.
-    /// The parameters are added to the Parameters of <paramref name="command"/>,
-    /// the (unique) naming of these parameters is done by using <paramref name="seed"/>.
-    /// </summary>
-    /// <param name="command">The command to append the query to.</param>
-    /// <param name="seed">The object to use for the generation of unique names.</param>
-    /// <param name="item"></param>
-    /// <returns></returns>
-    protected abstract void AppendDeleteQuery(SQLiteCommand command, ParameterGenerator seed, T item);
-
-    /// <summary>
-    /// Appends an insert-query for <paramref name="item"/> to <paramref name="command"/>.
-    /// The parameters are added to the Parameters of <paramref name="command"/>,
-    /// the (unique) naming of these parameters is done by using <paramref name="seed"/>.
-    /// </summary>
-    /// <param name="command"></param>
-    /// <param name="seed"></param>
-    /// <param name="item"></param>
-    /// <returns></returns>
-    protected abstract void AppendInsertQuery(SQLiteCommand command, ParameterGenerator seed, T item);
-
-    /// <summary>
-    /// Appends an update-query for <paramref name="item"/> to <paramref name="command"/>.
-    /// The parameters are added to the Parameters of <paramref name="command"/>,
-    /// the (unique) naming of these parameters is done by using <paramref name="seed"/>.
-    /// </summary>
-    /// <param name="command"></param>
-    /// <param name="seed"></param>
-    /// <param name="item"></param>
-    /// <returns></returns>
-    protected abstract void AppendUpdateQuery(SQLiteCommand command, ParameterGenerator seed, T item);
-
     #endregion
 
     #region Private Methods
@@ -383,7 +404,8 @@ namespace AppStract.Core.Data.Databases
     /// <param name="action"></param>
     private void OnActionEnqueued(DatabaseAction<T> action)
     {
-      ItemEnqueued(this, action);
+      if (ItemEnqueued != null)
+        ItemEnqueued(this, action);
       try
       {
         Flush(false);
@@ -403,7 +425,7 @@ namespace AppStract.Core.Data.Databases
     /// </exception>
     /// <exception cref="TimeoutException">
     /// A <see cref="TimeoutException"/> is thrown if <paramref name="awaitRunningSequence"/> is set to true
-    /// and if the other flush sequence takes more than 2000ms to finish.
+    /// and if the current flush sequence can't start within 2000ms.
     /// </exception>
     /// <param name="awaitRunningSequence">
     /// Specifies, in case a flush sequence is already running, whether or not this method needs to wait before returning until the other sequence ended.
@@ -438,15 +460,21 @@ namespace AppStract.Core.Data.Databases
             {
               var item = _actionQueue.Dequeue();
               items.Add(item);
-              if (item.ActionType == DatabaseActionType.Update)
-                AppendUpdateQuery(command, seed, item.Item);
-              else if (item.ActionType == DatabaseActionType.Set)
-                AppendInsertQuery(command, seed, item.Item);
-              else if (item.ActionType == DatabaseActionType.Remove)
-                AppendDeleteQuery(command, seed, item.Item);
-              else
-                throw new NotImplementedException(
-                  "DatabaseActionType is changed without adding an extra handler to the Database.Flush() method.");
+              switch (item.ActionType)
+              {
+                case DatabaseActionType.Set:
+                  if (!ItemExists(item.Item))
+                    AppendInsertQuery(command, seed, item.Item);
+                  else
+                    AppendUpdateQuery(command, seed, item.Item);
+                  break;
+                case DatabaseActionType.Remove:
+                  AppendDeleteQuery(command, seed, item.Item);
+                  break;
+                default:
+                  throw new NotImplementedException(
+                    "DatabaseActionType is changed without adding an extra handler to the Database.Flush() method.");
+              }
             }
           }
           finally
@@ -508,6 +536,10 @@ namespace AppStract.Core.Data.Databases
     /// </summary>
     /// <param name="tables">The tables to select fields from.</param>
     /// <param name="fields">The fields to select from the tables. If no fields are specified, a wildcard is used for the select query.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="ArgumentException">
+    /// An <see cref="ArgumentException"/> is thrown if <paramref name="tables"/> defines no values.
+    /// </exception>
     /// <returns></returns>
     private static StringBuilder BuildSelectQuery(IEnumerable<string> tables, IEnumerable<string> fields)
     {
@@ -542,6 +574,10 @@ namespace AppStract.Core.Data.Databases
     /// <param name="tables">The tables to select fields from.</param>
     /// <param name="fields">The fields to select from the tables. If no fields are specified, a wildcard is used for the select query.</param>
     /// <param name="conditions">The conditions to select on using the WHERE keyword.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="ArgumentException">
+    /// An <see cref="ArgumentException"/> is thrown if <paramref name="tables"/> defines no values.
+    /// </exception>
     /// <returns></returns>
     private static StringBuilder BuildSelectQuery(IEnumerable<string> tables, IEnumerable<string> fields, IEnumerable<KeyValuePair<object, object>> conditions)
     {
@@ -553,7 +589,7 @@ namespace AppStract.Core.Data.Databases
       queryString.Append(" WHERE ");
       /// Add the conditions.
       foreach (var condition in conditions)
-        queryString.Append(condition.Key + " = " + condition.Value + " AND ");
+        queryString.Append(condition.Key + " = \"" + condition.Value + "\" AND ");
       if (queryString.ToString().EndsWith(" AND "))
         queryString.Remove(queryString.Length - 5, 5);
       else
