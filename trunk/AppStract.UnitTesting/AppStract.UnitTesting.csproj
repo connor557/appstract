@@ -79,6 +79,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Databases\DbConstants.cs" />
+    <Compile Include="Core\Databases\DbTests.cs" />
+    <Compile Include="Core\Databases\FsDbTests.cs" />
+    <Compile Include="Core\Databases\RegDbTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -119,6 +123,11 @@
       <Name>EasyHook</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Host\" />
+    <Folder Include="Server\" />
+    <Folder Include="Utilities\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -130,11 +139,6 @@
   <PropertyGroup>
     <PostBuildEvent>xcopy "$(SolutionDir)External Libraries\EasyHook" "$(TargetDir)" /i /r /y
 xcopy "$(SolutionDir)External Libraries\sqlite3.dll" "$(TargetDir)" /i /r /y
-xcopy "$(SolutionDir)AppStract.Inject\bin\x86\Debug\AppStract.Inject.dll" "$(TargetDir)" /i /r /y
-xcopy "$(SolutionDir)AppStract.Server\bin\x86\Debug\AppStract.Server.dll" "$(TargetDir)" /i /r /y
-xcopy "$(SolutionDir)AppStract.Host\bin\x86\Debug\AppStract.Host.exe" "$(TargetDir)" /i /r /y
-xcopy "$(SolutionDir)AppStract.Watcher\bin\x86\Debug\AppStract.Watcher.exe" "$(TargetDir)" /i /r /y
-xcopy "$(SolutionDir)AppStract.Wrapper\bin\x86\Debug\AppStract.Wrapper.exe" "$(TargetDir)" /i /r /y
 xcopy "$(SolutionDir)EasyHook\bin\x86\Debug" "$(TargetDir)" /i /r /y</PostBuildEvent>
   </PropertyGroup>
 </Project>

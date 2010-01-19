@@ -104,10 +104,7 @@ namespace AppStract.Core.Data.Databases
     /// <returns></returns>
     public static RegistryDatabase CreateDefaultDatabase(string filename)
     {
-      var connectionstring =
-        string.Format("Data Source={0};Version=3;PRAGMA synchronous=OFF;FailIfMissing=True;Journal Mode=Off;",
-                      filename);
-      return new RegistryDatabase(connectionstring);
+      return new RegistryDatabase(string.Format(DefaultConnectionStringFormat, filename));
     }
 
     /// <summary>
@@ -144,6 +141,10 @@ namespace AppStract.Core.Data.Databases
     /// <summary>
     /// Reads the complete database to an <see cref="IEnumerable{T}"/>.
     /// </summary>
+    /// <exception cref="DatabaseException">
+    /// A <see cref="DatabaseException"/> is thrown if the databasefile can't be read.
+    /// This might be caused because <see cref="Initialize"/> is not called before this call.
+    /// </exception>
     /// <returns></returns>
     public override IEnumerable<VirtualRegistryKey> ReadAll()
     {
@@ -153,14 +154,35 @@ namespace AppStract.Core.Data.Databases
       var valueTables = new[] {_DatabaseValueTable};
       var valueColumns = new[] {_DatabaseValueKey, _DatabaseValueName, _DatabaseValueValue, _DatabaseValueType};
       // Read all known keys.
-      foreach (var key in Read<VirtualRegistryKey>(keyTables, keyColumns, BuildKeyFromReadAllQuery))
+      IEnumerable<VirtualRegistryKey> keys;
+      try
+      {
+        keys = Read<VirtualRegistryKey>(keyTables, keyColumns, BuildKeyFromReadAllQuery);
+      }
+      catch (SQLiteException e)
+      {
+        throw new DatabaseException("An exception occured while reading all entries from the database.", e);
+      }
+      var resultKeys = new List<VirtualRegistryKey>();
+      foreach (var key in keys)
       {
         // Declare the condinationals for the values associated to the current key, and read those values.
         var valueConditionals = new[] {new KeyValuePair<object, object>(_DatabaseValueKey, key.Handle)};
-        foreach (var value in Read<VirtualRegistryValue>(valueTables, valueColumns, valueConditionals, BuildValueFromReadAllQuery))
+        IEnumerable<VirtualRegistryValue> values;
+        try
+        {
+          values = Read<VirtualRegistryValue>(valueTables, valueColumns, valueConditionals,
+                                              BuildValueFromReadAllQuery);
+        }
+        catch (SQLiteException e)
+        {
+          throw new DatabaseException("An exception occured while reading all entries from the database.", e);
+        }
+        foreach (var value in values)
           key.Values.Add(value.Name, value);
-        yield return key;
+        resultKeys.Add(key);
       }
+      return resultKeys;
     }
 
     /// <summary>
@@ -175,6 +197,17 @@ namespace AppStract.Core.Data.Databases
     #endregion
 
     #region Protected Methods
+
+    protected override bool ItemExists(VirtualRegistryKey item)
+    {
+      var items
+        = new List<VirtualRegistryKey>(
+          Read<VirtualRegistryKey>(new[] {_DatabaseKeyTable},
+                                   new[] {_DatabaseKeyHandle, _DatabaseKeyName},
+                                   new[] {new KeyValuePair<object, object>(_DatabaseKeyHandle, item.Handle)},
+                                   BuildKeyFromReadAllQuery));
+      return items.Count != 0;
+    }
 
     protected override void AppendDeleteQuery(SQLiteCommand command, ParameterGenerator seed, VirtualRegistryKey item)
     {
@@ -226,7 +259,7 @@ namespace AppStract.Core.Data.Databases
 
     private static VirtualRegistryKey BuildKeyFromReadAllQuery(IDataRecord dataRecord)
     {
-      return new VirtualRegistryKey((uint)dataRecord.GetValue(0), dataRecord.GetString(1));
+      return new VirtualRegistryKey((uint) dataRecord.GetInt64(0), dataRecord.GetString(1));
     }
 
     private static VirtualRegistryValue BuildValueFromReadAllQuery(IDataRecord dataRecord)
@@ -252,7 +285,7 @@ namespace AppStract.Core.Data.Databases
         command.Parameters.AddWithValue(paramHandle, keyHandle);
         command.Parameters.AddWithValue(paramName, value.Name);
         command.Parameters.AddWithValue(paramValue, value.Data);
-        command.Parameters.AddWithValue(paramType, value.Type);
+        command.Parameters.AddWithValue(paramType, Enum.GetName(typeof(ValueType), value.Type));
       }
     }
 

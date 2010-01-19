@@ -27,6 +27,7 @@ using System.Data;
 using System.Data.SQLite;
 using System.IO;
 using AppStract.Core.Virtualization.FileSystem;
+using AppStract.Utilities.Helpers;
 
 namespace AppStract.Core.Data.Databases
 {
@@ -41,15 +42,19 @@ namespace AppStract.Core.Data.Databases
     /// <summary>
     /// The name of the table in the database containing all key/value pairs for the Filetable.
     /// </summary>
-    private const string _DatabaseFileTable = "filetable";
+    protected const string _DatabaseFileTable = "filetable";
     /// <summary>
     /// The name of the column in <see cref="_DatabaseFileTable"/> holding all the keys.
     /// </summary>
-    private const string _DatabaseFileTableKey = "key";
+    protected const string _DatabaseFileTableKey = "key";
     /// <summary>
     /// The name of the column in <see cref="_DatabaseFileTable"/> holding all the values.
     /// </summary>
-    private const string _DatabaseFileTableValue = "value";
+    protected const string _DatabaseFileTableValue = "value";
+    /// <summary>
+    /// The name of the column in <see cref="_DatabaseFileTable"/> holding the types.
+    /// </summary>
+    protected const string _DatabaseFileTabletype = "type";
 
     #endregion
 
@@ -81,10 +86,7 @@ namespace AppStract.Core.Data.Databases
     /// <returns></returns>
     public static FileSystemDatabase CreateDefaultDatabase(string filename)
     {
-      var connectionstring =
-        string.Format("Data Source={0};Version=3;PRAGMA synchronous=OFF;FailIfMissing=True;Journal Mode=Off;",
-                      filename);
-      return new FileSystemDatabase(connectionstring);
+      return new FileSystemDatabase(string.Format(DefaultConnectionStringFormat, filename));
     }
 
     /// <summary>
@@ -104,8 +106,8 @@ namespace AppStract.Core.Data.Databases
       var filename = _connectionString.Substring(index + 12, _connectionString.IndexOf(';') - 12);
       if (!File.Exists(filename))
         File.Create(filename).Close();
-      var creationQuery = string.Format("CREATE TABLE {0} ({1} TEXT, {2} TEXT);",
-                                        _DatabaseFileTable, _DatabaseFileTableKey, _DatabaseFileTableValue);
+      var creationQuery = string.Format("CREATE TABLE {0} ({1} TEXT, {2} TEXT, {3} VARCHAR(11));",
+                                        _DatabaseFileTable, _DatabaseFileTableKey, _DatabaseFileTableValue, _DatabaseFileTabletype);
       if (!TableExists(_DatabaseFileTable, creationQuery))
         throw new DatabaseException("Unable to create table\"" + _DatabaseFileTable
                                     + "\" with the following query: " + creationQuery);
@@ -114,12 +116,23 @@ namespace AppStract.Core.Data.Databases
     /// <summary>
     /// Reads the complete database to an <see cref="IEnumerable{T}"/>.
     /// </summary>
+    /// <exception cref="DatabaseException">
+    /// A <see cref="DatabaseException"/> is thrown if the databasefile can't be read.
+    /// This might be caused because <see cref="Initialize"/> is not called before this call.
+    /// </exception>
     /// <returns></returns>
     public override IEnumerable<FileTableEntry> ReadAll()
     {
-      return Read<FileTableEntry>(new[] {_DatabaseFileTable},
-                                     new[] {_DatabaseFileTableKey, _DatabaseFileTableValue},
-                                     BuildItemFromReadAllQuery);
+      try
+      {
+        return Read<FileTableEntry>(new[] {_DatabaseFileTable},
+                                    new[] {_DatabaseFileTableKey, _DatabaseFileTableValue, _DatabaseFileTabletype},
+                                    BuildItemFromReadAllQuery);
+      }
+      catch (SQLiteException e)
+      {
+        throw new DatabaseException("An exception occured while reading all entries from the database.", e);
+      }
     }
 
     /// <summary>
@@ -135,6 +148,17 @@ namespace AppStract.Core.Data.Databases
 
     #region Protected Methods
 
+    protected override bool ItemExists(FileTableEntry item)
+    {
+      var items
+        = new List<FileTableEntry>(
+          Read<FileTableEntry>(new[] {_DatabaseFileTable},
+                               new[] {_DatabaseFileTableKey, _DatabaseFileTableValue, _DatabaseFileTabletype},
+                               new[] {new KeyValuePair<object, object>(_DatabaseFileTableKey, item.Key)},
+                               BuildItemFromReadAllQuery));
+      return items.Count != 0;
+    }
+
     protected override void AppendDeleteQuery(SQLiteCommand command, ParameterGenerator seed, FileTableEntry item)
     {
       var paramKey = seed.Next();
@@ -147,23 +171,29 @@ namespace AppStract.Core.Data.Databases
     {
       var paramKey = seed.Next();
       var paramValue = seed.Next();
-      command.CommandText += string.Format("INSERT INTO [{0}] ({1}, {2}) VALUES ({3}, {4});",
-                                           _DatabaseFileTable, _DatabaseFileTableKey, _DatabaseFileTableValue,
-                                           paramKey, paramValue);
+      var paramType = seed.Next();
+      command.CommandText += string.Format("INSERT INTO [{0}] ({1}, {2}, {3}) VALUES ({4}, {5}, {6});",
+                                           _DatabaseFileTable,
+                                           _DatabaseFileTableKey, _DatabaseFileTableValue, _DatabaseFileTabletype,
+                                           paramKey, paramValue, paramType);
       command.Parameters.AddWithValue(paramKey, item.Key);
       command.Parameters.AddWithValue(paramValue, item.Value);
+      command.Parameters.AddWithValue(paramType, Enum.GetName(typeof(FileKind), item.FileKind));
     }
 
     protected override void AppendUpdateQuery(SQLiteCommand command, ParameterGenerator seed, FileTableEntry item)
     {
       var paramKey = seed.Next();
       var paramValue = seed.Next();
-      command.CommandText += string.Format("UPDATE {0} SET {1} = {2} WHERE \"{3}\" = {4};",
+      var paramType = seed.Next();
+      command.CommandText += string.Format("UPDATE {0} SET {1} = {2}, {3} = {4} WHERE {5} = {6};",
                                            _DatabaseFileTable,
                                            _DatabaseFileTableValue, paramValue,
+                                           _DatabaseFileTabletype, paramType,
                                            _DatabaseFileTableKey, paramKey);
       command.Parameters.AddWithValue(paramKey, item.Key);
       command.Parameters.AddWithValue(paramValue, item.Value);
+      command.Parameters.AddWithValue(paramType, Enum.GetName(typeof(FileKind), item.FileKind));
     }
 
     #endregion
@@ -172,7 +202,9 @@ namespace AppStract.Core.Data.Databases
 
     private static FileTableEntry BuildItemFromReadAllQuery(IDataRecord dataRecord)
     {
-      return new FileTableEntry(dataRecord.GetString(0), dataRecord.GetString(1), FileKind.Unspecified);
+      FileKind fileKind;
+      ParserHelper.TryParseEnum(dataRecord.GetString(2), out fileKind);
+      return new FileTableEntry(dataRecord.GetString(0), dataRecord.GetString(1), fileKind);
     }
 
     #endregion
