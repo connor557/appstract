@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using System.Xml.Serialization;
 
 namespace AppStract.Core.Data.Application
 {
@@ -29,7 +30,7 @@ namespace AppStract.Core.Data.Application
   /// Stores files associated to an application.
   /// </summary>
   [Serializable]
-  public class ApplicationFiles
+  public sealed class ApplicationFiles
   {
 
     #region Properties
@@ -37,21 +38,25 @@ namespace AppStract.Core.Data.Application
     /// <summary>
     /// Gets or sets the path of the root of the file system.
     /// </summary>
+    [XmlElement]
     public ApplicationFile RootDirectory { get; set; }
 
     /// <summary>
     /// Gets or sets the path of the file containing the SQLite database holding the file system's file table.
     /// </summary>
+    [XmlElement]
     public ApplicationFile DatabaseFileSystem { get; set; }
 
     /// <summary>
     /// Gets or sets the path of the file containing the SQLite database holding the registry keys and values.
     /// </summary>
+    [XmlElement]
     public ApplicationFile DatabaseRegistry { get; set; }
 
     /// <summary>
     /// Gets or sets the path of the executable to start the process with.
     /// </summary>
+    [XmlElement]
     public ApplicationFile Executable { get; set; }
 
     #endregion

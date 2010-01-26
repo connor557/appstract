@@ -26,7 +26,7 @@ using System;
 namespace AppStract.Core.Data.Application
 {
   [Serializable]
-  public class ApplicationSettings
+  public sealed class ApplicationSettings
   {
   }
 }
