@@ -24,6 +24,7 @@
 using System;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Xml.Serialization;
 
 namespace AppStract.Utilities.Helpers
@@ -50,9 +51,7 @@ namespace AppStract.Utilities.Helpers
       try
       {
         using (var stream = new StreamReader(filename))
-        {
           return (T)serializer.Deserialize(stream);
-        }
       }
       catch (Exception e)
       {
@@ -70,11 +69,13 @@ namespace AppStract.Utilities.Helpers
     /// <param name="data">The data to serialize.</param>
     public static void Serialize(string filename, object data)
     {
+      var ns = new XmlSerializerNamespaces();
+      ns.Add("", "");
       var serializer = new XmlSerializer(data.GetType());
       try
       {
         using (var stream = new StreamWriter(filename))
-          serializer.Serialize(stream, data);
+          serializer.Serialize(stream, data, ns);
       }
       catch (Exception e)
       {
@@ -100,6 +101,59 @@ namespace AppStract.Utilities.Helpers
       catch (Exception)
       {
         return false;
+      }
+    }
+
+    /// <summary>
+    /// Deserializes an object from type <typeparamref name="T"/> from the specified XML formatted string.
+    /// </summary>
+    /// <typeparam name="T">Type of the object declared in the XML formatted string.</typeparam>
+    /// <param name="data">The string containing the XML to deserialize from.</param>
+    /// <exception cref="SerializationException">
+    /// A <see cref="SerializationException"/> is thrown if the content of the string
+    /// can't be deserialized to an object of type <see cref="T"/>.
+    /// </exception>
+    /// <returns></returns>
+    public static T DeserializeFromString<T>(string data)
+    {
+      var serializer = new XmlSerializer(data.GetType());
+      try
+      {
+        using (var stream = new StringReader("myString"))
+          return (T)serializer.Deserialize(stream);
+      }
+      catch (Exception e)
+      {
+        throw new SerializationException(
+          "Can't deserialize an object of type " + typeof(T) + " from \"" + data + "\"", e);
+      }
+    }
+
+    /// <summary>
+    /// Serializes the given data to an XML formatted string.
+    /// </summary>
+    /// <exception cref="SerializationException">
+    /// A <see cref="SerializationException"/> is thrown if the object's type can't be serialized to an XML formatted string.
+    /// </exception>
+    /// <param name="data">The data to serialize.</param>
+    /// <returns></returns>
+    public static string SerializeToString(object data)
+    {
+      var serializer = new XmlSerializer(data.GetType());
+      try
+      {
+        var strBuilder = new StringBuilder();
+        using (var stream = new StringWriter(strBuilder))
+          serializer.Serialize(stream, data);
+        strBuilder.Remove(0, strBuilder.ToString().IndexOf(Environment.NewLine));
+        int i = strBuilder.ToString().IndexOf(' '); 
+        strBuilder.Remove(i, strBuilder.ToString().IndexOf('>') - i);
+        return strBuilder.ToString();
+      }
+      catch (Exception e)
+      {
+        throw new SerializationException(
+          "Can't serialize an object of type " + data.GetType(), e);
       }
     }
 
