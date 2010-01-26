@@ -85,6 +85,7 @@
     <Compile Include="Core\Databases\RegDbTests.cs" />
     <Compile Include="Core\ApplicationDataTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\Extensions\IntPtrTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppStract.Core\AppStract.Core.csproj">
@@ -127,7 +128,10 @@
   <ItemGroup>
     <Folder Include="Host\" />
     <Folder Include="Server\" />
-    <Folder Include="Utilities\" />
+    <Folder Include="Utilities\GAC\" />
+    <Folder Include="Utilities\Helpers\" />
+    <Folder Include="Utilities\Interop\" />
+    <Folder Include="Utilities\Observables\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
