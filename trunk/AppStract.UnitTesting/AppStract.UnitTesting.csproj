@@ -83,6 +83,7 @@
     <Compile Include="Core\Databases\DbTests.cs" />
     <Compile Include="Core\Databases\FsDbTests.cs" />
     <Compile Include="Core\Databases\RegDbTests.cs" />
+    <Compile Include="Core\ApplicationDataTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

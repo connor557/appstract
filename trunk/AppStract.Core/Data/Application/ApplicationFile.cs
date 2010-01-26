@@ -23,13 +23,16 @@
 
 using System;
 using System.IO;
+using System.Runtime.Serialization;
+using System.Xml;
+using System.Xml.Serialization;
 using AppStract.Utilities.Helpers;
 using AppStract.Utilities.Extensions;
 
 namespace AppStract.Core.Data.Application
 {
   [Serializable]
-  public class ApplicationFile
+  public sealed class ApplicationFile : ISerializable, IXmlSerializable
   {
 
     #region Variables
@@ -51,6 +54,7 @@ namespace AppStract.Core.Data.Application
       get { return _file; }
       set
       {
+        // BUG? Shouldn't paths be relative to some directory??
         value = Path.GetFullPath(value);
         _type = GetFileType(value);
         _file = value;
@@ -64,9 +68,14 @@ namespace AppStract.Core.Data.Application
     public ApplicationFile() { }
 
     public ApplicationFile(string file)
-      : this()
     {
       FileName = file;
+    }
+
+    public ApplicationFile(SerializationInfo info, StreamingContext context)
+    {
+      ParserHelper.TryParseEnum(info.GetString("Type"), out _type);
+      _file = info.GetString("FileName");
     }
 
     #endregion
@@ -126,6 +135,40 @@ namespace AppStract.Core.Data.Application
                  : FileType.Assembly_Native;
       }
       return FileType.File;
+    }
+
+    #endregion
+
+    #region ISerializable Members
+
+    public void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      info.AddValue("Type", Enum.GetName(typeof(FileType), _type));
+      info.AddValue("FileName", _file);
+    }
+
+    #endregion
+
+    #region IXmlSerializable Members
+
+    public global::System.Xml.Schema.XmlSchema GetSchema()
+    {
+      return null;
+    }
+
+    public void ReadXml(XmlReader reader)
+    {
+      if (!ParserHelper.TryParseEnum(reader.GetAttribute("Type"), out _type))
+        _type = GetFileType(_file);
+      reader.Read();
+      _file = reader.ReadElementString("FileName");
+      reader.Read();
+    }
+
+    public void WriteXml(XmlWriter writer)
+    {
+      writer.WriteAttributeString("Type", Enum.GetName(typeof(FileType), _type));
+      writer.WriteElementString("FileName", _file);
     }
 
     #endregion

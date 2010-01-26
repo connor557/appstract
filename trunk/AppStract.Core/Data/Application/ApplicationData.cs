@@ -22,31 +22,41 @@
 #endregion
 
 using System;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
 using AppStract.Utilities.Helpers;
 
 namespace AppStract.Core.Data.Application
 {
   [Serializable]
-  public class ApplicationData
+  public sealed class ApplicationData : ISerializable
   {
 
     #region Variables
 
-    private readonly ApplicationSettings _settings;
-    private readonly ApplicationFiles _files;
+    private ApplicationSettings _settings;
+    private ApplicationFiles _files;
 
     #endregion
 
     #region Properties
 
+    [XmlElement]
     public ApplicationSettings Settings
     {
       get { return _settings; }
+      // Setter should be removed without making serialization to fail.
+      // When this setter is used, other code might be using a cached reference to the old _settings.
+      set { _settings = value; }
     }
 
+    [XmlElement]
     public ApplicationFiles Files
     {
       get { return _files; }
+      // Setter should be removed without making serialization to fail.
+      // When this setter is used, other code might be using a cached reference to the old _files.
+      set { _files = value; }
     }
 
     #endregion
@@ -57,6 +67,12 @@ namespace AppStract.Core.Data.Application
     {
       _settings = new ApplicationSettings();
       _files = new ApplicationFiles();
+    }
+
+    public ApplicationData(SerializationInfo info, StreamingContext context)
+    {
+      _settings = (ApplicationSettings)info.GetValue("Settings", typeof(ApplicationSettings));
+      _files = (ApplicationFiles)info.GetValue("Files", typeof(ApplicationFiles));
     }
 
     #endregion
@@ -100,6 +116,16 @@ namespace AppStract.Core.Data.Application
         CoreBus.Log.Warning("Failed to load an instance of ApplicationData from " + filename, e);
         return null;
       }
+    }
+
+    #endregion
+
+    #region ISerializable Members
+
+    public void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      info.AddValue("Settings", _settings, typeof(ApplicationSettings));
+      info.AddValue("Files", _files, typeof(ApplicationFiles));
     }
 
     #endregion
