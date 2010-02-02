@@ -21,11 +21,14 @@
 
 #endregion
 
-using System.Collections.Generic;
+using System;
 
 namespace AppStract.Utilities.Observables
 {
-  public class NotifyCollectionItemEventRaiser<T> : EventRaiser
+  /// <summary>
+  /// Raises an <see cref="EventHandler"/> synchronously or asynchronously.
+  /// </summary>
+  internal class ItemChangedEventRaiser : EventRaiser
   {
 
     #region Variables
@@ -33,15 +36,15 @@ namespace AppStract.Utilities.Observables
     /// <summary>
     /// The delegate to call.
     /// </summary>
-    private readonly NotifyCollectionItem<T> _delegate;
+    private readonly EventHandler _delegate;
     /// <summary>
-    /// The collection which owns <see cref="_itemToNotify"/>.
+    /// The item to use as sender parameter for the <see cref="EventHandler"/> delegate.
     /// </summary>
-    private readonly ICollection<T> _collection;
+    private readonly object _itemToNotify;
     /// <summary>
-    /// The item to use as parameter for the <see cref="NotifyCollectionItem{TItem}"/> delegate.
+    /// The event data.
     /// </summary>
-    private readonly T _itemToNotify;
+    private readonly EventArgs _args;
     /// <summary>
     /// The object to lock when reading the delegate.
     /// </summary>
@@ -52,29 +55,29 @@ namespace AppStract.Utilities.Observables
     #region Constructors
 
     /// <summary>
-    /// Initializes a new instance of <see cref="NotifyCollectionItemEventRaiser{T}"/>.
+    /// Initializes a new instance of <see cref="ItemChangedEventRaiser"/>.
     /// </summary>
-    /// <param name="dlg">The <see cref="NotifyCollectionItem{TItem}"/> delegate to call.</param>
-    /// <param name="notifyingCollection">The collection owning the item to notify.</param>
-    /// <param name="itemToNotify">The item to use as parameter for the <see cref="NotifyCollectionItem{TItem}"/> delegate.</param>
-    public NotifyCollectionItemEventRaiser(NotifyCollectionItem<T> dlg, ICollection<T> notifyingCollection, T itemToNotify)
-      : this (dlg, notifyingCollection, itemToNotify, new object())
+    /// <param name="dlg">The <see cref="EventHandler"/> delegate to call.</param>
+    /// <param name="itemToNotify">The item to use as sender parameter for the <see cref="EventHandler"/> delegate.</param>
+    /// <param name="args">The event data.</param>
+    public ItemChangedEventRaiser(EventHandler dlg, object itemToNotify, EventArgs args)
+      : this (dlg, itemToNotify, args, new object())
     {
       
     }
 
     /// <summary>
-    /// Initializes a new instance of <see cref="NotifyCollectionItemEventRaiser{T}"/>.
+    /// Initializes a new instance of <see cref="ItemChangedEventRaiser"/>.
     /// </summary>
-    /// <param name="dlg">The <see cref="NotifyCollectionItem{TItem}"/> delegate to call.</param>
-    /// <param name="notifyingCollection">The collection owning the item to notify.</param>
-    /// <param name="itemToNotify">The item to use as parameter for the <see cref="NotifyCollectionItem{TItem}"/> delegate.</param>
+    /// <param name="dlg">The <see cref="EventHandler"/> delegate to call.</param>
+    /// <param name="itemToNotify">The item to use as parameter for the <see cref="EventHandler"/> delegate.</param>
+    /// <param name="args">The event data.</param>
     /// <param name="syncLock">The object to lock when reading the delegate.</param>
-    public NotifyCollectionItemEventRaiser(NotifyCollectionItem<T> dlg, ICollection<T> notifyingCollection, T itemToNotify, object syncLock)
+    public ItemChangedEventRaiser(EventHandler dlg, object itemToNotify, EventArgs args, object syncLock)
     {
       _delegate = dlg;
-      _collection = notifyingCollection;
       _itemToNotify = itemToNotify;
+      _args = args;
       _syncLock = syncLock;
     }
 
@@ -84,14 +87,16 @@ namespace AppStract.Utilities.Observables
 
     public override void Raise()
     {
+
       lock (_syncLock)
       {
         if (_delegate != null)
-          _delegate(_collection, _itemToNotify);
+          _delegate(_itemToNotify, _args);
       }
     }
 
     #endregion
 
   }
+
 }

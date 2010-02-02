@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2008-2009 Simon Allaeys
+﻿#region Copyright (C) 2009-2010 Simon Allaeys
 
 /*
-    Copyright (C) 2008-2009 Simon Allaeys
+    Copyright (C) 2009-2010 Simon Allaeys
  
     This file is part of AppStract
 
@@ -21,11 +21,16 @@
 
 #endregion
 
-using System.Collections.Generic;
+using System;
 
 namespace AppStract.Utilities.Observables
 {
-
-  public delegate void NotifyCollectionItem<T>(ICollection<T> sender, T item);
-
+  public class QueueChangedEventArgs<TData> : EventArgs
+  {
+    public TData Data { get; set; }
+    public QueueChangedEventArgs(TData data)
+    {
+      Data = data;
+    }
+  }
 }

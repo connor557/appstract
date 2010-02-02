@@ -21,6 +21,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using AppStract.Utilities.Observables;
@@ -79,6 +80,12 @@ namespace AppStract.UnitTesting.Utilities.Observables
       Assert.IsTrue(_handle.WaitOne(10), "this[] is not recognized as a change");
       _handle.Reset();
       test.RemoveAt(0);
+      Assert.IsTrue(_handle.WaitOne(10), "RemoveAt() is not recognized as a change");
+      _handle.Reset();
+      test.Add("myValue");
+      Assert.IsTrue(_handle.WaitOne(10), "Add() is not recognized as a change");
+      _handle.Reset();
+      test.Remove("myValue");
       Assert.IsTrue(_handle.WaitOne(10), "Remove() is not recognized as a change");
     }
 
@@ -94,17 +101,17 @@ namespace AppStract.UnitTesting.Utilities.Observables
       Assert.IsTrue(_handle.WaitOne(10));
     }
 
-    static void List_ItemEvent(ICollection<string> sender, string item)
+    static void List_ItemEvent(ICollection<string> sender, string item, EventArgs args)
     {
       _handle.Set();
     }
 
-    static void List_Changed(string item)
+    static void List_Changed(object sender, EventArgs args)
     {
       _handle.Set();
     }
 
-    static void ObservableItemChanged(ICollection<ObservableItem> sender, ObservableItem item)
+    static void ObservableItemChanged(ICollection<ObservableItem> sender, ObservableItem item, EventArgs args)
     {
       _handle.Set();
     }

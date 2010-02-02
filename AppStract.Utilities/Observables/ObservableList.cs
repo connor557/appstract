@@ -21,6 +21,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 
 namespace AppStract.Utilities.Observables
@@ -28,19 +29,21 @@ namespace AppStract.Utilities.Observables
   /// <summary>
   /// Observable wrapper class for <see cref="IList{T}"/>.
   /// </summary>
-  /// <typeparam name="T"></typeparam>
-  public class ObservableList<T> : IList<T>, IObservableCollection<T>
+  /// <typeparam name="T">The type of elements in the collection.</typeparam>
+  public class ObservableList<T> : IList<T>, IObservableCollection<T>, IObservableItem
   {
 
     #region Variables
 
     private readonly IList<T> _list;
-    private NotifyCollectionItem<T> _added;
-    private NotifyCollectionItem<T> _changed;
-    private NotifyCollectionItem<T> _removed;
-    private readonly object _addLock;
-    private readonly object _changeLock;
-    private readonly object _removeLock;
+    private EventHandler _changed;
+    private CollectionChangedEventHandler<T> _itemAdded;
+    private CollectionChangedEventHandler<T> _itemChanged;
+    private CollectionChangedEventHandler<T> _itemRemoved;
+    private readonly object _changedEventLock;
+    private readonly object _itemAddedEventLock;
+    private readonly object _itemChangedEventLock;
+    private readonly object _itemRemovedEventLock;
     private readonly bool _itemTypeIsObservable;
 
     #endregion
@@ -50,27 +53,30 @@ namespace AppStract.Utilities.Observables
     public ObservableList()
     {
       _list = new List<T>();
-      _addLock = new object();
-      _changeLock = new object();
-      _removeLock = new object();
+      _changedEventLock = new object();
+      _itemAddedEventLock = new object();
+      _itemChangedEventLock = new object();
+      _itemRemovedEventLock = new object();
       _itemTypeIsObservable = IsItemTypeObservable();
     }
 
     public ObservableList(int capacity)
     {
       _list = new List<T>(capacity);
-      _addLock = new object();
-      _changeLock = new object();
-      _removeLock = new object();
+      _changedEventLock = new object();
+      _itemAddedEventLock = new object();
+      _itemChangedEventLock = new object();
+      _itemRemovedEventLock = new object();
       _itemTypeIsObservable = IsItemTypeObservable();
     }
 
     public ObservableList(IEnumerable<T> collection)
     {
       _list = new List<T>(collection);
-      _addLock = new object();
-      _changeLock = new object();
-      _removeLock = new object();
+      _changedEventLock = new object();
+      _itemAddedEventLock = new object();
+      _itemChangedEventLock = new object();
+      _itemRemovedEventLock = new object();
       _itemTypeIsObservable = IsItemTypeObservable();
     }
 
@@ -78,26 +84,52 @@ namespace AppStract.Utilities.Observables
 
     #region Private Methods
 
+    /// <summary>
+    /// Determines whether <see cref="T"/> implements <see cref="IObservableItem"/>.
+    /// </summary>
+    /// <returns></returns>
     private static bool IsItemTypeObservable()
     {
-      return typeof(IObservableItem<T>).IsAssignableFrom(typeof(T));
+      return typeof(IObservableItem).IsAssignableFrom(typeof(T));
     }
 
+    /// <summary>
+    /// Attaches <see cref="Item_Changed"/> to <paramref name="item"/> if <see cref="_itemTypeIsObservable"/> is true.
+    /// </summary>
+    /// <param name="item"></param>
     private void AttachEvents(T item)
     {
       if (_itemTypeIsObservable)
-        ((IObservableItem<T>)item).Changed += Item_Changed;
+        ((IObservableItem)item).Changed += Item_Changed;
     }
 
-    private void DettachEvents(T item)
+    /// <summary>
+    /// Detaches <see cref="Item_Changed"/> from <paramref name="item"/> if <see cref="_itemTypeIsObservable"/> is true.
+    /// </summary>
+    /// <param name="item"></param>
+    private void DetachEvents(T item)
     {
       if (_itemTypeIsObservable)
-        ((IObservableItem<T>)item).Changed -= Item_Changed;
+        ((IObservableItem)item).Changed -= Item_Changed;
     }
 
-    private void Item_Changed(T item)
+    /// <summary>
+    /// Eventhandler for reported changes in items of type T, if <see cref="T"/> implements the <see cref="IObservableItem"/> interface.
+    /// This eventhandler is attached and detached by <see cref="AttachEvents"/> and <see cref="DetachEvents"/>.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="args"></param>
+    private void Item_Changed(object sender, EventArgs args)
     {
-      new NotifyCollectionItemEventRaiser<T>(_changed, this, item, _changeLock).RaiseAsync();
+      if (!(sender is T))
+        return;
+      var item = (T)sender;
+      if(!_list.Contains(item))
+        return;
+      // Raise the change-event for the single item
+      new CollectionChangedEventRaiser<T>(_itemChanged, this, item, new EventArgs(), _itemChangedEventLock).RaiseAsync();
+      // Changing a single item changes the whole collection, raise the event for this change
+      new ItemChangedEventRaiser(_changed, this, new EventArgs(), _changedEventLock).RaiseAsync();
     }
 
     #endregion
@@ -113,15 +145,17 @@ namespace AppStract.Utilities.Observables
     {
       _list.Insert(index, item);
       AttachEvents(item);
-      new NotifyCollectionItemEventRaiser<T>(_added, this, item, _addLock).RaiseAsync();
+      new CollectionChangedEventRaiser<T>(_itemAdded, this, item, new EventArgs(), _itemAddedEventLock).RaiseAsync();
     }
 
     public void RemoveAt(int index)
     {
       var item = _list[index];
       _list.RemoveAt(index);
-      DettachEvents(item);
-      new NotifyCollectionItemEventRaiser<T>(_removed, this, item, _removeLock).RaiseAsync();
+      DetachEvents(item);
+      new CollectionChangedEventRaiser<T>(_itemRemoved, this, item, new EventArgs(), _itemRemovedEventLock).RaiseAsync();
+      // The collection is changed, raise the event
+      new ItemChangedEventRaiser(_changed, this, new EventArgs(), _changedEventLock).RaiseAsync();
     }
 
     public T this[int index]
@@ -136,8 +170,11 @@ namespace AppStract.Utilities.Observables
         if (oldValue.Equals(value))
           return;
         _list[index] = value;
-        DettachEvents(oldValue);
+        DetachEvents(oldValue);
         AttachEvents(value);
+        new CollectionChangedEventRaiser<T>(_itemChanged, this, value, new EventArgs(), _itemAddedEventLock).RaiseAsync();
+        // The collection is changed, raise the event
+        new ItemChangedEventRaiser(_changed, this, new EventArgs(), _changedEventLock).RaiseAsync();
       }
     }
 
@@ -149,7 +186,9 @@ namespace AppStract.Utilities.Observables
     {
       _list.Add(item);
       AttachEvents(item);
-      new NotifyCollectionItemEventRaiser<T>(_added, this, item, _addLock).RaiseAsync();
+      new CollectionChangedEventRaiser<T>(_itemAdded, this, item, new EventArgs(), _itemAddedEventLock).RaiseAsync();
+      // The collection is changed, raise the event
+      new ItemChangedEventRaiser(_changed, this, new EventArgs(), _changedEventLock).RaiseAsync();
     }
 
     public void Clear()
@@ -158,7 +197,9 @@ namespace AppStract.Utilities.Observables
       _list.CopyTo(array, 0);
       _list.Clear();
       foreach (var item in array)
-        new NotifyCollectionItemEventRaiser<T>(_removed, this, item, _removeLock).RaiseAsync();
+        new CollectionChangedEventRaiser<T>(_itemRemoved, this, item, new EventArgs(), _itemRemovedEventLock).RaiseAsync();
+      // The collection is changed, raise the event
+      new ItemChangedEventRaiser(_changed, this, new EventArgs(), _changedEventLock).RaiseAsync();
     }
 
     public bool Contains(T item)
@@ -185,8 +226,10 @@ namespace AppStract.Utilities.Observables
     {
       if (!_list.Remove(item))
         return false;
-      DettachEvents(item);
-      new NotifyCollectionItemEventRaiser<T>(_removed, this, item, _removeLock).RaiseAsync();
+      DetachEvents(item);
+      new CollectionChangedEventRaiser<T>(_itemRemoved, this, item, new EventArgs(), _itemRemovedEventLock).RaiseAsync();
+      // The collection is changed, raise the event
+      new ItemChangedEventRaiser(_changed, this, new EventArgs(), _changedEventLock).RaiseAsync();
       return true;
     }
 
@@ -212,29 +255,33 @@ namespace AppStract.Utilities.Observables
 
     #region IObservableCollection<T> Members
 
-    public event NotifyCollectionItem<T> ItemAdded
+    public event CollectionChangedEventHandler<T> ItemAdded
     {
-      add { lock (_addLock) _added += value; }
-      remove { lock (_addLock) _added -= value; }
+      add { lock (_itemAddedEventLock) _itemAdded += value; }
+      remove { lock (_itemAddedEventLock) _itemAdded -= value; }
     }
 
-    public event NotifyCollectionItem<T> ItemChanged
+    public event CollectionChangedEventHandler<T> ItemChanged
     {
-      add { lock (_changeLock) _changed += value; }
-      remove { lock (_changeLock) _changed -= value; }
+      add { lock (_itemChangedEventLock) _itemChanged += value; }
+      remove { lock (_itemChangedEventLock) _itemChanged -= value; }
     }
 
-    public event NotifyCollectionItem<T> ItemRemoved
+    public event CollectionChangedEventHandler<T> ItemRemoved
     {
-      add { lock (_removeLock) _removed += value; }
-      remove { lock (_removeLock) _removed -= value; }
+      add { lock (_itemRemovedEventLock) _itemRemoved += value; }
+      remove { lock (_itemRemovedEventLock) _itemRemoved -= value; }
     }
 
     #endregion
 
-    #region IObservableItem<T> Members
+    #region IObservableItem Members
 
-    public event NotifyItem<T> Changed;
+    public event EventHandler Changed
+    {
+      add { lock (_changedEventLock) _changed += value; }
+      remove { lock (_changedEventLock) _changed -= value; }
+    }
 
     #endregion
 

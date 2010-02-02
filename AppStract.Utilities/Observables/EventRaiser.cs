@@ -25,7 +25,7 @@ using System.Threading;
 
 namespace AppStract.Utilities.Observables
 {
-  public abstract class EventRaiser
+  internal abstract class EventRaiser
   {
 
     #region Public Methods

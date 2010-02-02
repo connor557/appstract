@@ -21,6 +21,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -32,20 +33,22 @@ namespace AppStract.Utilities.Observables
   /// </summary>
   /// <typeparam name="TKey"></typeparam>
   /// <typeparam name="TValue"></typeparam>
-  public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IObservableCollection<KeyValuePair<TKey, TValue>>
+  public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IObservableCollection<KeyValuePair<TKey, TValue>>, IObservableItem
   {
 
     #region Variables
 
     private readonly IDictionary<TKey, TValue> _dictionary;
-    private NotifyCollectionItem<KeyValuePair<TKey, TValue>> _added;
-    private NotifyCollectionItem<KeyValuePair<TKey, TValue>> _changed;
-    private NotifyCollectionItem<KeyValuePair<TKey, TValue>> _removed;
-    private object _addLock;
-    private object _changeLock;
-    private object _removeLock;
-    private bool _keyTypeIsObservable;
-    private bool _valueTypeIsObservable;
+    private EventHandler _changed;
+    private CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> _itemAdded;
+    private CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> _itemChanged;
+    private CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> _itemRemoved;
+    private readonly object _changeLock;
+    private readonly object _itemAddLock;
+    private readonly object _itemChangeLock;
+    private readonly object _itemRemoveLock;
+    private readonly bool _keyTypeIsObservable;
+    private readonly bool _valueTypeIsObservable;
 
     #endregion
 
@@ -53,103 +56,134 @@ namespace AppStract.Utilities.Observables
 
     public ObservableDictionary()
     {
-      InitializeGlobalSyncVariables();
       _dictionary = new Dictionary<TKey, TValue>();
+      _changeLock = new object();
+      _itemAddLock = new object();
+      _itemChangeLock = new object();
+      _itemRemoveLock = new object();
+      _keyTypeIsObservable = typeof(IObservableItem).IsAssignableFrom(typeof(TKey));
+      _valueTypeIsObservable = typeof(IObservableItem).IsAssignableFrom(typeof(TValue));
     }
 
     public ObservableDictionary(IDictionary<TKey, TValue> dictionary)
     {
-      InitializeGlobalSyncVariables();
       _dictionary = new Dictionary<TKey, TValue>(dictionary);
+      _changeLock = new object();
+      _itemAddLock = new object();
+      _itemChangeLock = new object();
+      _itemRemoveLock = new object();
+      _keyTypeIsObservable = typeof(IObservableItem).IsAssignableFrom(typeof(TKey));
+      _valueTypeIsObservable = typeof(IObservableItem).IsAssignableFrom(typeof(TValue));
     }
 
     public ObservableDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
     {
-      InitializeGlobalSyncVariables();
       _dictionary = new Dictionary<TKey, TValue>(dictionary, comparer);
+      _changeLock = new object();
+      _itemAddLock = new object();
+      _itemChangeLock = new object();
+      _itemRemoveLock = new object();
+      _keyTypeIsObservable = typeof(IObservableItem).IsAssignableFrom(typeof(TKey));
+      _valueTypeIsObservable = typeof(IObservableItem).IsAssignableFrom(typeof(TValue));
     }
 
     public ObservableDictionary(IEqualityComparer<TKey> comparer)
     {
-      InitializeGlobalSyncVariables();
       _dictionary = new Dictionary<TKey, TValue>(comparer);
+      _changeLock = new object();
+      _itemAddLock = new object();
+      _itemChangeLock = new object();
+      _itemRemoveLock = new object();
+      _keyTypeIsObservable = typeof(IObservableItem).IsAssignableFrom(typeof(TKey));
+      _valueTypeIsObservable = typeof(IObservableItem).IsAssignableFrom(typeof(TValue));
     }
 
     public ObservableDictionary(int capacity)
     {
-      InitializeGlobalSyncVariables();
       _dictionary = new Dictionary<TKey, TValue>(capacity);
+      _changeLock = new object();
+      _itemAddLock = new object();
+      _itemChangeLock = new object();
+      _itemRemoveLock = new object();
+      _keyTypeIsObservable = typeof(IObservableItem).IsAssignableFrom(typeof(TKey));
+      _valueTypeIsObservable = typeof(IObservableItem).IsAssignableFrom(typeof(TValue));
     }
 
     public ObservableDictionary(int capacity, IEqualityComparer<TKey> comparer)
     {
-      InitializeGlobalSyncVariables();
       _dictionary = new Dictionary<TKey, TValue>(capacity, comparer);
+      _changeLock = new object();
+      _itemAddLock = new object();
+      _itemChangeLock = new object();
+      _itemRemoveLock = new object();
+      _keyTypeIsObservable = typeof(IObservableItem).IsAssignableFrom(typeof(TKey));
+      _valueTypeIsObservable = typeof(IObservableItem).IsAssignableFrom(typeof(TValue));
     }
 
     #endregion
 
     #region Private Methods
 
-    private void InitializeGlobalSyncVariables()
-    {
-      _addLock = new object();
-      _changeLock = new object();
-      _removeLock = new object();
-      _keyTypeIsObservable = typeof(IObservableItem<TKey>).IsAssignableFrom(typeof(TKey));
-      _valueTypeIsObservable = typeof(IObservableItem<TValue>).IsAssignableFrom(typeof(TValue));
-    }
-
     private void AttachEvents(TKey key)
     {
       if (_keyTypeIsObservable)
-        ((IObservableItem<TKey>)key).Changed += Key_Changed;
+        ((IObservableItem)key).Changed += Key_Changed;
     }
 
     private void AttachEvents(TValue value)
     {
       if (_valueTypeIsObservable)
-        ((IObservableItem<TValue>)value).Changed += Value_Changed;
+        ((IObservableItem)value).Changed += Value_Changed;
     }
 
     private void DettachEvents(TKey key)
     {
       if (_keyTypeIsObservable)
-        ((IObservableItem<TKey>)key).Changed -= Key_Changed;
+        ((IObservableItem)key).Changed -= Key_Changed;
     }
 
     private void DettachEvents(TValue value)
     {
       if (_valueTypeIsObservable)
-        ((IObservableItem<TValue>)value).Changed -= Value_Changed;
+        ((IObservableItem)value).Changed -= Value_Changed;
     }
 
-    private void Key_Changed(TKey item)
+    private void Key_Changed(object sender, EventArgs args)
     {
+      if (!(sender is TKey)) return;
+      var item = (TKey) sender;
       TValue value;
-      /// Check if the key exists, if not: detach the event and return quietly.
+      // Check if the key exists, if not: detach the event and return quietly.
       if (!_dictionary.TryGetValue(item, out value))
-        ((IObservableItem<TKey>) item).Changed -= Key_Changed;
-      else
-        new NotifyCollectionItemEventRaiser<KeyValuePair<TKey, TValue>>
-          (_changed, this, new KeyValuePair<TKey, TValue>(item, value), _changeLock).RaiseAsync();
+      {
+        ((IObservableItem) item).Changed -= Key_Changed;
+        return;
+      }
+      new CollectionChangedEventRaiser<KeyValuePair<TKey, TValue>>
+        (_itemChanged, this, new KeyValuePair<TKey, TValue>(item, value), new EventArgs(), _itemChangeLock).RaiseAsync();
+      // Changing a single item changes the whole collection, raise the event for this change
+      new ItemChangedEventRaiser(_changed, this, new EventArgs(), _changeLock).RaiseAsync();
     }
 
-    private void Value_Changed(TValue item)
+    private void Value_Changed(object sender, EventArgs args)
     {
-      /// Find the key.
+      if (!(sender is TValue)) return;
+      var item = (TValue)sender;
+      // Find the key.
       var key = from pair in _dictionary
                 where pair.Value.Equals(item)
                 select pair.Key;
-      /// Check if the key exists, if not: detach the event and return quietly.
+      // Check if the key exists, if not: detach the event and return quietly.
       if (key.Count() == 0)
       {
-        ((IObservableItem<TValue>)item).Changed -= Value_Changed;
+        ((IObservableItem)item).Changed -= Value_Changed;
         return;
       }
-      /// Raise the event.
-      new NotifyCollectionItemEventRaiser<KeyValuePair<TKey, TValue>>
-        (_changed, this, new KeyValuePair<TKey, TValue>(key.First(), item), _changeLock).RaiseAsync();
+      // Raise the event.
+      new CollectionChangedEventRaiser<KeyValuePair<TKey, TValue>>
+        (_itemChanged, this, new KeyValuePair<TKey, TValue>(key.First(), item), new EventArgs(), _itemChangeLock).RaiseAsync();
+      // Changing a single item changes the whole collection, raise the event for this change
+      new ItemChangedEventRaiser(_changed, this, new EventArgs(), _changeLock).RaiseAsync();
     }
 
     #endregion
@@ -163,9 +197,8 @@ namespace AppStract.Utilities.Observables
     /// <param name="value"></param>
     public void Add(TKey key, TValue value)
     {
-      KeyValuePair<TKey, TValue> item = new KeyValuePair<TKey, TValue>(key, value);
-      /// Pass this item to the ICollection implementation of Add()
-      Add(item);
+      // Pass this item to the ICollection implementation of Add()
+      Add(new KeyValuePair<TKey, TValue>(key, value));
     }
 
     /// <summary>
@@ -240,8 +273,10 @@ namespace AppStract.Utilities.Observables
         _dictionary[key] = value;
         DettachEvents(oldValue);
         AttachEvents(value);
-        new NotifyCollectionItemEventRaiser<KeyValuePair<TKey, TValue>>
-          (_changed, this, new KeyValuePair<TKey, TValue>(key, value), _changeLock).RaiseAsync();
+        new CollectionChangedEventRaiser<KeyValuePair<TKey, TValue>>
+          (_itemChanged, this, new KeyValuePair<TKey, TValue>(key, value), new EventArgs(), _itemChangeLock).RaiseAsync();
+        // Changing a single item changes the whole collection, raise the event for this change
+        new ItemChangedEventRaiser(_changed, this, new EventArgs(), _changeLock).RaiseAsync();
       }
     }
 
@@ -258,7 +293,9 @@ namespace AppStract.Utilities.Observables
       _dictionary.Add(item);
       AttachEvents(item.Key);
       AttachEvents(item.Value);
-      new NotifyCollectionItemEventRaiser<KeyValuePair<TKey, TValue>>(_added, this, item, _addLock).RaiseAsync();
+      new CollectionChangedEventRaiser<KeyValuePair<TKey, TValue>>(_itemAdded, this, item, new EventArgs(), _itemAddLock).RaiseAsync();
+      // Changing a single item changes the whole collection, raise the event for this change
+      new ItemChangedEventRaiser(_changed, this, new EventArgs(), _changeLock).RaiseAsync();
     }
 
     /// <summary>
@@ -270,8 +307,10 @@ namespace AppStract.Utilities.Observables
       _dictionary.CopyTo(array, 0);
       _dictionary.Clear();
       foreach (var item in array)
-        new NotifyCollectionItemEventRaiser<KeyValuePair<TKey, TValue>>
-          (_removed, this, item, _removeLock).RaiseAsync();
+        new CollectionChangedEventRaiser<KeyValuePair<TKey, TValue>>
+          (_itemRemoved, this, item, new EventArgs(), _itemRemoveLock).RaiseAsync();
+      // Changing a single item changes the whole collection, raise the event for this change
+      new ItemChangedEventRaiser(_changed, this, new EventArgs(), _changeLock).RaiseAsync();
     }
 
     /// <summary>
@@ -325,7 +364,9 @@ namespace AppStract.Utilities.Observables
         return false;
       DettachEvents(item.Key);
       DettachEvents(item.Value);
-      new NotifyCollectionItemEventRaiser<KeyValuePair<TKey, TValue>>(_removed, this, item, _removeLock).RaiseAsync();
+      new CollectionChangedEventRaiser<KeyValuePair<TKey, TValue>>(_itemRemoved, this, item, new EventArgs(), _itemRemoveLock).RaiseAsync();
+      // Changing a single item changes the whole collection, raise the event for this change
+      new ItemChangedEventRaiser(_changed, this, new EventArgs(), _changeLock).RaiseAsync();
       return true;
     }
 
@@ -359,28 +400,32 @@ namespace AppStract.Utilities.Observables
 
     #region IObservableItem<KeyValuePair<TKey,TValue>> Members
 
-    public event NotifyItem<KeyValuePair<TKey, TValue>> Changed;
-
-    #endregion
-
-    #region IObservableCollection<KeyValuePair<TKey,TValue>> Members
-
-    public event NotifyCollectionItem<KeyValuePair<TKey, TValue>> ItemAdded
-    {
-      add { lock(_addLock) _added += value; }
-      remove { lock (_addLock) _added -= value; }
-    }
-
-    public event NotifyCollectionItem<KeyValuePair<TKey, TValue>> ItemChanged
+    public event EventHandler Changed
     {
       add { lock (_changeLock) _changed += value; }
       remove { lock (_changeLock) _changed -= value; }
     }
 
-    public event NotifyCollectionItem<KeyValuePair<TKey, TValue>> ItemRemoved
+    #endregion
+
+    #region IObservableCollection<KeyValuePair<TKey,TValue>> Members
+
+    public event CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> ItemAdded
     {
-      add { lock (_removeLock) _removed += value; }
-      remove { lock (_removeLock) _removed -= value; }
+      add { lock(_itemAddLock) _itemAdded += value; }
+      remove { lock (_itemAddLock) _itemAdded -= value; }
+    }
+
+    public event CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> ItemChanged
+    {
+      add { lock (_itemChangeLock) _itemChanged += value; }
+      remove { lock (_itemChangeLock) _itemChanged -= value; }
+    }
+
+    public event CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> ItemRemoved
+    {
+      add { lock (_itemRemoveLock) _itemRemoved += value; }
+      remove { lock (_itemRemoveLock) _itemRemoved -= value; }
     }
 
     #endregion

@@ -401,18 +401,17 @@ namespace AppStract.Core.Data.Databases
     /// <summary>
     /// Handles newly enqueued <see cref="DatabaseAction{T}"/>s.
     /// </summary>
-    /// <param name="action"></param>
-    private void OnActionEnqueued(DatabaseAction<T> action)
+    private void OnActionEnqueued(object sender, QueueChangedEventArgs<DatabaseAction<T>> e)
     {
       if (ItemEnqueued != null)
-        ItemEnqueued(this, action);
+        ItemEnqueued(this, e.Data);
       try
       {
         Flush(false);
       }
-      catch (DatabaseException e)
+      catch (DatabaseException ex)
       {
-        CoreBus.Log.Error("[Database] Failed to flush to database [" + _connectionString + "]", e);
+        CoreBus.Log.Error("[Database] Failed to flush to database [" + _connectionString + "]", ex);
       }
     }
 
