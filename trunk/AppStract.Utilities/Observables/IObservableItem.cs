@@ -21,12 +21,35 @@
 
 #endregion
 
+using System;
+
 namespace AppStract.Utilities.Observables
 {
-  public interface IObservableItem<T>
+  /// <summary>
+  /// Interfaces a class that's observable for changes.
+  /// </summary>
+  public interface IObservableItem
   {
 
-    event NotifyItem<T> Changed;
+    /// <summary>
+    /// Occurs when the state of the item is changed.
+    /// </summary>
+    event EventHandler Changed;
 
   }
+
+  /// <summary>
+  /// Interfaces a class that's observable for changes, and reports those changed with event data of type <see cref="EventArgsType"/>.
+  /// </summary>
+  /// <typeparam name="EventArgsType">The type of class wrapping the event data.</typeparam>
+  public interface IObservableItem<EventArgsType> where EventArgsType : EventArgs
+  {
+
+    /// <summary>
+    /// Occurs when the state of the item is changed.
+    /// </summary>
+    event EventHandler<EventArgsType> Changed;
+
+  }
+
 }

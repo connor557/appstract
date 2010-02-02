@@ -54,12 +54,12 @@ namespace AppStract.UnitTesting.Utilities.Observables
       Assert.IsTrue(_handle.WaitOne(10));
     }
 
-    static void Queue_ItemEnqueued(string item)
+    static void Queue_ItemEnqueued(object sender, QueueChangedEventArgs<string> e)
     {
       _handle.Set();
     }
 
-    static void Queue_ItemDequeued(string item)
+    static void Queue_ItemDequeued(object sender, QueueChangedEventArgs<string> e)
     {
       _handle.Set();
     }

@@ -21,6 +21,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using AppStract.Utilities.Observables;
@@ -98,17 +99,17 @@ namespace AppStract.UnitTesting.Utilities.Observables
       Assert.IsTrue(_handle.WaitOne(10), "The value is not detected as an observable");
     }
 
-    static void Dictionary_ItemEvent(ICollection<KeyValuePair<int, string>> sender, KeyValuePair<int, string> item)
+    static void Dictionary_ItemEvent(ICollection<KeyValuePair<int, string>> sender, KeyValuePair<int, string> item, EventArgs args)
     {
       _handle.Set();
     }
 
-    static void Dictionary_Changed(KeyValuePair<int, string> item)
+    static void Dictionary_Changed(object sender, EventArgs args)
     {
       _handle.Set();
     }
 
-    static void ObservableItemChanged(ICollection<KeyValuePair<ObservableItem, ObservableItem>> sender, KeyValuePair<ObservableItem, ObservableItem> item)
+    static void ObservableItemChanged(ICollection<KeyValuePair<ObservableItem, ObservableItem>> sender, KeyValuePair<ObservableItem, ObservableItem> item, EventArgs args)
     {
       _handle.Set();
     }

@@ -21,9 +21,19 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+
 namespace AppStract.Utilities.Observables
 {
 
-  public delegate void NotifyItem<TItem>(TItem item);
+  /// <summary>
+  /// Represents the method that will handle a change in a collection.
+  /// </summary>
+  /// <typeparam name="T">The type of items held in the collection.</typeparam>
+  /// <param name="sender">The collection reporting the change.</param>
+  /// <param name="item">The item causing the change in the collection.</param>
+  /// <param name="args">The event data related to the change.</param>
+  public delegate void CollectionChangedEventHandler<T>(ICollection<T> sender, T item, EventArgs args);
 
 }

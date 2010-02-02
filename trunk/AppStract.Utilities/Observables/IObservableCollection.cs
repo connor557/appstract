@@ -23,14 +23,27 @@
 
 namespace AppStract.Utilities.Observables
 {
-  public interface IObservableCollection<T> : IObservableItem<T>
+  /// <summary>
+  /// Interfaces a dynamic data collection that provides notifications when items get added, removed, or changed.
+  /// </summary>
+  /// <typeparam name="T">The type of elements in the collection.</typeparam>
+  public interface IObservableCollection<T>
   {
     
-    event NotifyCollectionItem<T> ItemAdded;
+    /// <summary>
+    /// Occurs when an item is added.
+    /// </summary>
+    event CollectionChangedEventHandler<T> ItemAdded;
 
-    event NotifyCollectionItem<T> ItemChanged;
+    /// <summary>
+    /// Occurs when an item is changed.
+    /// </summary>
+    event CollectionChangedEventHandler<T> ItemChanged;
 
-    event NotifyCollectionItem<T> ItemRemoved;
+    /// <summary>
+    /// Occurs when an item is removed.
+    /// </summary>
+    event CollectionChangedEventHandler<T> ItemRemoved;
 
   }
 }

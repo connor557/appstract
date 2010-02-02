@@ -30,7 +30,7 @@ namespace AppStract.Utilities.Observables
   /// A queue that provides notifications when items get added or removed.
   /// </summary>
   /// <typeparam name="TItem"></typeparam>
-  public class ObservableQueue<TItem>
+  public class ObservableQueue<TItem> : IObservableItem<QueueChangedEventArgs<TItem>>
   {
 
     #region Variables
@@ -38,8 +38,8 @@ namespace AppStract.Utilities.Observables
     private readonly Queue<TItem> _queue;
     private readonly object _eventEnqueueLock;
     private readonly object _eventDequeueLock;
-    private NotifyItem<TItem> _itemEnqueued;
-    private NotifyItem<TItem> _itemDequeued;
+    private EventHandler<QueueChangedEventArgs<TItem>> _itemEnqueued;
+    private EventHandler<QueueChangedEventArgs<TItem>> _itemDequeued;
 
     #endregion
 
@@ -51,7 +51,7 @@ namespace AppStract.Utilities.Observables
     /// <remarks>
     /// This event is called asynchronously, so it's possible that the item is already dequeued when the event is raised.
     /// </remarks>
-    public event NotifyItem<TItem> ItemEnqueued
+    public event EventHandler<QueueChangedEventArgs<TItem>> ItemEnqueued
     {
       add { lock (_eventEnqueueLock) { _itemEnqueued += value; } }
       remove { lock (_eventEnqueueLock) { _itemEnqueued -= value; } }
@@ -63,7 +63,7 @@ namespace AppStract.Utilities.Observables
     /// <remarks>
     /// This event is called asynchronously, so it's possible that the item is still in the queue when the event is raised.
     /// </remarks>
-    public event NotifyItem<TItem> ItemDequeued
+    public event EventHandler<QueueChangedEventArgs<TItem>> ItemDequeued
     {
       add { lock (_eventDequeueLock) { _itemDequeued += value; } }
       remove { lock (_eventDequeueLock) { _itemDequeued -= value; } }
@@ -133,7 +133,7 @@ namespace AppStract.Utilities.Observables
     /// <returns>The object that is removed from the beginning of the <see cref="ObservableQueue{TItem}"/>.</returns>
     public TItem Dequeue()
     {
-      TItem item = _queue.Dequeue();
+      var item = _queue.Dequeue();
       RaiseEvent(_itemDequeued, item, _eventDequeueLock);
       return item;
     }
@@ -142,11 +142,17 @@ namespace AppStract.Utilities.Observables
 
     #region Private Methods
 
-    private static void RaiseEvent(NotifyItem<TItem> dlg, TItem itemToNotify, object syncLock)
+    private void RaiseEvent(EventHandler<QueueChangedEventArgs<TItem>> dlg, TItem itemToNotify, object syncLock)
     {
       if (dlg != null)
-        new NotifyItemEventRaiser<TItem>(dlg, itemToNotify, syncLock).RaiseAsync();
+        new ItemChangedEventRaiser<QueueChangedEventArgs<TItem>>(dlg, this, new QueueChangedEventArgs<TItem>(itemToNotify), syncLock).RaiseAsync();
     }
+
+    #endregion
+
+    #region IObservableItem<QueueChangedEventArgs> Members
+
+    public event EventHandler<QueueChangedEventArgs<TItem>> Changed;
 
     #endregion
 

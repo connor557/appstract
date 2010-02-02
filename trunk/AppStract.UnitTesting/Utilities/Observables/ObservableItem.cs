@@ -21,22 +21,23 @@
 
 #endregion
 
+using System;
 using AppStract.Utilities.Observables;
 
 namespace AppStract.UnitTesting.Utilities.Observables
 {
-  class ObservableItem : IObservableItem<string>
+  class ObservableItem : IObservableItem
   {
 
     #region IObservableItem<string> Members
 
-    public event NotifyItem<string> Changed;
+    public event EventHandler Changed;
 
     #endregion
 
     public void ReportChange()
     {
-      Changed("someValue");
+      Changed(this, new EventArgs());
     }
 
   }

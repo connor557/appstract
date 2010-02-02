@@ -223,7 +223,8 @@ namespace AppStract.Server
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="item"></param>
-    private void FileTable_ItemAdded(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item)
+    /// <param name="args"></param>
+    private void FileTable_ItemAdded(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item, EventArgs args)
     {
       lock (_fileSystemSyncObject)
         _fileSystemQueue.Enqueue(new DatabaseAction<FileTableEntry>(new FileTableEntry(item, FileKind.Unspecified), DatabaseActionType.Set));
@@ -234,18 +235,21 @@ namespace AppStract.Server
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="item"></param>
-    private void FileTable_ItemChanged(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item)
+    /// <param name="args"></param>
+    private void FileTable_ItemChanged(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item, EventArgs args)
     {
       lock (_fileSystemSyncObject)
         _fileSystemQueue.Enqueue(new DatabaseAction<FileTableEntry>(new FileTableEntry(item, FileKind.Unspecified), DatabaseActionType.Set));
     }
+
 
     /// <summary>
     /// Eventhandler for the ItemRemoved event of the file table.
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="item"></param>
-    private void FileTable_ItemRemoved(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item)
+    /// <param name="args"></param>
+    private void FileTable_ItemRemoved(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item, EventArgs args)
     {
       lock (_fileSystemSyncObject)
         _fileSystemQueue.Enqueue(new DatabaseAction<FileTableEntry>(new FileTableEntry(item, FileKind.Unspecified), DatabaseActionType.Remove));
@@ -256,7 +260,8 @@ namespace AppStract.Server
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="item"></param>
-    private void Registry_ItemAdded(ICollection<KeyValuePair<uint, VirtualRegistryKey>> sender, KeyValuePair<uint, VirtualRegistryKey> item)
+    /// <param name="args"></param>
+    private void Registry_ItemAdded(ICollection<KeyValuePair<uint, VirtualRegistryKey>> sender, KeyValuePair<uint, VirtualRegistryKey> item, EventArgs args)
     {
       lock (_registrySyncObject)
         _registryQueue.Enqueue(new DatabaseAction<VirtualRegistryKey>(item.Value, DatabaseActionType.Set));
@@ -267,7 +272,8 @@ namespace AppStract.Server
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="item"></param>
-    private void Registry_ItemChanged(ICollection<KeyValuePair<uint, VirtualRegistryKey>> sender, KeyValuePair<uint, VirtualRegistryKey> item)
+    /// <param name="args"></param>
+    private void Registry_ItemChanged(ICollection<KeyValuePair<uint, VirtualRegistryKey>> sender, KeyValuePair<uint, VirtualRegistryKey> item, EventArgs args)
     {
       lock (_registrySyncObject)
         _registryQueue.Enqueue(new DatabaseAction<VirtualRegistryKey>(item.Value, DatabaseActionType.Set));
@@ -278,7 +284,8 @@ namespace AppStract.Server
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="item"></param>
-    private void Registry_ItemRemoved(ICollection<KeyValuePair<uint, VirtualRegistryKey>> sender, KeyValuePair<uint, VirtualRegistryKey> item)
+    /// <param name="args"></param>
+    private void Registry_ItemRemoved(ICollection<KeyValuePair<uint, VirtualRegistryKey>> sender, KeyValuePair<uint, VirtualRegistryKey> item, EventArgs args)
     {
       lock (_registrySyncObject)
         _registryQueue.Enqueue(new DatabaseAction<VirtualRegistryKey>(item.Value, DatabaseActionType.Remove));
