@@ -57,6 +57,27 @@ namespace AppStract.Utilities.Helpers
     }
 
     /// <summary>
+    /// Tries to parse an integer to a value of the specified <typeparamref name="EnumType"/>.
+    /// </summary>
+    /// <typeparam name="EnumType">The type of enumeration to parse to.</typeparam>
+    /// <param name="value"></param>
+    /// <param name="result"></param>
+    /// <returns></returns>
+    public static bool TryParseEnum<EnumType>(int value, out EnumType result)
+    {
+      result = default(EnumType);
+      var type = typeof(EnumType);
+      if (!type.IsEnum) return false;
+      result = (EnumType)Enum.Parse(type, value.ToString());
+      // Verify if the result is valid,
+      // Enum.Parse might just return the input value, while this is not a defined value of the enum
+      if (result.ToString().Contains(", ") || Enum.IsDefined(type, result))
+        return true;
+      result = default(EnumType);
+      return false;
+    }
+
+    /// <summary>
     /// Tries to parse a string to a value of the specified <typeparamref name="EnumType"/>.
     /// </summary>
     /// <typeparam name="EnumType">The type of enumeration to parse to.</typeparam>
@@ -69,15 +90,15 @@ namespace AppStract.Utilities.Helpers
       var type = typeof(EnumType);
       if (!type.IsEnum) return false;
       value = value.ToUpperInvariant();
-      var names = Enum.GetNames(type);
-      foreach (var name in names)
+      try
       {
-        if (name.ToUpperInvariant() != value)
-          continue;
         result = (EnumType)Enum.Parse(type, value, true);
         return true;
       }
-      return false;
+      catch (ArgumentException)
+      {
+        return false;
+      }
     }
 
     #endregion
