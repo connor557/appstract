@@ -43,17 +43,13 @@ namespace AppStract.Utilities.Helpers
     public static bool TryParseEnum<EnumType>(object value, out EnumType result)
     {
       result = default(EnumType);
-      var type = typeof(EnumType);
+      if (value == null) return false;
+      var type = typeof (EnumType);
       if (!type.IsEnum) return false;
-      try
-      {
-        if (Enum.IsDefined(type, value))
-        {
-          result = (EnumType)Enum.Parse(type, value.ToString());
-          return true;
-        }
-      } catch (InvalidOperationException) { }
-      return false;
+      int iValue;
+      return Int32.TryParse(value.ToString(), out iValue)
+               ? TryParseEnum(iValue, out result)
+               : TryParseEnum(value.ToString(), out result);
     }
 
     /// <summary>
@@ -87,6 +83,7 @@ namespace AppStract.Utilities.Helpers
     public static bool TryParseEnum<EnumType>(string value, out EnumType result)
     {
       result = default(EnumType);
+      if (string.IsNullOrEmpty(value)) return false;
       var type = typeof(EnumType);
       if (!type.IsEnum) return false;
       value = value.ToUpperInvariant();

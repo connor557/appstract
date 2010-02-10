@@ -83,6 +83,32 @@ namespace AppStract.UnitTesting.Utilities.Helpers
     }
 
     [Test]
+    public void FlagsObjectTest()
+    {
+      MyFlagsEnum result;
+      Assert.IsTrue(ParserHelper.TryParseEnum((object) 15, out result), "Expected object 15 to be parsable.");
+      foreach (MyFlagsEnum flag in Enum.GetValues(typeof(MyFlagsEnum)))
+        Assert.IsTrue(result.IsSpecified(flag), flag + " is not specified in the result.");
+      string value = "";
+      foreach (MyFlagsEnum flag in Enum.GetValues(typeof(MyFlagsEnum)))
+        value += flag + ", ";
+      value = value.Substring(0, value.Length - 2);
+      Assert.IsTrue(ParserHelper.TryParseEnum((object) value, out result), "Expected object-string to be parsable.");
+      foreach (MyFlagsEnum flag in Enum.GetValues(typeof(MyFlagsEnum)))
+        Assert.IsTrue(result.IsSpecified(flag), flag + " is not specified in the result.");
+    }
+
+    [Test]
+    public void FlagsIllegalObjectTest()
+    {
+      MyFlagsEnum result;
+      Assert.IsFalse(ParserHelper.TryParseEnum(new object(), out result), "Expected new object() not to be parsable.");
+      foreach (MyFlagsEnum flag in Enum.GetValues(typeof(MyFlagsEnum)))
+        if (flag != default(MyFlagsEnum))
+          Assert.IsFalse(result.IsSpecified(flag), flag + " is specified in the result.");
+    }
+
+    [Test]
     public void FlagsIntegerTest()
     {
       MyFlagsEnum result;
