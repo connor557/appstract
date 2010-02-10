@@ -49,7 +49,7 @@ namespace AppStract.Utilities.Helpers
       {
         if (Enum.IsDefined(type, value))
         {
-          result = (EnumType) value;
+          result = (EnumType)Enum.Parse(type, value.ToString());
           return true;
         }
       } catch (InvalidOperationException) { }
