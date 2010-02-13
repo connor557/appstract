@@ -120,7 +120,7 @@ namespace AppStract.Server.Hooking
                                inCallback));
         _hooks = hooks;
         _initialized = true;
-        GuestCore.Log(new LogMessage(LogLevel.Information, "HookManager is initialized."));
+        GuestCore.Log(new LogMessage(LogLevel.Debug, "HookManager is initialized."));
       }
     }
 
@@ -162,7 +162,6 @@ namespace AppStract.Server.Hooking
           }
         }
       }
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "HookManager finished installing the API hooks."));
     }
 
     #endregion

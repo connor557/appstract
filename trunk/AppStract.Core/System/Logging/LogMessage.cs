@@ -36,11 +36,20 @@ namespace AppStract.Core.System.Logging
 
     private readonly string _message;
     private readonly LogLevel _level;
+    private readonly DateTime _dateTime;
     private readonly Exception _exception;
 
     #endregion
 
     #region Properties
+
+    /// <summary>
+    /// Gets the time specifying the moment on which the current <see cref="LogMessage"/> is created.
+    /// </summary>
+    public DateTime DateTime
+    {
+      get { return _dateTime; }
+    }
 
     /// <summary>
     /// Gets the <see cref="LogLevel"/> of the current <see cref="LogMessage"/>.
@@ -78,6 +87,7 @@ namespace AppStract.Core.System.Logging
     /// <param name="args">The arguments to format the <paramref name="format"/> parameter with.</param>
     public LogMessage(LogLevel logLevel, string format, params object[] args)
     {
+      _dateTime = DateTime.Now;
       _message = string.Format(format, args);
       _level = logLevel;
       _exception = null;
@@ -92,6 +102,7 @@ namespace AppStract.Core.System.Logging
     /// <param name="exception">The associated <see cref="Exception"/>.</param>
     public LogMessage(LogLevel logLevel, string format, Exception exception, params object[] args)
     {
+      _dateTime = DateTime.Now;
       _message = string.Format(format, args);
       _level = logLevel;
       _exception = exception;

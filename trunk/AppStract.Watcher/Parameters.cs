@@ -76,7 +76,7 @@ namespace AppStract.Watcher
           InsuranceFile = param.Substring("FILE=".Length);
         else if (param.StartsWith("REG="))
           InsuranceRegistryKey = param.Substring("REG=".Length);
-        else if (param.StartsWith("PID"))
+        else if (param.StartsWith("PID="))
           Int32.TryParse(param.Substring("PID=".Length), out ProcessId);
         else if (param.StartsWith("FLAGS="))
         {

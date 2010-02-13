@@ -85,89 +85,85 @@ namespace AppStract.Core.System.Logging
       if (logMessage.Level > _level)
         return;
       if (logMessage.Exception == null)
-        Write(FormatLogMessage(logMessage.Level, logMessage.Message));
+        Write(FormatLogMessage(logMessage));
       else
-        Write(FormatLogMessage(logMessage.Level, logMessage.Message, logMessage.Exception));
+        Write(FormatLogMessage(logMessage));
     }
 
     public virtual void Warning(string format, params object[] args)
     {
       if (LogLevel.Warning <= _level)
-        Write(FormatLogMessage(LogLevel.Warning, string.Format(format, args)));
+        Write(FormatLogMessage(new LogMessage(LogLevel.Warning, string.Format(format, args))));
     }
 
     public virtual void Warning(string format, Exception exception, params object[] args)
     {
       if (LogLevel.Warning <= _level)
-        Write(FormatLogMessage(LogLevel.Warning, string.Format(format, args), exception));
+        Write(FormatLogMessage(new LogMessage(LogLevel.Warning, string.Format(format, args), exception)));
     }
 
     public virtual void Message(string format, params object[] args)
     {
       if (LogLevel.Information <= _level)
-        Write(FormatLogMessage(LogLevel.Information, string.Format(format, args)));
+        Write(FormatLogMessage(new LogMessage(LogLevel.Information, string.Format(format, args))));
     }
 
     public virtual void Message(string format, Exception exception, params object[] args)
     {
       if (LogLevel.Information <= _level)
-        Write(FormatLogMessage(LogLevel.Information, string.Format(format, args), exception));
+        Write(FormatLogMessage(new LogMessage(LogLevel.Information, string.Format(format, args), exception)));
     }
 
     public virtual void Error(string format, params object[] args)
     {
       if (LogLevel.Error <= _level)
-        Write(FormatLogMessage(LogLevel.Error, string.Format(format, args)));
+        Write(FormatLogMessage(new LogMessage(LogLevel.Error, string.Format(format, args))));
     }
 
     public virtual void Error(string format, Exception exception, params object[] args)
     {
       if (LogLevel.Error <= _level)
-        Write(FormatLogMessage(LogLevel.Error, string.Format(format, args), exception));
+        Write(FormatLogMessage(new LogMessage(LogLevel.Error, string.Format(format, args), exception)));
     }
 
     public virtual void Critical(string format, params object[] args)
     {
       if (LogLevel.Critical <= _level)
-        Write(FormatLogMessage(LogLevel.Critical, string.Format(format, args)));
+        Write(FormatLogMessage(new LogMessage(LogLevel.Critical, string.Format(format, args))));
     }
 
     public virtual void Critical(string format, Exception exception, params object[] args)
     {
       if (LogLevel.Critical <= _level)
-        Write(FormatLogMessage(LogLevel.Critical, string.Format(format, args), exception));
+        Write(FormatLogMessage(new LogMessage(LogLevel.Critical, string.Format(format, args), exception)));
     }
 
     public virtual void Debug(string format, params object[] args)
     {
       if (LogLevel.Debug <= _level)
-        Write(FormatLogMessage(LogLevel.Debug, string.Format(format, args)));
+        Write(FormatLogMessage(new LogMessage(LogLevel.Debug, string.Format(format, args))));
     }
 
     public virtual void Debug(string format, Exception exception, params object[] args)
     {
       if (LogLevel.Debug <= _level)
-        Write(FormatLogMessage(LogLevel.Debug, string.Format(format, args), exception));
+        Write(FormatLogMessage(new LogMessage(LogLevel.Debug, string.Format(format, args), exception)));
     }
 
     #endregion
 
     #region Protected Methods
 
-    protected virtual string FormatLogMessage(LogLevel logLevel, string message)
+    protected virtual string FormatLogMessage(LogMessage message)
     {
-      return string.Format("{0} [{1}] [{2}] {3}",
-        DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.ffffff"),
-        logLevel,
-        Thread.CurrentThread.Name,
-        message);
-    }
-
-    protected virtual string FormatLogMessage(LogLevel logLevel, string message, Exception exception)
-    {
-      string formattedLogMessage = FormatLogMessage(logLevel, message);
-      string formattedException = FormatException(exception);
-      return formattedLogMessage + "\r\n" + formattedException;
+      string formattedMessage
+        = string.Format("{0} [{1}] [{2}] {3}",
+                        message.DateTime.ToString("yyyy-MM-dd HH:mm:ss.ffffff"),
+                        message.Level,
+                        Thread.CurrentThread.Name,
+                        message.Message)
+          + (message.Exception != null ? "\r\n" + FormatException(message.Exception, message.Level) : "");
+      return formattedMessage;
     }
 
     protected virtual void Write(string message)
@@ -184,14 +180,14 @@ namespace AppStract.Core.System.Logging
       }
     }
 
-    protected static string FormatException(Exception ex)
+    protected static string FormatException(Exception ex, LogLevel logLevel)
     {
-      StringBuilder exceptionFormatter = new StringBuilder();
+      var exceptionFormatter = new StringBuilder();
       exceptionFormatter.AppendLine("Exception: " + ex);
       exceptionFormatter.AppendLine("  Message: " + ex.Message);
       exceptionFormatter.AppendLine("  Site   : " + ex.TargetSite);
       exceptionFormatter.AppendLine("  Source : " + ex.Source);
-      Exception innerException = ex.InnerException;
+      var innerException = ex.InnerException;
       while (innerException != null)
       {
         exceptionFormatter.AppendLine("Inner Exception:");
@@ -199,8 +195,11 @@ namespace AppStract.Core.System.Logging
         exceptionFormatter.AppendLine("\t Message: " + innerException.Message);
         innerException = innerException.InnerException;
       }
-      exceptionFormatter.AppendLine("Stack Trace:");
-      exceptionFormatter.AppendLine(ex.StackTrace);
+      if (logLevel == Logging.LogLevel.Debug)
+      {
+        exceptionFormatter.AppendLine("Stack Trace:");
+        exceptionFormatter.AppendLine(ex.StackTrace);
+      }
       return exceptionFormatter.ToString();
     }
 

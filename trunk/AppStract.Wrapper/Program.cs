@@ -56,7 +56,7 @@ namespace AppStract.Wrapper
         if (GuestCore.Initialized && !GuestCore.Connected)
           break;
       }
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "Main method returning with exit code " + _exitCode), false);
+      GuestCore.Log(new LogMessage(LogLevel.Debug, "Wrapper process terminates with exit code " + _exitCode), false);
       return _exitCode;
     }
 

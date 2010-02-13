@@ -201,8 +201,7 @@ namespace AppStract.Server
         TerminateProcess(-1, ExitMethod.Kill);
         throw; // In case TerminateProcess didn't do it's job
       }
-      Log(new LogMessage(LogLevel.Information, "Process [PID{0}] is hooked.", _currentProcessId));
-      Log(new LogMessage(LogLevel.Information, "Process [PID{0}] is ready to wake up.", _currentProcessId));
+      Log(new LogMessage(LogLevel.Information, "Process [PID{0}] is initialized and ready to wake up.", _currentProcessId));
     }
 
     /// <summary>
@@ -267,7 +266,7 @@ namespace AppStract.Server
     /// <returns>True if the current process' termination code is invoked, false otherwise.</returns>
     public static bool TerminateProcess(int exitCode, ExitMethod exitMethod)
     {
-      Log(new LogMessage(LogLevel.Information, "Terminating process with " + exitCode + "."), false);
+      Log(new LogMessage(LogLevel.Information, "Terminating process with exit code " + exitCode + "."), false);
       _commBus.Flush();
       if ((exitMethod & ExitMethod.Request) == ExitMethod.Request
           && RaiseExitRequest(exitCode))

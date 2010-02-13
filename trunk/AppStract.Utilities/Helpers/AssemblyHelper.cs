@@ -39,15 +39,6 @@ namespace AppStract.Utilities.Helpers
     #region Public Methods
 
     /// <summary>
-    /// Gets the first executable that was executed in the current <see cref="AppDomain"/>.
-    /// </summary>
-    /// <returns></returns>
-    public static SystemAssembly GetEntryAssembly()
-    {
-      return SystemAssembly.GetEntryAssembly();
-    }
-
-    /// <summary>
     /// Returns whether the specified file is a managed assembly.
     /// </summary>
     /// <exception cref="ArgumentException"></exception>
