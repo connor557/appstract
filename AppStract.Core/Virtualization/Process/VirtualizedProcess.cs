@@ -251,30 +251,30 @@ namespace AppStract.Core.Virtualization.Process
       _process = SystemProcess.Start(startInfo);
       _process.EnableRaisingEvents = true;
       _process.Exited += Process_Exited;
-      /// Inject wrapper.
-#if !DEBUG
+      // Give the process time to start and thereby avoid an AccessViolationException when injecting
+      //_process.WaitForInputIdle();  // Based on message-loop detection, incompatible with command line
+      Thread.Sleep(500);
+      // Inject wrapper.
       try
       {
-#endif
-      RemoteHooking.Inject(
-        // The process to inject, in this case the wrapper.
-        _process.Id,
-        // Absolute paths of the libraries to inject, we use the same one for 32bit and 64bit
-        libraryLocation, libraryLocation,
-        // The name of the channel to use for IPC.
-        _connection.ChannelName,
-        // The location of the executable to start the wrapped process from.
-        Path.Combine(_startInfo.WorkingDirectory.FileName, _startInfo.Files.Executable.FileName),
-        // The arguments to pass to the main method of the executable. 
-        _startInfo.Arguments);
-#if !DEBUG
+        RemoteHooking.Inject(
+          // The process to inject, in this case the wrapper.
+          _process.Id,
+          // Absolute paths of the libraries to inject, we use the same one for 32bit and 64bit
+          libraryLocation, libraryLocation,
+          // The name of the channel to use for IPC.
+          _connection.ChannelName,
+          // The location of the executable to start the wrapped process from.
+          Path.Combine(_startInfo.WorkingDirectory.FileName, _startInfo.Files.Executable.FileName),
+          // The arguments to pass to the main method of the executable. 
+          _startInfo.Arguments);
       }
-      catch
+      catch (Exception e)
       {
-        _process.Kill();
+        if (!_process.HasExited) _process.Kill();
+        CoreBus.Log.Critical("Injection procedure failed.", e);
         throw;
       }
-#endif
       // Hide wrapper console window.
       ProcessHelper.SetWindowState(_process.MainWindowHandle, WindowShowStyle.Hide);
     }
@@ -288,7 +288,7 @@ namespace AppStract.Core.Virtualization.Process
     private void Process_Exited(object sender, EventArgs e)
     {
       if (Thread.CurrentThread.Name == null)
-        Thread.CurrentThread.Name = "Process Finalizer";
+        Thread.CurrentThread.Name = "Guest Finalizer";
       CoreBus.Log.Message("Guest process' Exited event is called");
       if (!_process.HasExited)
         return;

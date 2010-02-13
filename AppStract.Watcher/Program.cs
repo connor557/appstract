@@ -82,9 +82,9 @@ namespace AppStract.Watcher
                                 | (!_parameters.Flags.IsSpecified(CleanUpInsuranceFlags.TrackByRegistry)
                                      ? CleanUpInsuranceFlags.TrackByRegistry
                                      : CleanUpInsuranceFlags.None));
-      ReportMessage("tRetrieving a handle for the process with PID." + _parameters.ProcessId);
+      ReportMessage("Retrieving a handle for the process with PID." + _parameters.ProcessId);
       var process = Process.GetProcessById(_parameters.ProcessId);
-      ReportMessage("tWaiting for the process to exit...");
+      ReportMessage("Waiting for the process to exit...");
       process.WaitForExit();
       ReportMessage("Process has exited");
       ReportMessage("Invoking cleanup procedure...");

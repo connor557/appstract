@@ -160,7 +160,7 @@ namespace AppStract.Inject
                                                    + "using #" + args.Length + " method parameters" +
                                                    (arguments.Length == 0 ? "" : ": " + args)));
       var exitCode = AssemblyHelper.RunMainMethod(wrappedProcessExecutable, arguments.Length == 0 ? null : arguments);
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "Main method returned exitcode " + exitCode));
+      GuestCore.Log(new LogMessage(LogLevel.Information, "Target main method returned exitcode " + exitCode));
       // First attempt a clean shutdown, then try a forced shutdown.
       GuestCore.TerminateProcess(exitCode, ExitMethod.Request | ExitMethod.Kill);
     }

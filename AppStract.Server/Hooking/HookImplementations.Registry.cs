@@ -85,7 +85,7 @@ namespace AppStract.Server.Hooking
       uint handle;
       if (!TryParse(hKey, out handle))
       {
-        phkResult = new IntPtr();
+        phkResult = IntPtr.Zero;
         return WinError.ERROR_INVALID_HANDLE;
       }
       uint hResult;
