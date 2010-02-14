@@ -45,6 +45,13 @@ namespace AppStract.Watcher
     /// <param name="args"></param>
     static void Main(string[] args)
     {
+#if DEBUG
+      Console.Write("Do you want to attach a debugger? (y)\t");
+      if (Console.ReadKey().KeyChar == 'y')
+        Debugger.Break();
+      Console.WriteLine();
+      Console.WriteLine();
+#endif
       _parameters = new Parameters(args);
       ReportMessage("Watching with the following parameters:");
       ReportMessage("  Flags\t" + _parameters.Flags);

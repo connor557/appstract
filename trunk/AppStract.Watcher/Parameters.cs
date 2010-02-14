@@ -41,24 +41,24 @@ namespace AppStract.Watcher
     /// The string representing the folder in which the insurances are kept.
     /// It is expected that <see cref="InsuranceId"/> is a file contained in this folder.
     /// </summary>
-    public string InsuranceFile;
+    public readonly string InsuranceFile;
     /// <summary>
     /// The string representing the registry key in which the insurances are kept.
     /// It is expected that the key is a subkey of HKEY_CURRENT_USER and that <see cref="InsuranceId"/> is a subkey of this key.
     /// </summary>
-    public string InsuranceRegistryKey;
+    public readonly string InsuranceRegistryKey;
     /// <summary>
     /// The flags describing the insurance methods.
     /// </summary>
-    public CleanUpInsuranceFlags Flags;
+    public readonly CleanUpInsuranceFlags Flags;
     /// <summary>
     /// The identifier of the insurance.
     /// </summary>
-    public Guid InsuranceId;
+    public readonly Guid InsuranceId;
     /// <summary>
     /// The identifier of the process to watch.
     /// </summary>
-    public int ProcessId;
+    public readonly int ProcessId;
 
     #endregion
 
