@@ -226,8 +226,8 @@ namespace System.Reflection.GAC
       InstallerType irType;
       if (!ParserHelper.TryParseEnum(irTypeString, out irType))
         return null;
-      if (irType == InstallerType.File)
-        return InstallerDescription.CreateForFile(irDescr, irId);
+      if (irType == InstallerType.File && File.Exists(irId))
+          return InstallerDescription.CreateForFile(irDescr, irId);
       if (irType == InstallerType.OpaqueString)
         return InstallerDescription.CreateForOpaqueString(irDescr, irId);
       if (irType == InstallerType.Installer)
