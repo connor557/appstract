@@ -237,11 +237,11 @@ namespace System.Reflection.GAC
       var startInfo = new ProcessStartInfo
                         {
                           FileName = _data.TrackingProcessExecutable,
-                          Arguments = "IID=" + _uniqueId
-                                      + " FLAGS=" + (int) _data.Flags
-                                      + " FILE=" + _data.TrackingFilesFolder
-                                      + " REG=" + _data.TrackingRegistryKey
-                                      + " PID=" + Process.GetCurrentProcess().Id,
+                          Arguments = "\"IID=" + _uniqueId + "\" "
+                                      + "\"FLAGS=" + (int)_data.Flags + "\" "
+                                      + "\"FILE=" + _data.TrackingFilesFolder + "\" "
+                                      + "\"REG=" + _data.TrackingRegistryKey + "\" "
+                                      + "\"PID=" + Process.GetCurrentProcess().Id + "\" ",
                           CreateNoWindow = true
                         };
       _insuranceProcess = Process.Start(startInfo);
