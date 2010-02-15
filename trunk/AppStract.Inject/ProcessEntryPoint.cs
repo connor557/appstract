@@ -25,6 +25,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using System.Windows.Forms;
 using AppStract.Core.System.Logging;
 using AppStract.Core.System.IPC;
 using AppStract.Server;
@@ -107,17 +108,20 @@ namespace AppStract.Inject
       try
       {
 #if DEBUG
-        Debugger.Break();
+        if (MessageBox.Show("Do you want to attach a debugger to the current process?", "Attach Debugger?",
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
+            == DialogResult.Yes)
+          Debugger.Break();
 #endif
         // Name the current thread.
         if (Thread.CurrentThread.Name == null)
           Thread.CurrentThread.Name = string.Format("{0} (PID {1}) Run method",
-            Process.GetCurrentProcess().ProcessName, GuestCore.ProcessId);
+                                                    Process.GetCurrentProcess().ProcessName, GuestCore.ProcessId);
         // Validate the connection.
         if (!GuestCore.Connected)
           return; // Return silently, can't log
         GuestCore.Log(new LogMessage(
-          LogLevel.Information, "Guest process [{0}] entered the Run method.", GuestCore.ProcessId));
+                        LogLevel.Information, "Guest process [{0}] entered the Run method.", GuestCore.ProcessId));
         // Install all hooks.
         GuestCore.InstallHooks(this);
         // Start the injected process.
@@ -154,14 +158,17 @@ namespace AppStract.Inject
     public void Run(RemoteHooking.IContext inContext, string channelName, string wrappedProcessExecutable, string args)
     {
 #if DEBUG
-      Debugger.Break();
+      if (MessageBox.Show("Do you want to attach a debugger to the current process?", "Attach Debugger?",
+                          MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
+          == DialogResult.Yes)
+        Debugger.Break();
 #endif
       // Install all hooks.
       GuestCore.InstallHooks(this);
       // Set the working directory to the one expected by the executable.
       Directory.SetCurrentDirectory(Path.GetDirectoryName(wrappedProcessExecutable));
       // Run the main method of the wrapped process.
-      string[] arguments = args.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+      string[] arguments = args.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
       GuestCore.Log(new LogMessage(LogLevel.Debug, "Invoking main method of targeted guest... "
                                                    + "using #" + args.Length + " method parameters" +
                                                    (arguments.Length == 0 ? "" : ": " + args)));
