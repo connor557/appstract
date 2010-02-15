@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using AppStract.Core.Virtualization.Registry;
+using System.Linq;
 using Microsoft.Win32;
 using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
 
@@ -152,14 +153,14 @@ namespace AppStract.Server.Registry
     /// <returns>The <see cref="RegistryHive"/> to which the <paramref name="key"/> belongs.</returns>
     public static RegistryHive GetHive(string key)
     {
-      /// Get the hive as string
+      // Get the hive as string
       int index = key.IndexOf('\\');
       if (index == 0)
         throw new ApplicationException("Can't extract the root key from " + key);
       if (index != -1)
         key = key.Substring(0, index);
       key = key.ToUpperInvariant();
-      /// Return the matching RegistryHive
+      // Return the matching RegistryHive
       switch (key)
       {
         case "HKEY_USERS":
@@ -193,15 +194,15 @@ namespace AppStract.Server.Registry
     /// <returns>The top-level <see cref="RegistryKey"/> of which <paramref name="key"/> is a member.</returns>
     public static RegistryKey GetHiveAsKey(string key, out string subKeyName)
     {
-      /// Get the name of the key.
+      // Get the name of the key.
       subKeyName = key;
       int index = subKeyName.IndexOf("\\");
       subKeyName = index > -1
-                     ? subKeyName.Substring(index)
+                     ? subKeyName.Substring(index + 1)
                      : null;
-      /// Get the hive to read from.
+      // Get the hive to read from.
       RegistryHive registryHive = GetHive(key);
-      /// Open the key from the host's registry.
+      // Open the key from the host's registry.
       return GetHiveAsKey(registryHive);
     }
 
@@ -231,6 +232,16 @@ namespace AppStract.Server.Registry
         default:
           return null;
       }
+    }
+
+    /// <summary>
+    /// Returns the handle as used by the windows operating system for accessing the specified <see cref="RegistryHive"/>.
+    /// </summary>
+    /// <param name="registryHive"></param>
+    /// <returns></returns>
+    public static uint GetHiveAsKeyHandle(RegistryHive registryHive)
+    {
+      return _hiveHandles.FirstOrDefault(pair => pair.Value == registryHive).Key;
     }
 
     /// <summary>
