@@ -59,11 +59,11 @@ namespace AppStract.Inject
     /// <param name="inChannelName">The name of the inter-process communication channel to connect to.</param>
     public ProcessEntryPoint(RemoteHooking.IContext inContext, string inChannelName)
     {
-      /// Connect to server.
+      // Connect to server.
       IProcessSynchronizer sync = RemoteHooking.IpcConnectClient<ProcessSynchronizerInterface>(inChannelName).ProcessSynchronizer;
-      /// Initialize the guest's core.
+      // Initialize the guest's core.
       GuestCore.Initialize(sync);
-      /// Validate connection.
+      // Validate connection.
       if (!GuestCore.Connected)
         throw new GuestException("Failed to validate the inter-process connection while initializing the guest's virtual environment.");
     }
@@ -106,10 +106,13 @@ namespace AppStract.Inject
     {
       try
       {
-        /// Name the current thread.
+#if DEBUG
+        Debugger.Break();
+#endif
+        // Name the current thread.
         if (Thread.CurrentThread.Name == null)
           Thread.CurrentThread.Name = string.Format("{0} (PID {1}) Run method",
-            Process.GetCurrentProcess().ProcessName, RemoteHooking.GetCurrentProcessId());
+            Process.GetCurrentProcess().ProcessName, GuestCore.ProcessId);
         // Validate the connection.
         if (!GuestCore.Connected)
           return; // Return silently, can't log
@@ -150,6 +153,9 @@ namespace AppStract.Inject
     /// <param name="args">Optional arguments to pass to the guest's main method.</param>
     public void Run(RemoteHooking.IContext inContext, string channelName, string wrappedProcessExecutable, string args)
     {
+#if DEBUG
+      Debugger.Break();
+#endif
       // Install all hooks.
       GuestCore.InstallHooks(this);
       // Set the working directory to the one expected by the executable.
