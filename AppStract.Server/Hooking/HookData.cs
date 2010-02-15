@@ -29,7 +29,7 @@ namespace AppStract.Server.Hooking
   /// <summary>
   /// The data needed for creating a managed hook.
   /// </summary>
-  internal struct HookData
+  public struct HookData
   {
 
     #region Variables
@@ -154,8 +154,7 @@ namespace AppStract.Server.Hooking
       }
       catch (SystemException e)
       {
-        throw new HookingException("Failed to get pointer for API Hook: " + _description,
-                                   _targetLibraryName, _targetSymbolName, e);
+        throw new HookingException("Failed to get pointer for API Hook: " + _description, this, e);
       }
     }
 
@@ -165,7 +164,7 @@ namespace AppStract.Server.Hooking
     /// <returns></returns>
     public override string ToString()
     {
-      return "[" + _targetLibraryName + "." + _targetSymbolName + "] " + _handler.Method.Name;
+      return "[" + _targetLibraryName + " | " + _targetSymbolName + "] " + _description;
     }
 
     #endregion

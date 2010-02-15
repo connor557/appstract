@@ -32,8 +32,10 @@ namespace AppStract.Server.Hooking
   public static partial class HookDelegates
   {
 
+    #region CreateFile
+
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-    public delegate IntPtr DCreateFile(
+    public delegate IntPtr DCreateFile_Unicode(
         String InFileName,
         UInt32 InDesiredAccess,
         UInt32 InShareMode,
@@ -43,23 +45,66 @@ namespace AppStract.Server.Hooking
         IntPtr InTemplateFile
        );
 
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
+    public delegate IntPtr DCreateFile_Ansi(
+        String InFileName,
+        UInt32 InDesiredAccess,
+        UInt32 InShareMode,
+        IntPtr InSecurityAttributes,
+        UInt32 InCreationDisposition,
+        UInt32 InFlagsAndAttributes,
+        IntPtr InTemplateFile
+       );
+
+    #endregion
+
+    #region CreateDirectory
+
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-    public delegate IntPtr DCreateDirectory(
+    public delegate IntPtr DCreateDirectory_Unicode(
         String InFileName,
         IntPtr InSecurityAttributes
       );
 
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
+    public delegate IntPtr DCreateDirectory_Ansi(
+        String InFileName,
+        IntPtr InSecurityAttributes
+      );
+
+    #endregion
+
+    #region DeleteFile
+
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-    public delegate bool DDeleteFile(
+    public delegate bool DDeleteFile_Unicode(
         String InFileName
       );
 
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
+    public delegate bool DDeleteFile_Ansi(
+        String InFileName
+      );
+
+    #endregion
+
+    #region LoadLibrary
+
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-    public delegate IntPtr DLoadLibraryEx(
+    public delegate IntPtr DLoadLibraryEx_Unicode(
         String dllFileName,
         IntPtr handel,
         uint mozart
       );
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
+    public delegate IntPtr DLoadLibraryEx_Ansi(
+        String dllFileName,
+        IntPtr handel,
+        uint mozart
+      );
+
+    #endregion
 
   }
 }

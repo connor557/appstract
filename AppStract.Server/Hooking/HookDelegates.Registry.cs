@@ -32,34 +32,76 @@ namespace AppStract.Server.Hooking
   public static partial class HookDelegates
   {
 
-    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-    public delegate uint DSetValue(
-        IntPtr hkey,
-        [MarshalAs(UnmanagedType.LPWStr)] String lpValueName,
-        uint Reserved, uint dwType,
-        IntPtr lpData, uint cbData
-      );
+    #region CreateKey
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-    public delegate uint DCreateKey
+    public delegate uint DCreateKey_Unicode
                    (IntPtr hKey, string lpSubKey, int Reserved,
                    string lpClass, uint dwOptions, uint samDesired,
                    ref int lpSecurityAttributes,
                    out IntPtr phkResult, ref int lpdwDisposition);
 
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
+    public delegate uint DCreateKey_Ansi
+                   (IntPtr hKey, string lpSubKey, int Reserved,
+                   string lpClass, uint dwOptions, uint samDesired,
+                   ref int lpSecurityAttributes,
+                   out IntPtr phkResult, ref int lpdwDisposition);
+    #endregion
+
+    #region OpenKey
+
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-    public delegate uint DOpenKey
+    public delegate uint DOpenKey_Unicode
                    (IntPtr hKey, string subKey, uint options,
                     int sam, out IntPtr phkResult);
 
-    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-    public delegate uint DQueryValue
-                   (IntPtr hkey, [MarshalAs(UnmanagedType.LPWStr)] String lpValueName,
-                    IntPtr lpReserved, IntPtr lpType, IntPtr lpData, IntPtr lpcbData);
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
+    public delegate uint DOpenKey_Ansi
+                   (IntPtr hKey, string subKey, uint options,
+                    int sam, out IntPtr phkResult);
 
-    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+    #endregion
+
+    #region CloseKey
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
     public delegate uint DCloseKey
                    (IntPtr hKey);
+
+    #endregion
+
+    #region SetValue
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+    public delegate uint DSetValue_Unicode
+                    (IntPtr hkey,
+                    string lpValueName,
+                    uint Reserved, uint dwType,
+                    IntPtr lpData, uint cbData);
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
+    public delegate uint DSetValue_Ansi
+                    (IntPtr hkey,
+                    string lpValueName,
+                    uint Reserved, uint dwType,
+                    IntPtr lpData, uint cbData);
+
+    #endregion
+
+    #region QueryValue
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+    public delegate uint DQueryValue_Unicode
+                   (IntPtr hkey, string lpValueName,
+                    IntPtr lpReserved, IntPtr lpType, IntPtr lpData, IntPtr lpcbData);
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
+    public delegate uint DQueryValue_Ansi
+                   (IntPtr hkey, string lpValueName,
+                    IntPtr lpReserved, IntPtr lpType, IntPtr lpData, IntPtr lpcbData);
+
+    #endregion
 
   }
 }
