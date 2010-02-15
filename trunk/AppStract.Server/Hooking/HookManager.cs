@@ -81,42 +81,74 @@ namespace AppStract.Server.Hooking
         GuestCore.Log(new LogMessage(LogLevel.Debug, "HookManager starts initialization procedure."));
         var hooks = new List<HookData>(8);
         // Hooks regarding the filesystem
-        hooks.Add(new HookData("Create Directory",
+        hooks.Add(new HookData("Create Directory [Unicode]",
                                "kernel32.dll", "CreateDirectoryW",
-                               new HookDelegates.DCreateDirectory(hookHandler.DoCreateDirectory),
+                               new HookDelegates.DCreateDirectory_Unicode(hookHandler.DoCreateDirectory),
                                inCallback));
-        hooks.Add(new HookData("Create File",
+        hooks.Add(new HookData("Create Directory [Ansi]",
+                               "kernel32.dll", "CreateDirectoryA",
+                               new HookDelegates.DCreateDirectory_Ansi(hookHandler.DoCreateDirectory),
+                               inCallback));
+        hooks.Add(new HookData("Create File [Unicode]",
                                "kernel32.dll", "CreateFileW",
-                               new HookDelegates.DCreateFile(hookHandler.DoCreateFile),
+                               new HookDelegates.DCreateFile_Unicode(hookHandler.DoCreateFile),
                                inCallback));
-        hooks.Add(new HookData("Delete File",
+        hooks.Add(new HookData("Create File [Ansi]",
+                               "kernel32.dll", "CreateFileA",
+                               new HookDelegates.DCreateFile_Ansi(hookHandler.DoCreateFile),
+                               inCallback));
+        hooks.Add(new HookData("Delete File [Unicode]",
                                "kernel32.dll", "DeleteFileW",
-                               new HookDelegates.DDeleteFile(hookHandler.DoDeleteFile),
+                               new HookDelegates.DDeleteFile_Unicode(hookHandler.DoDeleteFile),
                                inCallback));
-        hooks.Add(new HookData("Load Library",
+        hooks.Add(new HookData("Delete File [Ansi]",
+                               "kernel32.dll", "DeleteFileA",
+                               new HookDelegates.DDeleteFile_Ansi(hookHandler.DoDeleteFile),
+                               inCallback));
+        hooks.Add(new HookData("Load Library [Unicode]",
                                "kernel32.dll", "LoadLibraryExW",
-                               new HookDelegates.DLoadLibraryEx(hookHandler.DoLoadLibraryEx),
+                               new HookDelegates.DLoadLibraryEx_Unicode(hookHandler.DoLoadLibraryEx),
+                               inCallback));
+        hooks.Add(new HookData("Load Library [Ansi]",
+                               "kernel32.dll", "LoadLibraryExA",
+                               new HookDelegates.DLoadLibraryEx_Ansi(hookHandler.DoLoadLibraryEx),
                                inCallback));
         // Hooks regarding the registry
-        hooks.Add(new HookData("Set Registry Value",
-                               "advapi32.dll", "RegSetValueExW",
-                               new HookDelegates.DSetValue(hookHandler.RegSetValueEx),
-                               inCallback));
-        hooks.Add(new HookData("Query Registry Value",
-                               "advapi32.dll", "RegQueryValueExW",
-                               new HookDelegates.DQueryValue(hookHandler.RegQueryValue_Hooked),
-                               inCallback));
-        hooks.Add(new HookData("Open Registry Key",
+        hooks.Add(new HookData("Open Registry Key [Unicode]",
                                "advapi32.dll", "RegOpenKeyExW",
-                               new HookDelegates.DOpenKey(hookHandler.RegOpenKey_Hooked),
+                               new HookDelegates.DOpenKey_Unicode(hookHandler.RegOpenKey_Hooked),
                                inCallback));
-        hooks.Add(new HookData("Create Registry Key",
+        hooks.Add(new HookData("Open Registry Key [Ansi]",
+                               "advapi32.dll", "RegOpenKeyExA",
+                               new HookDelegates.DOpenKey_Ansi(hookHandler.RegOpenKey_Hooked),
+                               inCallback));
+        hooks.Add(new HookData("Create Registry Key [Unicode]",
                                "advapi32.dll", "RegCreateKeyExW",
-                               new HookDelegates.DCreateKey(hookHandler.RegCreateKeyEx_Hooked),
+                               new HookDelegates.DCreateKey_Unicode(hookHandler.RegCreateKeyEx_Hooked),
+                               inCallback));
+        hooks.Add(new HookData("Create Registry Key [Ansi]",
+                               "advapi32.dll", "RegCreateKeyExA",
+                               new HookDelegates.DCreateKey_Ansi(hookHandler.RegCreateKeyEx_Hooked),
                                inCallback));
         hooks.Add(new HookData("Close Registry Key",
                                "advapi32.dll", "RegCloseKey",
                                new HookDelegates.DCloseKey(hookHandler.RegCloseKey_Hooked),
+                               inCallback));
+        hooks.Add(new HookData("Set Registry Value [Unicode]",
+                               "advapi32.dll", "RegSetValueExW",
+                               new HookDelegates.DSetValue_Unicode(hookHandler.RegSetValueEx),
+                               inCallback));
+        hooks.Add(new HookData("Set Registry Value [Ansi]",
+                               "advapi32.dll", "RegSetValueExA",
+                               new HookDelegates.DSetValue_Ansi(hookHandler.RegSetValueEx),
+                               inCallback));
+        hooks.Add(new HookData("Query Registry Value [Unicode]",
+                               "advapi32.dll", "RegQueryValueExW",
+                               new HookDelegates.DQueryValue_Unicode(hookHandler.RegQueryValue_Hooked),
+                               inCallback));
+        hooks.Add(new HookData("Query Registry Value [Ansi]",
+                               "advapi32.dll", "RegQueryValueExA",
+                               new HookDelegates.DQueryValue_Ansi(hookHandler.RegQueryValue_Hooked),
                                inCallback));
         _hooks = hooks;
         _initialized = true;
@@ -150,15 +182,13 @@ namespace AppStract.Server.Hooking
             // Bug? Why wouldn't we intercept these?
             localHook.ThreadACL.SetExclusiveACL(new[] {0});
             _installedHooks.Add(localHook);
-            GuestCore.Log(new LogMessage(LogLevel.Debug, "HookManager installed API Hook: " + hook.Description));
+            GuestCore.Log(new LogMessage(LogLevel.Debug, "HookManager installed API hook: " + hook));
           }
           catch (Exception e)
           {
             GuestCore.Log(
-              new LogMessage(LogLevel.Error, "HookManager failed to install API Hook: " + hook.Description, e),
-              false);
-            throw new HookingException("HookManager failed to install API Hook: " + hook.Description,
-                                       hook.TargetLibrary, hook.TargetSymbol, e);
+              new LogMessage(LogLevel.Error, "HookManager failed to install API hook: " + hook, e), false);
+            throw new HookingException("HookManager failed to install API hook.", hook, e);
           }
         }
       }
