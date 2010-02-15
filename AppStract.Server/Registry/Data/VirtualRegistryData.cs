@@ -65,18 +65,17 @@ namespace AppStract.Server.Registry.Data
     {
       hResult = 0;
       keyFullPath = RegistryTranslator.ToVirtualPath(keyFullPath);
-      /// We're not sure if this method is read-only.
+      // We're not sure if this method is read-only, depends on whether or not WriteKey() is called
       _keysSynchronizationLock.EnterUpgradeableReadLock();
       try
       {
-        /// Try to find the key in the virtual registry.
+        // Try to find the key in the virtual registry.
         VirtualRegistryKey virtualRegistryKey
-          = _keys.Values.First(key => key.Path.ToLowerInvariant() == keyFullPath);
+          = _keys.Values.FirstOrDefault(key => key.Path.ToLowerInvariant() == keyFullPath);
         if (virtualRegistryKey == null && KeyExistsInHostRegistry(keyFullPath))
         {
-          /// The key doesn't exist yet.
-          /// Create it key in the virtual registry,
-          /// but ONLY IF the key exists in the current host's registry!
+          // The key doesn't exist yet. Create the key in the virtual registry,
+          // but ONLY IF the key exists in the current host's registry.
           virtualRegistryKey = ConstructRegistryKey(keyFullPath);
           WriteKey(virtualRegistryKey, false);
         }
