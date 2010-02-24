@@ -170,11 +170,11 @@ namespace AppStract.Core.Virtualization.Process
     /// </summary>
     protected void Start()
     {
-      /// Initialize the underlying resources.
+      // Initialize the underlying resources.
       _gacManager.Initialize();
       _connection.Connect();
       _hasExited = false;
-      /// Start the process.
+      // Start the process.
       switch (_startInfo.Files.Executable.Type)
       {
         case FileType.Assembly_Native:
@@ -183,7 +183,7 @@ namespace AppStract.Core.Virtualization.Process
         case FileType.Assembly_Managed:
           WrapAndInject();
           break;
-        default:  /// Should never happen!
+        default:  // Should never happen!
           throw new VirtualProcessException("FileType " + _startInfo.Files.Executable.Type +
                                             " can't be used to start a process with.");
       }
@@ -276,7 +276,8 @@ namespace AppStract.Core.Virtualization.Process
         throw;
       }
       // Hide wrapper console window.
-      ProcessHelper.SetWindowState(_process.MainWindowHandle, WindowShowStyle.Hide);
+      if (!_process.HasExited)
+        ProcessHelper.SetWindowState(_process.MainWindowHandle, WindowShowStyle.Hide);
     }
 
     /// <summary>
