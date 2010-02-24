@@ -99,18 +99,34 @@ namespace System.Reflection.GAC
 
     #region Static Methods
 
+    /// <summary>
+    /// Creates a describer for an installer; this installer should always be an application that appears in the list of Add/Remove Programs.
+    /// </summary>
+    /// <param name="installerName"></param>
+    /// <param name="installerIdentifier"></param>
+    /// <returns></returns>
     public static InstallerDescription CreateForInstaller(string installerName, string installerIdentifier)
     {
       return new InstallerDescription(InstallerType.Installer, installerIdentifier, installerName);
     }
 
+    /// <summary>
+    /// Creates a describer for an application that is represented by a file in the file system.
+    /// </summary>
+    /// <param name="description"></param>
+    /// <param name="fileName"></param>
+    /// <returns></returns>
     public static InstallerDescription CreateForFile(string description, string fileName)
     {
-      if (!File.Exists(fileName))
-        throw new FileNotFoundException("An instance of InstallReference can only be created for an existing file.", fileName);
       return new InstallerDescription(InstallerType.File, fileName, description);
     }
 
+    /// <summary>
+    /// Creates a describer for an application that is only represented by an opaque string.
+    /// </summary>
+    /// <param name="description"></param>
+    /// <param name="opaqueString"></param>
+    /// <returns></returns>
     public static InstallerDescription CreateForOpaqueString(string description, string opaqueString)
     {
       return new InstallerDescription(InstallerType.OpaqueString, opaqueString, description);
