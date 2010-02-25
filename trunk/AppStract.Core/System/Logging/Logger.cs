@@ -157,10 +157,11 @@ namespace AppStract.Core.System.Logging
     protected virtual string FormatLogMessage(LogMessage message)
     {
       string formattedMessage
-        = string.Format("{0} [{1}] [{2}] {3}",
+        = string.Format("{0} [{1}]{2} [{3}] {4}",
                         message.DateTime.ToString("yyyy-MM-dd HH:mm:ss.ffffff"),
                         message.Level,
-                        Thread.CurrentThread.Name,
+                        message.Prefix != null ? " [" + message.Prefix + "]" : "",
+                        message.SendingThread,
                         message.Message)
           + (message.Exception != null ? "\r\n" + FormatException(message.Exception, message.Level) : "");
       return formattedMessage;
