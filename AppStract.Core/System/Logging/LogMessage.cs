@@ -138,7 +138,7 @@ namespace AppStract.Core.System.Logging
 
     public override string ToString()
     {
-      return "[" + _level + "] " + _message;
+      return "[" + _level + "] [" + _sendingThread + "] " + _message;
     }
 
     #endregion
