@@ -200,8 +200,8 @@ namespace AppStract.Server.Hooking
     /// <returns></returns>
     private static bool TryParse(IntPtr pointer, out uint result)
     {
-      var lHandle = pointer.ToInt64();
-      return uint.TryParse(lHandle.ToString(), out result);
+      result = (uint) pointer;
+      return true;
     }
 
     #endregion
