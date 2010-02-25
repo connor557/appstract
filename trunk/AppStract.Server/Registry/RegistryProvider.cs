@@ -74,37 +74,40 @@ namespace AppStract.Server.Registry
     public uint SetValue(uint hKey, string valueName, uint valueType, object data)
     {
       var type = RegistryHelper.ValueTypeFromId(valueType);
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "Set value: {0} [HKey: {1} || Type: {2}]",
-        valueName, hKey, type));
       var registryValue = new VirtualRegistryValue(valueName, data, type);
       var stateCode = _virtualRegistry.SetValue(hKey, registryValue);
+      GuestCore.Log(new LogMessage(LogLevel.Debug, "SetValue(HKey={0} Name={1} Type={2}) => {3}",
+                                   hKey, valueName, type, stateCode));
       return WinError.FromStateCode(stateCode);
     }
 
     public uint OpenKey(uint hKey, string subKey, out uint hSubKey)
     {
-      GuestCore.Log(new LogMessage(LogLevel.Debug, @"Open key: {0}\\{1}", hKey, subKey));
-      return _virtualRegistry.OpenKey(hKey, subKey, out hSubKey)
-               ? WinError.ERROR_SUCCESS
-               /// Note: This behaviour needs to be updated!
-               /// How can we know which one is the illegal value? Is it hKey or subKey?
-               : WinError.ERROR_INVALID_HANDLE;
+      var winError = _virtualRegistry.OpenKey(hKey, subKey, out hSubKey)
+                       ? WinError.ERROR_SUCCESS
+                     // Note: This behaviour needs to be updated!
+                     // How can we know which one is the illegal value? Is it hKey or subKey?
+                       : WinError.ERROR_INVALID_HANDLE;
+      GuestCore.Log(new LogMessage(LogLevel.Debug, @"OpenKey({0}\\{1}) = {2}", hKey, subKey, hSubKey));
+      return winError;
     }
 
     public uint CreateKey(uint hKey, string subKey, out uint hSubKey, out int lpdwDisposition)
     {
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "Create key {0} at HKey {1}", subKey, hKey));
       RegCreationDisposition creationDisposition;
       var stateCode = _virtualRegistry.CreateKey(hKey, subKey, out hSubKey, out creationDisposition);
       lpdwDisposition = RegistryHelper.DispositionFromRegCreationDisposition(creationDisposition);
+      GuestCore.Log(new LogMessage(LogLevel.Debug, "CreateKey(HKey={0} NewSubKey={1}) => {2} HKey={3}",
+                                   hKey, subKey, creationDisposition, hSubKey));
       return WinError.FromStateCode(stateCode);
     }
 
     public uint QueryValue(uint hKey, string valueName, out object value, out uint valueType)
     {
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "Query value {0} from HKey {1}", valueName, hKey));
       VirtualRegistryValue virtualRegistryValue;
       var hResult = _virtualRegistry.QueryValue(hKey, valueName, out virtualRegistryValue);
+      GuestCore.Log(new LogMessage(LogLevel.Debug, "QueryValue(HKey={0} ValueName={1}) => {2}",
+                                   hKey, valueName, hResult));
       value = virtualRegistryValue.Data;
       valueType = hResult == NativeResultCode.Succes
                     ? RegistryHelper.ValueTypeIdFromValueType(virtualRegistryValue.Type)
@@ -114,7 +117,7 @@ namespace AppStract.Server.Registry
 
     public uint CloseKey(uint hKey)
     {
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "Close HKey " + hKey));
+      GuestCore.Log(new LogMessage(LogLevel.Debug, "CloseKey(HKey={0})", hKey));
       _virtualRegistry.CloseKey(hKey);
       return WinError.ERROR_SUCCESS;
     }
