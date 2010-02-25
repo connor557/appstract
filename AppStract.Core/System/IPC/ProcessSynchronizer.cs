@@ -23,7 +23,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Data.Databases;
 using AppStract.Core.System.Logging;
@@ -125,7 +124,7 @@ namespace AppStract.Core.System.IPC
 
     public void ReportException(Exception exception)
     {
-      CoreBus.Log.Error("", exception);
+      CoreBus.Log.Error("An unexpected exception occured in the guest process.", exception);
     }
 
     public void ReportException(Exception exception, string message)
@@ -135,8 +134,6 @@ namespace AppStract.Core.System.IPC
 
     public void ReportMessage(LogMessage message)
     {
-      if (Thread.CurrentThread.Name == null)
-        Thread.CurrentThread.Name = "Guest";
       CoreBus.Log.Log(message);
     }
 

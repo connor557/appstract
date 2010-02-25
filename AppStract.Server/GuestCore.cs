@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 using AppStract.Core.System.Logging;
 using AppStract.Core.System.IPC;
 using AppStract.Server.FileSystem;
@@ -238,10 +237,8 @@ namespace AppStract.Server
     /// <param name="throwOnError"></param>
     public static void Log(LogMessage message, bool throwOnError)
     {
-      if (Thread.CurrentThread.Name == null)
-        Thread.CurrentThread.Name = "Guest";
-      if (message.Level > _logLevel)
-        return;
+      if (message.Level > _logLevel) return;
+      message.Prefix = "Guest " + ProcessId;
       try
       {
         _serverReporter.ReportMessage(message);
