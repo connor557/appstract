@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using System.Threading;
 
 namespace AppStract.Core.System.Logging
 {
@@ -34,10 +35,12 @@ namespace AppStract.Core.System.Logging
 
     #region Variables
 
-    private readonly string _message;
-    private readonly LogLevel _level;
     private readonly DateTime _dateTime;
     private readonly Exception _exception;
+    private readonly LogLevel _level;
+    private readonly string _message;
+    private string _msgPrefix;
+    private readonly string _sendingThread;
 
     #endregion
 
@@ -49,6 +52,14 @@ namespace AppStract.Core.System.Logging
     public DateTime DateTime
     {
       get { return _dateTime; }
+    }
+
+    /// <summary>
+    /// Gets the associated <see cref="Exception"/>, if any.
+    /// </summary>
+    public Exception Exception
+    {
+      get { return _exception; }
     }
 
     /// <summary>
@@ -68,11 +79,20 @@ namespace AppStract.Core.System.Logging
     }
 
     /// <summary>
-    /// Gets the associated <see cref="Exception"/>, if any.
+    /// Gets or sets the value used as a prefix for the message.
     /// </summary>
-    public Exception Exception
+    public string Prefix
     {
-      get { return _exception; }
+      get { return _msgPrefix; }
+      set { _msgPrefix = value; }
+    }
+
+    /// <summary>
+    /// Gets the string identifying the thread which created the original message.
+    /// </summary>
+    public string SendingThread
+    {
+      get { return _sendingThread; }
     }
 
     #endregion
@@ -87,6 +107,8 @@ namespace AppStract.Core.System.Logging
     /// <param name="args">The arguments to format the <paramref name="format"/> parameter with.</param>
     public LogMessage(LogLevel logLevel, string format, params object[] args)
     {
+      _msgPrefix = null;
+      _sendingThread = GetCurrentThreadName();
       _dateTime = DateTime.Now;
       _message = string.Format(format, args);
       _level = logLevel;
@@ -102,6 +124,8 @@ namespace AppStract.Core.System.Logging
     /// <param name="exception">The associated <see cref="Exception"/>.</param>
     public LogMessage(LogLevel logLevel, string format, Exception exception, params object[] args)
     {
+      _msgPrefix = null;
+      _sendingThread = GetCurrentThreadName();
       _dateTime = DateTime.Now;
       _message = string.Format(format, args);
       _level = logLevel;
@@ -115,6 +139,18 @@ namespace AppStract.Core.System.Logging
     public override string ToString()
     {
       return "[" + _level + "] " + _message;
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    private static string GetCurrentThreadName()
+    {
+      var name = Thread.CurrentThread.Name;
+      return string.IsNullOrEmpty(name)
+               ? Thread.CurrentThread.ManagedThreadId + ""
+               : name;
     }
 
     #endregion
