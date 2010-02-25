@@ -90,10 +90,22 @@ namespace AppStract.Watcher
                                      ? CleanUpInsuranceFlags.TrackByRegistry
                                      : CleanUpInsuranceFlags.None));
       ReportMessage("Retrieving a handle for the process with PID." + _parameters.ProcessId);
-      var process = Process.GetProcessById(_parameters.ProcessId);
-      ReportMessage("Waiting for the process to exit...");
-      process.WaitForExit();
-      ReportMessage("Process has exited");
+      try
+      {
+        var process = Process.GetProcessById(_parameters.ProcessId);
+        ReportMessage("Waiting for the process to exit...");
+        process.WaitForExit();
+        ReportMessage("Process has exited");
+      }
+      catch (Exception e)
+      {
+#if DEBUG
+        ReportMessage("Failed to get a handle for the process or to wait for the process to exit:\r\n" + e);
+        ReportMessage("Do you want to CANCEL the clean up procedure? (y)");
+        if (Console.ReadKey().KeyChar == 'y')
+          return;
+#endif
+      }
       ReportMessage("Invoking cleanup procedure...");
       try
       {
