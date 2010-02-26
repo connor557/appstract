@@ -25,6 +25,7 @@ using System;
 using System.Linq;
 using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.Registry;
+using AppStract.Utilities.Extensions;
 using AppStract.Utilities.Observables;
 using Microsoft.Win32.Interop;
 using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
@@ -50,29 +51,22 @@ namespace AppStract.Server.Registry.Data
 
     public void LoadData(IRegistryLoader dataSource)
     {
-      _keysSynchronizationLock.EnterWriteLock();
-      try
-      {
+      using (_keysSynchronizationLock.EnterDisposableWriteLock())
         dataSource.LoadRegistryTo((ObservableDictionary<uint, VirtualRegistryKey>) _keys);
-      }
-      finally
-      {
-        _keysSynchronizationLock.ExitWriteLock();
-      }
     }
 
     public override bool OpenKey(string keyFullPath, out uint hResult)
     {
       hResult = 0;
+      string requestedKey = keyFullPath;
       keyFullPath = RegistryTranslator.ToVirtualPath(keyFullPath);
       // We're not sure if this method is read-only, depends on whether or not WriteKey() is called
-      _keysSynchronizationLock.EnterUpgradeableReadLock();
-      try
+      using (_keysSynchronizationLock.EnterDisposableUpgradeableReadLock())
       {
         // Try to find the key in the virtual registry.
         VirtualRegistryKey virtualRegistryKey
           = _keys.Values.FirstOrDefault(key => key.Path.ToLowerInvariant() == keyFullPath);
-        if (virtualRegistryKey == null && KeyExistsInHostRegistry(keyFullPath))
+        if (virtualRegistryKey == null && KeyExistsInHostRegistry(requestedKey))
         {
           // The key doesn't exist yet. Create the key in the virtual registry,
           // but ONLY IF the key exists in the current host's registry.
@@ -84,10 +78,6 @@ namespace AppStract.Server.Registry.Data
         hResult = virtualRegistryKey.Handle;
         return true;
       }
-      finally
-      {
-        _keysSynchronizationLock.ExitUpgradeableReadLock();
-      }
     }
 
     public override NativeResultCode CreateKey(string keyFullPath, out uint hKey, out RegCreationDisposition creationDisposition)
@@ -96,20 +86,15 @@ namespace AppStract.Server.Registry.Data
       return base.CreateKey(keyFullPath, out hKey, out creationDisposition);
     }
 
-    public override NativeResultCode QueryValue(uint hkey, string valueName, out VirtualRegistryValue value)
+    public override NativeResultCode QueryValue(uint hKey, string valueName, out VirtualRegistryValue value)
     {
       value = new VirtualRegistryValue(valueName, null, ValueType.INVALID);
       VirtualRegistryKey key;
-      _keysSynchronizationLock.EnterReadLock();
-      try
+      using (_keysSynchronizationLock.EnterDisposableReadLock())
       {
-        if (!_keys.Keys.Contains(hkey))
+        if (!_keys.Keys.Contains(hKey))
           return NativeResultCode.InvalidHandle;
-        key = _keys[hkey];
-      }
-      finally
-      {
-        _keysSynchronizationLock.ExitReadLock();
+        key = _keys[hKey];
       }
       if (key.Values.Keys.Contains(valueName))
       {
@@ -139,16 +124,11 @@ namespace AppStract.Server.Registry.Data
     public override NativeResultCode SetValue(uint hKey, VirtualRegistryValue value)
     {
       VirtualRegistryKey key;
-      _keysSynchronizationLock.EnterReadLock();
-      try
+      using (_keysSynchronizationLock.EnterDisposableReadLock())
       {
         if (!_keys.Keys.Contains(hKey))
           return NativeResultCode.InvalidHandle;
         key = _keys[hKey];
-      }
-      finally
-      {
-        _keysSynchronizationLock.ExitReadLock();
       }
       if (key.Values.Keys.Contains(value.Name))
         key.Values[value.Name] = value;
@@ -160,16 +140,11 @@ namespace AppStract.Server.Registry.Data
     public override NativeResultCode DeleteValue(uint hKey, string valueName)
     {
       VirtualRegistryKey key;
-      _keysSynchronizationLock.EnterReadLock();
-      try
+      using (_keysSynchronizationLock.EnterDisposableReadLock())
       {
         if (!_keys.Keys.Contains(hKey))
           return NativeResultCode.InvalidHandle;
         key = _keys[hKey];
-      }
-      finally
-      {
-        _keysSynchronizationLock.ExitReadLock();
       }
       return key.Values.Remove(valueName)
                ? NativeResultCode.Succes
