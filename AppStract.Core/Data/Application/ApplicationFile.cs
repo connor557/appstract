@@ -54,8 +54,6 @@ namespace AppStract.Core.Data.Application
       get { return _file; }
       set
       {
-        // BUG? Shouldn't paths be relative to some directory??
-        value = Path.GetFullPath(value);
         _type = GetFileType(value);
         _file = value;
       }
@@ -72,7 +70,7 @@ namespace AppStract.Core.Data.Application
       FileName = file;
     }
 
-    public ApplicationFile(SerializationInfo info, StreamingContext context)
+    private ApplicationFile(SerializationInfo info, StreamingContext context)
     {
       ParserHelper.TryParseEnum(info.GetString("Type"), out _type);
       _file = info.GetString("FileName");
@@ -122,14 +120,16 @@ namespace AppStract.Core.Data.Application
     private static FileType GetFileType(string filename)
     {
       filename = filename.ToLowerInvariant();
-      if (filename == "" || Directory.Exists(filename))
+      if (filename == "" || filename.IsComposedOf(new[] {'.', '\\'}) || Directory.Exists(filename))
         return FileType.Directory;
       if (filename.EndsWith(".db3"))
         return FileType.Database;
       if (filename.EndsWithAny(new[] {".exe", ".dll"}))
       {
         if (!File.Exists(filename))
-          throw new FileNotFoundException("The assembly specified does not exist, making it impossible to retrieve its FileType.");
+          throw new FileNotFoundException(
+            "The assembly specified does not exist, making it impossible to retrieve its FileType.",
+            filename);
         return AssemblyHelper.IsManagedAssembly(filename)
                  ? FileType.Assembly_Managed
                  : FileType.Assembly_Native;
