@@ -84,7 +84,7 @@ namespace AppStract.Utilities.Extensions
     public static IDisposable EnterDisposableWriteLock(this ReaderWriterLockSlim lockSlim)
     {
       lockSlim.EnterWriteLock();
-      return new LockExiter(lockSlim.EnterWriteLock, lockSlim.HoldsWriteLock);
+      return new LockExiter(lockSlim.ExitWriteLock, lockSlim.HoldsWriteLock);
     }
 
     /// <summary>
