@@ -60,6 +60,9 @@ namespace AppStract.Inject
     /// <param name="inChannelName">The name of the inter-process communication channel to connect to.</param>
     public ProcessEntryPoint(RemoteHooking.IContext inContext, string inChannelName)
     {
+      // Name the current thread.
+      if (Thread.CurrentThread.Name == null)
+        Thread.CurrentThread.Name = "Initializer";
       // Connect to server.
       IProcessSynchronizer sync = RemoteHooking.IpcConnectClient<ProcessSynchronizerInterface>(inChannelName).ProcessSynchronizer;
       // Initialize the guest's core.
@@ -107,23 +110,7 @@ namespace AppStract.Inject
     {
       try
       {
-#if DEBUG
-        if (MessageBox.Show("Do you want to attach a debugger to the current process?", "Attach Debugger?",
-                            MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
-            == DialogResult.Yes)
-          Debugger.Break();
-#endif
-        // Name the current thread.
-        if (Thread.CurrentThread.Name == null)
-          Thread.CurrentThread.Name = string.Format("{0} (PID {1}) Run method",
-                                                    Process.GetCurrentProcess().ProcessName, GuestCore.ProcessId);
-        // Validate the connection.
-        if (!GuestCore.Connected)
-          return; // Return silently, can't log
-        GuestCore.Log(new LogMessage(
-                        LogLevel.Information, "Guest process [{0}] entered the Run method.", GuestCore.ProcessId));
-        // Install all hooks.
-        GuestCore.InstallHooks(this);
+        InitializeForRun();
         // Start the injected process.
         RemoteHooking.WakeUpProcess();
         // Block the current thread until the host becomes unreachable,
@@ -157,30 +144,59 @@ namespace AppStract.Inject
     /// <param name="args">Optional arguments to pass to the guest's main method.</param>
     public void Run(RemoteHooking.IContext inContext, string channelName, string wrappedProcessExecutable, string args)
     {
-#if DEBUG
-      if (MessageBox.Show("Do you want to attach a debugger to the current process?", "Attach Debugger?",
-                          MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
-          == DialogResult.Yes)
-        Debugger.Break();
-#endif
-      // Install all hooks.
-      GuestCore.InstallHooks(this);
-      // Set the working directory to the one expected by the executable.
-      Directory.SetCurrentDirectory(Path.GetDirectoryName(wrappedProcessExecutable));
-      // Run the main method of the wrapped process.
-      string[] arguments = args.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "Invoking main method of targeted guest... "
-                                                   + "using #" + args.Length + " method parameters" +
-                                                   (arguments.Length == 0 ? "" : ": " + args)));
-      var exitCode = AssemblyHelper.RunMainMethod(wrappedProcessExecutable, arguments.Length == 0 ? null : arguments);
-      GuestCore.Log(new LogMessage(LogLevel.Information, "Target main method returned exitcode " + exitCode));
-      // First attempt a clean shutdown, then try a forced shutdown.
-      GuestCore.TerminateProcess(exitCode, ExitMethod.Request | ExitMethod.Kill);
+      try
+      {
+        InitializeForRun();
+        // Set the working directory to the one expected by the executable.
+        Directory.SetCurrentDirectory(Path.GetDirectoryName(wrappedProcessExecutable));
+        // Run the main method of the wrapped process.
+        string[] arguments = args.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+        GuestCore.Log(new LogMessage(LogLevel.Debug, "Invoking main method of targeted guest... "
+                                                     + "using #" + args.Length + " method parameters" +
+                                                     (arguments.Length == 0 ? "" : ": " + args)));
+        var exitCode = AssemblyHelper.RunMainMethod(wrappedProcessExecutable, arguments.Length == 0 ? null : arguments);
+        GuestCore.Log(new LogMessage(LogLevel.Information, "Target main method returned exitcode " + exitCode));
+        // First attempt a clean shutdown, then try a forced shutdown.
+        GuestCore.TerminateProcess(exitCode, ExitMethod.Request | ExitMethod.Kill);
+      }
+
+      catch (Exception e)
+      {
+        GuestCore.Log(new LogMessage(LogLevel.Critical, "An unexpected exception occured.", e),
+                      false);
+        // Exit code 1067 = ERROR_PROCESS_ABORTED "The process terminated unexpectedly."
+        if (!GuestCore.TerminateProcess(1067, ExitMethod.Request | ExitMethod.Kill))
+          throw new ApplicationException("An unexpected fatal exception occured.", e);
+      }
     }
 
     #endregion
 
     #region Private Methods
+
+    /// <summary>
+    /// Contains the actions that both <see cref="Run"/> methods must execute
+    /// before executing any of the more specific code.
+    /// </summary>
+    private void InitializeForRun()
+    {
+#if DEBUG
+      if (MessageBox.Show("Do you want to attach a debugger to the current process?", "Attach Debugger?",
+                          MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
+          == DialogResult.Yes)
+        Debugger.Launch();
+#endif
+      // Name the current thread.
+      if (Thread.CurrentThread.Name == null)
+        Thread.CurrentThread.Name = "EntryPoint";
+      // Validate the connection.
+      if (!GuestCore.Connected)
+        return; // Return silently, can't log
+      // Bug: For some reason FileAcessRedirector needs to be initialized before any hooks are installed
+      var test = AppStract.Server.FileSystem.FileAccessRedirector.ToString();
+      // Install all hooks.
+      GuestCore.InstallHooks(this);
+    }
 
     /// <summary>
     /// Doesn't return as long as the host is reachable.
