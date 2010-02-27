@@ -153,26 +153,18 @@ namespace AppStract.Server
         _serverReporter = processSynchronizer;
         _logLevel = _serverReporter.GetRequiredLogLevel();
         _commBus = new CommunicationBus(processSynchronizer, processSynchronizer);
-        /// Load resources.
-        _serverReporter.ReportMessage(new LogMessage(LogLevel.Information,
-                                                     "Process [{0}] - Loading file system and registry data",
-                                                     _currentProcessId));
+        // Load resources.
+        Log(new LogMessage(LogLevel.Information, "Loading file system and registry data"));
         var fileSystem = new FileSystemProvider(processSynchronizer.FileSystemRoot);
         fileSystem.LoadFileTable(_commBus);
-        _serverReporter.ReportMessage(new LogMessage(LogLevel.Debug,
-                                                     "Process [{0}] - Loaded file system",
-                                                     _currentProcessId));
+        Log(new LogMessage(LogLevel.Debug, "Loaded file system"));
         var registry = new RegistryProvider();
         registry.LoadRegistry(_commBus);
-        _serverReporter.ReportMessage(new LogMessage(LogLevel.Debug,
-                                                     "Process [{0}] - Loaded registry",
-                                                     _currentProcessId));
+        Log(new LogMessage(LogLevel.Debug, "Loaded registry"));
         _hookImplementations = new HookImplementations(fileSystem, registry);
         _commBus.AutoFlush = true;
         _initialized = true;
-        _serverReporter.ReportMessage(new LogMessage(LogLevel.Information,
-                                                     "Process [{0}] - Initialized core",
-                                                     _currentProcessId));
+        Log(new LogMessage(LogLevel.Information, "Initialized core"));
       }
     }
 
@@ -238,7 +230,7 @@ namespace AppStract.Server
     public static void Log(LogMessage message, bool throwOnError)
     {
       if (message.Level > _logLevel) return;
-      message.Prefix = "Guest " + ProcessId;
+      message.Prefix = "Guest " + _currentProcessId;
       try
       {
         _serverReporter.ReportMessage(message);
