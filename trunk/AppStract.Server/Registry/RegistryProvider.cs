@@ -88,7 +88,7 @@ namespace AppStract.Server.Registry
                      // Note: This behaviour needs to be updated!
                      // How can we know which one is the illegal value? Is it hKey or subKey?
                        : WinError.ERROR_INVALID_HANDLE;
-      GuestCore.Log(new LogMessage(LogLevel.Debug, @"OpenKey({0}\\{1}) = {2}", hKey, subKey, hSubKey));
+      GuestCore.Log(new LogMessage(LogLevel.Debug, @"OpenKey({0}\\{1}) => {2}", hKey, subKey, hSubKey));
       return winError;
     }
 
