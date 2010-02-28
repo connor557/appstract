@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Threading;
 using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.Registry;
+using AppStract.Utilities.Extensions;
 using Microsoft.Win32;
 using Microsoft.Win32.Interop;
 
@@ -341,15 +342,10 @@ namespace AppStract.Server.Registry.Data
 
     public bool IsUsedIndex(uint index)
     {
-      _keysSynchronizationLock.EnterReadLock();
-      try
-      {
-        return _keys.Keys.Contains(index);
-      }
-      finally
-      {
-        _keysSynchronizationLock.ExitReadLock();
-      }
+      if (_keysSynchronizationLock.IsReadLockHeld)
+        return _keys.ContainsKey(index);
+      using (_keysSynchronizationLock.EnterDisposableReadLock())
+        return _keys.ContainsKey(index);
     }
 
     #endregion
