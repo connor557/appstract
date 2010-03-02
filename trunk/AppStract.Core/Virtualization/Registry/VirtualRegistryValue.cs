@@ -21,8 +21,11 @@
 
 #endregion
 
+using System;
+
 namespace AppStract.Core.Virtualization.Registry
 {
+  [Serializable]
   public struct VirtualRegistryValue
   {
 
