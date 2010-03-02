@@ -29,7 +29,7 @@ namespace AppStract.Core.Virtualization.Registry
     #region Variables
 
     private string _name;
-    private object _data;
+    private byte[] _data;
     private ValueType _type;
 
     #endregion
@@ -48,7 +48,7 @@ namespace AppStract.Core.Virtualization.Registry
     /// <summary>
     /// Gets or sets the data associated to the value.
     /// </summary>
-    public object Data
+    public byte[] Data
     {
       get { return _data; }
       set { _data = value; }
@@ -67,7 +67,7 @@ namespace AppStract.Core.Virtualization.Registry
 
     #region Constructors
 
-    public VirtualRegistryValue(string name, object data, ValueType type)
+    public VirtualRegistryValue(string name, byte[] data, ValueType type)
     {
       _name = name;
       _data = data;

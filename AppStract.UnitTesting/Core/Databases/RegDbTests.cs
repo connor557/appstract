@@ -24,12 +24,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using AppStract.Core;
 using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.Registry;
 using NUnit.Framework;
-using ValueType=AppStract.Core.Virtualization.Registry.ValueType;
+using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
 
 namespace AppStract.UnitTesting.Core.Databases
 {
@@ -42,9 +43,9 @@ namespace AppStract.UnitTesting.Core.Databases
 
     public RegDbTests()
     {
-      entryValue = new VirtualRegistryValue("myValue", "someData", ValueType.REG_SZ);
+      entryValue = new VirtualRegistryValue("myValue", new ASCIIEncoding().GetBytes("someData"), ValueType.REG_SZ);
       entryKey = new VirtualRegistryKey(456, @"HKEY_USERS\MyTestUser\TestEntry",
-                                        new Dictionary<string, VirtualRegistryValue> {{entryValue.Name, entryValue}});
+                                        new Dictionary<string, VirtualRegistryValue> { { entryValue.Name, entryValue } });
     }
 
     [SetUp]
@@ -84,8 +85,8 @@ namespace AppStract.UnitTesting.Core.Databases
       Assert.IsTrue(firstValue.Value.Name == entryValue.Name, "Value's name doesn't match.");
       Assert.IsTrue(firstValue.Value.Type == entryValue.Type, "Value's type doesn't match.");
       // Note: Can't compare binary values like this! Verify if extension method is called when Data is of type byte[]
-      string data = firstValue.Value.Data.ToString();
-      Assert.IsTrue(data == entryValue.Data.ToString(), "Value's data doesn't match.");
+      string data = firstValue.Value.Data.AsString();
+      Assert.IsTrue(data == entryValue.Data.AsString(), "Value's data doesn't match.");
     }
 
     [Test]
@@ -104,16 +105,16 @@ namespace AppStract.UnitTesting.Core.Databases
     {
       var db = RegistryDatabase.CreateDefaultDatabase(DbConstants.DatabaseFile);
       db.Initialize();
-      entryValue.Data = "myUpdatedValue";
+      entryValue.Data = new ASCIIEncoding().GetBytes("myUpdatedValue");
       entryKey.Values[entryValue.Name] = entryValue;
       db.EnqueueAction(new DatabaseAction<VirtualRegistryKey>(entryKey, DatabaseActionType.Set));
       Thread.Sleep(500);  // Give the database some time to write
       var items = db.ReadAll();
       var rEntry = items.First();
       // Note: Can't compare binary values like this! Verify if extension method is called when Data is of type byte[]
-      var data = rEntry.Values[entryValue.Name].Data.ToString();
-      Assert.IsTrue(data == entryValue.Data.ToString(),
-        "Input data is \"" + entryValue.Data + "\"  while output data is \"" + data + "\"");
+      var data = rEntry.Values[entryValue.Name].Data.AsString();
+      Assert.IsTrue(data == entryValue.Data.AsString(),
+        "Input data is \"" + entryValue.Data.AsString() + "\"  while output data is \"" + data + "\"");
     }
 
     [Test]
@@ -159,7 +160,7 @@ namespace AppStract.UnitTesting.Core.Databases
 
   static class Extensions
   {
-    private static string ToString(this IEnumerable<byte> array)
+    public static string AsString(this IEnumerable<byte> array)
     {
       string result = "";
       foreach (var b in array)

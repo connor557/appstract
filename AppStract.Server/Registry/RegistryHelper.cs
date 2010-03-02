@@ -390,6 +390,40 @@ namespace AppStract.Server.Registry
       return 0x00000000;
     }
 
+    /// <summary>
+    /// Opens a <see cref="RegistryKey"/> matching the specified <paramref name="keyPath"/>, from the real registry.
+    /// </summary>
+    /// <param name="keyPath"></param>
+    /// <param name="writable"></param>
+    /// <returns></returns>
+    public static RegistryKey OpenRegistryKey(string keyPath, bool writable)
+    {
+      var key = GetHiveAsKey(keyPath, out keyPath).OpenSubKey(keyPath);
+      if (key == null) return null;
+      return key.OpenSubKey(keyPath, writable);
+    }
+
+    /// <summary>
+    /// Returns the value for <paramref name="valueName"/> under the specified <paramref name="keyPath"/>.
+    /// This value is read from the real registry.
+    /// </summary>
+    /// <param name="keyPath"></param>
+    /// <param name="valueName"></param>
+    /// <param name="valueType"></param>
+    /// <returns></returns>
+    public static object ReadValueFromRegistry(string keyPath, string valueName, out ValueType valueType)
+    {
+      valueType = ValueType.REG_NONE;
+      var key = OpenRegistryKey(keyPath, false);
+      if (key == null)
+        return null;
+      var value = key.GetValue(valueName);
+      if (value == null)
+        return null;
+      valueType = key.GetValueKind(valueName).AsValueType();
+      return value;
+    }
+
     #endregion
 
   }

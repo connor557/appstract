@@ -23,6 +23,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using AppStract.Utilities.Extensions;
 using Microsoft.Win32.Interop;
 using AppStract.Utilities.Interop;
 
@@ -137,24 +138,24 @@ namespace AppStract.Server.Hooking
     public uint RegQueryValue_Hooked(IntPtr hKey, [MarshalAs(UnmanagedType.LPWStr)] String lpValueName,
                                IntPtr lpReserved, IntPtr lpType, IntPtr lpData, IntPtr lpcbData)
     {
-      /// BUG: If lpValueName is NULL or an empty string, the function retrieves the type and data for the key's unnamed or default value, if any.
+      // BUG: If lpValueName is NULL or an empty string, the function retrieves the type and data for the key's unnamed or default value, if any.
       if (string.IsNullOrEmpty(lpValueName))
         return WinError.ERROR_FILE_NOT_FOUND;
       uint uHandle;
       if (!TryParse(hKey, out uHandle))
         return WinError.ERROR_INVALID_HANDLE;
-      object data;
+      byte[] data;
       uint type;
       uint winError = _registry.QueryValue(uHandle, lpValueName, out data, out type);
       if (winError != WinError.ERROR_SUCCESS)
-        /// QueryValue failed, return the error.
+        // QueryValue failed, return the error.
         return winError;
-      /// Marshal all data to the specified pointers.
+      // Marshal all data to the specified pointers.
       MarshallingHelpers.CopyToMemory(type, lpType);
       uint? dataLength = lpcbData != IntPtr.Zero
-                         /// Valid pointer, copy the 32bit unsigned integer.
-                           ? (uint?) MarshallingHelpers.CopyFromMemory(lpcbData, sizeof(uint))
-                         /// Invalid pointer, guest doesn't require lpcbData.
+                         // Valid pointer, copy the 32bit unsigned integer.
+                           ? (uint?) lpcbData.Read<uint>()
+                         // Invalid pointer, guest doesn't require lpcbData.
                            : null;
       winError = MarshallingHelpers.CopyToMemory(data, lpData, ref dataLength);
       if (dataLength != null)
@@ -183,7 +184,7 @@ namespace AppStract.Server.Hooking
       uint handle;
       if (!TryParse(hKey, out handle))
         return WinError.ERROR_INVALID_HANDLE;
-      var data = MarshallingHelpers.CopyFromMemory(lpData, cbData);
+      var data = lpData.Read<byte[]>(cbData);
       var winError = _registry.SetValue(handle, lpValueName, dwType, data);
       return winError;
     }

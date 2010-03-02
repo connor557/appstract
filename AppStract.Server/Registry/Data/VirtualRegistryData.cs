@@ -26,6 +26,7 @@ using System.Linq;
 using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.Registry;
 using AppStract.Utilities.Extensions;
+using AppStract.Utilities.Interop;
 using AppStract.Utilities.Observables;
 using Microsoft.Win32.Interop;
 using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
@@ -52,7 +53,7 @@ namespace AppStract.Server.Registry.Data
     public void LoadData(IRegistryLoader dataSource)
     {
       using (_keysSynchronizationLock.EnterDisposableWriteLock())
-        dataSource.LoadRegistryTo((ObservableDictionary<uint, VirtualRegistryKey>) _keys);
+        dataSource.LoadRegistryTo((ObservableDictionary<uint, VirtualRegistryKey>)_keys);
     }
 
     public override bool OpenKey(string keyFullPath, out uint hResult)
@@ -106,11 +107,11 @@ namespace AppStract.Server.Registry.Data
         throw new ApplicationException("The application tries to handle a transparant key with the virtual registry.");
       try
       {
-        object defValue = new object();
-        object o = Microsoft.Win32.Registry.GetValue(key.Path, valueName, defValue);
-        if (o == defValue)
+        ValueType valueType;
+        var data = RegistryHelper.ReadValueFromRegistry(key.Path, valueName, out valueType);
+        if (data == null)
           return NativeResultCode.FileNotFound;
-        value = new VirtualRegistryValue(valueName, o, ValueType.REG_NONE);
+        value = new VirtualRegistryValue(valueName, MarshallingHelpers.ToByteArray(data), valueType);
       }
       catch
       {

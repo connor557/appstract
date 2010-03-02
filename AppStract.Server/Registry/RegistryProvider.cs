@@ -71,7 +71,7 @@ namespace AppStract.Server.Registry
 
     #region IRegistryProvider Members
 
-    public uint SetValue(uint hKey, string valueName, uint valueType, object data)
+    public uint SetValue(uint hKey, string valueName, uint valueType, byte[] data)
     {
       var type = RegistryHelper.ValueTypeFromId(valueType);
       var registryValue = new VirtualRegistryValue(valueName, data, type);
@@ -102,7 +102,7 @@ namespace AppStract.Server.Registry
       return WinError.FromStateCode(stateCode);
     }
 
-    public uint QueryValue(uint hKey, string valueName, out object value, out uint valueType)
+    public uint QueryValue(uint hKey, string valueName, out byte[] value, out uint valueType)
     {
       VirtualRegistryValue virtualRegistryValue;
       var hResult = _virtualRegistry.QueryValue(hKey, valueName, out virtualRegistryValue);

@@ -124,6 +124,19 @@ namespace AppStract.Utilities.Interop
       return WinError.ERROR_SUCCESS;
     }
 
+    /// <summary>
+    /// Convert an object to a byte array.
+    /// </summary>
+    /// <param name="o">Object to convert to byte array.</param>
+    /// <returns></returns>
+    public static byte[] ToByteArray(object o)
+    {
+      var ms = new MemoryStream();
+      var bf1 = new BinaryFormatter();
+      bf1.Serialize(ms, o);
+      return ms.ToArray();
+    }
+
     #endregion
 
     #region Private Methods
@@ -138,19 +151,6 @@ namespace AppStract.Utilities.Interop
     private static void CopyToMemory(byte[] value, IntPtr lpData)
     {
       Marshal.Copy(value, 0, lpData, value.Length);
-    }
-
-    /// <summary>
-    /// Convert an object to a byte array.
-    /// </summary>
-    /// <param name="o">Object to convert to byte array.</param>
-    /// <returns></returns>
-    private static byte[] ToByteArray(object o)
-    {
-      var ms = new MemoryStream();
-      var bf1 = new BinaryFormatter();
-      bf1.Serialize(ms, o);
-      return ms.ToArray();
     }
 
     /// <summary>
