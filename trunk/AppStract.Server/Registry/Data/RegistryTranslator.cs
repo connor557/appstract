@@ -80,16 +80,18 @@ namespace AppStract.Server.Registry.Data
 
     static RegistryTranslator()
     {
-      /// Default value is ".DEFAULT", which is also the default value used by Windows.
-      _currentUserSid = GetCurrentUserSID(".DEFAULT");
-      _currentUserFullPath = @"hkey_users\" + _currentUserSid;
+      // First set the values for the virtual paths, these values are required by ToRealPath(string)
+      // ToRealPath(string) is called when for example GetCurrentProfileNumber(string) accesses the registry.
       _virtualCurrentUserFullPath = @"hkey_users\" + _virtualCurrentUser;
-      /// Default value is "0001", the most common value for profile-numbers.
-      _currentHardwareProfile = GetCurrentProfileNumber("0001");
-      _currentHardwareProfileFullPath = @"hkey_local_machine\system\currentcontrolset\hardware profiles\"
-                                               + _currentHardwareProfile;
       _virtualCurrentHardwareProfileFullPath = @"hkey_local_machine\system\currentcontrolset\hardware profiles\"
                                                + _virtualCurrentHardwareProfile;
+      // Default value is ".DEFAULT", which is also the default value used by Windows.
+      _currentUserSid = GetCurrentUserSID(".DEFAULT");
+      _currentUserFullPath = @"hkey_users\" + _currentUserSid;
+      // Default value is "0001", the most common value for profile-numbers.
+      _currentHardwareProfile = GetCurrentProfileNumber("0001");
+      _currentHardwareProfileFullPath = @"hkey_local_machine\system\currentcontrolset\hardware profiles\"
+                                        + _currentHardwareProfile;
     }
 
     #endregion
@@ -108,14 +110,14 @@ namespace AppStract.Server.Registry.Data
     public static string ToVirtualPath(string fullRegistryPath)
     {
       fullRegistryPath = fullRegistryPath.ToLowerInvariant();
-      /// Does the path lead to the current user?
+      // Does the path lead to the current user?
       if (fullRegistryPath.StartsWith("hkey_current_user"))
         return (fullRegistryPath.Replace("hkey_current_user",
                                          _virtualCurrentUserFullPath));
       if (fullRegistryPath.StartsWith(_currentUserFullPath))
         return (fullRegistryPath.Replace(_currentUserFullPath,
                                          _virtualCurrentUserFullPath));
-      /// Does the path lead to the current config?
+      // Does the path lead to the current config?
       if (fullRegistryPath.StartsWith("hkey_current_config"))
         return (fullRegistryPath.Replace("hkey_current_config",
                                          _virtualCurrentHardwareProfileFullPath));
@@ -125,7 +127,7 @@ namespace AppStract.Server.Registry.Data
       if (fullRegistryPath.StartsWith(_currentHardwareProfileFullPath))
         return (fullRegistryPath.Replace(_currentHardwareProfileFullPath,
                                          _virtualCurrentHardwareProfileFullPath));
-      /// Nothing to replace.
+      // Nothing to replace.
       return fullRegistryPath;
     }
 
@@ -139,15 +141,15 @@ namespace AppStract.Server.Registry.Data
     public static string ToRealPath(string virtualFullRegistryPath)
     {
       virtualFullRegistryPath = virtualFullRegistryPath.ToLowerInvariant();
-      /// Does it lead to the virtual current config?
+      // Does it lead to the virtual current config?
       if (virtualFullRegistryPath.StartsWith(_virtualCurrentHardwareProfileFullPath))
         return (virtualFullRegistryPath.Replace(_virtualCurrentHardwareProfileFullPath,
                                                 "hkey_current_config"));
-      /// Does it lead to the virtual current user?
+      // Does it lead to the virtual current user?
       if (virtualFullRegistryPath.StartsWith(_virtualCurrentUserFullPath))
         return (virtualFullRegistryPath.Replace(_virtualCurrentUserFullPath,
                                                 "hkey_current_user"));
-      /// Nothing to replace.
+      // Nothing to replace.
       return virtualFullRegistryPath;
     }
 
@@ -175,11 +177,11 @@ namespace AppStract.Server.Registry.Data
     /// <returns></returns>
     private static string GetCurrentProfileNumber(string defaultValue)
     {
-      /// http://www.microsoft.com/technet/prodtechnol/windows2000serv/reskit/regentry/69675.mspx?mfr=true
-      ///   To determine which numbered subkey under Hardware Profiles represents the current hardware profile,
-      ///   see CurrentConfig in HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\IDConfigDB.
-      ///   The value of CurrentConfig corresponds to the number of the subkey that contains the current
-      ///   hardware profile.
+      // http://www.microsoft.com/technet/prodtechnol/windows2000serv/reskit/regentry/69675.mspx?mfr=true
+      //   To determine which numbered subkey under Hardware Profiles represents the current hardware profile,
+      //   see CurrentConfig in HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\IDConfigDB.
+      //   The value of CurrentConfig corresponds to the number of the subkey that contains the current
+      //   hardware profile.
       RegistryKey currentProfileKey
         = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"System\CurrentControlSet\Control\IDConfigDB\");
       if (currentProfileKey == null)
