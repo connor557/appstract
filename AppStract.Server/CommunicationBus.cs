@@ -113,7 +113,7 @@ namespace AppStract.Server
             return;
           _autoFlush = value;
           if (_autoFlush)
-            new Thread(StartFlushing) { IsBackground = true, Name = "CommBus-AutoFlushing" }.Start();
+            new Thread(StartFlushing) { IsBackground = true, Name = "CommBus" }.Start();
         }
       }
     }

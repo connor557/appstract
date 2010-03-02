@@ -178,9 +178,10 @@ namespace AppStract.Server.Hooking
           try
           {
             var localHook = LocalHook.Create(hook.GetTargetEntryPoint(), hook.Handler, hook.Callback);
-            // 0-value in exclusive access control list = don't intercept calls from current thread
-            // Bug? Why wouldn't we intercept these?
-            localHook.ThreadACL.SetExclusiveACL(new[] {0});
+            // Set an empty list for the excluded threads; All threads need to be intercepted.
+            // Ideally we would set this list so some core threads would not be intercepted, but this is impossible to implement
+            // since there is no way to fix a managed thread on a native os thread.
+            localHook.ThreadACL.SetExclusiveACL(new int[0]);
             _installedHooks.Add(localHook);
             GuestCore.Log(new LogMessage(LogLevel.Debug, "HookManager installed API hook: " + hook));
           }
