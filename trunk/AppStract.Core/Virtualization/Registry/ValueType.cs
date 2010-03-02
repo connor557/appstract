@@ -21,6 +21,9 @@
 
 #endregion
 
+using System.Collections.Generic;
+using Microsoft.Win32;
+
 namespace AppStract.Core.Virtualization.Registry
 {
   /// <summary>
@@ -81,4 +84,45 @@ namespace AppStract.Core.Virtualization.Registry
     /// </summary>
     INVALID = int.MaxValue
   }
+
+  public static class ValueTypeExtensions
+  {
+
+    private static readonly IDictionary<RegistryValueKind, ValueType> _valueMap
+      = new Dictionary<RegistryValueKind, ValueType>
+          {
+            {RegistryValueKind.Binary, ValueType.REG_BINARY},
+            {RegistryValueKind.DWord, ValueType.REG_DWORD_LITTLE_ENDIAN},
+            {RegistryValueKind.ExpandString, ValueType.REG_EXPAND_SZ},
+            {RegistryValueKind.MultiString, ValueType.REG_MULTI_SZ},
+            {RegistryValueKind.QWord, ValueType.REG_QWORD_LITTLE_ENDIAN},
+            {RegistryValueKind.String, ValueType.REG_SZ},
+            {RegistryValueKind.Unknown, ValueType.REG_NONE}
+          };
+
+    /// <summary>
+    /// Returns the equivalent <see cref="RegistryValueKind"/> for the current <see cref="valueType"/>.
+    /// </summary>
+    /// <param name="valueType"></param>
+    /// <returns></returns>
+    public static RegistryValueKind AsValueKind(this ValueType valueType)
+    {
+      foreach (var pair in _valueMap)
+        if (pair.Value == valueType)
+          return pair.Key;
+      return RegistryValueKind.Unknown;
+    }
+
+    /// <summary>
+    /// Returns the equivalent <see cref="ValueType"/> for the current <see cref="RegistryValueKind"/>.
+    /// </summary>
+    /// <param name="valueKind"></param>
+    /// <returns></returns>
+    public static ValueType AsValueType(this RegistryValueKind valueKind)
+    {
+      return _valueMap[valueKind];
+    }
+
+  }
+
 }

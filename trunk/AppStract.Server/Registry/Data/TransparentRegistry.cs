@@ -24,6 +24,8 @@
 using System;
 using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.Registry;
+using AppStract.Utilities.Extensions;
+using AppStract.Utilities.Interop;
 using Microsoft.Win32;
 using Microsoft.Win32.Interop;
 using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
@@ -67,7 +69,7 @@ namespace AppStract.Server.Registry.Data
       if (hostRegistryKey == null)
         return false;
       hostRegistryKey.Close();
-      /// Key exists, buffer it before returning.
+      // Key exists, buffer it before returning.
       VirtualRegistryKey virtualRegistryKey = ConstructRegistryKey(keyName);
       WriteKey(virtualRegistryKey, false);
       hResult = virtualRegistryKey.Handle;
@@ -80,33 +82,26 @@ namespace AppStract.Server.Registry.Data
     /// <param name="hKey">Key to close.</param>
     public void CloseKey(uint hKey)
     {
-      _keysSynchronizationLock.EnterWriteLock();
-      try
-      {
+      using (_keysSynchronizationLock.EnterDisposableWriteLock())
         _keys.Remove(hKey);
-      }
-      finally
-      {
-        _keysSynchronizationLock.ExitWriteLock();
-      }
       _indexGenerator.Release(hKey);
     }
 
     public override NativeResultCode CreateKey(string keyFullPath, out uint hKey, out RegCreationDisposition creationDisposition)
     {
       hKey = 0;
-      /// Create the key in the real registry.
+      // Create the key in the real registry.
       RegistryKey registryKey = CreateKeyInHostRegistry(keyFullPath, out creationDisposition);
       if (registryKey == null)
         return NativeResultCode.AccessDenied;
       registryKey.Close();
-      /// Buffer the created key.
+      // Buffer the created key.
       return base.CreateKey(keyFullPath, out hKey, out creationDisposition);
     }
 
     public override NativeResultCode DeleteKey(uint hKey)
     {
-      /// Overriden, first delete the real key.
+      // Overriden, first delete the real key.
       string keyName;
       if (!IsKnownKey(hKey, out keyName))
         return NativeResultCode.InvalidHandle;
@@ -122,13 +117,13 @@ namespace AppStract.Server.Registry.Data
       }
       catch (System.Security.SecurityException)
       {
-        return NativeResultCode.AccessDenied;  
+        return NativeResultCode.AccessDenied;
       }
       catch (UnauthorizedAccessException)
       {
         return NativeResultCode.AccessDenied;
       }
-      /// Now call the base, to delete the key from the database/buffer.
+      // Now call the base, to delete the key from the database/buffer.
       return base.DeleteKey(hKey);
     }
 
@@ -140,12 +135,11 @@ namespace AppStract.Server.Registry.Data
         return NativeResultCode.InvalidHandle;
       try
       {
-        object defValue = new object();
-        object o = Microsoft.Win32.Registry.GetValue(keyPath, valueName, defValue);
-        if (o == defValue)
+        ValueType valueType;
+        var data = RegistryHelper.ReadValueFromRegistry(keyPath, valueName, out valueType);
+        if (data == null)
           return NativeResultCode.FileNotFound;
-        /// ToDo: Get the ValueType from the Registry using RegistryKey.GetValueKind();
-        value = new VirtualRegistryValue(valueName, o, ValueType.REG_NONE);
+        value = new VirtualRegistryValue(valueName, MarshallingHelpers.ToByteArray(data), valueType);
         return NativeResultCode.Succes;
       }
       catch
@@ -161,7 +155,8 @@ namespace AppStract.Server.Registry.Data
         return NativeResultCode.InvalidHandle;
       try
       {
-        Microsoft.Win32.Registry.SetValue(keyPath, value.Name, value.Data);
+        // Bug: Will the registry contain a correct value here?
+        Microsoft.Win32.Registry.SetValue(keyPath, value.Name, value.Data, value.Type.AsValueKind());
       }
       catch
       {

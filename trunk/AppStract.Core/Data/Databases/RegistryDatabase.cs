@@ -266,7 +266,8 @@ namespace AppStract.Core.Data.Databases
     {
       ValueType valueType;
       ParserHelper.TryParseEnum(dataRecord.GetString(3), out valueType);
-      return new VirtualRegistryValue(dataRecord.GetString(1), dataRecord.GetValue(2), valueType);
+      var data = dataRecord.GetValue(2);
+      return new VirtualRegistryValue(dataRecord.GetString(1), data != null ? (byte[])data : null, valueType);
     }
 
     private static void AppendInsertQueryForValues(SQLiteCommand command, ParameterGenerator seed, object keyHandle, IEnumerable<VirtualRegistryValue> values)
