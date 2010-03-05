@@ -162,6 +162,10 @@ namespace AppStract.Inject
 
       catch (Exception e)
       {
+#if DEBUG
+        if (Debugger.IsAttached)
+          Debugger.Break();
+#endif
         GuestCore.Log(new LogMessage(LogLevel.Critical, "An unexpected exception occured.", e),
                       false);
         // Exit code 1067 = ERROR_PROCESS_ABORTED "The process terminated unexpectedly."
