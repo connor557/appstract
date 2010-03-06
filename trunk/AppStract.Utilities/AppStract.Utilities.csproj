@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{29578947-FFF4-4A0A-9C75-AE3C5E03F746}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -110,6 +110,7 @@
     <Compile Include="GAC\Fusion.WrappedAPI\QueryTypeId.cs" />
     <Compile Include="Helpers\AssemblyHelper.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Helpers\EnumComparer.cs" />
     <Compile Include="Helpers\LocalMachine.cs" />
     <Compile Include="Helpers\ParserHelper.cs" />
     <Compile Include="Interop\MarshallingHelpers.cs" />
