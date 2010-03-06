@@ -59,7 +59,7 @@ namespace AppStract.Utilities.Helpers
     /// </exception>
     public EnumComparer()
     {
-      if (_equals != null || _getHashCode != null)
+      if (_equals != null && _getHashCode != null)
         return; // Static variables are already instantiated for this specific type of EnumComparer.
       if (!typeof(TEnum).IsEnum)
         throw new NotSupportedException("Type parameter TEnum is expected to be an Enum. "
