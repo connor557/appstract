@@ -22,6 +22,7 @@
 #endregion
 
 using System.Collections.Generic;
+using AppStract.Utilities.Helpers;
 using Microsoft.Win32;
 
 namespace AppStract.Core.Virtualization.Registry
@@ -89,7 +90,7 @@ namespace AppStract.Core.Virtualization.Registry
   {
 
     private static readonly IDictionary<RegistryValueKind, ValueType> _valueMap
-      = new Dictionary<RegistryValueKind, ValueType>
+      = new Dictionary<RegistryValueKind, ValueType>(7, new EnumComparer<RegistryValueKind>())
           {
             {RegistryValueKind.Binary, ValueType.REG_BINARY},
             {RegistryValueKind.DWord, ValueType.REG_DWORD_LITTLE_ENDIAN},
