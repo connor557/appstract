@@ -23,6 +23,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
 
 namespace AppStract.Server.Hooking
 {
@@ -77,14 +78,14 @@ namespace AppStract.Server.Hooking
     public delegate uint DSetValue_Unicode
                     (IntPtr hkey,
                     string lpValueName,
-                    uint Reserved, uint dwType,
+                    uint Reserved, ValueType dwType,
                     IntPtr lpData, uint cbData);
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
     public delegate uint DSetValue_Ansi
                     (IntPtr hkey,
                     string lpValueName,
-                    uint Reserved, uint dwType,
+                    uint Reserved, ValueType dwType,
                     IntPtr lpData, uint cbData);
 
     #endregion
