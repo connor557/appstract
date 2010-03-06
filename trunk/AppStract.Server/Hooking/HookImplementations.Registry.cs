@@ -26,6 +26,7 @@ using System.Runtime.InteropServices;
 using AppStract.Utilities.Extensions;
 using Microsoft.Win32.Interop;
 using AppStract.Utilities.Interop;
+using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
 
 namespace AppStract.Server.Hooking
 {
@@ -145,7 +146,7 @@ namespace AppStract.Server.Hooking
       if (!TryParse(hKey, out uHandle))
         return WinError.ERROR_INVALID_HANDLE;
       byte[] data;
-      uint type;
+      ValueType type;
       uint winError = _registry.QueryValue(uHandle, lpValueName, out data, out type);
       if (winError != WinError.ERROR_SUCCESS)
         // QueryValue failed, return the error.
@@ -179,7 +180,7 @@ namespace AppStract.Server.Hooking
     /// <param name="cbData">The size of the information pointed to by the lpData parameter, in bytes.</param>
     /// <returns>A WinError code.</returns>
     public uint RegSetValueEx(IntPtr hKey, [MarshalAs(UnmanagedType.LPWStr)] String lpValueName,
-                             uint Reserved, uint dwType, IntPtr lpData, uint cbData)
+                             uint Reserved, ValueType dwType, IntPtr lpData, uint cbData)
     {
       uint handle;
       if (!TryParse(hKey, out handle))

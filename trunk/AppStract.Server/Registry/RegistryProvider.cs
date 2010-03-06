@@ -71,13 +71,12 @@ namespace AppStract.Server.Registry
 
     #region IRegistryProvider Members
 
-    public uint SetValue(uint hKey, string valueName, uint valueType, byte[] data)
+    public uint SetValue(uint hKey, string valueName, ValueType valueType, byte[] data)
     {
-      var type = RegistryHelper.ValueTypeFromId(valueType);
-      var registryValue = new VirtualRegistryValue(valueName, data, type);
+      var registryValue = new VirtualRegistryValue(valueName, data, valueType);
       var stateCode = _virtualRegistry.SetValue(hKey, registryValue);
       GuestCore.Log(new LogMessage(LogLevel.Debug, "SetValue(HKey={0} Name={1} Type={2}) => {3}",
-                                   hKey, valueName, type, stateCode));
+                                   hKey, valueName, valueType, stateCode));
       return WinError.FromStateCode(stateCode);
     }
 
@@ -102,7 +101,7 @@ namespace AppStract.Server.Registry
       return WinError.FromStateCode(stateCode);
     }
 
-    public uint QueryValue(uint hKey, string valueName, out byte[] value, out uint valueType)
+    public uint QueryValue(uint hKey, string valueName, out byte[] value, out ValueType valueType)
     {
       VirtualRegistryValue virtualRegistryValue;
       var hResult = _virtualRegistry.QueryValue(hKey, valueName, out virtualRegistryValue);
@@ -110,8 +109,8 @@ namespace AppStract.Server.Registry
                                    hKey, valueName, hResult));
       value = virtualRegistryValue.Data;
       valueType = hResult == NativeResultCode.Succes
-                    ? RegistryHelper.ValueTypeIdFromValueType(virtualRegistryValue.Type)
-                    : RegistryHelper.ValueTypeIdFromValueType(ValueType.REG_NONE);
+                    ? virtualRegistryValue.Type
+                    : ValueType.REG_NONE;
       return WinError.FromStateCode(hResult);
     }
 

@@ -37,7 +37,7 @@ namespace AppStract.Core.Virtualization.Registry
     /// <param name="valueType"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    uint SetValue(uint hKey, string valueName, uint valueType, byte[] data);
+    uint SetValue(uint hKey, string valueName, ValueType valueType, byte[] data);
 
     /// <summary>
     /// Opens the specified registry key.
@@ -66,7 +66,7 @@ namespace AppStract.Core.Virtualization.Registry
     /// <param name="data"></param>
     /// <param name="valueType"></param>
     /// <returns></returns>
-    uint QueryValue(uint hKey, string valueName, out byte[] data, out uint valueType);
+    uint QueryValue(uint hKey, string valueName, out byte[] data, out ValueType valueType);
 
     /// <summary>
     /// Closes a handle to the specified registry key.
