@@ -24,7 +24,6 @@
 using System;
 using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.Registry;
-using AppStract.Utilities.Extensions;
 using AppStract.Utilities.Interop;
 using Microsoft.Win32;
 using Microsoft.Win32.Interop;
@@ -33,15 +32,11 @@ using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
 namespace AppStract.Server.Registry.Data
 {
   /// <summary>
-  /// Buffers keys that are read from the host's registry
-  /// without being saved to the virtual registry.
+  /// Buffers keys that are read from the host's registry.
+  /// Open keys stay buffered until <see cref="CloseKey"/> is called.
   /// </summary>
   public sealed class TransparentRegistry : RegistryBase
   {
-
-    #region Variables
-
-    #endregion
 
     #region Constructors
 
@@ -55,75 +50,75 @@ namespace AppStract.Server.Registry.Data
     #region Public Methods
 
     /// <summary>
-    /// Tries to read the specified key from the host's registry.
-    /// The index of the buffered key is returned, if the key is successfully read.
-    /// Else, the return value is null.
-    /// </summary>
-    /// <param name="keyName"></param>
-    /// <param name="hResult"></param>
-    /// <returns></returns>
-    public override bool OpenKey(string keyName, out uint hResult)
-    {
-      hResult = 0;
-      RegistryKey hostRegistryKey = ReadKeyFromHostRegistry(keyName, false);
-      if (hostRegistryKey == null)
-        return false;
-      hostRegistryKey.Close();
-      // Key exists, buffer it before returning.
-      VirtualRegistryKey virtualRegistryKey = ConstructRegistryKey(keyName);
-      WriteKey(virtualRegistryKey, false);
-      hResult = virtualRegistryKey.Handle;
-      return true;
-    }
-
-    /// <summary>
     /// Closes a key.
     /// </summary>
     /// <param name="hKey">Key to close.</param>
     public void CloseKey(uint hKey)
     {
-      using (_keysSynchronizationLock.EnterDisposableWriteLock())
-        _keys.Remove(hKey);
-      _indexGenerator.Release(hKey);
+      // Let the base delete the key from its internal dictionary.
+      base.DeleteKey(hKey);
+    }
+
+    #endregion
+
+    #region Overridden Methods
+
+    public override bool OpenKey(string keyFullPath, out uint hKey)
+    {
+      // Always create a new VirtualRegistryKey, no matter if if one already exists for keyName.
+      // Why? There is no counter for the number of users of each handle.
+      // => if one user closes the handle, other users won't be able to use it anymore.
+      if (!RegistryHelper.KeyExists(keyFullPath))
+      {
+        hKey = 0;
+        return false;
+      }
+      hKey = BufferKey(keyFullPath);
+      return true;
     }
 
     public override NativeResultCode CreateKey(string keyFullPath, out uint hKey, out RegCreationDisposition creationDisposition)
     {
-      hKey = 0;
       // Create the key in the real registry.
-      RegistryKey registryKey = CreateKeyInHostRegistry(keyFullPath, out creationDisposition);
+      var registryKey = RegistryHelper.CreateRegistryKey(keyFullPath, out creationDisposition);
       if (registryKey == null)
+      {
+        hKey = 0;
         return NativeResultCode.AccessDenied;
+      }
       registryKey.Close();
-      // Buffer the created key.
-      return base.CreateKey(keyFullPath, out hKey, out creationDisposition);
+      hKey = BufferKey(keyFullPath);
+      return NativeResultCode.Succes;
     }
 
     public override NativeResultCode DeleteKey(uint hKey)
     {
       // Overriden, first delete the real key.
+      if (HiveHelper.IsHiveHandle(hKey))
+        return NativeResultCode.AccessDenied;
       string keyName;
       if (!IsKnownKey(hKey, out keyName))
         return NativeResultCode.InvalidHandle;
       int index = keyName.LastIndexOf(@"\");
-      if (index < 1)
-        return NativeResultCode.InvalidHandle;
-      string subKeyName = keyName.Substring(index);
+      string subKeyName = keyName.Substring(index + 1);
       keyName = keyName.Substring(0, index);
-      RegistryKey registryKey = ReadKeyFromHostRegistry(keyName, true);
+      RegistryKey regKey = RegistryHelper.OpenRegistryKey(keyName, true);
       try
       {
-        registryKey.DeleteSubKeyTree(subKeyName);
+        if (regKey != null)
+          regKey.DeleteSubKeyTree(subKeyName);
       }
-      catch (System.Security.SecurityException)
+      catch (ArgumentException)
+      {
+        // Key is not found in real registry, call base to delete it from the buffer.
+        base.DeleteKey(hKey);
+        return NativeResultCode.NotFound;
+      }
+      catch
       {
         return NativeResultCode.AccessDenied;
       }
-      catch (UnauthorizedAccessException)
-      {
-        return NativeResultCode.AccessDenied;
-      }
-      // Now call the base, to delete the key from the database/buffer.
+      // Real key is deleted, now delete the virtual one.
       return base.DeleteKey(hKey);
     }
 
@@ -136,7 +131,7 @@ namespace AppStract.Server.Registry.Data
       try
       {
         ValueType valueType;
-        var data = RegistryHelper.ReadValueFromRegistry(keyPath, valueName, out valueType);
+        var data = RegistryHelper.QueryRegistryValue(keyPath, valueName, out valueType);
         if (data == null)
           return NativeResultCode.FileNotFound;
         value = new VirtualRegistryValue(valueName, MarshallingHelpers.ToByteArray(data), valueType);
@@ -172,15 +167,16 @@ namespace AppStract.Server.Registry.Data
         return NativeResultCode.InvalidHandle;
       try
       {
-        RegistryKey registryKey = RegistryHelper.GetHiveAsKey(keyPath, out keyPath);
-        if (registryKey == null)
-          return NativeResultCode.NotFound;
-        registryKey.DeleteValue(valueName, true);
+        var regKey = RegistryHelper.OpenRegistryKey(keyPath, true);
+        if (regKey == null)
+          return NativeResultCode.FileNotFound;
+        regKey.DeleteValue(valueName, true);
+        regKey.Close();
         return NativeResultCode.Succes;
       }
       catch (ArgumentException)
       {
-        return NativeResultCode.NotFound;
+        return NativeResultCode.FileNotFound;
       }
       catch
       {
@@ -193,40 +189,15 @@ namespace AppStract.Server.Registry.Data
     #region Private Methods
 
     /// <summary>
-    /// Creates the specified key in the host's registry, and returns it.
+    /// Buffers a <see cref="VirtualRegistryKey"/> for <paramref name="keyName"/> and returns the assigned handle.
     /// </summary>
-    /// <param name="keyFullPath">The full path of the key, including the root key.</param>
-    /// <param name="creationDisposition">Whether the key has been opened or created.</param>
+    /// <param name="keyName"></param>
     /// <returns></returns>
-    private static RegistryKey CreateKeyInHostRegistry(string keyFullPath, out RegCreationDisposition creationDisposition)
+    private uint BufferKey(string keyName)
     {
-      string subKeyName;
-      RegistryKey registryKey = RegistryHelper.GetHiveAsKey(keyFullPath, out subKeyName);
-      creationDisposition = RegCreationDisposition.NoKeyCreated;
-      if (registryKey == null)
-        return null;
-      if (subKeyName == null)
-        return registryKey;
-      RegistryKey subRegistryKey;
-      try
-      {
-        subRegistryKey = registryKey.OpenSubKey(subKeyName);
-        if (subRegistryKey != null)
-        {
-          creationDisposition = RegCreationDisposition.OpenedExistingKey;
-        }
-        else
-        {
-          subRegistryKey = registryKey.CreateSubKey(subKeyName);
-          creationDisposition = RegCreationDisposition.CreatedNewKey;
-        }
-        registryKey.Close();
-      }
-      catch
-      {
-        return null;
-      }
-      return subRegistryKey;
+      var key = ConstructRegistryKey(keyName);
+      WriteKey(key, true);
+      return key.Handle;
     }
 
     #endregion

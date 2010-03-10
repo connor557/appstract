@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{73CC3214-9CAD-4723-BBBB-79BE7482E639}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -121,7 +121,7 @@
     <Compile Include="Virtualization\Process\ProcessExitEventHandler.cs" />
     <Compile Include="Virtualization\Process\VirtualProcessStartInfo.cs" />
     <Compile Include="Virtualization\FileSystem\IFileSystemLoader.cs" />
-    <Compile Include="Virtualization\Registry\IRegistryLoader.cs" />
+    <Compile Include="Virtualization\Registry\IRegistrySynchronizer.cs" />
     <Compile Include="System\IPC\IProcessSynchronizer.cs" />
     <Compile Include="System\IPC\IResourceLoader.cs" />
     <Compile Include="System\IPC\IServerReporter.cs" />

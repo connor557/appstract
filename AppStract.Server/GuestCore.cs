@@ -158,8 +158,7 @@ namespace AppStract.Server
         var fileSystem = new FileSystemProvider(processSynchronizer.FileSystemRoot);
         fileSystem.LoadFileTable(_commBus);
         Log(new LogMessage(LogLevel.Debug, "Loaded file system"));
-        var registry = new RegistryProvider();
-        registry.LoadRegistry(_commBus);
+        var registry = new RegistryProvider(_commBus);
         Log(new LogMessage(LogLevel.Debug, "Loaded registry"));
         _hookImplementations = new HookImplementations(fileSystem, registry);
         _commBus.AutoFlush = true;

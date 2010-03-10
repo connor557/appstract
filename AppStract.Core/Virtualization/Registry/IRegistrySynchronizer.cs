@@ -26,16 +26,17 @@ using AppStract.Utilities.Observables;
 namespace AppStract.Core.Virtualization.Registry
 {
   /// <summary>
-  /// Defines a method to load the virtual registry to an <see cref="ObservableDictionary{TKey,TValue}"/>.
+  /// Defines a method to activate the synchronization of the virtual registry with an <see cref="ObservableDictionary{TKey,TValue}"/>.
   /// </summary>
-  public interface IRegistryLoader
+  public interface IRegistrySynchronizer
   {
 
     /// <summary>
-    /// Loads all known registry keys and their associated values to an <see cref="ObservableDictionary{TKey,TValue}"/>.
+    /// Loads all known registry keys and their associated values to the given <see cref="ObservableDictionary{TKey,TValue}"/>,
+    /// and ensures continuous registry synchronization by attaching listeners to <paramref name="keyList"/>.
     /// </summary>
-    /// <param name="keyList">The <see cref="ObservableDictionary{TKey,TValue}"/> to load the registry to.</param>
-    void LoadRegistryTo(ObservableDictionary<uint, VirtualRegistryKey> keyList);
+    /// <param name="keyList">The <see cref="ObservableDictionary{TKey,TValue}"/> to synchronize the registry with.</param>
+    void SynchronizeRegistryWith(ObservableDictionary<uint, VirtualRegistryKey> keyList);
 
   }
 }

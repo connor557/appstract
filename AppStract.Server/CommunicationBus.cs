@@ -45,7 +45,7 @@ namespace AppStract.Server
   /// Realize that in 500ms many actions can be enqueued,
   /// and all these actions will be lost if the process would be killed by for example the Windows task manager.
   /// </remarks>
-  internal sealed class CommunicationBus : IFileSystemLoader, IRegistryLoader
+  internal sealed class CommunicationBus : IFileSystemLoader, IRegistrySynchronizer
   {
 
     #region Variables
@@ -310,9 +310,9 @@ namespace AppStract.Server
 
     #endregion
 
-    #region IRegistryLoader Members
+    #region IRegistrySynchronizer Members
 
-    public void LoadRegistryTo(ObservableDictionary<uint, VirtualRegistryKey> keyList)
+    public void SynchronizeRegistryWith(ObservableDictionary<uint, VirtualRegistryKey> keyList)
     {
       if (keyList == null)
         throw new ArgumentNullException("keyList");
