@@ -21,6 +21,8 @@
 
 #endregion
 
+using Microsoft.Win32.Interop;
+
 namespace AppStract.Core.Virtualization.Registry
 {
   /// <summary>
@@ -30,50 +32,62 @@ namespace AppStract.Core.Virtualization.Registry
   {
 
     /// <summary>
-    /// Sets the data for the specified value in the specified registry key.
+    /// Tries to open a subkey of the key handle specified.
     /// </summary>
-    /// <param name="hKey"></param>
-    /// <param name="valueName"></param>
-    /// <param name="valueType"></param>
-    /// <param name="data"></param>
-    /// <returns></returns>
-    uint SetValue(uint hKey, string valueName, ValueType valueType, byte[] data);
+    /// <param name="hKey">The key handle for the key to open a subkey from.</param>
+    /// <param name="subKeyName">The name of the subkey to open.</param>
+    /// <param name="hSubKey">The open handle for the opened subkey.</param>
+    /// <returns>Whether the subkey could be opened.</returns>
+    NativeResultCode OpenKey(uint hKey, string subKeyName, out uint hSubKey);
 
     /// <summary>
-    /// Opens the specified registry key.
+    /// Creates a subkey with the given name for the key handle specified.
     /// </summary>
-    /// <param name="hKey"></param>
-    /// <param name="subKey"></param>
-    /// <param name="hSubKey">The handle to the opened key.</param>
-    /// <returns></returns>
-    uint OpenKey(uint hKey, string subKey, out uint hSubKey);
+    /// <param name="hKey">The open key handle to create a subkey for.</param>
+    /// <param name="subKeyName">The name of the subkey to create.</param>
+    /// <param name="hSubKey">The open handle to the created subkey.</param>
+    /// <param name="creationDisposition">Whether the subkey is created or updated.</param>
+    /// <returns>The error code representing the result of this operation.</returns>
+    NativeResultCode CreateKey(uint hKey, string subKeyName, out uint hSubKey, out RegCreationDisposition creationDisposition);
 
     /// <summary>
-    /// Creates the specified registry key.
+    /// Closes the key handle specified.
     /// </summary>
-    /// <param name="hKey"></param>
-    /// <param name="subKey"></param>
-    /// <param name="hSubKey"></param>
-    /// <param name="lpdwDisposition"></param>
-    /// <returns></returns>
-    uint CreateKey(uint hKey, string subKey, out uint hSubKey, out int lpdwDisposition);
+    /// <param name="hKey">The key handle to close.</param>
+    NativeResultCode CloseKey(uint hKey);
 
     /// <summary>
-    /// Retrieves the type and data for a specified value name associated with an open registry key.
+    /// Deletes the key associated with the open key handle specified.
     /// </summary>
-    /// <param name="hKey"></param>
-    /// <param name="valueName"></param>
-    /// <param name="data"></param>
-    /// <param name="valueType"></param>
-    /// <returns></returns>
-    uint QueryValue(uint hKey, string valueName, out byte[] data, out ValueType valueType);
+    /// <param name="hKey">The open handle of key to delete.</param>
+    /// <returns>The error code representing the result of this operation.</returns>
+    NativeResultCode DeleteKey(uint hKey);
 
     /// <summary>
-    /// Closes a handle to the specified registry key.
+    /// Returns the <see cref="VirtualRegistryValue"/> associated with the given <paramref name="valueName"/>
+    /// and the key handle specified.
     /// </summary>
-    /// <param name="hKey"></param>
-    /// <returns></returns>
-    uint CloseKey(uint hKey);
+    /// <param name="hKey">The key to get the <see cref="VirtualRegistryValue"/> from.</param>
+    /// <param name="valueName">The name of the <see cref="VirtualRegistryValue"/> to return.</param>
+    /// <param name="value">The returned <see cref="VirtualRegistryValue"/>.</param>
+    /// <returns>The error code representing the result of this operation.</returns>
+    NativeResultCode QueryValue(uint hKey, string valueName, out VirtualRegistryValue value);
+
+    /// <summary>
+    /// Sets the given <see cref="VirtualRegistryValue"/> to the key handle specified.
+    /// </summary>
+    /// <param name="hKey">The key handle to set the <paramref name="value"/> for.</param>
+    /// <param name="value">The <see cref="VirtualRegistryValue"/> to set.</param>
+    /// <returns>The error code representing the result of this operation.</returns>
+    NativeResultCode SetValue(uint hKey, VirtualRegistryValue value);
+
+    /// <summary>
+    /// Deletes the given value from the key handle specified.
+    /// </summary>
+    /// <param name="hKey">The key handle to delete the value from.</param>
+    /// <param name="valueName">The value to delete.</param>
+    /// <returns>The error code representing the result of this operation.</returns>
+    NativeResultCode DeleteValue(uint hKey, string valueName);
 
   }
 }

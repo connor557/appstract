@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{4944058E-49BF-4CF8-968D-D905731EC728}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -93,12 +93,12 @@
     <Compile Include="Registry\Data\TransparentRegistry.cs" />
     <Compile Include="Registry\Data\RegistryBase.cs" />
     <Compile Include="Registry\Data\RegistryTranslator.cs" />
-    <Compile Include="Registry\Data\VirtualRegistryData.cs" />
+    <Compile Include="Registry\Data\VirtualRegistry.cs" />
     <Compile Include="Registry\AccessMechanism.cs" />
+    <Compile Include="Registry\HiveHelper.cs" />
     <Compile Include="Registry\RegistryHelper.cs" />
-    <Compile Include="Registry\RegistryProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Registry\VirtualRegistry.cs" />
+    <Compile Include="Registry\RegistryProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppStract.Core\AppStract.Core.csproj">

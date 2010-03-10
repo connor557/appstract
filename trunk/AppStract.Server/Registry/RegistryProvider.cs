@@ -22,14 +22,17 @@
 #endregion
 
 using AppStract.Core.System.Logging;
+using AppStract.Server.Registry.Data;
+using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.Registry;
+using AppStract.Utilities.Observables;
 using Microsoft.Win32.Interop;
 
 namespace AppStract.Server.Registry
 {
   /// <summary>
-  /// Default implementation of <see cref="IRegistryProvider"/>;
-  /// Makes use of <see cref="VirtualRegistry"/> to handle requests.
+  /// Implementation of a virtualized Windows registry. <see cref="RegistryProvider"/> functions as a switch between
+  /// the caller and <see cref="VirtualRegistry"/> &amp; <see cref="TransparentRegistry"/>.
   /// </summary>
   public sealed class RegistryProvider : IRegistryProvider
   {
@@ -37,88 +40,154 @@ namespace AppStract.Server.Registry
     #region Variables
 
     /// <summary>
-    /// The <see cref="VirtualRegistry"/> to pass the requests to.
+    /// The virtual registry.
     /// </summary>
     private readonly VirtualRegistry _virtualRegistry;
+    /// <summary>
+    /// Contains the open keys leading to hives that are not portable.
+    /// </summary>
+    private readonly TransparentRegistry _transparentRegistry;
 
     #endregion
 
     #region Constructors
 
     /// <summary>
-    /// Initializes a new instance of <see cref="RegistryProvider"/>,
-    /// the default implementation of <see cref="IRegistryProvider"/>.
+    /// Initializes a new instance of the virtual Windows registry.
     /// </summary>
-    public RegistryProvider()
+    /// <param name="dataSource">The <see cref="IRegistrySynchronizer"/> to use as data source for the already known registry keys.</param>
+    public RegistryProvider(IRegistrySynchronizer dataSource)
     {
-      _virtualRegistry = new VirtualRegistry();
+      var indexGenerator = new IndexGenerator();
+      // Reserve the first 20 indices for static virtual keys.
+      indexGenerator.ExcludedRanges.Add(new IndexRange(0, 20));
+      // Reserved indices for registry rootkeys.
+      indexGenerator.ExcludedRanges.Add(new IndexRange(0x80000000, 0x80000006));
+      var knownKeys = new ObservableDictionary<uint, VirtualRegistryKey>();
+      dataSource.SynchronizeRegistryWith(knownKeys);
+      _virtualRegistry = new VirtualRegistry(indexGenerator, knownKeys);
+      _transparentRegistry = new TransparentRegistry(indexGenerator);
     }
 
     #endregion
 
-    #region Public Methods
+    #region Private Methods
 
     /// <summary>
-    /// Loads data from the given <see cref="IRegistryLoader"/> to the underlying resources.
+    /// Returns the <see cref="RegistryBase"/> able to process requests for the given <paramref name="hKey"/>.
     /// </summary>
-    /// <param name="dataSource">The <see cref="IRegistryLoader"/> to load the data from.</param>
-    public void LoadRegistry(IRegistryLoader dataSource)
+    /// <param name="hKey">The key handle to get the target registry for.</param>
+    /// <returns></returns>
+    private RegistryBase GetTargetRegistry(uint hKey)
     {
-      _virtualRegistry.Initialize(dataSource);
+      string keyName;
+      return GetTargetRegistry(hKey, out keyName);
+    }
+
+    /// <summary>
+    /// Returns the <see cref="RegistryBase"/> able to process requests for the given <paramref name="hKey"/>.
+    /// </summary>
+    /// <param name="hKey">The key handle to get the target registry for.</param>
+    /// <param name="keyName">
+    /// The string representation for <paramref name="hKey"/>, as used by the returned <see cref="RegistryBase"/>.
+    /// </param>
+    /// <returns></returns>
+    private RegistryBase GetTargetRegistry(uint hKey, out string keyName)
+    {
+      if (_virtualRegistry.IsKnownKey(hKey, out keyName))
+        return _virtualRegistry;
+      if (_transparentRegistry.IsKnownKey(hKey, out keyName))
+        return _transparentRegistry;
+      if (HiveHelper.IsHiveHandle(hKey, out keyName))
+      {
+        return HiveHelper.GetHive(keyName).GetAccessMechanism() == AccessMechanism.Transparent
+                 ? (RegistryBase)_transparentRegistry
+                 : _virtualRegistry;
+      }
+      GuestCore.Log(new LogMessage(LogLevel.Error, "Unknown registry key handle => " + hKey));
+      return null;
     }
 
     #endregion
 
     #region IRegistryProvider Members
 
-    public uint SetValue(uint hKey, string valueName, ValueType valueType, byte[] data)
+    public NativeResultCode OpenKey(uint hKey, string subKeyName, out uint hSubKey)
     {
-      var registryValue = new VirtualRegistryValue(valueName, data, valueType);
-      var stateCode = _virtualRegistry.SetValue(hKey, registryValue);
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "SetValue(HKey={0} Name={1} Type={2}) => {3}",
-                                   hKey, valueName, valueType, stateCode));
-      return WinError.FromStateCode(stateCode);
+      string keyName;
+      var registry = GetTargetRegistry(hKey, out keyName);
+      if (registry == null)
+      {
+        hSubKey = 0;
+        return NativeResultCode.InvalidHandle;
+      }
+      keyName = RegistryHelper.CombineKeyNames(keyName, subKeyName);
+      return registry.OpenKey(keyName, out hSubKey)
+               ? NativeResultCode.Succes
+               : NativeResultCode.FileNotFound;
     }
 
-    public uint OpenKey(uint hKey, string subKey, out uint hSubKey)
+    public NativeResultCode CreateKey(uint hKey, string subKeyName, out uint hSubKey, out RegCreationDisposition creationDisposition)
     {
-      var winError = _virtualRegistry.OpenKey(hKey, subKey, out hSubKey)
-                       ? WinError.ERROR_SUCCESS
-                     // Note: This behaviour needs to be updated!
-                     // How can we know which one is the illegal value? Is it hKey or subKey?
-                       : WinError.ERROR_INVALID_HANDLE;
-      GuestCore.Log(new LogMessage(LogLevel.Debug, @"OpenKey({0}\\{1}) => {2}", hKey, subKey, hSubKey));
-      return winError;
+      string keyName;
+      var registry = GetTargetRegistry(hKey, out keyName);
+      if (registry == null)
+      {
+        hSubKey = 0;
+        creationDisposition = RegCreationDisposition.NoKeyCreated;
+        return NativeResultCode.InvalidHandle;
+      }
+      keyName = RegistryHelper.CombineKeyNames(keyName, subKeyName);
+      return registry.CreateKey(keyName, out hSubKey, out creationDisposition);
     }
 
-    public uint CreateKey(uint hKey, string subKey, out uint hSubKey, out int lpdwDisposition)
+    public NativeResultCode CloseKey(uint hKey)
     {
-      RegCreationDisposition creationDisposition;
-      var stateCode = _virtualRegistry.CreateKey(hKey, subKey, out hSubKey, out creationDisposition);
-      lpdwDisposition = RegistryHelper.DispositionFromRegCreationDisposition(creationDisposition);
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "CreateKey(HKey={0} NewSubKey={1}) => {2} HKey={3}",
-                                   hKey, subKey, creationDisposition, hSubKey));
-      return WinError.FromStateCode(stateCode);
+      // The virtual registry doesn't close keys,
+      // so only call the transparent registry to close the key.
+      _transparentRegistry.CloseKey(hKey);
+      return NativeResultCode.Succes;
     }
 
-    public uint QueryValue(uint hKey, string valueName, out byte[] value, out ValueType valueType)
+    public NativeResultCode DeleteKey(uint hKey)
     {
-      VirtualRegistryValue virtualRegistryValue;
-      var hResult = _virtualRegistry.QueryValue(hKey, valueName, out virtualRegistryValue);
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "QueryValue(HKey={0} ValueName={1}) => {2}",
-                                   hKey, valueName, hResult));
-      value = virtualRegistryValue.Data;
-      valueType = hResult == NativeResultCode.Succes
-                    ? virtualRegistryValue.Type
-                    : ValueType.REG_NONE;
-      return WinError.FromStateCode(hResult);
+      if (HiveHelper.IsHiveHandle(hKey))
+        return NativeResultCode.AccessDenied;
+      var registry = GetTargetRegistry(hKey);
+      return registry != null
+               ? registry.DeleteKey(hKey)
+               : NativeResultCode.InvalidHandle;
     }
 
-    public uint CloseKey(uint hKey)
+    public NativeResultCode QueryValue(uint hKey, string valueName, out VirtualRegistryValue value)
     {
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "CloseKey(HKey={0})", hKey));
-      _virtualRegistry.CloseKey(hKey);
-      return WinError.ERROR_SUCCESS;
+      value = new VirtualRegistryValue(valueName, null, ValueType.INVALID);
+      if (HiveHelper.IsHiveHandle(hKey))
+        return NativeResultCode.AccessDenied;
+      var registry = GetTargetRegistry(hKey);
+      return registry != null
+               ? registry.QueryValue(hKey, valueName, out value)
+               : NativeResultCode.InvalidHandle;
+    }
+
+    public NativeResultCode SetValue(uint hKey, VirtualRegistryValue value)
+    {
+      if (HiveHelper.IsHiveHandle(hKey))
+        return NativeResultCode.AccessDenied;
+      var registry = GetTargetRegistry(hKey);
+      return registry != null
+               ? registry.SetValue(hKey, value)
+               : NativeResultCode.InvalidHandle;
+    }
+
+    public NativeResultCode DeleteValue(uint hKey, string valueName)
+    {
+      if (HiveHelper.IsHiveHandle(hKey))
+        return NativeResultCode.AccessDenied;
+      var registry = GetTargetRegistry(hKey);
+      return registry != null
+               ? registry.DeleteValue(hKey, valueName)
+               : NativeResultCode.InvalidHandle;
     }
 
     #endregion

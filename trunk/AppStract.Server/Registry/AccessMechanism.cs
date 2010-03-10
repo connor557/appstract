@@ -35,7 +35,7 @@ namespace AppStract.Server.Registry
     /// </summary>
     Transparent,
     /// <summary>
-    /// Read actions are transparant on unknown keys,
+    /// Read actions are transparent on unknown keys,
     /// write actions are always performed on the virtual registry.
     /// </summary>
     TransparentRead,
