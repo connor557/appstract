@@ -187,12 +187,9 @@ namespace AppStract.Server.Registry.Data
       if (currentProfileKey == null)
         return defaultValue;
       object currentProfileValue = currentProfileKey.GetValue("CurrentConfig");
-      if (currentProfileValue == null)
-        return defaultValue;
-      string value = currentProfileValue.ToString();
-      while (value.Length < 4)
-        value = "0" + value;
-      return value;
+      return currentProfileValue != null
+               ? currentProfileValue.ToString().PadLeft(4, '0')
+               : defaultValue;
     }
 
     #endregion
