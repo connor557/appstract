@@ -23,17 +23,146 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AppStract.Core.System.Logging;
 using EasyHook;
 
 namespace AppStract.Server.Hooking
 {
   /// <summary>
-  /// Manages the available hooks, defined as instances of <see cref="HookData"/>.
-  /// <see cref="Initialize"/> must be called before <see cref="HookManager"/> can provide any data or install any hook.
+  /// Manages the API hooks which are available and/or installed for the current process.
   /// </summary>
+  /// <remarks>
+  /// <see cref="Initialize"/> must be called before <see cref="HookManager"/> can provide any data or install any hook.
+  /// </remarks>
   public static class HookManager
   {
+
+    #region Public Classes
+
+    /// <summary>
+    /// The list of threads that are ensured to not be intercepted by any of the installed API Hooks.
+    /// </summary>
+    /// <remarks>
+    /// Registering a thread for exclusion should always be done as following:
+    /// <code>
+    /// using (HookManager.ACL.GetHookingExclusion())
+    /// {
+    ///   // Perform all actions that must NOT be intercepted by any of the hook handlers.
+    /// } // The exclusion is disposed and the excluded thread will be intercepted again.
+    /// </code>
+    /// The exclusion is also disposed when the finalizer of the object returned by <see cref="GetHookingExclusion"/> is called.
+    /// </remarks>
+    public static class ACL
+    {
+
+      #region Private Classes
+
+      /// <summary>
+      /// Represents a hooking exclusion.
+      /// No calls will be intercepted from the native thread with id <see cref="_threadId"/>
+      /// as long as <see cref="Dispose"/> or the destructor has not been called.
+      /// </summary>
+      private sealed class HookingExclusion : IDisposable
+      {
+
+        #region Variables
+
+        private readonly int _threadId;
+        private readonly object _disposeLock;
+        private bool _isDisposed;
+
+        #endregion
+
+        #region Constructor/Destructor
+
+        public HookingExclusion(int threadId)
+        {
+          _threadId = threadId;
+          _disposeLock = new object();
+        }
+
+        ~HookingExclusion()
+        {
+          Dispose();
+        }
+
+        #endregion
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+          lock (_disposeLock)
+          {
+            if (_isDisposed) return;
+            _isDisposed = true;
+          }
+          EndHookingExclusion(_threadId);
+        }
+
+        #endregion
+
+      }
+
+      #endregion
+
+      #region Variables
+
+      private static readonly object _aclLock = new object();
+      private static readonly Dictionary<int, int> _acl = new Dictionary<int, int>();
+
+      #endregion
+
+      #region Static Methods
+
+      /// <summary>
+      /// Ensures that the current thread will not be intercepted by any of the installed API hooks.
+      /// The hooking exclusion only works for the current underlying native thread of the current managed thread,
+      /// it is not guaranteed that the underlying native thread will never change. Therefore it is recommended
+      /// that the returned object is disposed as soon as the application logic allows it.
+      /// </summary>
+      /// <remarks>
+      /// A thread can call this method recursively. The hook exclusion is undone when all of the returned objects are disposed.
+      /// </remarks>
+      /// <returns>An object that when disposed, will exit the hooking exclusion of the current thread.</returns>
+      public static IDisposable GetHookingExclusion()
+      {
+        var currentThreadId = AppDomain.GetCurrentThreadId();
+        lock (_aclLock)
+        {
+          if (_acl.ContainsKey(currentThreadId))
+          {
+            _acl[currentThreadId]++;
+          }
+          else
+          {
+            _acl.Add(currentThreadId, 1);
+            LocalHook.GlobalThreadACL.SetExclusiveACL(_acl.Keys.ToArray());
+          }
+        }
+        return new HookingExclusion(currentThreadId);
+      }
+
+      private static void EndHookingExclusion(int threadId)
+      {
+        lock (_aclLock)
+        {
+          if (!_acl.ContainsKey(threadId))
+            return;
+          _acl[threadId]--;
+          if (_acl[threadId] > 0)
+            return;
+          _acl.Remove(threadId);
+          LocalHook.GlobalThreadACL.SetExclusiveACL(_acl.Keys.ToArray());
+        }
+      }
+
+      #endregion
+
+    }
+
+    #endregion
 
     #region Variables
 
@@ -70,16 +199,19 @@ namespace AppStract.Server.Hooking
     /// <summary>
     /// Initializes the manager.
     /// </summary>
+    /// <exception cref="ApplicationException">
+    /// An <see cref="ApplicationException"/> is thrown if <see cref="HookManager"/> is already initialized.
+    /// </exception>
     /// <param name="inCallback">An uninterpreted callback that will later be available through <see cref="HookRuntimeInfo.Callback"/>.</param>
     /// <param name="hookHandler">The object containing the methods to associate with hooked functions.</param>
-    public static void Initialize(object inCallback, HookImplementations hookHandler)
+    internal static void Initialize(object inCallback, HookImplementations hookHandler)
     {
       lock (_syncRoot)
       {
         if (_initialized)
-          return;
+          throw new ApplicationException("HookManager is already initialized.");
         GuestCore.Log(new LogMessage(LogLevel.Debug, "HookManager starts initialization procedure."));
-        var hooks = new List<HookData>(8);
+        var hooks = new List<HookData>(17);
         // Hooks regarding the filesystem
         hooks.Add(new HookData("Create Directory [Unicode]",
                                "kernel32.dll", "CreateDirectoryW",
@@ -165,7 +297,7 @@ namespace AppStract.Server.Hooking
     /// <exception cref="HookingException">
     /// A <see cref="HookingException"/> is thrown if the installation of any of the API hooks fails.
     /// </exception>
-    public static void InstallHooks()
+    internal static void InstallHooks()
     {
       GuestCore.Log(new LogMessage(LogLevel.Debug, "HookManager starts installing the API hooks."));
       lock (_syncRoot)
