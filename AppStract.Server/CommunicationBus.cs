@@ -186,10 +186,13 @@ namespace AppStract.Server
         regActions = _registryQueue.ToArray();
         _registryQueue.Clear();
       }
-      if (fsActions.Length > 0)
-        _synchronizer.SyncFileSystemActions(fsActions);
-      if (regActions.Length > 0)
-        _synchronizer.SyncRegistryActions(regActions);
+      using (Hooking.HookManager.ACL.GetHookingExclusion())
+      {
+        if (fsActions.Length > 0)
+          _synchronizer.SyncFileSystemActions(fsActions);
+        if (regActions.Length > 0)
+          _synchronizer.SyncRegistryActions(regActions);
+      }
     }
 
     #endregion
@@ -241,7 +244,6 @@ namespace AppStract.Server
       lock (_fileSystemSyncObject)
         _fileSystemQueue.Enqueue(new DatabaseAction<FileTableEntry>(new FileTableEntry(item, FileKind.Unspecified), DatabaseActionType.Set));
     }
-
 
     /// <summary>
     /// Eventhandler for the ItemRemoved event of the file table.
@@ -300,7 +302,9 @@ namespace AppStract.Server
       if (fileTable == null)
         throw new ArgumentNullException("fileTable");
       fileTable.Clear();
-      var files = _loader.LoadFileSystemTable();
+      IEnumerable<FileTableEntry> files;
+      using (Hooking.HookManager.ACL.GetHookingExclusion())
+        files = _loader.LoadFileSystemTable();
       foreach (var file in files)
         fileTable.Add(file.Key, file.Value);
       fileTable.ItemAdded += FileTable_ItemAdded;
@@ -317,7 +321,9 @@ namespace AppStract.Server
       if (keyList == null)
         throw new ArgumentNullException("keyList");
       keyList.Clear();
-      var keys = _loader.LoadRegistry();
+      IEnumerable<VirtualRegistryKey> keys;
+      using (Hooking.HookManager.ACL.GetHookingExclusion())
+        keys = _loader.LoadRegistry();
       foreach (var key in keys)
         keyList.Add(key.Handle, key);
       keyList.ItemAdded += Registry_ItemAdded;

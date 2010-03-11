@@ -53,19 +53,21 @@ namespace AppStract.Server.Hooking
         phkResult = hKey;
         return WinError.ERROR_SUCCESS;
       }
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "OpenKey"));
       uint handle;
       if (!TryParse(hKey, out handle))
       {
         phkResult = UIntPtr.Zero;
         return WinError.ERROR_INVALID_HANDLE;
       }
-      uint hSubKey;
-      var winError = _registry.OpenKey(handle, subKey, out hSubKey);
-      GuestCore.Log(new LogMessage(LogLevel.Debug, @"OpenKey({0}\\{1}) => {2}", hKey, subKey,
-                                   winError == NativeResultCode.Succes ? hSubKey.ToString() : winError.ToString()));
-      phkResult = new UIntPtr(hSubKey);
-      return WinError.FromStateCode(winError);
+      using (HookManager.ACL.GetHookingExclusion())
+      {
+        uint hSubKey;
+        var winError = _registry.OpenKey(handle, subKey, out hSubKey);
+        GuestCore.Log(new LogMessage(LogLevel.Debug, @"OpenKey({0}\\{1}) => {2}", hKey, subKey,
+                                     winError == NativeResultCode.Succes ? hSubKey.ToString() : winError.ToString()));
+        phkResult = new UIntPtr(hSubKey);
+        return WinError.FromStateCode(winError);
+      }
     }
 
     /// <summary>
@@ -96,12 +98,10 @@ namespace AppStract.Server.Hooking
     {
       if (lpSubKey == null)
       {
-        phkResult = UIntPtr.Zero;
+        phkResult = UIntPtr.Zero; // Bug: In this case, Windows doesn't set a value for phkResult! Should phkResult be a "ref" in stead of "out"?
         lpdwDisposition = RegCreationDisposition.NoKeyCreated;
-          // Bug: Normally windows doesn't set a value for phkResult! Should this be a "ref" in stead of "out"?
         return WinError.ERROR_BADKEY;
       }
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "CreateKey"));
       uint handle;
       if (!TryParse(hKey, out handle))
       {
@@ -109,12 +109,15 @@ namespace AppStract.Server.Hooking
         lpdwDisposition = RegCreationDisposition.NoKeyCreated;
         return WinError.ERROR_INVALID_HANDLE;
       }
-      uint phkResultHandle;
-      var stateCode = _registry.CreateKey(handle, lpSubKey, out phkResultHandle, out lpdwDisposition);
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "CreateKey(HKey={0} NewSubKey={1}) => {2} HKey={3}",
-                                   hKey, lpSubKey, lpdwDisposition, phkResultHandle));
-      phkResult = new UIntPtr(phkResultHandle);
-      return WinError.FromStateCode(stateCode);
+      using (HookManager.ACL.GetHookingExclusion())
+      {
+        uint phkResultHandle;
+        var stateCode = _registry.CreateKey(handle, lpSubKey, out phkResultHandle, out lpdwDisposition);
+        GuestCore.Log(new LogMessage(LogLevel.Debug, "CreateKey(HKey={0} NewSubKey={1}) => {2} HKey={3}",
+                                     hKey, lpSubKey, lpdwDisposition, phkResultHandle));
+        phkResult = new UIntPtr(phkResultHandle);
+        return WinError.FromStateCode(stateCode);
+      }
     }
 
     /// <summary>
@@ -124,13 +127,15 @@ namespace AppStract.Server.Hooking
     /// <returns></returns>
     public uint RegCloseKey_Hooked(UIntPtr hKey)
     {
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "CloseKey"));
       uint handle;
       if (!TryParse(hKey, out handle))
         return WinError.ERROR_INVALID_HANDLE;
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "CloseKey(HKey={0})", handle));
-      var stateCode = _registry.CloseKey(handle);
-      return WinError.FromStateCode(stateCode);
+      using (HookManager.ACL.GetHookingExclusion())
+      {
+        GuestCore.Log(new LogMessage(LogLevel.Debug, "CloseKey(HKey={0})", handle));
+        var stateCode = _registry.CloseKey(handle);
+        return WinError.FromStateCode(stateCode);
+      }
     }
 
     /// <summary>
@@ -163,30 +168,32 @@ namespace AppStract.Server.Hooking
     public uint RegQueryValue_Hooked(UIntPtr hKey, [MarshalAs(UnmanagedType.LPWStr)] string lpValueName,
                                IntPtr lpReserved, IntPtr lpType, IntPtr lpData, IntPtr lpcbData)
     {
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "QueryValue"));
       // BUG: If lpValueName is NULL or an empty string, the function retrieves the type and data for the key's unnamed or default value, if any.
       if (string.IsNullOrEmpty(lpValueName))
         return WinError.ERROR_FILE_NOT_FOUND;
       uint handle;
       if (!TryParse(hKey, out handle))
         return WinError.ERROR_INVALID_HANDLE;
-      VirtualRegistryValue virtualRegistryValue;
-      var hResult = _registry.QueryValue(handle, lpValueName, out virtualRegistryValue);
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "QueryValue(HKey={0} ValueName={1}) => {2}",
-                                   handle, lpValueName, hResult));
-      if (hResult != NativeResultCode.Succes)
-        return WinError.FromStateCode(hResult);
-      // Marshal all data to the specified pointers.
-      MarshallingHelpers.CopyToMemory(virtualRegistryValue.Type, lpType);
-      uint? dataLength = lpcbData != IntPtr.Zero
-                         // Valid pointer, copy the 32bit unsigned integer.
-                           ? (uint?) lpcbData.Read<uint>()
-                         // Invalid pointer, guest doesn't require lpcbData.
-                           : null;
-      uint winError = MarshallingHelpers.CopyToMemory(virtualRegistryValue.Data, lpData, ref dataLength);
-      if (dataLength != null)
-        MarshallingHelpers.CopyToMemory(dataLength, lpcbData);
-      return winError;
+      using (HookManager.ACL.GetHookingExclusion())
+      {
+        VirtualRegistryValue virtualRegistryValue;
+        var hResult = _registry.QueryValue(handle, lpValueName, out virtualRegistryValue);
+        GuestCore.Log(new LogMessage(LogLevel.Debug, "QueryValue(HKey={0} ValueName={1}) => {2}",
+                                     handle, lpValueName, hResult));
+        if (hResult != NativeResultCode.Succes)
+          return WinError.FromStateCode(hResult);
+        // Marshal all data to the specified pointers.
+        MarshallingHelpers.CopyToMemory(virtualRegistryValue.Type, lpType);
+        uint? dataLength = lpcbData != IntPtr.Zero
+                           // Valid pointer, copy the 32bit unsigned integer.
+                             ? (uint?) lpcbData.Read<uint>()
+                           // Invalid pointer, guest doesn't require lpcbData.
+                             : null;
+        uint winError = MarshallingHelpers.CopyToMemory(virtualRegistryValue.Data, lpData, ref dataLength);
+        if (dataLength != null)
+          MarshallingHelpers.CopyToMemory(dataLength, lpcbData);
+        return winError;
+      }
     }
 
     /// <summary>
@@ -207,16 +214,18 @@ namespace AppStract.Server.Hooking
     public uint RegSetValueEx(UIntPtr hKey, [MarshalAs(UnmanagedType.LPWStr)] string lpValueName,
                              uint Reserved, ValueType dwType, IntPtr lpData, uint cbData)
     {
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "SetValue"));
       uint handle;
       if (!TryParse(hKey, out handle))
         return WinError.ERROR_INVALID_HANDLE;
-      var data = lpData.Read<byte[]>(cbData);
-      var registryValue = new VirtualRegistryValue(lpValueName, data, dwType);
-      var stateCode = _registry.SetValue(handle, registryValue);
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "SetValue(HKey={0} Name={1} Type={2}) => {3}",
-                                   handle, lpValueName, dwType, stateCode));
-      return WinError.FromStateCode(stateCode);
+      using (HookManager.ACL.GetHookingExclusion())
+      {
+        var data = lpData.Read<byte[]>(cbData);
+        var registryValue = new VirtualRegistryValue(lpValueName, data, dwType);
+        var stateCode = _registry.SetValue(handle, registryValue);
+        GuestCore.Log(new LogMessage(LogLevel.Debug, "SetValue(HKey={0} Name={1} Type={2}) => {3}",
+                                     handle, lpValueName, dwType, stateCode));
+        return WinError.FromStateCode(stateCode);
+      }
     }
 
     #endregion
