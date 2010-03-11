@@ -196,8 +196,6 @@ namespace AppStract.Inject
       // Validate the connection.
       if (!GuestCore.Connected)
         return; // Return silently, can't log
-      // Bug: For some reason FileAcessRedirector needs to be initialized before any hooks are installed
-      var test = AppStract.Server.FileSystem.FileAccessRedirector.ToString();
       // Install all hooks.
       GuestCore.InstallHooks(this);
     }
