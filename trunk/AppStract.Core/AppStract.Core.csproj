@@ -120,7 +120,7 @@
     <Compile Include="Virtualization\Process\ExitCode.cs" />
     <Compile Include="Virtualization\Process\ProcessExitEventHandler.cs" />
     <Compile Include="Virtualization\Process\VirtualProcessStartInfo.cs" />
-    <Compile Include="Virtualization\FileSystem\IFileSystemLoader.cs" />
+    <Compile Include="Virtualization\FileSystem\IFileSystemSynchronizer.cs" />
     <Compile Include="Virtualization\Registry\IRegistrySynchronizer.cs" />
     <Compile Include="System\IPC\IProcessSynchronizer.cs" />
     <Compile Include="System\IPC\IResourceLoader.cs" />
