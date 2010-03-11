@@ -47,7 +47,7 @@ namespace AppStract.Server.Hooking
     /// <param name="sam"></param>
     /// <param name="phkResult"></param>
     /// <returns></returns>
-    public uint RegOpenKey_Hooked(IntPtr hKey, string subKey, uint options, int sam, out IntPtr phkResult)
+    public uint RegOpenKey_Hooked(UIntPtr hKey, string subKey, uint options, int sam, out UIntPtr phkResult)
     {
       if (subKey == null)
       {
@@ -58,14 +58,14 @@ namespace AppStract.Server.Hooking
       uint handle;
       if (!TryParse(hKey, out handle))
       {
-        phkResult = IntPtr.Zero;
+        phkResult = UIntPtr.Zero;
         return WinError.ERROR_INVALID_HANDLE;
       }
       uint hSubKey;
       var winError = _registry.OpenKey(handle, subKey, out hSubKey);
       GuestCore.Log(new LogMessage(LogLevel.Debug, @"OpenKey({0}\\{1}) => {2}", hKey, subKey,
                                    winError == NativeResultCode.Succes ? hSubKey.ToString() : winError.ToString()));
-      phkResult = new IntPtr(hSubKey);
+      phkResult = new UIntPtr(hSubKey);
       return WinError.FromStateCode(winError);
     }
 
@@ -92,12 +92,12 @@ namespace AppStract.Server.Hooking
     /// or 0x00000002L if the key is opened.
     /// </param>
     /// <returns></returns>
-    public uint RegCreateKeyEx_Hooked(IntPtr hKey, string lpSubKey, int Reserved, string lpClass, uint dwOptions,
-      uint samDesired, ref int lpSecurityAttributes, out IntPtr phkResult, ref int lpdwDisposition)
+    public uint RegCreateKeyEx_Hooked(UIntPtr hKey, string lpSubKey, int Reserved, string lpClass, uint dwOptions,
+      uint samDesired, ref int lpSecurityAttributes, out UIntPtr phkResult, ref int lpdwDisposition)
     {
       if (lpSubKey == null)
       {
-        phkResult = IntPtr.Zero;
+        phkResult = UIntPtr.Zero;
           // Bug: Normally windows doesn't set a value for phkResult! Should this be a "ref" in stead of "out"?
         return WinError.ERROR_BADKEY;
       }
@@ -105,7 +105,7 @@ namespace AppStract.Server.Hooking
       uint handle;
       if (!TryParse(hKey, out handle))
       {
-        phkResult = IntPtr.Zero;
+        phkResult = UIntPtr.Zero;
         return WinError.ERROR_INVALID_HANDLE;
       }
       uint phkResultHandle;
@@ -114,7 +114,7 @@ namespace AppStract.Server.Hooking
       GuestCore.Log(new LogMessage(LogLevel.Debug, "CreateKey(HKey={0} NewSubKey={1}) => {2} HKey={3}",
                                    hKey, lpSubKey, creationDisposition, phkResultHandle));
       lpdwDisposition = creationDisposition.AsByte();
-      phkResult = new IntPtr(phkResultHandle);
+      phkResult = new UIntPtr(phkResultHandle);
       return WinError.FromStateCode(stateCode);
     }
 
@@ -123,7 +123,7 @@ namespace AppStract.Server.Hooking
     /// </summary>
     /// <param name="hKey"></param>
     /// <returns></returns>
-    public uint RegCloseKey_Hooked(IntPtr hKey)
+    public uint RegCloseKey_Hooked(UIntPtr hKey)
     {
       GuestCore.Log(new LogMessage(LogLevel.Debug, "CloseKey"));
       uint handle;
@@ -161,7 +161,7 @@ namespace AppStract.Server.Hooking
     /// The lpcbData parameter can be NULL only if lpData is NULL.
     /// </param>
     /// <returns></returns>
-    public uint RegQueryValue_Hooked(IntPtr hKey, [MarshalAs(UnmanagedType.LPWStr)] String lpValueName,
+    public uint RegQueryValue_Hooked(UIntPtr hKey, [MarshalAs(UnmanagedType.LPWStr)] String lpValueName,
                                IntPtr lpReserved, IntPtr lpType, IntPtr lpData, IntPtr lpcbData)
     {
       GuestCore.Log(new LogMessage(LogLevel.Debug, "QueryValue"));
@@ -205,7 +205,7 @@ namespace AppStract.Server.Hooking
     /// <param name="lpData">The data to be stored.</param>
     /// <param name="cbData">The size of the information pointed to by the lpData parameter, in bytes.</param>
     /// <returns>A WinError code.</returns>
-    public uint RegSetValueEx(IntPtr hKey, [MarshalAs(UnmanagedType.LPWStr)] String lpValueName,
+    public uint RegSetValueEx(UIntPtr hKey, [MarshalAs(UnmanagedType.LPWStr)] String lpValueName,
                              uint Reserved, ValueType dwType, IntPtr lpData, uint cbData)
     {
       GuestCore.Log(new LogMessage(LogLevel.Debug, "SetValue"));
@@ -230,7 +230,7 @@ namespace AppStract.Server.Hooking
     /// <param name="pointer"></param>
     /// <param name="result"></param>
     /// <returns></returns>
-    private static bool TryParse(IntPtr pointer, out uint result)
+    private static bool TryParse(UIntPtr pointer, out uint result)
     {
       result = (uint) pointer;
       return true;
