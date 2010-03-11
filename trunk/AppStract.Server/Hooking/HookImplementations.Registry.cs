@@ -25,7 +25,6 @@ using System;
 using System.Runtime.InteropServices;
 using AppStract.Core.System.Logging;
 using AppStract.Core.Virtualization.Registry;
-using AppStract.Server.Registry;
 using AppStract.Utilities.Extensions;
 using AppStract.Utilities.Interop;
 using Microsoft.Win32.Interop;
@@ -47,7 +46,7 @@ namespace AppStract.Server.Hooking
     /// <param name="sam"></param>
     /// <param name="phkResult"></param>
     /// <returns></returns>
-    public uint RegOpenKey_Hooked(UIntPtr hKey, string subKey, uint options, int sam, out UIntPtr phkResult)
+    public uint RegOpenKey_Hooked(UIntPtr hKey, string subKey, RegOption options, RegSecurityDescriptor sam, out UIntPtr phkResult)
     {
       if (subKey == null)
       {
@@ -92,12 +91,13 @@ namespace AppStract.Server.Hooking
     /// or 0x00000002L if the key is opened.
     /// </param>
     /// <returns></returns>
-    public uint RegCreateKeyEx_Hooked(UIntPtr hKey, string lpSubKey, int Reserved, string lpClass, uint dwOptions,
-      uint samDesired, ref int lpSecurityAttributes, out UIntPtr phkResult, ref int lpdwDisposition)
+    public uint RegCreateKeyEx_Hooked(UIntPtr hKey, string lpSubKey, int Reserved, string lpClass, RegOption dwOptions,
+      RegSecurityDescriptor samDesired, ref int lpSecurityAttributes, out UIntPtr phkResult, out RegCreationDisposition lpdwDisposition)
     {
       if (lpSubKey == null)
       {
         phkResult = UIntPtr.Zero;
+        lpdwDisposition = RegCreationDisposition.NoKeyCreated;
           // Bug: Normally windows doesn't set a value for phkResult! Should this be a "ref" in stead of "out"?
         return WinError.ERROR_BADKEY;
       }
@@ -106,14 +106,13 @@ namespace AppStract.Server.Hooking
       if (!TryParse(hKey, out handle))
       {
         phkResult = UIntPtr.Zero;
+        lpdwDisposition = RegCreationDisposition.NoKeyCreated;
         return WinError.ERROR_INVALID_HANDLE;
       }
       uint phkResultHandle;
-      RegCreationDisposition creationDisposition;
-      var stateCode = _registry.CreateKey(handle, lpSubKey, out phkResultHandle, out creationDisposition);
+      var stateCode = _registry.CreateKey(handle, lpSubKey, out phkResultHandle, out lpdwDisposition);
       GuestCore.Log(new LogMessage(LogLevel.Debug, "CreateKey(HKey={0} NewSubKey={1}) => {2} HKey={3}",
-                                   hKey, lpSubKey, creationDisposition, phkResultHandle));
-      lpdwDisposition = creationDisposition.AsByte();
+                                   hKey, lpSubKey, lpdwDisposition, phkResultHandle));
       phkResult = new UIntPtr(phkResultHandle);
       return WinError.FromStateCode(stateCode);
     }
@@ -161,7 +160,7 @@ namespace AppStract.Server.Hooking
     /// The lpcbData parameter can be NULL only if lpData is NULL.
     /// </param>
     /// <returns></returns>
-    public uint RegQueryValue_Hooked(UIntPtr hKey, [MarshalAs(UnmanagedType.LPWStr)] String lpValueName,
+    public uint RegQueryValue_Hooked(UIntPtr hKey, [MarshalAs(UnmanagedType.LPWStr)] string lpValueName,
                                IntPtr lpReserved, IntPtr lpType, IntPtr lpData, IntPtr lpcbData)
     {
       GuestCore.Log(new LogMessage(LogLevel.Debug, "QueryValue"));
@@ -205,7 +204,7 @@ namespace AppStract.Server.Hooking
     /// <param name="lpData">The data to be stored.</param>
     /// <param name="cbData">The size of the information pointed to by the lpData parameter, in bytes.</param>
     /// <returns>A WinError code.</returns>
-    public uint RegSetValueEx(UIntPtr hKey, [MarshalAs(UnmanagedType.LPWStr)] String lpValueName,
+    public uint RegSetValueEx(UIntPtr hKey, [MarshalAs(UnmanagedType.LPWStr)] string lpValueName,
                              uint Reserved, ValueType dwType, IntPtr lpData, uint cbData)
     {
       GuestCore.Log(new LogMessage(LogLevel.Debug, "SetValue"));
