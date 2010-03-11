@@ -26,16 +26,18 @@ using AppStract.Utilities.Observables;
 namespace AppStract.Core.Virtualization.FileSystem
 {
   /// <summary>
-  /// Defines a method to load the file table to an <see cref="ObservableDictionary{TKey,TValue}"/>.
+  /// Defines a method to activate the synchronization of the file table used by the virtual file system,
+  /// with an <see cref="ObservableDictionary{TKey,TValue}"/>.
   /// </summary>
-  public interface IFileSystemLoader
+  public interface IFileSystemSynchronizer
   {
 
     /// <summary>
-    /// Loads all known key/value pairs of the file table to an <see cref="ObservableDictionary{TKey,TValue}"/>.
+    /// Loads all known file table entries to the given <see cref="ObservableDictionary{TKey,TValue}"/>,
+    /// and ensures continuous registry synchronization by attaching listeners to <paramref name="fileTable"/>.
     /// </summary>
     /// <param name="fileTable">The <see cref="ObservableDictionary{TKey,TValue}"/> to load the file table to.</param>
-    void LoadFileSystemTableTo(ObservableDictionary<string, string> fileTable);
+    void SynchronizeFileSystemTableWith(ObservableDictionary<string, string> fileTable);
 
   }
 }

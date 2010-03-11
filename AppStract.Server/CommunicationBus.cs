@@ -45,7 +45,7 @@ namespace AppStract.Server
   /// Realize that in 500ms many actions can be enqueued,
   /// and all these actions will be lost if the process would be killed by for example the Windows task manager.
   /// </remarks>
-  internal sealed class CommunicationBus : IFileSystemLoader, IRegistrySynchronizer
+  internal sealed class CommunicationBus : IFileSystemSynchronizer, IRegistrySynchronizer
   {
 
     #region Variables
@@ -293,9 +293,9 @@ namespace AppStract.Server
 
     #endregion
 
-    #region IFileSystemLoader Members
+    #region IFileSystemSynchronizer Members
 
-    public void LoadFileSystemTableTo(ObservableDictionary<string, string> fileTable)
+    public void SynchronizeFileSystemTableWith(ObservableDictionary<string, string> fileTable)
     {
       if (fileTable == null)
         throw new ArgumentNullException("fileTable");

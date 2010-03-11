@@ -155,8 +155,7 @@ namespace AppStract.Server
         _commBus = new CommunicationBus(processSynchronizer, processSynchronizer);
         // Load resources.
         Log(new LogMessage(LogLevel.Information, "Loading file system and registry data"));
-        var fileSystem = new FileSystemProvider(processSynchronizer.FileSystemRoot);
-        fileSystem.LoadFileTable(_commBus);
+        var fileSystem = new FileSystemProvider(_commBus, processSynchronizer.FileSystemRoot);
         Log(new LogMessage(LogLevel.Debug, "Loaded file system"));
         var registry = new RegistryProvider(_commBus);
         Log(new LogMessage(LogLevel.Debug, "Loaded registry"));
