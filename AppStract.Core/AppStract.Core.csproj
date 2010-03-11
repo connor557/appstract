@@ -142,6 +142,8 @@
     <Compile Include="Virtualization\Process\VirtualizedProcess.cs" />
     <Compile Include="Virtualization\Registry\IRegistryProvider.cs" />
     <Compile Include="Virtualization\Registry\RegCreationDisposition.cs" />
+    <Compile Include="Virtualization\Registry\RegOption.cs" />
+    <Compile Include="Virtualization\Registry\RegSecurityDescriptor.cs" />
     <Compile Include="Virtualization\Registry\ValueType.cs" />
     <Compile Include="Virtualization\Registry\VirtualRegistryKey.cs" />
     <Compile Include="Virtualization\Registry\VirtualRegistryValue.cs" />

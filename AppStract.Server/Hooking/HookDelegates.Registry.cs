@@ -23,6 +23,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using AppStract.Core.Virtualization.Registry;
 using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
 
 namespace AppStract.Server.Hooking
@@ -38,29 +39,29 @@ namespace AppStract.Server.Hooking
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
     public delegate uint DCreateKey_Unicode
                    (UIntPtr hKey, string lpSubKey, int Reserved,
-                   string lpClass, uint dwOptions, uint samDesired,
+                   string lpClass, RegOption dwOptions, RegSecurityDescriptor samDesired,
                    ref int lpSecurityAttributes,
-                   out UIntPtr phkResult, ref int lpdwDisposition);
+                   out UIntPtr phkResult, out RegCreationDisposition lpdwDisposition);
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
     public delegate uint DCreateKey_Ansi
                    (UIntPtr hKey, string lpSubKey, int Reserved,
-                   string lpClass, uint dwOptions, uint samDesired,
+                   string lpClass, RegOption dwOptions, RegSecurityDescriptor samDesired,
                    ref int lpSecurityAttributes,
-                   out UIntPtr phkResult, ref int lpdwDisposition);
+                   out UIntPtr phkResult, out RegCreationDisposition lpdwDisposition);
     #endregion
 
     #region OpenKey
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
     public delegate uint DOpenKey_Unicode
-                   (UIntPtr hKey, string subKey, uint options,
-                    int sam, out UIntPtr phkResult);
+                   (UIntPtr hKey, string subKey, RegOption options,
+                    RegSecurityDescriptor sam, out UIntPtr phkResult);
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
     public delegate uint DOpenKey_Ansi
-                   (UIntPtr hKey, string subKey, uint options,
-                    int sam, out UIntPtr phkResult);
+                   (UIntPtr hKey, string subKey, RegOption options,
+                    RegSecurityDescriptor sam, out UIntPtr phkResult);
 
     #endregion
 

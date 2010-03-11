@@ -155,24 +155,5 @@ namespace AppStract.Server.Registry
 
     #endregion
 
-    #region Extension Methods
-
-    /// <summary>
-    /// Returns the byte, as expected by Windows operating system,
-    /// associated with the current <see cref="RegCreationDisposition"/>.
-    /// </summary>
-    /// <param name="creationDisposition">The <see cref="RegCreationDisposition"/> to return the associated byte for.</param>
-    /// <returns></returns>
-    public static byte AsByte(this RegCreationDisposition creationDisposition)
-    {
-      if (creationDisposition == RegCreationDisposition.CreatedNewKey)
-        return 0x00000001;
-      if (creationDisposition == RegCreationDisposition.OpenedExistingKey)
-        return 0x00000002;
-      return 0x00000000;
-    }
-
-    #endregion
-
   }
 }

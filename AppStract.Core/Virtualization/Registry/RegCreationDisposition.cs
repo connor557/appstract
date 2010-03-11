@@ -35,14 +35,14 @@ namespace AppStract.Core.Virtualization.Registry
     /// In most cases an error code is returned by methods using <see cref="RegCreationDisposition"/>,
     /// the value of that code can potentially provide more information on why the key is not created.
     /// </remarks>
-    NoKeyCreated = 0,
+    NoKeyCreated = 0x0,
     /// <summary>
     /// The key did not exist and was created.
     /// </summary>
-    CreatedNewKey = 1,
+    CreatedNewKey = 0x1,
     /// <summary>
     /// The key existed and was simply opened without being changed.
     /// </summary>
-    OpenedExistingKey = 2
+    OpenedExistingKey = 0x2
   }
 }
