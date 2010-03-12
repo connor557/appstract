@@ -113,7 +113,6 @@
     <Compile Include="Helpers\EnumComparer.cs" />
     <Compile Include="Helpers\LocalMachine.cs" />
     <Compile Include="Helpers\ParserHelper.cs" />
-    <Compile Include="Interop\MarshallingHelpers.cs" />
     <Compile Include="Helpers\ProcessHelper.cs" />
     <Compile Include="Interop\NativeResultCode.cs" />
     <Compile Include="Helpers\WindowShowStyle.cs" />
