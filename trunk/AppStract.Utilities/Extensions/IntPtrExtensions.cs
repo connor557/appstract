@@ -22,13 +22,90 @@
 #endregion
 
 using System;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace AppStract.Utilities.Extensions
 {
   public static class IntPtrExtensions
   {
+
+    #region Object.ToByteArray()
+
+    /// <summary>
+    /// Convert an object to a byte array.
+    /// </summary>
+    /// <param name="o">Object to convert to byte array.</param>
+    /// <returns></returns>
+    public static byte[] ToByteArray(this object o)
+    {
+      if (o == null)
+        throw new NullReferenceException();
+      var oType = o.GetType();
+      if (oType.IsEnum)
+        oType = Enum.GetUnderlyingType(oType);
+      if (oType == typeof (byte[]))
+        return (byte[]) o;
+      if (oType == typeof (string))
+        return o.ToString().ToByteArray();
+      if (oType == typeof (char))
+        return ((char) o).ToByteArray();
+      if (oType == typeof (Int16) || oType == typeof (UInt16))
+        return ((Int16) o).ToByteArray();
+      if (oType == typeof (Int32) || oType == typeof (UInt32))
+        return ((Int32) o).ToByteArray();
+      if (oType == typeof (Int64) || oType == typeof (UInt64))
+        return ((Int64) o).ToByteArray();
+      if (oType == typeof (float))
+        return ((float) o).ToByteArray();
+      if (oType == typeof (double))
+        return ((double) o).ToByteArray();
+      if (!oType.IsSerializable)
+        throw new NotSupportedException("\"" + oType + "\" is not supported.");
+      var ms = new MemoryStream();
+      var bf1 = new BinaryFormatter();
+      bf1.Serialize(ms, o);
+      return ms.ToArray();
+    }
+
+    public static byte[] ToByteArray(this string o)
+    {
+      return new System.Text.ASCIIEncoding().GetBytes(o);
+    }
+
+    public static byte[] ToByteArray(this char value)
+    {
+      return BitConverter.GetBytes(value);
+    }
+
+    public static byte[] ToByteArray(this Int16 o)
+    {
+      return BitConverter.GetBytes(o);
+    }
+
+    public static byte[] ToByteArray(this Int32 o)
+    {
+      return BitConverter.GetBytes(o);
+    }
+
+    public static byte[] ToByteArray(this Int64 o)
+    {
+      return BitConverter.GetBytes(o);
+    }
+
+    public static byte[] ToByteArray(this float o)
+    {
+      return BitConverter.GetBytes(o);
+    }
+
+    public static byte[] ToByteArray(this double o)
+    {
+      return BitConverter.GetBytes(o);
+    }
+
+    #endregion
 
     #region Object.ToPointer()
 
@@ -57,57 +134,41 @@ namespace AppStract.Utilities.Extensions
         throw new NullReferenceException();
       allocatedBytes = 0;
       var oType = o.GetType();
-      if (oType.IsSequential())
-      {
-        allocatedBytes = Marshal.SizeOf(o);
-        var result = Marshal.AllocHGlobal(allocatedBytes);
-        try
-        {
-          Marshal.StructureToPtr(o, result, false);
-        }
-        catch
-        {
-          allocatedBytes = 0;
-          Marshal.FreeHGlobal(result);
-          throw;
-        }
-        return result;
-      }
+      if (oType.IsEnum)
+        oType = Enum.GetUnderlyingType(oType);
       if (oType == typeof (byte[]))
         return ((byte[]) o).ToPointer(out allocatedBytes);
       if (oType == typeof (string))
         return o.ToString().ToPointer(out allocatedBytes);
-      if (oType == typeof(char))
-        return ((char)o).ToPointer(out allocatedBytes);
-      if (oType == typeof(Int16) || oType == typeof(UInt16))
-        return ((Int16)o).ToPointer(out allocatedBytes);
-      if (oType == typeof(Int32) || oType == typeof(UInt32))
-        return ((Int32)o).ToPointer(out allocatedBytes);
-      if (oType == typeof(Int64) || oType == typeof(UInt64))
-        return ((Int64)o).ToPointer(out allocatedBytes);
-      if (oType == typeof(float))
-        return ((float)o).ToPointer(out allocatedBytes);
-      if (oType == typeof(double))
-        return ((double)o).ToPointer(out allocatedBytes);
-      throw new NotSupportedException("\"" + oType + ".ToPointer()\" is not supported.");
-    }
-
-    public static IntPtr ToPointer(this string value, out int allocatedBytes)
-    {
-      if (value == null)
-        throw new NullReferenceException();
-      if (!string.IsNullOrEmpty(value) && !value.EndsWith("\0"))
-        value += '\0';  // End string with a null character to ensure compatibility
-      allocatedBytes = value.Length * 2; // A character is 2 bytes in .NET
+      if (oType == typeof (char))
+        return ((char) o).ToPointer(out allocatedBytes);
+      if (oType == typeof (byte) || oType == typeof (sbyte))
+        return ((byte) o).ToPointer(out allocatedBytes);
+      if (oType == typeof (Int16) || oType == typeof (UInt16))
+        return ((Int16) o).ToPointer(out allocatedBytes);
+      if (oType == typeof (Int32) || oType == typeof (UInt32))
+        return ((Int32) o).ToPointer(out allocatedBytes);
+      if (oType == typeof (Int64) || oType == typeof (UInt64))
+        return ((Int64) o).ToPointer(out allocatedBytes);
+      if (oType == typeof (float))
+        return ((float) o).ToPointer(out allocatedBytes);
+      if (oType == typeof (double))
+        return ((double) o).ToPointer(out allocatedBytes);
+      if (!oType.IsSequential())
+        throw new NotSupportedException("\"" + oType + ".ToPointer()\" is not supported.");
+      allocatedBytes = Marshal.SizeOf(o);
+      var result = Marshal.AllocHGlobal(allocatedBytes);
       try
       {
-        return Marshal.StringToHGlobalUni(value);
+        Marshal.StructureToPtr(o, result, false);
       }
       catch
       {
         allocatedBytes = 0;
+        Marshal.FreeHGlobal(result);
         throw;
       }
+      return result;
     }
 
     public static IntPtr ToPointer(this byte[] value, out int allocatedBytes)
@@ -129,9 +190,44 @@ namespace AppStract.Utilities.Extensions
       return ptr;
     }
 
+    public static IntPtr ToPointer(this string value, out int allocatedBytes)
+    {
+      if (value == null)
+        throw new NullReferenceException();
+      if (!string.IsNullOrEmpty(value) && !value.EndsWith("\0"))
+        value += '\0';  // End string with a null character to ensure compatibility
+      allocatedBytes = value.Length * 2; // A character is 2 bytes in .NET
+      try
+      {
+        return Marshal.StringToHGlobalUni(value);
+      }
+      catch
+      {
+        allocatedBytes = 0;
+        throw;
+      }
+    }
+
     public static IntPtr ToPointer(this char value, out int allocatedBytes)
     {
       return ((Int16)value).ToPointer(out allocatedBytes);
+    }
+
+    public static IntPtr ToPointer(this byte value, out int allocatedBytes)
+    {
+      allocatedBytes = 1;
+      var ptr = Marshal.AllocHGlobal(allocatedBytes);
+      try
+      {
+        Marshal.WriteByte(ptr, value);
+      }
+      catch
+      {
+        allocatedBytes = 0;
+        Marshal.FreeHGlobal(ptr);
+        throw;
+      }
+      return ptr;
     }
 
     public static IntPtr ToPointer(this Int16 value, out int allocatedBytes)
@@ -197,6 +293,95 @@ namespace AppStract.Utilities.Extensions
 
     #endregion
 
+    #region IntPtr.Write()
+
+    /// <summary>
+    /// Writes the specified <paramref name="data"/> to the current <see cref="IntPtr"/>.
+    /// </summary>
+    /// <param name="ptr"></param>
+    /// <param name="data"></param>
+    /// <returns></returns>
+    public static void Write(this IntPtr ptr, object data)
+    {
+      if (ptr == IntPtr.Zero)
+        throw new NullReferenceException();
+      if (data == null)
+        throw new ArgumentNullException("data");
+      var oType = data.GetType();
+      if (oType.IsEnum)
+        oType = Enum.GetUnderlyingType(oType);
+      if (oType == typeof(byte[]))
+        ptr.Write((byte[])data);
+      else if (oType == typeof(string))
+        ptr.Write(data.ToString());
+      else if (oType == typeof(char))
+        ptr.Write((char)data);
+      else if (oType == typeof(byte) || oType == typeof(sbyte))
+        ptr.Write((byte) data);
+      else if (oType == typeof(Int16) || oType == typeof(UInt16))
+        ptr.Write((Int16)data);
+      else if (oType == typeof(Int32) || oType == typeof(UInt32))
+        ptr.Write((Int32)data);
+      else if (oType == typeof(Int64) || oType == typeof(UInt64))
+        ptr.Write((Int64)data);
+      else if (oType == typeof(float))
+        ptr.Write((float)data);
+      else if (oType == typeof(double))
+        ptr.Write((double)data);
+      else if (oType.IsSequential())
+        Marshal.StructureToPtr(data, ptr, false);
+      else
+        throw new NotSupportedException("\"" + oType + "\" is not supported.");
+    }
+
+    public static void Write(this IntPtr ptr, byte[] data)
+    {
+      Marshal.Copy(data, 0, ptr, data.Length);
+    }
+
+    public static void Write(this IntPtr ptr, string data)
+    {
+      var binary = new System.Text.ASCIIEncoding().GetBytes(data);
+      ptr.Write(binary);
+    }
+
+    public static void Write(this IntPtr ptr, char data)
+    {
+      ptr.Write((Int16) data);
+    }
+
+    public static void Write(this IntPtr ptr, byte data)
+    {
+      Marshal.WriteByte(ptr, data);
+    }
+
+    public static void Write(this IntPtr ptr, Int16 data)
+    {
+      Marshal.WriteInt16(ptr, data);
+    }
+
+    public static void Write(this IntPtr ptr, Int32 data)
+    {
+      Marshal.WriteInt32(ptr, data);
+    }
+
+    public static void Write(this IntPtr ptr, Int64 data)
+    {
+      Marshal.WriteInt64(ptr, data);
+    }
+
+    public static void Write(this IntPtr ptr, float data)
+    {
+      ptr.Write(new Union32 { Float = data }.Integer);
+    }
+
+    public static void Write(this IntPtr ptr, double data)
+    {
+      ptr.Write(new Union64 { Double = data }.Integer);
+    }
+
+    #endregion
+
     #region IntPtr.Read()
 
     /// <summary>
@@ -213,17 +398,19 @@ namespace AppStract.Utilities.Extensions
     /// <summary>
     /// Reads the data allocated at the current <see cref="IntPtr"/>.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T"><see cref="Type"/> of the data located at the current <see cref="IntPtr"/>.</typeparam>
     /// <param name="ptr"></param>
-    /// <param name="bufferSize"></param>
+    /// <param name="pointerSize">Size of the data, in bytes.</param>
     /// <returns></returns>
-    public static T Read<T>(this IntPtr ptr, uint bufferSize)
+    public static T Read<T>(this IntPtr ptr, uint pointerSize)
     {
       var oType = typeof (T);
-      var o = ptr.Read(oType, bufferSize);
-      if (o == null || o.GetType() == oType)
+      var o = ptr.Read(oType, pointerSize);
+      if (o == null || o.GetType() == oType
+          || (oType.IsEnum && o.GetType() == Enum.GetUnderlyingType(oType)))
         return (T) o;
-      throw new InvalidCastException("An internal error occured when casting the result to an object of type \"" + oType + "\"");
+      throw new InvalidCastException("An internal error occured when casting the result to an object of type \"" + oType +
+                                     "\"");
     }
 
     /// <summary>
@@ -239,8 +426,8 @@ namespace AppStract.Utilities.Extensions
         throw new NullReferenceException("Can't marshal data from a zero-pointer.");
       if (objectType == null)
         throw new ArgumentNullException("objectType");
-      if (objectType.IsSequential())
-        return Marshal.PtrToStructure(ptr, objectType);
+      if (objectType.IsEnum)
+        objectType = Enum.GetUnderlyingType(objectType);
       if (objectType == typeof (string))
         return Marshal.PtrToStringAuto(ptr);
       if (objectType == typeof (Int16))
@@ -260,10 +447,11 @@ namespace AppStract.Utilities.Extensions
           result[i] = Marshal.ReadByte(ptr, i);
         return result;
       }
-      // For all following types the number of allocated bytes needs to be specified.
+      if (objectType.IsSequential())
+        return Marshal.PtrToStructure(ptr, objectType);
       if (pointerSize == 0)
         return null;
-      throw new NotSupportedException("Marshaling an instance of \"" + objectType + "\" is not implemented.");
+      throw new NotSupportedException("Marshaling an instance of type \"" + objectType + "\" is not supported.");
     }
 
     #endregion
@@ -278,8 +466,8 @@ namespace AppStract.Utilities.Extensions
     private static bool IsSequential(this Type type)
     {
       return (!type.IsGenericType
-              && ((type.Attributes & TypeAttributes.SequentialLayout) != 0
-                  || (type.Attributes & TypeAttributes.ExplicitLayout) != 0));
+              && ((type.Attributes & TypeAttributes.SequentialLayout) == TypeAttributes.SequentialLayout
+                  || (type.Attributes & TypeAttributes.ExplicitLayout) == TypeAttributes.ExplicitLayout));
     }
 
     #endregion
