@@ -24,7 +24,7 @@
 using System.Collections.Generic;
 using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.Registry;
-using AppStract.Utilities.Interop;
+using AppStract.Utilities.Extensions;
 using Microsoft.Win32.Interop;
 using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
 
@@ -83,7 +83,7 @@ namespace AppStract.Server.Registry.Data
         var data = RegistryHelper.QueryRegistryValue(realKeyPath, valueName, out valueType);
         if (data == null)
           return NativeResultCode.FileNotFound;
-        value = new VirtualRegistryValue(valueName, MarshallingHelpers.ToByteArray(data), valueType);
+        value = new VirtualRegistryValue(valueName, data.ToByteArray(), valueType);
       }
       catch
       {

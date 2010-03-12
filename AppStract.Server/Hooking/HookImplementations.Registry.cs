@@ -26,7 +26,6 @@ using System.Runtime.InteropServices;
 using AppStract.Core.System.Logging;
 using AppStract.Core.Virtualization.Registry;
 using AppStract.Utilities.Extensions;
-using AppStract.Utilities.Interop;
 using Microsoft.Win32.Interop;
 using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
 
@@ -183,16 +182,17 @@ namespace AppStract.Server.Hooking
         if (hResult != NativeResultCode.Succes)
           return WinError.FromStateCode(hResult);
         // Marshal all data to the specified pointers.
-        MarshallingHelpers.CopyToMemory(virtualRegistryValue.Type, lpType);
-        uint? dataLength = lpcbData != IntPtr.Zero
-                           // Valid pointer, copy the 32bit unsigned integer.
-                             ? (uint?) lpcbData.Read<uint>()
-                           // Invalid pointer, guest doesn't require lpcbData.
-                             : null;
-        uint winError = MarshallingHelpers.CopyToMemory(virtualRegistryValue.Data, lpData, ref dataLength);
-        if (dataLength != null)
-          MarshallingHelpers.CopyToMemory(dataLength, lpcbData);
-        return winError;
+        if (lpType != IntPtr.Zero)
+          lpType.Write(virtualRegistryValue.Type);
+        if (lpcbData != IntPtr.Zero)
+        {
+          if (virtualRegistryValue.Data.Length > lpcbData.Read<uint>())
+            return WinError.ERROR_MORE_DATA;
+          if (lpData != IntPtr.Zero)  // Guest might only need length
+            lpData.Write(virtualRegistryValue.Data);
+          lpcbData.Write(virtualRegistryValue.Data.Length);
+        }
+        return WinError.ERROR_SUCCESS;
       }
     }
 
