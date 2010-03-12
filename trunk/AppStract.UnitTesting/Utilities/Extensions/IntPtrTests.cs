@@ -46,9 +46,9 @@ namespace AppStract.UnitTesting.Utilities.Extensions
       public void SetDefaultValues()
       {
         MyByte = 201;
-        MyByteArray = new byte[] {200, 137, 29, 5};
+        MyByteArray = new byte[] { 200, 137, 29, 5 };
         MyDecimal = decimal.MaxValue - 100054;
-        MyDecimalArray = new[] {decimal.MaxValue, decimal.MinValue, decimal.MinusOne, decimal.One};
+        MyDecimalArray = new[] { decimal.MaxValue, decimal.MinValue, decimal.MinusOne, decimal.One };
         MyString = "SomeRandomStringValue0153#}^@éµù°-*|";
       }
 
@@ -74,9 +74,9 @@ namespace AppStract.UnitTesting.Utilities.Extensions
       public void SetDefaultValues()
       {
         MyByte = 201;
-        MyByteArray = new byte[] {200, 137, 29, 5};
+        MyByteArray = new byte[] { 200, 137, 29, 5 };
         MyDecimal = decimal.MaxValue - 100054;
-        MyDecimalArray = new[] {decimal.MaxValue, decimal.MinValue, decimal.MinusOne, decimal.One};
+        MyDecimalArray = new[] { decimal.MaxValue, decimal.MinValue, decimal.MinusOne, decimal.One };
         MyString = "SomeRandomStringValue0153#}^@éµù°-*|";
       }
 
@@ -101,9 +101,9 @@ namespace AppStract.UnitTesting.Utilities.Extensions
       public void SetDefaultValues()
       {
         MyByte = 201;
-        MyByteArray = new byte[] {200, 137, 29, 5};
+        MyByteArray = new byte[] { 200, 137, 29, 5 };
         MyDecimal = decimal.MaxValue - 100054;
-        MyDecimalArray = new[] {decimal.MaxValue, decimal.MinValue, decimal.MinusOne, decimal.One};
+        MyDecimalArray = new[] { decimal.MaxValue, decimal.MinValue, decimal.MinusOne, decimal.One };
         MyString = "SomeRandomStringValue0153#}^@éµù°-*|";
       }
 
@@ -117,18 +117,25 @@ namespace AppStract.UnitTesting.Utilities.Extensions
       }
     }
 
+    private enum TestEnum
+    {
+      Value1 = 0,
+      Value2 = 1,
+      Value3 = 2
+    }
+
     #endregion
 
     #region Class/Struct Tests
 
     [Test]
-    [ExpectedException(typeof (NotSupportedException))]
+    [ExpectedException(typeof(NotSupportedException))]
     public void ClassTest()
     {
       var test = new TestClass();
       test.SetDefaultValues();
       int allocatedBytes;
-      var result = test.ToPointer(out allocatedBytes).Read<TestClass>((uint) allocatedBytes);
+      var result = test.ToPointer(out allocatedBytes).Read<TestClass>((uint)allocatedBytes);
       Assert.IsTrue(test.Compare(result));
     }
 
@@ -138,7 +145,7 @@ namespace AppStract.UnitTesting.Utilities.Extensions
       var test = new SequentialTestClass();
       test.SetDefaultValues();
       int allocatedBytes;
-      var result = test.ToPointer(out allocatedBytes).Read<SequentialTestClass>((uint) allocatedBytes);
+      var result = test.ToPointer(out allocatedBytes).Read<SequentialTestClass>((uint)allocatedBytes);
       Assert.IsTrue(test.Compare(result));
     }
 
@@ -148,7 +155,7 @@ namespace AppStract.UnitTesting.Utilities.Extensions
       var test = new TestStruct();
       test.SetDefaultValues();
       int allocatedBytes;
-      var result = test.ToPointer(out allocatedBytes).Read<TestStruct>((uint) allocatedBytes);
+      var result = test.ToPointer(out allocatedBytes).Read<TestStruct>((uint)allocatedBytes);
       Assert.IsTrue(test.Compare(result));
     }
 
@@ -175,9 +182,9 @@ namespace AppStract.UnitTesting.Utilities.Extensions
     [Test]
     public void ByteArrayTest()
     {
-      object test = new byte[] {byte.MinValue, 138, byte.MaxValue};
+      object test = new byte[] { byte.MinValue, 138, byte.MaxValue };
       int allocBytes;
-      var result = test.ToPointer(out allocBytes).Read<byte[]>((uint) allocBytes);
+      var result = test.ToPointer(out allocBytes).Read<byte[]>((uint)allocBytes);
       Assert.IsTrue(((byte[])test).All(e => result.Any(oe => oe == e)));
     }
 
@@ -210,7 +217,7 @@ namespace AppStract.UnitTesting.Utilities.Extensions
     {
       object test = Int32.MaxValue;
       var result = test.ToPointer().Read<Int32>();
-      Assert.IsTrue((Int32) test == result);
+      Assert.IsTrue((Int32)test == result);
     }
 
     [Test]
@@ -251,6 +258,14 @@ namespace AppStract.UnitTesting.Utilities.Extensions
       object test = double.MaxValue;
       var result = test.ToPointer().Read<double>();
       Assert.IsTrue((double)test == result);
+    }
+
+    [Test]
+    public void EnumTest()
+    {
+      object test = TestEnum.Value3;
+      var result = test.ToPointer().Read<TestEnum>();
+      Assert.IsTrue((TestEnum)test == result);
     }
 
     #endregion
