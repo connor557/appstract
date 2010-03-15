@@ -23,6 +23,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using AppStract.Core.Virtualization.Interop;
 using AppStract.Core.Virtualization.Registry;
 using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
 
@@ -37,71 +38,58 @@ namespace AppStract.Server.Hooking
     #region CreateKey
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-    public delegate uint DCreateKey_Unicode
-                   (UIntPtr hKey, string lpSubKey, int Reserved,
-                   string lpClass, RegOption dwOptions, RegSecurityDescriptor samDesired,
-                   ref int lpSecurityAttributes,
-                   out UIntPtr phkResult, out RegCreationDisposition lpdwDisposition);
+    public delegate NativeResultCode DCreateKey_Unicode
+      (UIntPtr hKey, string lpSubKey, int Reserved, string lpClass, RegOption dwOptions, RegSecurityDescriptor samDesired,
+       ref int lpSecurityAttributes, out UIntPtr phkResult, out RegCreationDisposition lpdwDisposition);
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
-    public delegate uint DCreateKey_Ansi
-                   (UIntPtr hKey, string lpSubKey, int Reserved,
-                   string lpClass, RegOption dwOptions, RegSecurityDescriptor samDesired,
-                   ref int lpSecurityAttributes,
-                   out UIntPtr phkResult, out RegCreationDisposition lpdwDisposition);
+    public delegate NativeResultCode DCreateKey_Ansi
+      (UIntPtr hKey, string lpSubKey, int Reserved, string lpClass, RegOption dwOptions, RegSecurityDescriptor samDesired,
+       ref int lpSecurityAttributes, out UIntPtr phkResult, out RegCreationDisposition lpdwDisposition);
+
     #endregion
 
     #region OpenKey
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-    public delegate uint DOpenKey_Unicode
-                   (UIntPtr hKey, string subKey, RegOption options,
-                    RegSecurityDescriptor sam, out UIntPtr phkResult);
+    public delegate NativeResultCode DOpenKey_Unicode
+      (UIntPtr hKey, string subKey, RegOption options, RegSecurityDescriptor sam, out UIntPtr phkResult);
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
-    public delegate uint DOpenKey_Ansi
-                   (UIntPtr hKey, string subKey, RegOption options,
-                    RegSecurityDescriptor sam, out UIntPtr phkResult);
+    public delegate NativeResultCode DOpenKey_Ansi
+      (UIntPtr hKey, string subKey, RegOption options, RegSecurityDescriptor sam, out UIntPtr phkResult);
 
     #endregion
 
     #region CloseKey
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
-    public delegate uint DCloseKey
-                   (UIntPtr hKey);
+    public delegate NativeResultCode DCloseKey
+      (UIntPtr hKey);
 
     #endregion
 
     #region SetValue
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-    public delegate uint DSetValue_Unicode
-                    (UIntPtr hKey,
-                    string lpValueName,
-                    uint Reserved, ValueType dwType,
-                    IntPtr lpData, uint cbData);
+    public delegate NativeResultCode DSetValue_Unicode
+      (UIntPtr hKey, string lpValueName, uint Reserved, ValueType dwType, IntPtr lpData, uint cbData);
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
-    public delegate uint DSetValue_Ansi
-                    (UIntPtr hKey,
-                    string lpValueName,
-                    uint Reserved, ValueType dwType,
-                    IntPtr lpData, uint cbData);
+    public delegate NativeResultCode DSetValue_Ansi
+      (UIntPtr hKey, string lpValueName, uint Reserved, ValueType dwType, IntPtr lpData, uint cbData);
 
     #endregion
 
     #region QueryValue
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-    public delegate uint DQueryValue_Unicode
-                   (UIntPtr hKey, string lpValueName,
-                    IntPtr lpReserved, IntPtr lpType, IntPtr lpData, IntPtr lpcbData);
+    public delegate NativeResultCode DQueryValue_Unicode
+      (UIntPtr hKey, string lpValueName, IntPtr lpReserved, IntPtr lpType, IntPtr lpData, IntPtr lpcbData);
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
-    public delegate uint DQueryValue_Ansi
-                   (UIntPtr hKey, string lpValueName,
-                    IntPtr lpReserved, IntPtr lpType, IntPtr lpData, IntPtr lpcbData);
+    public delegate NativeResultCode DQueryValue_Ansi
+      (UIntPtr hKey, string lpValueName, IntPtr lpReserved, IntPtr lpType, IntPtr lpData, IntPtr lpcbData);
 
     #endregion
 

@@ -22,11 +22,11 @@
 #endregion
 
 using AppStract.Core.System.Logging;
+using AppStract.Core.Virtualization.Interop;
 using AppStract.Server.Registry.Data;
 using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.Registry;
 using AppStract.Utilities.Observables;
-using Microsoft.Win32.Interop;
 
 namespace AppStract.Server.Registry
 {
@@ -123,7 +123,7 @@ namespace AppStract.Server.Registry
       }
       keyName = RegistryHelper.CombineKeyNames(keyName, subKeyName);
       return registry.OpenKey(keyName, out hSubKey)
-               ? NativeResultCode.Succes
+               ? NativeResultCode.Success
                : NativeResultCode.FileNotFound;
     }
 
@@ -146,7 +146,7 @@ namespace AppStract.Server.Registry
       // The virtual registry doesn't close keys,
       // so only call the transparent registry to close the key.
       _transparentRegistry.CloseKey(hKey);
-      return NativeResultCode.Succes;
+      return NativeResultCode.Success;
     }
 
     public NativeResultCode DeleteKey(uint hKey)

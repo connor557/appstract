@@ -24,6 +24,7 @@
 using System;
 using System.Threading;
 using AppStract.Core.Data.Application;
+using AppStract.Core.Virtualization.Interop;
 using AppStract.Core.Virtualization.Process;
 
 namespace AppStract.Core.Virtualization.Packaging
@@ -127,20 +128,19 @@ namespace AppStract.Core.Virtualization.Packaging
     /// If packaging succeeded (<see cref="_succeeded"/>), <see cref="_result"/> is set from the retreived data.
     /// </summary>
     /// <param name="sender">The exited <see cref="VirtualizedProcess"/>.</param>
-    /// <param name="exitCode">The associated <see cref="ExitCode"/>.</param>
-    private void Process_Exited(VirtualizedProcess sender, ExitCode exitCode)
+    /// <param name="exitCode">The associated <see cref="NativeResultCode"/>.</param>
+    private void Process_Exited(VirtualizedProcess sender, int exitCode)
     {
       if (sender != _process)
         throw new ApplicationException("An unexpected exception occured in the application workflow."
                                        + " Process_Exited event is called from an unknown Process.");
-      _succeeded = exitCode == ExitCode.Success;
-      if (_succeeded)
-      {
-        _result = new PackagedApplication(_startInfo.WorkingDirectory.FileName,
-                                          _process.GetExecutables(), /// We already checked if sender equals _process.
-                                          _startInfo.Files.DatabaseFileSystem.FileName,
-                                          _startInfo.Files.DatabaseRegistry.FileName);
-      }
+      _succeeded = exitCode == (int) NativeResultCode.Success;
+      _result = !_succeeded
+                  ? null
+                  : new PackagedApplication(_startInfo.WorkingDirectory.FileName,
+                                            _process.GetExecutables(),
+                                            _startInfo.Files.DatabaseFileSystem.FileName,
+                                            _startInfo.Files.DatabaseRegistry.FileName);
       _waitHandle.Set();
       sender.Dispose();
     }

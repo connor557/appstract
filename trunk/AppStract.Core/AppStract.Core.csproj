@@ -112,12 +112,12 @@
     <Compile Include="Data\Settings\Configuration.cs" />
     <Compile Include="Data\Settings\UserConfig.cs" />
     <Compile Include="System\IPC\ConnectionManager.cs" />
+    <Compile Include="Virtualization\Interop\NativeResultCode.cs" />
     <Compile Include="Virtualization\Packaging\PackageException.cs" />
     <Compile Include="Virtualization\Packaging\Packager.cs" />
     <Compile Include="Virtualization\Packaging\PackagedApplication.cs" />
     <Compile Include="Virtualization\Packaging\WatchingFileSystemDatabase.cs" />
     <Compile Include="Virtualization\Packaging\PackagingProcess.cs" />
-    <Compile Include="Virtualization\Process\ExitCode.cs" />
     <Compile Include="Virtualization\Process\ProcessExitEventHandler.cs" />
     <Compile Include="Virtualization\Process\VirtualProcessStartInfo.cs" />
     <Compile Include="Virtualization\FileSystem\IFileSystemSynchronizer.cs" />

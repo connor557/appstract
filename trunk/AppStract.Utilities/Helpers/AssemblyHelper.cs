@@ -25,7 +25,6 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Security;
-using Microsoft.Win32.Interop;
 using SystemAssembly = System.Reflection.Assembly;
 
 namespace AppStract.Utilities.Helpers
@@ -75,15 +74,15 @@ namespace AppStract.Utilities.Helpers
       var parameters = assembly.EntryPoint.GetParameters();
       if (parameters.Length > 1)
         // Main methods are expected to have zero or one parameter
-        return (int) WinError.ERROR_INVALID_PARAMETER;
+        return 87; // ERROR_INVALID_PARAMETER;
       var invokeParams = parameters.Length == 0
                            ? null
-                           : (args == null || args.Length == 0 ? new object[0] : new object[] { args });
+                           : (args == null || args.Length == 0 ? new object[0] : new object[] {args});
       var o = assembly.EntryPoint.Invoke(null, invokeParams);
       int exitCode;
-      if (o == null || !Int32.TryParse(o.ToString(), out exitCode))
-        return 0;
-      return exitCode;
+      return o != null && int.TryParse(o.ToString(), out exitCode)
+               ? exitCode
+               : -1;
     }
 
     #endregion
