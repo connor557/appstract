@@ -23,10 +23,10 @@
 
 using System;
 using AppStract.Core.Data.Databases;
+using AppStract.Core.Virtualization.Interop;
 using AppStract.Core.Virtualization.Registry;
 using AppStract.Utilities.Extensions;
 using Microsoft.Win32;
-using Microsoft.Win32.Interop;
 using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
 
 namespace AppStract.Server.Registry.Data
@@ -88,7 +88,7 @@ namespace AppStract.Server.Registry.Data
       }
       registryKey.Close();
       hKey = BufferKey(keyFullPath);
-      return NativeResultCode.Succes;
+      return NativeResultCode.Success;
     }
 
     public override NativeResultCode DeleteKey(uint hKey)
@@ -112,7 +112,7 @@ namespace AppStract.Server.Registry.Data
       {
         // Key is not found in real registry, call base to delete it from the buffer.
         base.DeleteKey(hKey);
-        return NativeResultCode.NotFound;
+        return NativeResultCode.FileNotFound;
       }
       catch
       {
@@ -135,7 +135,7 @@ namespace AppStract.Server.Registry.Data
         if (data == null)
           return NativeResultCode.FileNotFound;
         value = new VirtualRegistryValue(valueName, data.ToByteArray(), valueType);
-        return NativeResultCode.Succes;
+        return NativeResultCode.Success;
       }
       catch
       {
@@ -157,7 +157,7 @@ namespace AppStract.Server.Registry.Data
       {
         return NativeResultCode.AccessDenied;
       }
-      return NativeResultCode.Succes;
+      return NativeResultCode.Success;
     }
 
     public override NativeResultCode DeleteValue(uint hKey, string valueName)
@@ -172,7 +172,7 @@ namespace AppStract.Server.Registry.Data
           return NativeResultCode.FileNotFound;
         regKey.DeleteValue(valueName, true);
         regKey.Close();
-        return NativeResultCode.Succes;
+        return NativeResultCode.Success;
       }
       catch (ArgumentException)
       {

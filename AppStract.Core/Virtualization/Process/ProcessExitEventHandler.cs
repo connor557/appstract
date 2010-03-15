@@ -28,7 +28,7 @@ namespace AppStract.Core.Virtualization.Process
   /// Represents a method that will handle the event raisen by an exited <see cref="VirtualizedProcess"/>.
   /// </summary>
   /// <param name="sender">The terminated <see cref="VirtualizedProcess"/>.</param>
-  /// <param name="exitCode">The <see cref="ExitCode"/>, specified when the sender terminated.</param>
-  internal delegate void ProcessExitEventHandler(VirtualizedProcess sender, ExitCode exitCode);
+  /// <param name="exitCode">The error code specified when the sender terminated.</param>
+  internal delegate void ProcessExitEventHandler(VirtualizedProcess sender, int exitCode);
   
 }

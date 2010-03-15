@@ -23,9 +23,9 @@
 
 using System.Collections.Generic;
 using AppStract.Core.Data.Databases;
+using AppStract.Core.Virtualization.Interop;
 using AppStract.Core.Virtualization.Registry;
 using AppStract.Utilities.Extensions;
-using Microsoft.Win32.Interop;
 using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
 
 namespace AppStract.Server.Registry.Data
@@ -97,7 +97,7 @@ namespace AppStract.Server.Registry.Data
         key.Values.Add(valueName, value);
         WriteKey(key, false);
       }
-      return NativeResultCode.Succes;
+      return NativeResultCode.Success;
     }
 
     #endregion

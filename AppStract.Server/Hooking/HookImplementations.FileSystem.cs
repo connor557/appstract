@@ -25,8 +25,8 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using AppStract.Core.Virtualization.FileSystem;
+using AppStract.Core.Virtualization.Interop;
 using AppStract.Utilities.Helpers;
-using Microsoft.Win32.Interop;
 
 namespace AppStract.Server.Hooking
 {
@@ -159,8 +159,8 @@ namespace AppStract.Server.Hooking
     /// <param name="fileTableEntry"></param>
     private void HandleFailedCreation(FileTableEntry fileTableEntry)
     {
-      var error = Marshal.GetLastWin32Error();
-      if (error != WinError.ERROR_ALREADY_EXISTS)
+      var error = (NativeResultCode) Marshal.GetLastWin32Error();
+      if (error != NativeResultCode.FileAlreadyExists)
         _fileSystem.DeleteFile(fileTableEntry);
     }
 

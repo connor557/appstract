@@ -27,9 +27,9 @@ using System.Threading;
 using AppStract.Core.Data.Application;
 using AppStract.Core.System.GAC;
 using AppStract.Core.System.IPC;
+using AppStract.Core.Virtualization.Interop;
 using AppStract.Utilities.Helpers;
 using EasyHook;
-using Microsoft.Win32.Interop;
 using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
 using SystemProcess = System.Diagnostics.Process;
 
@@ -294,26 +294,15 @@ namespace AppStract.Core.Virtualization.Process
       if (!_process.HasExited)
         return;
       _hasExited = true;
-      lock (_exitEventSyncRoot)
-      {
-        if (WinError.Succeeded(_process.ExitCode))
-          RaiseExitEvent(this, ExitCode.Success);
-        else
-        {
-          if (_process.ExitCode != -1)
-          {
-            CoreBus.Log.Error("Guest process exited with ExitCode [{0}] {1} and message {2}",
-              _process.ExitCode, WinError.GetErrorName((uint)_process.ExitCode),
-              _process.StartInfo.RedirectStandardError ? _process.StandardError.ReadToEnd() : "NULL");
-            RaiseExitEvent(this, ExitCode.Error);
-          }
-          else
-          {
-            CoreBus.Log.Error("Guest process exited unexpectedly");
-            RaiseExitEvent(this, ExitCode.Unexpected);
-          }
-        }
-      }
+      NativeResultCode exitCode;
+      if (!ParserHelper.TryParseEnum(_process.ExitCode, out exitCode)
+          || exitCode != NativeResultCode.Success)
+        CoreBus.Log.Error("Guest process exited with code [{0}] {1} and message: {2}",
+                          _process.ExitCode, exitCode,
+                          _process.StartInfo.RedirectStandardError
+                            ? _process.StandardError.ReadToEnd()
+                            : "null");
+      RaiseExitEvent(this, _process.ExitCode);
     }
 
     /// <summary>
@@ -321,7 +310,7 @@ namespace AppStract.Core.Virtualization.Process
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="exitCode"></param>
-    private void RaiseExitEvent(VirtualizedProcess sender, ExitCode exitCode)
+    private void RaiseExitEvent(VirtualizedProcess sender, int exitCode)
     {
       lock (_exitEventSyncRoot)
         if (_exited != null)

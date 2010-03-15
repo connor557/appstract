@@ -24,9 +24,9 @@
 using System;
 using System.Runtime.InteropServices;
 using AppStract.Core.System.Logging;
+using AppStract.Core.Virtualization.Interop;
 using AppStract.Core.Virtualization.Registry;
 using AppStract.Utilities.Extensions;
-using Microsoft.Win32.Interop;
 using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
 
 namespace AppStract.Server.Hooking
@@ -45,27 +45,27 @@ namespace AppStract.Server.Hooking
     /// <param name="sam"></param>
     /// <param name="phkResult"></param>
     /// <returns></returns>
-    public uint RegOpenKey_Hooked(UIntPtr hKey, string subKey, RegOption options, RegSecurityDescriptor sam, out UIntPtr phkResult)
+    public NativeResultCode RegOpenKey_Hooked(UIntPtr hKey, string subKey, RegOption options, RegSecurityDescriptor sam, out UIntPtr phkResult)
     {
       if (subKey == null)
       {
         phkResult = hKey;
-        return WinError.ERROR_SUCCESS;
+        return NativeResultCode.Success;
       }
       uint handle;
       if (!TryParse(hKey, out handle))
       {
         phkResult = UIntPtr.Zero;
-        return WinError.ERROR_INVALID_HANDLE;
+        return NativeResultCode.InvalidHandle;
       }
       using (HookManager.ACL.GetHookingExclusion())
       {
         uint hSubKey;
-        var winError = _registry.OpenKey(handle, subKey, out hSubKey);
+        var resultCode = _registry.OpenKey(handle, subKey, out hSubKey);
         GuestCore.Log(new LogMessage(LogLevel.Debug, @"OpenKey({0}\\{1}) => {2}", hKey, subKey,
-                                     winError == NativeResultCode.Succes ? hSubKey.ToString() : winError.ToString()));
+                                     resultCode == NativeResultCode.Success ? hSubKey.ToString() : resultCode.ToString()));
         phkResult = new UIntPtr(hSubKey);
-        return WinError.FromStateCode(winError);
+        return resultCode;
       }
     }
 
@@ -92,30 +92,33 @@ namespace AppStract.Server.Hooking
     /// or 0x00000002L if the key is opened.
     /// </param>
     /// <returns></returns>
-    public uint RegCreateKeyEx_Hooked(UIntPtr hKey, string lpSubKey, int Reserved, string lpClass, RegOption dwOptions,
+    public NativeResultCode RegCreateKeyEx_Hooked(UIntPtr hKey, string lpSubKey, int Reserved, string lpClass, RegOption dwOptions,
       RegSecurityDescriptor samDesired, ref int lpSecurityAttributes, out UIntPtr phkResult, out RegCreationDisposition lpdwDisposition)
     {
       if (lpSubKey == null)
       {
-        phkResult = UIntPtr.Zero; // Bug: In this case, Windows doesn't set a value for phkResult! Should phkResult be a "ref" in stead of "out"?
+        phkResult = UIntPtr.Zero;
+        // Bug: In this case, Windows doesn't set a value for phkResult! Should phkResult be a "ref" in stead of "out"?
         lpdwDisposition = RegCreationDisposition.NoKeyCreated;
-        return WinError.ERROR_BADKEY;
+        return NativeResultCode.RegBadKey;
       }
       uint handle;
       if (!TryParse(hKey, out handle))
       {
         phkResult = UIntPtr.Zero;
         lpdwDisposition = RegCreationDisposition.NoKeyCreated;
-        return WinError.ERROR_INVALID_HANDLE;
+        return NativeResultCode.InvalidHandle;
       }
       using (HookManager.ACL.GetHookingExclusion())
       {
         uint phkResultHandle;
-        var stateCode = _registry.CreateKey(handle, lpSubKey, out phkResultHandle, out lpdwDisposition);
-        GuestCore.Log(new LogMessage(LogLevel.Debug, "CreateKey(HKey={0} NewSubKey={1}) => {2} HKey={3}",
-                                     hKey, lpSubKey, lpdwDisposition, phkResultHandle));
+        var resultCode = _registry.CreateKey(handle, lpSubKey, out phkResultHandle, out lpdwDisposition);
+        GuestCore.Log(new LogMessage(LogLevel.Debug, "CreateKey(HKey={0} NewSubKey={1}) => {2}",
+                                     hKey, lpSubKey, resultCode == NativeResultCode.Success
+                                                       ? lpdwDisposition + " HKey =" + phkResultHandle
+                                                       : resultCode.ToString()));
         phkResult = new UIntPtr(phkResultHandle);
-        return WinError.FromStateCode(stateCode);
+        return resultCode;
       }
     }
 
@@ -124,16 +127,15 @@ namespace AppStract.Server.Hooking
     /// </summary>
     /// <param name="hKey"></param>
     /// <returns></returns>
-    public uint RegCloseKey_Hooked(UIntPtr hKey)
+    public NativeResultCode RegCloseKey_Hooked(UIntPtr hKey)
     {
       uint handle;
       if (!TryParse(hKey, out handle))
-        return WinError.ERROR_INVALID_HANDLE;
+        return NativeResultCode.InvalidHandle;
       using (HookManager.ACL.GetHookingExclusion())
       {
         GuestCore.Log(new LogMessage(LogLevel.Debug, "CloseKey(HKey={0})", handle));
-        var stateCode = _registry.CloseKey(handle);
-        return WinError.FromStateCode(stateCode);
+        return _registry.CloseKey(handle);
       }
     }
 
@@ -164,35 +166,35 @@ namespace AppStract.Server.Hooking
     /// The lpcbData parameter can be NULL only if lpData is NULL.
     /// </param>
     /// <returns></returns>
-    public uint RegQueryValue_Hooked(UIntPtr hKey, [MarshalAs(UnmanagedType.LPWStr)] string lpValueName,
-                               IntPtr lpReserved, IntPtr lpType, IntPtr lpData, IntPtr lpcbData)
+    public NativeResultCode RegQueryValue_Hooked(UIntPtr hKey, [MarshalAs(UnmanagedType.LPWStr)] string lpValueName,
+                                                 IntPtr lpReserved, IntPtr lpType, IntPtr lpData, IntPtr lpcbData)
     {
       // BUG: If lpValueName is NULL or an empty string, the function retrieves the type and data for the key's unnamed or default value, if any.
       if (string.IsNullOrEmpty(lpValueName))
-        return WinError.ERROR_FILE_NOT_FOUND;
+        return NativeResultCode.FileNotFound;
       uint handle;
       if (!TryParse(hKey, out handle))
-        return WinError.ERROR_INVALID_HANDLE;
+        return NativeResultCode.InvalidHandle;
       using (HookManager.ACL.GetHookingExclusion())
       {
         VirtualRegistryValue virtualRegistryValue;
-        var hResult = _registry.QueryValue(handle, lpValueName, out virtualRegistryValue);
+        var resultCode = _registry.QueryValue(handle, lpValueName, out virtualRegistryValue);
         GuestCore.Log(new LogMessage(LogLevel.Debug, "QueryValue(HKey={0} ValueName={1}) => {2}",
-                                     handle, lpValueName, hResult));
-        if (hResult != NativeResultCode.Succes)
-          return WinError.FromStateCode(hResult);
+                                     handle, lpValueName, resultCode));
+        if (resultCode != NativeResultCode.Success)
+          return resultCode;
         // Marshal all data to the specified pointers.
         if (lpType != IntPtr.Zero)
           lpType.Write(virtualRegistryValue.Type);
         if (lpcbData != IntPtr.Zero)
         {
           if (virtualRegistryValue.Data.Length > lpcbData.Read<uint>())
-            return WinError.ERROR_MORE_DATA;
-          if (lpData != IntPtr.Zero)  // Guest might only need length
+            return NativeResultCode.MoreData;
+          if (lpData != IntPtr.Zero) // Guest might only need length
             lpData.Write(virtualRegistryValue.Data);
           lpcbData.Write(virtualRegistryValue.Data.Length);
         }
-        return WinError.ERROR_SUCCESS;
+        return NativeResultCode.Success;
       }
     }
 
@@ -211,20 +213,20 @@ namespace AppStract.Server.Hooking
     /// <param name="lpData">The data to be stored.</param>
     /// <param name="cbData">The size of the information pointed to by the lpData parameter, in bytes.</param>
     /// <returns>A WinError code.</returns>
-    public uint RegSetValueEx(UIntPtr hKey, [MarshalAs(UnmanagedType.LPWStr)] string lpValueName,
-                             uint Reserved, ValueType dwType, IntPtr lpData, uint cbData)
+    public NativeResultCode RegSetValueEx(UIntPtr hKey, [MarshalAs(UnmanagedType.LPWStr)] string lpValueName,
+                                          uint Reserved, ValueType dwType, IntPtr lpData, uint cbData)
     {
       uint handle;
       if (!TryParse(hKey, out handle))
-        return WinError.ERROR_INVALID_HANDLE;
+        return NativeResultCode.InvalidHandle;
       using (HookManager.ACL.GetHookingExclusion())
       {
         var data = lpData.Read<byte[]>(cbData);
         var registryValue = new VirtualRegistryValue(lpValueName, data, dwType);
-        var stateCode = _registry.SetValue(handle, registryValue);
+        var resultCode = _registry.SetValue(handle, registryValue);
         GuestCore.Log(new LogMessage(LogLevel.Debug, "SetValue(HKey={0} Name={1} Type={2}) => {3}",
-                                     handle, lpValueName, dwType, stateCode));
-        return WinError.FromStateCode(stateCode);
+                                     handle, lpValueName, dwType, resultCode));
+        return resultCode;
       }
     }
 
@@ -240,7 +242,7 @@ namespace AppStract.Server.Hooking
     /// <returns></returns>
     private static bool TryParse(UIntPtr pointer, out uint result)
     {
-      result = (uint) pointer;
+      result = (uint)pointer;
       return true;
     }
 

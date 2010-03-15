@@ -25,9 +25,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using AppStract.Core.Data.Databases;
+using AppStract.Core.Virtualization.Interop;
 using AppStract.Core.Virtualization.Registry;
 using AppStract.Utilities.Extensions;
-using Microsoft.Win32.Interop;
 
 namespace AppStract.Server.Registry.Data
 {
@@ -142,7 +142,7 @@ namespace AppStract.Server.Registry.Data
         WriteKey(key);
         hKey = key.Handle;
       }
-      return NativeResultCode.Succes;
+      return NativeResultCode.Success;
     }
 
     /// <summary>
@@ -156,7 +156,7 @@ namespace AppStract.Server.Registry.Data
         if (!_keys.Remove(hKey))
           return NativeResultCode.InvalidHandle;
       _indexGenerator.Release(hKey);
-      return NativeResultCode.Succes;
+      return NativeResultCode.Success;
     }
 
     /// <summary>
@@ -178,7 +178,7 @@ namespace AppStract.Server.Registry.Data
         if (!key.Values.Keys.Contains(valueName))
           return NativeResultCode.FileNotFound;
         value = key.Values[valueName];
-        return NativeResultCode.Succes;
+        return NativeResultCode.Success;
       }
     }
 
@@ -200,7 +200,7 @@ namespace AppStract.Server.Registry.Data
         else
           key.Values.Add(value.Name, value);
       }
-      return NativeResultCode.Succes;
+      return NativeResultCode.Success;
     }
 
     /// <summary>
@@ -216,7 +216,7 @@ namespace AppStract.Server.Registry.Data
         if (!_keys.Keys.Contains(hKey))
           return NativeResultCode.InvalidHandle;
         return _keys[hKey].Values.Remove(valueName)
-                 ? NativeResultCode.Succes
+                 ? NativeResultCode.Success
                  : NativeResultCode.FileNotFound;
       }
     }
