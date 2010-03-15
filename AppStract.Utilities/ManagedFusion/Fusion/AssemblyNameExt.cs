@@ -131,13 +131,11 @@ namespace AppStract.Utilities.ManagedFusion.Fusion
     private static T GetProperty<T>(this IAssemblyName name, AssemblyNamePropertyId propertyId)
     {
       uint bufferSize = 512;
-      var bufferPointer = Marshal.AllocHGlobal((int)bufferSize);
+      var bufferPointer = Marshal.AllocHGlobal((int) bufferSize);
       try
       {
-        var hResult = name.GetProperty(propertyId, bufferPointer, ref bufferSize);
-        if (!Microsoft.Win32.Interop.WinError.Succeeded(hResult))
-          Marshal.ThrowExceptionForHR(hResult);
-        return bufferSize > 0  // IAssemblyName.GetProperty() will always return a bufferSize greater than 0
+        Marshal.ThrowExceptionForHR(name.GetProperty(propertyId, bufferPointer, ref bufferSize));
+        return bufferSize > 0 // IAssemblyName.GetProperty() will always return a bufferSize greater than 0
                  ? bufferPointer.Read<T>(bufferSize)
                  : default(T);
       }
@@ -154,11 +152,9 @@ namespace AppStract.Utilities.ManagedFusion.Fusion
       try
       {
         // First clear the property
-        var hResult = name.SetProperty(propertyId, IntPtr.Zero, 0);
-        Marshal.ThrowExceptionForHR(hResult);
+        Marshal.ThrowExceptionForHR(name.SetProperty(propertyId, IntPtr.Zero, 0));
         // Now set the property
-        hResult = name.SetProperty(propertyId, ptr, (uint)allocatedBytes);
-        Marshal.ThrowExceptionForHR(hResult);
+        Marshal.ThrowExceptionForHR(name.SetProperty(propertyId, ptr, (uint)allocatedBytes));
       }
       finally
       {
