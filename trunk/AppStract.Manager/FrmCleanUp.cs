@@ -23,8 +23,8 @@
 
 using System;
 using System.Windows.Forms;
-using System.Reflection.GAC;
 using AppStract.Core;
+using AppStract.Utilities.ManagedFusion.Insuring;
 
 namespace AppStract.Manager
 {
@@ -59,17 +59,11 @@ namespace AppStract.Manager
     {
       var indices = new int[_listInsurances.CheckedIndices.Count];
       _listInsurances.CheckedIndices.CopyTo(indices, 0);
-      foreach (var i in _listInsurances.CheckedItems)
+      foreach (var item in _listInsurances.CheckedItems)
       {
-        var insurance = (CleanUpInsurance)i;
-        var gac = new AssemblyCache(insurance.Installer);
-        foreach (var assembly in insurance.Assemblies)
-        {
-          if (!gac.IsInstalled(assembly))
-            continue;
-          gac.UninstallAssembly(assembly);
-        }
-        insurance.Dispose();
+        var insurance = item as CleanUpInsurance;
+        if (insurance != null)
+          insurance.Dispose(true);
       }
       MessageBox.Show("Selected items are cleaned.", "Done!", MessageBoxButtons.OK);
       DialogResult = DialogResult.OK;

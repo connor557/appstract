@@ -23,8 +23,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection.GAC;
 using AppStract.Utilities.Helpers;
+using AppStract.Utilities.ManagedFusion.Insuring;
 
 namespace AppStract.Watcher
 {

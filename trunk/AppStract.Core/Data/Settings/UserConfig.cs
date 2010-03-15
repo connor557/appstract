@@ -23,8 +23,8 @@
 
 using System;
 using System.IO;
-using System.Reflection.GAC;
 using AppStract.Utilities.Helpers;
+using AppStract.Utilities.ManagedFusion.Insuring;
 
 namespace AppStract.Core.Data.Settings
 {

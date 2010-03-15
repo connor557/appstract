@@ -24,8 +24,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection.GAC;
 using AppStract.Utilities.Helpers;
+using AppStract.Utilities.ManagedFusion;
 
 namespace AppStract.Core.Data.Settings
 {

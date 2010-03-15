@@ -25,8 +25,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Reflection.GAC;
 using AppStract.Core.Data.Application;
+using AppStract.Utilities.ManagedFusion;
+using AppStract.Utilities.ManagedFusion.Insuring;
 using SystemProcess = System.Diagnostics.Process;
 
 namespace AppStract.Core.System.GAC
@@ -49,17 +50,9 @@ namespace AppStract.Core.System.GAC
     /// </summary>
     private readonly List<ApplicationFile> _sharedAssemblies;
     /// <summary>
-    /// All assemblies that can only be shared by registering them to the GAC.
-    /// </summary>
-    private List<AssemblyName> _gacAssemblies;
-    /// <summary>
-    /// Indicates whether the <see cref="_gacAssemblies"/> have been registered to the GAC.
+    /// Indicates whether the shared assemblies have been registered to the GAC.
     /// </summary>
     private bool _gacRegistered;
-    /// <summary>
-    /// Object to manipulate the global assembly cache with.
-    /// </summary>
-    private AssemblyCache _assemblyCache;
     /// <summary>
     /// Insurance for leaving the global assembly cache clean.
     /// </summary>
@@ -71,7 +64,7 @@ namespace AppStract.Core.System.GAC
 
     #endregion
 
-    #region Constructor
+    #region Constructor/Destructors
 
     /// <summary>
     /// 
@@ -98,7 +91,7 @@ namespace AppStract.Core.System.GAC
 
     ~GacManager()
     {
-      UnregisterGacAssemblies();
+      UnregisterAssemblies();
     }
 
     #endregion
@@ -114,16 +107,7 @@ namespace AppStract.Core.System.GAC
     /// </remarks>
     public void Initialize()
     {
-      lock (_gacSyncRoot)
-      {
-        if (_gacRegistered) return;
-        if (_assemblyCache == null)
-          _assemblyCache = new AssemblyCache(CoreBus.Configuration.Application.GacInstallerDescription);
-        if (_gacAssemblies == null)
-          _gacAssemblies = DetermineGacAssemblies();
-        GC.ReRegisterForFinalize(this);
-        RegisterGacAssemblies();
-      }
+      RegisterAssemblies();
     }
 
     #endregion
@@ -155,42 +139,40 @@ namespace AppStract.Core.System.GAC
           throw new GacException("\"" + file.FileName + "\" is not strongly signed.");
         // Verify if it doesn't exist in the GAC yet
         var assemblyName = assembly.GetName();
-        if (!_assemblyCache.IsInstalled(assemblyName))
+        if (!AssemblyCache.IsInstalled(assemblyName))
           gacAssemblies.Add(assemblyName);
       }
       return gacAssemblies;
     }
 
     /// <summary>
-    /// Registers the files defined in <see cref="_gacAssemblies"/> to the GAC.
+    /// Registers the shared assemblies to the GAC.
     /// When done, <see cref="_gacRegistered"/> is set to true.
     /// </summary>
-    /// <exception cref="GacException">
-    /// A <see cref="GacException"/> is thrown if <see cref="_gacAssemblies"/> has not been initialized before calling this method.
-    /// </exception>
-    private void RegisterGacAssemblies()
+    private void RegisterAssemblies()
     {
       lock (_gacSyncRoot)
       {
         if (_gacRegistered) return;
-        if (_gacAssemblies == null)
-          throw new GacException("Can't register asssemblies to the GAC if they have not been determined yet.");
+        var assemblies = DetermineGacAssemblies();
         // First insure the removal of those assemblies.
-        var creationData = new InsuranceData(_assemblyCache.InstallerDescription,
-                                                     CoreBus.Configuration.User.GacCleanUpInsuranceFlags,
-                                                     CoreBus.Configuration.Application.GacCleanUpInsuranceFolder,
-                                                     CoreBus.Configuration.Application.GacCleanUpInsuranceRegistryKey,
-                                                     CoreBus.Configuration.Application.WatcherExecutable);
-        _insurance = CleanUpInsurance.CreateInsurance(creationData, _gacAssemblies);
+        var insuranceData = new InsuranceData(CoreBus.Configuration.Application.GacInstallerDescription,
+                                              CoreBus.Configuration.User.GacCleanUpInsuranceFlags,
+                                              CoreBus.Configuration.Application.GacCleanUpInsuranceFolder,
+                                              CoreBus.Configuration.Application.GacCleanUpInsuranceRegistryKey,
+                                              CoreBus.Configuration.Application.WatcherExecutable);
+        _insurance = CleanUpInsurance.CreateInsurance(insuranceData, assemblies);
+        GC.ReRegisterForFinalize(this);
         // Then install the assemblies.
         try
         {
-          foreach (var assembly in _gacAssemblies)
-            _assemblyCache.InstallAssembly(assembly, InstallBehaviour.Default);
+          var cache = new AssemblyCache(insuranceData.Installer);
+          foreach (var assembly in assemblies)
+            cache.InstallAssembly(assembly, InstallBehaviour.Default);
         }
         catch (UnauthorizedAccessException)
         {
-          _insurance.Dispose();
+          _insurance.Dispose(insuranceData.Flags);
           throw;
         }
         _gacRegistered = true;
@@ -198,23 +180,23 @@ namespace AppStract.Core.System.GAC
     }
 
     /// <summary>
-    /// Unregisters the files defined in <see cref="_gacAssemblies"/> to the GAC.
+    /// Unregisters the assemblies from the GAC.
     /// When done, <see cref="_gacRegistered"/> is set to false.
     /// </summary>
-    /// <exception cref="GacException">
-    /// A <see cref="GacException"/> is thrown if <see cref="_gacAssemblies"/> has not been initialized before calling this method.
-    /// </exception>
-    private void UnregisterGacAssemblies()
+    private void UnregisterAssemblies()
     {
       lock (_gacSyncRoot)
       {
-        if (!_gacRegistered) return;
-        if (_gacAssemblies == null)
-          throw new GacException("Can't unregister asssemblies from the GAC if they have not been determined yet.");
-        foreach (var assembly in _gacAssemblies)
-          _assemblyCache.UninstallAssembly(assembly);
-        _insurance.Dispose();
-        _gacRegistered = false;
+        if (!_gacRegistered)
+          return;
+        try
+        {
+          _insurance.Dispose(true);
+          _gacRegistered = false;
+        }
+        catch (ApplicationException)
+        {
+        }
       }
     }
 
@@ -229,7 +211,7 @@ namespace AppStract.Core.System.GAC
     {
       lock (_gacSyncRoot)
       {
-        UnregisterGacAssemblies();
+        UnregisterAssemblies();
         GC.SuppressFinalize(this);
       }
     }
