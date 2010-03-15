@@ -44,8 +44,7 @@ namespace AppStract.Utilities.Helpers
     {
       result = default(EnumType);
       if (value == null) return false;
-      var type = typeof (EnumType);
-      if (!type.IsEnum) return false;
+      if (!typeof(EnumType).IsEnum) return false;
       int iValue;
       return Int32.TryParse(value.ToString(), out iValue)
                ? TryParseEnum(iValue, out result)
