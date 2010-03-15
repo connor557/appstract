@@ -230,8 +230,7 @@ namespace AppStract.Utilities.ManagedFusion
       {
         UninstallDisposition uninstallDisposition;
         var descr = assemblyName.GetFusionCompatibleFullName();
-        var hResult = CacheInterface.UninstallAssembly(0, descr, refPtr, out uninstallDisposition);
-        Marshal.ThrowExceptionForHR(hResult);
+        Marshal.ThrowExceptionForHR(CacheInterface.UninstallAssembly(0, descr, refPtr, out uninstallDisposition));
         return uninstallDisposition;
       }
       finally
