@@ -23,7 +23,8 @@
 
 using System;
 using System.Diagnostics;
-using System.Reflection.GAC;
+using AppStract.Utilities.ManagedFusion;
+using AppStract.Utilities.ManagedFusion.Insuring;
 
 namespace AppStract.Watcher
 {
@@ -107,6 +108,7 @@ namespace AppStract.Watcher
 #endif
       }
       ReportMessage("Invoking cleanup procedure...");
+      var failed = false;
       try
       {
         var cache = new AssemblyCache(_cleanUpInsurance.Installer);
@@ -114,6 +116,9 @@ namespace AppStract.Watcher
         {
           var disposition = cache.UninstallAssembly(assembly);
           ReportMessage("  [" + disposition + "]  " + assembly.FullName);
+          failed = disposition == UninstallDisposition.HasReferences || disposition == UninstallDisposition.StillInUse
+                     ? true
+                     : failed;
         }
         ReportMessage("Finished cleanup procedure");
       }
@@ -129,9 +134,14 @@ namespace AppStract.Watcher
 #endif
         return;
       }
-      ReportMessage("Disposing insurance...");
-      _cleanUpInsurance.Dispose();
-      ReportMessage("Insurance is disposed");
+      if (!failed)
+      {
+        ReportMessage("Disposing insurance...");
+        _cleanUpInsurance.Dispose();
+        ReportMessage("Insurance is disposed");
+      }
+      else
+        ReportMessage("One or more assemblies are not uninstalled, the insurance won't be disposed.");
       ReportMessage("Exiting...");
 #if DEBUG
       ReportMessage("Press any key to exit...");
