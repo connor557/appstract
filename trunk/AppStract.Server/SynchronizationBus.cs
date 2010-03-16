@@ -33,19 +33,16 @@ using AppStract.Utilities.Observables;
 namespace AppStract.Server
 {
   /// <summary>
-  /// Provides a manageable way of IPC.
-  /// <see cref="DatabaseAction{T}"/>s are enqueued until <see cref="Flush"/> is called,
-  /// which flushes them in a single batch to the host process.
+  /// Synchronizes queuries with the host process.
   /// </summary>
   /// <remarks>
-  /// Actions are enqueued for a maximum of 500ms.
-  /// If the <see cref="CommunicationBus"/> detects that the process is queried to shut down,
-  /// the queues are flushed to the <see cref="ProcessSynchronizer"/> of the host process.
+  /// <see cref="DatabaseAction{T}"/>s are enqueued until <see cref="Flush"/> is called, which flushes them as a single batch to the host process.
+  /// When <see cref="AutoFlush"/> is set to true, queries are flushed every time <see cref="FlushInterval"/> passes.
   /// <br />
-  /// Realize that in 500ms many actions can be enqueued,
-  /// and all these actions will be lost if the process would be killed by for example the Windows task manager.
+  /// If the <see cref="SynchronizationBus"/> detects that the process is queried to shut down,
+  /// the queues are automatically flushed to the <see cref="ProcessSynchronizer"/> of the host process.
   /// </remarks>
-  internal sealed class CommunicationBus : IFileSystemSynchronizer, IRegistrySynchronizer
+  internal sealed class SynchronizationBus : IFileSystemSynchronizer, IRegistrySynchronizer
   {
 
     #region Variables
@@ -120,8 +117,10 @@ namespace AppStract.Server
 
     /// <summary>
     /// Gets or sets the interval between each call to <see cref="Flush"/>, in milliseconds.
-    /// The default interval is 500 milliseconds.
     /// </summary>
+    /// <remarks>
+    /// The default interval is 500 milliseconds.
+    /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">
     /// An <see cref="ArgumentOutOfRangeException"/> is thrown if the interval specified
     /// is not equal to or greater than 0.
@@ -142,7 +141,7 @@ namespace AppStract.Server
     #region Constructor
 
     /// <summary>
-    /// Initializes a new instance of <see cref="CommunicationBus"/>.
+    /// Initializes a new instance of <see cref="SynchronizationBus"/>.
     /// </summary>
     /// <param name="resourceSynchronizer">
     /// The <see cref="ISynchronizer"/> to use for synchronization
@@ -151,7 +150,7 @@ namespace AppStract.Server
     /// <param name="resourceLoader">
     /// The <see cref="IResourceLoader"/> to use for loading the resources.
     /// </param>
-    public CommunicationBus(ISynchronizer resourceSynchronizer, IResourceLoader resourceLoader)
+    public SynchronizationBus(ISynchronizer resourceSynchronizer, IResourceLoader resourceLoader)
     {
       _synchronizer = resourceSynchronizer;
       _loader = resourceLoader;
@@ -170,7 +169,7 @@ namespace AppStract.Server
 
     /// <summary>
     /// Flushes all enqueued items to the <see cref="ProcessSynchronizer"/> 
-    /// attached to the current <see cref="CommunicationBus"/> instance.
+    /// attached to the current <see cref="SynchronizationBus"/> instance.
     /// </summary>
     public void Flush()
     {
