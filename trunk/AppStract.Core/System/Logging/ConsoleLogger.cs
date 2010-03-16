@@ -25,6 +25,9 @@ using System;
 
 namespace AppStract.Core.System.Logging
 {
+  /// <summary>
+  /// A <see cref="Logger"/> which writes all received messages to the console window.
+  /// </summary>
   public class ConsoleLogger : Logger
   {
 

@@ -25,6 +25,9 @@ using System.IO;
 
 namespace AppStract.Core.System.Logging
 {
+  /// <summary>
+  /// A <see cref="Logger"/> which writes all received messages to a file.
+  /// </summary>
   public class FileLogger : Logger
   {
 

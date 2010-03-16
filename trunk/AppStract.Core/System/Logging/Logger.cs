@@ -28,6 +28,10 @@ using System.Threading;
 
 namespace AppStract.Core.System.Logging
 {
+  /// <summary>
+  /// Provides the common implementation of a log service.
+  /// This class is abstract.
+  /// </summary>
   public abstract class Logger
   {
 
@@ -80,80 +84,103 @@ namespace AppStract.Core.System.Logging
 
     #region Public Methods
 
+    /// <summary>
+    /// Verifies if the specified <paramref name="logMessage"/> should be logged,
+    /// and if so, writes the message to the log.
+    /// </summary>
+    /// <remarks>
+    /// <paramref name="logMessage"/> is written to the log by calling <see cref="Write(LogMessage)"/>.
+    /// </remarks>
+    /// <param name="logMessage"></param>
     public virtual void Log(LogMessage logMessage)
     {
-      if (logMessage.Level > _level)
-        return;
-      if (logMessage.Exception == null)
-        Write(FormatLogMessage(logMessage));
-      else
-        Write(FormatLogMessage(logMessage));
+      if (logMessage.Level <= _level)
+        Write(logMessage);
     }
 
-    public virtual void Warning(string format, params object[] args)
+    public void Message(string format, params object[] args)
     {
-      if (LogLevel.Warning <= _level)
-        Write(FormatLogMessage(new LogMessage(LogLevel.Warning, string.Format(format, args))));
+      Log(new LogMessage(LogLevel.Information, format, args));
     }
 
-    public virtual void Warning(string format, Exception exception, params object[] args)
+    public void Message(string format, Exception exception, params object[] args)
     {
-      if (LogLevel.Warning <= _level)
-        Write(FormatLogMessage(new LogMessage(LogLevel.Warning, string.Format(format, args), exception)));
+      Log(new LogMessage(LogLevel.Information, format, exception, args));
     }
 
-    public virtual void Message(string format, params object[] args)
+    public void Warning(string format, params object[] args)
     {
-      if (LogLevel.Information <= _level)
-        Write(FormatLogMessage(new LogMessage(LogLevel.Information, string.Format(format, args))));
+      Log(new LogMessage(LogLevel.Warning, format, args));
     }
 
-    public virtual void Message(string format, Exception exception, params object[] args)
+    public void Warning(string format, Exception exception, params object[] args)
     {
-      if (LogLevel.Information <= _level)
-        Write(FormatLogMessage(new LogMessage(LogLevel.Information, string.Format(format, args), exception)));
+      Log(new LogMessage(LogLevel.Warning, format, exception, args));
     }
 
-    public virtual void Error(string format, params object[] args)
+    public void Error(string format, params object[] args)
     {
-      if (LogLevel.Error <= _level)
-        Write(FormatLogMessage(new LogMessage(LogLevel.Error, string.Format(format, args))));
+      Log(new LogMessage(LogLevel.Error, format, args));
     }
 
-    public virtual void Error(string format, Exception exception, params object[] args)
+    public void Error(string format, Exception exception, params object[] args)
     {
-      if (LogLevel.Error <= _level)
-        Write(FormatLogMessage(new LogMessage(LogLevel.Error, string.Format(format, args), exception)));
+      Log(new LogMessage(LogLevel.Error, format, exception, args));
     }
 
-    public virtual void Critical(string format, params object[] args)
+    public void Critical(string format, params object[] args)
     {
-      if (LogLevel.Critical <= _level)
-        Write(FormatLogMessage(new LogMessage(LogLevel.Critical, string.Format(format, args))));
+      Log(new LogMessage(LogLevel.Critical, format, args));
     }
 
-    public virtual void Critical(string format, Exception exception, params object[] args)
+    public void Critical(string format, Exception exception, params object[] args)
     {
-      if (LogLevel.Critical <= _level)
-        Write(FormatLogMessage(new LogMessage(LogLevel.Critical, string.Format(format, args), exception)));
+      Log(new LogMessage(LogLevel.Critical, format, exception, args));
     }
 
-    public virtual void Debug(string format, params object[] args)
+    public void Debug(string format, params object[] args)
     {
-      if (LogLevel.Debug <= _level)
-        Write(FormatLogMessage(new LogMessage(LogLevel.Debug, string.Format(format, args))));
+      Log(new LogMessage(LogLevel.Debug, format, args));
     }
 
-    public virtual void Debug(string format, Exception exception, params object[] args)
+    public void Debug(string format, Exception exception, params object[] args)
     {
-      if (LogLevel.Debug <= _level)
-        Write(FormatLogMessage(new LogMessage(LogLevel.Debug, string.Format(format, args), exception)));
+      Log(new LogMessage(LogLevel.Debug, format, exception, args));
     }
 
     #endregion
 
     #region Protected Methods
 
+    /// <summary>
+    /// Formats the specified <see cref="LogMessage"/> to a <see cref="string"/> using <see cref="FormatLogMessage"/>.
+    /// The message is then passed to <see cref="Write(string)"/> using a thread from <see cref="ThreadPool"/>.
+    /// </summary>
+    /// <param name="message"></param>
+    protected virtual void Write(LogMessage message)
+    {
+      // Note: When guest sends a batch of messages, this method consumes all ThreadPool threads
+      ThreadPool.QueueUserWorkItem(CallWriteForString, FormatLogMessage(message));
+    }
+
+    /// <summary>
+    /// Writes the given <paramref name="message"/> to <see cref="_writer"/>.
+    /// </summary>
+    /// <param name="message"></param>
+    protected virtual void Write(string message)
+    {
+      lock (_syncRoot)
+      {
+        _writer.WriteLine(message);
+        _writer.Flush();
+      }
+    }
+
+    /// <summary>
+    /// Formats the given <see cref="LogMessage"/> to a string.
+    /// </summary>
+    /// <param name="message">The <see cref="LogMessage"/> to format to a <see cref="string"/>.</param>
+    /// <returns></returns>
     protected virtual string FormatLogMessage(LogMessage message)
     {
       string formattedMessage
@@ -167,20 +194,14 @@ namespace AppStract.Core.System.Logging
       return formattedMessage;
     }
 
-    protected virtual void Write(string message)
-    {
-      Monitor.Enter(_syncRoot);
-      try
-      {
-        _writer.WriteLine(message);
-        _writer.Flush();
-      }
-      finally
-      {
-        Monitor.Exit(_syncRoot);
-      }
-    }
-
+    /// <summary>
+    /// Formats the given <see cref="Exception"/> to a string.
+    /// </summary>
+    /// <param name="ex">The <see cref="Exception"/> to format.</param>
+    /// <param name="logLevel">
+    /// Specifies the amount of details which have to be formatted into the resulting string.
+    /// </param>
+    /// <returns></returns>
     protected static string FormatException(Exception ex, LogLevel logLevel)
     {
       var exceptionFormatter = new StringBuilder();
@@ -188,13 +209,13 @@ namespace AppStract.Core.System.Logging
       exceptionFormatter.AppendLine("  Message: " + ex.Message);
       exceptionFormatter.AppendLine("  Site   : " + ex.TargetSite);
       exceptionFormatter.AppendLine("  Source : " + ex.Source);
-      var innerException = ex.InnerException;
-      while (innerException != null)
+      var inEx = ex.InnerException;
+      while (inEx != null)
       {
         exceptionFormatter.AppendLine("Inner Exception:");
-        exceptionFormatter.AppendLine("\t" + innerException);
-        exceptionFormatter.AppendLine("\t Message: " + innerException.Message);
-        innerException = innerException.InnerException;
+        exceptionFormatter.AppendLine("\t" + inEx);
+        exceptionFormatter.AppendLine("\t Message: " + inEx.Message);
+        inEx = inEx.InnerException;
       }
       if (logLevel == Logging.LogLevel.Debug)
       {
@@ -202,6 +223,20 @@ namespace AppStract.Core.System.Logging
         exceptionFormatter.AppendLine(ex.StackTrace);
       }
       return exceptionFormatter.ToString();
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    /// <summary>
+    /// Can be used as a <see cref="WaitCallback"/>.
+    /// Calls <see cref="Write(string)"/>, with <paramref name="message"/>.ToString() as parameter.
+    /// </summary>
+    /// <param name="message"></param>
+    private void CallWriteForString(object message)
+    {
+      Write(message.ToString());
     }
 
     #endregion
