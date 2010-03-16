@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AppStract.Core.System.Logging;
 using EasyHook;
 
 namespace AppStract.Server.Hooking
@@ -210,7 +209,7 @@ namespace AppStract.Server.Hooking
       {
         if (_initialized)
           throw new ApplicationException("HookManager is already initialized.");
-        GuestCore.Log(new LogMessage(LogLevel.Debug, "HookManager starts initialization procedure."));
+        GuestCore.Log.Debug("HookManager starts initialization procedure.");
         var hooks = new List<HookData>(17);
         // Hooks regarding the filesystem
         hooks.Add(new HookData("Create Directory [Unicode]",
@@ -284,7 +283,7 @@ namespace AppStract.Server.Hooking
                                inCallback));
         _hooks = hooks;
         _initialized = true;
-        GuestCore.Log(new LogMessage(LogLevel.Debug, "HookManager is initialized."));
+        GuestCore.Log.Debug("HookManager is initialized.");
       }
     }
 
@@ -299,7 +298,7 @@ namespace AppStract.Server.Hooking
     /// </exception>
     internal static void InstallHooks()
     {
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "HookManager starts installing the API hooks."));
+      GuestCore.Log.Debug("HookManager starts installing the API hooks.");
       lock (_syncRoot)
       {
         if (!_initialized)
@@ -315,12 +314,11 @@ namespace AppStract.Server.Hooking
             // since there is no way to fix a managed thread on a native os thread.
             localHook.ThreadACL.SetExclusiveACL(new int[0]);
             _installedHooks.Add(localHook);
-            GuestCore.Log(new LogMessage(LogLevel.Debug, "HookManager installed API hook: " + hook));
+            GuestCore.Log.Debug("HookManager installed API hook: " + hook);
           }
           catch (Exception e)
           {
-            GuestCore.Log(
-              new LogMessage(LogLevel.Error, "HookManager failed to install API hook: " + hook, e), false);
+            GuestCore.Log.Error("HookManager failed to install API hook: " + hook, e);
             throw new HookingException("HookManager failed to install API hook.", hook, e);
           }
         }

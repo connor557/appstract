@@ -58,13 +58,13 @@ namespace AppStract.Server
     /// </summary>
     private static SynchronizationBus _syncBus;
     /// <summary>
+    /// Communicates log queries to the server.
+    /// </summary>
+    private static LogBus _logBus;
+    /// <summary>
     /// Contains all handlers for the installed API hooks.
     /// </summary>
     private static HookImplementations _hookImplementations;
-    /// <summary>
-    /// The maximum allowed <see cref="LogLevel"/> of <see cref="LogMessage"/>s to report.
-    /// </summary>
-    private static LogLevel _logLevel;
     /// <summary>
     /// Collection of eventhandlers to call when requesting a process exit.
     /// </summary>
@@ -81,6 +81,14 @@ namespace AppStract.Server
     #endregion
 
     #region Properties
+
+    /// <summary>
+    /// The current instance's log service.
+    /// </summary>
+    public static Logger Log
+    {
+      get { return _logBus; }
+    }
 
     /// <summary>
     /// Gets the ID of the current process.
@@ -144,25 +152,22 @@ namespace AppStract.Server
     {
       lock (_initializationLock)
       {
-        if (_initialized)
-          return;
+        if (_initialized) return;
+        // Initialize variables.
         _currentProcessId = RemoteHooking.GetCurrentProcessId();
-        /// Attach ProcessExit event handler.
-        AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
-        /// Initialize variables.
         _serverReporter = processSynchronizer;
-        _logLevel = _serverReporter.GetRequiredLogLevel();
         _syncBus = new SynchronizationBus(processSynchronizer, processSynchronizer);
+        _logBus = new LogBus(processSynchronizer) {Enabled = true};
+        // Attach ProcessExit event handler.
+        AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
         // Load resources.
-        Log(new LogMessage(LogLevel.Information, "Loading file system and registry data"));
+        Log.Message("Loading file system and registry data");
         var fileSystem = new FileSystemProvider(_syncBus, processSynchronizer.FileSystemRoot);
-        Log(new LogMessage(LogLevel.Debug, "Loaded file system"));
         var registry = new RegistryProvider(_syncBus);
-        Log(new LogMessage(LogLevel.Debug, "Loaded registry"));
         _hookImplementations = new HookImplementations(fileSystem, registry);
         _syncBus.AutoFlush = true;
         _initialized = true;
-        Log(new LogMessage(LogLevel.Information, "Initialized core"));
+        Log.Message("Initialized core");
       }
     }
 
@@ -186,63 +191,11 @@ namespace AppStract.Server
       }
       catch (HookingException e)
       {
-        Log(new LogMessage(LogLevel.Critical, "Failed to install API Hooks in target process", e), false);
+        Log.Critical("Failed to install API Hooks in target process", e);
         TerminateProcess(-1, ExitMethod.Kill);
         throw; // In case TerminateProcess didn't do it's job
       }
-      Log(new LogMessage(LogLevel.Information, "Process [PID{0}] is initialized and ready to wake up.", _currentProcessId));
-    }
-
-    /// <summary>
-    /// Sends the <see cref="LogMessage"/> specified to the host.
-    /// </summary>
-    /// <remarks>
-    /// To optimize performance, there's no check whether the GuestCore has been initialized already.
-    /// Internally, a <see cref="NullReferenceException"/> is caught if the core isn't initialized.
-    /// </remarks>
-    /// <exception cref="GuestException">
-    /// A call to <see cref="Initialize"/> must be completed before using the log functionality.
-    /// =OR=
-    /// An unexpected <see cref="Exception"/> occured.
-    /// </exception>
-    /// <param name="message"></param>
-    public static void Log(LogMessage message)
-    {
-      Log(message, true);
-    }
-
-    /// <summary>
-    /// Sends the <see cref="LogMessage"/> specified to the host.
-    /// </summary>
-    /// <remarks>
-    /// To optimize performance, there's no check whether the GuestCore has been initialized already.
-    /// Internally, a <see cref="NullReferenceException"/> is caught if the core isn't initialized.
-    /// </remarks>
-    /// <exception cref="GuestException">
-    /// A call to <see cref="Initialize"/> must be completed before using the log functionality.
-    /// =OR=
-    /// An unexpected <see cref="Exception"/> occured.
-    /// </exception>
-    /// <param name="message"></param>
-    /// <param name="throwOnError"></param>
-    public static void Log(LogMessage message, bool throwOnError)
-    {
-      if (message.Level > _logLevel) return;
-      message.Prefix = "Guest " + _currentProcessId;
-      try
-      {
-        _serverReporter.ReportMessage(message);
-      }
-      catch (NullReferenceException e)
-      {
-        if (throwOnError)
-          throw new GuestException("The GuestCore must be initialized before using the log functionality.", e);
-      }
-      catch (Exception e)
-      {
-        if (throwOnError)
-          throw new GuestException("An unexpected exception occured.", e);
-      }
+      Log.Message("Process [PID{0}] is initialized and ready to wake up.", _currentProcessId);
     }
 
     /// <summary>
@@ -253,7 +206,7 @@ namespace AppStract.Server
     /// <returns>True if the current process' termination code is invoked, false otherwise.</returns>
     public static bool TerminateProcess(int exitCode, ExitMethod exitMethod)
     {
-      Log(new LogMessage(LogLevel.Information, "Terminating process with exit code " + exitCode + "."), false);
+      Log.Message("Terminating process with exit code " + exitCode + ".");
       _syncBus.Flush();
       if ((exitMethod & ExitMethod.Request) == ExitMethod.Request
           && RaiseExitRequest(exitCode))
@@ -287,9 +240,9 @@ namespace AppStract.Server
         exitRequestHandled = eventHandler(exitCode) ? exitRequestHandled : false;
       // Write log message according to the result.
       if (exitRequestHandled)
-        Log(new LogMessage(LogLevel.Debug, "Exit procedure is invoked."), false);
+        Log.Debug("Exit procedure is invoked.");
       else
-        Log(new LogMessage(LogLevel.Warning, "Exit procedure invocation FAILED."), false);
+        Log.Warning("Exit procedure invocation FAILED.");
       return exitRequestHandled;
     }
 
@@ -299,7 +252,7 @@ namespace AppStract.Server
     /// <returns></returns>
     private static bool KillGuestProcess()
     {
-      Log(new LogMessage(LogLevel.Debug, "Sending kill signal to process..."), false);
+      Log.Debug("Sending kill signal to process...");
       try
       {
         Process.GetCurrentProcess().Kill();
@@ -307,8 +260,7 @@ namespace AppStract.Server
       }
       catch (Exception e)
       {
-        Log(new LogMessage(LogLevel.Critical, "Failed to kill the process.", e),
-            false);
+        Log.Critical("Failed to kill the process.", e);
         return false;
       }
     }

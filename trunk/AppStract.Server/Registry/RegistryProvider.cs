@@ -21,7 +21,6 @@
 
 #endregion
 
-using AppStract.Core.System.Logging;
 using AppStract.Core.Virtualization.Interop;
 using AppStract.Server.Registry.Data;
 using AppStract.Core.Data.Databases;
@@ -104,7 +103,7 @@ namespace AppStract.Server.Registry
                  ? (RegistryBase)_transparentRegistry
                  : _virtualRegistry;
       }
-      GuestCore.Log(new LogMessage(LogLevel.Error, "Unknown registry key handle => " + hKey));
+      GuestCore.Log.Error("Unknown registry key handle => " + hKey);
       return null;
     }
 

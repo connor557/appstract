@@ -23,7 +23,6 @@
 
 using System;
 using System.IO;
-using AppStract.Core.System.Logging;
 
 namespace AppStract.Server.FileSystem
 {
@@ -121,10 +120,9 @@ namespace AppStract.Server.FileSystem
     /// <returns>True if all folders are created; False if the creation of one or more folders failed.</returns>
     public static bool CreateVirtualFolders(string rootFolder)
     {
-      GuestCore.Log(new LogMessage(LogLevel.Information,
-                                   "Creating system folders for a virtual environment with root \"{0}\"", rootFolder));
+      GuestCore.Log.Message("Creating system folders for a virtual environment with root \"{0}\"", rootFolder);
       bool succeeded = true;
-      foreach (VirtualFolder virtualFolder in Enum.GetValues(typeof (VirtualFolder)))
+      foreach (VirtualFolder virtualFolder in Enum.GetValues(typeof(VirtualFolder)))
         succeeded = TryCreateDirectory(Path.Combine(rootFolder, GetFolderPath(virtualFolder)))
                       ? succeeded
                       : false;
@@ -146,7 +144,7 @@ namespace AppStract.Server.FileSystem
       }
       catch (IOException)
       {
-        GuestCore.Log(new LogMessage(LogLevel.Warning, "Failed to create directory: " + path));
+        GuestCore.Log.Warning("Failed to create directory: " + path);
         return false;
       }
     }

@@ -26,7 +26,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
-using AppStract.Core.System.Logging;
 using AppStract.Core.System.IPC;
 using AppStract.Server;
 using AppStract.Utilities.Helpers;
@@ -102,7 +101,7 @@ namespace AppStract.Inject
     /// The Run() method should return if you want the injected library needs to be unloaded.
     /// Unhandled exceptions ARE NOT redirected automatically.
     /// As the connection to the host is established in <see cref="GuestCore.Initialize"/>,
-    /// errors should be reported using the <see cref="GuestCore.Log(AppStract.Core.System.Logging.LogMessage)"/> function.
+    /// errors should be reported using <see cref="GuestCore.Log"/>.
     /// </remarks>
     /// <param name="inContext">Information about the environment in which the library main method has been invoked, used by the EasyHook library.</param>
     /// <param name="channelName">The name of the inter-process communication channel to connect to, used by the EasyHook library.</param>
@@ -119,8 +118,7 @@ namespace AppStract.Inject
       }
       catch (Exception e)
       {
-        GuestCore.Log(new LogMessage(LogLevel.Critical, "An unexpected exception occured.", e),
-                      false);
+        GuestCore.Log.Critical("An unexpected exception occured.", e);
         // Exit code 1067 = ERROR_PROCESS_ABORTED "The process terminated unexpectedly."
         if (!GuestCore.TerminateProcess(1067, ExitMethod.Request | ExitMethod.Kill))
           throw new ApplicationException("An unexpected fatal exception occured.", e);
@@ -136,7 +134,7 @@ namespace AppStract.Inject
     /// The Run() method should return if you want the injected library needs to be unloaded.
     /// Unhandled exceptions ARE NOT redirected automatically.
     /// As the connection to the host is established in <see cref="GuestCore.Initialize"/>,
-    /// errors should be reported using the <see cref="GuestCore.Log(AppStract.Core.System.Logging.LogMessage)"/> function.
+    /// errors should be reported using <see cref="GuestCore.Log"/>.
     /// </remarks>
     /// <param name="inContext">Information about the environment in which the library main method has been invoked, used by the EasyHook library.</param>
     /// <param name="channelName">The name of the inter-process communication channel to connect to, used by the EasyHook library.</param>
@@ -150,12 +148,11 @@ namespace AppStract.Inject
         // Set the working directory to the one expected by the executable.
         Directory.SetCurrentDirectory(Path.GetDirectoryName(wrappedProcessExecutable));
         // Run the main method of the wrapped process.
-        string[] arguments = args.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
-        GuestCore.Log(new LogMessage(LogLevel.Debug, "Invoking main method of targeted guest... "
-                                                     + "using #" + args.Length + " method parameters" +
-                                                     (arguments.Length == 0 ? "" : ": " + args)));
+        string[] arguments = args.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        GuestCore.Log.Debug("Invoking main method of targeted guest... using #{0} method parameters{1}",
+                            arguments.Length, arguments.Length == 0 ? "" : ": " + args);
         var exitCode = AssemblyHelper.RunMainMethod(wrappedProcessExecutable, arguments.Length == 0 ? null : arguments);
-        GuestCore.Log(new LogMessage(LogLevel.Information, "Target main method returned exitcode " + exitCode));
+        GuestCore.Log.Message("Target main method returned exitcode " + exitCode);
         // First attempt a clean shutdown, then try a forced shutdown.
         GuestCore.TerminateProcess(exitCode, ExitMethod.Request | ExitMethod.Kill);
       }
@@ -166,8 +163,7 @@ namespace AppStract.Inject
         if (Debugger.IsAttached)
           Debugger.Break();
 #endif
-        GuestCore.Log(new LogMessage(LogLevel.Critical, "An unexpected exception occured.", e),
-                      false);
+        GuestCore.Log.Critical("An unexpected exception occured.", e);
         // Exit code 1067 = ERROR_PROCESS_ABORTED "The process terminated unexpectedly."
         if (!GuestCore.TerminateProcess(1067, ExitMethod.Request | ExitMethod.Kill))
           throw new ApplicationException("An unexpected fatal exception occured.", e);
