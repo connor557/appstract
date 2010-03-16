@@ -42,11 +42,11 @@ namespace AppStract.Server.Registry.Data
     /// <summary>
     /// The string representing the CurrentUser of the virtual environment.
     /// </summary>
-    private const string _virtualCurrentUser = "S-APPSTRACT-User";
+    private const string _virtualCurrentUser = "s-appstract-user";
     /// <summary>
     /// The string representing the CurrentConfig of the virtual environment.
     /// </summary>
-    private const string _virtualCurrentHardwareProfile = "APPSTRACT-Config";
+    private const string _virtualCurrentHardwareProfile = "appstract-config";
     /// <summary>
     /// The string representing the SID of the current user of the host operating system.
     /// Also referred to as the real current user.
@@ -86,7 +86,7 @@ namespace AppStract.Server.Registry.Data
       _virtualCurrentHardwareProfileFullPath = @"hkey_local_machine\system\currentcontrolset\hardware profiles\"
                                                + _virtualCurrentHardwareProfile;
       // Default value is ".DEFAULT", which is also the default value used by Windows.
-      _currentUserSid = GetCurrentUserSID(".DEFAULT");
+      _currentUserSid = GetCurrentUserSID(".default");
       _currentUserFullPath = @"hkey_users\" + _currentUserSid;
       // Default value is "0001", the most common value for profile-numbers.
       _currentHardwareProfile = GetCurrentProfileNumber("0001");
