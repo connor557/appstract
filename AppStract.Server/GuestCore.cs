@@ -54,9 +54,9 @@ namespace AppStract.Server
     /// </summary>
     private static IServerReporter _serverReporter;
     /// <summary>
-    /// Communicates queries to the server.
+    /// Communicates synchronization queries to the server.
     /// </summary>
-    private static CommunicationBus _commBus;
+    private static SynchronizationBus _syncBus;
     /// <summary>
     /// Contains all handlers for the installed API hooks.
     /// </summary>
@@ -152,15 +152,15 @@ namespace AppStract.Server
         /// Initialize variables.
         _serverReporter = processSynchronizer;
         _logLevel = _serverReporter.GetRequiredLogLevel();
-        _commBus = new CommunicationBus(processSynchronizer, processSynchronizer);
+        _syncBus = new SynchronizationBus(processSynchronizer, processSynchronizer);
         // Load resources.
         Log(new LogMessage(LogLevel.Information, "Loading file system and registry data"));
-        var fileSystem = new FileSystemProvider(_commBus, processSynchronizer.FileSystemRoot);
+        var fileSystem = new FileSystemProvider(_syncBus, processSynchronizer.FileSystemRoot);
         Log(new LogMessage(LogLevel.Debug, "Loaded file system"));
-        var registry = new RegistryProvider(_commBus);
+        var registry = new RegistryProvider(_syncBus);
         Log(new LogMessage(LogLevel.Debug, "Loaded registry"));
         _hookImplementations = new HookImplementations(fileSystem, registry);
-        _commBus.AutoFlush = true;
+        _syncBus.AutoFlush = true;
         _initialized = true;
         Log(new LogMessage(LogLevel.Information, "Initialized core"));
       }
@@ -254,7 +254,7 @@ namespace AppStract.Server
     public static bool TerminateProcess(int exitCode, ExitMethod exitMethod)
     {
       Log(new LogMessage(LogLevel.Information, "Terminating process with exit code " + exitCode + "."), false);
-      _commBus.Flush();
+      _syncBus.Flush();
       if ((exitMethod & ExitMethod.Request) == ExitMethod.Request
           && RaiseExitRequest(exitCode))
         return true;
@@ -315,7 +315,7 @@ namespace AppStract.Server
 
     private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
     {
-      _commBus.Flush();
+      _syncBus.Flush();
     }
 
     #endregion
