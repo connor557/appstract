@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using AppStract.Core.System.Logging;
 
 namespace AppStract.Core.System.IPC
@@ -42,23 +43,16 @@ namespace AppStract.Core.System.IPC
     void Ping();
 
     /// <summary>
-    /// Reports an <see cref="Exception"/> to the host process.
-    /// </summary>
-    /// <param name="exception"><see cref="Exception"/> to report.</param>
-    void ReportException(Exception exception);
-
-    /// <summary>
-    /// Reports an <see cref="Exception"/> to the host process.
-    /// </summary>
-    /// <param name="exception"><see cref="Exception"/> to report.</param>
-    /// <param name="message">An associated message.</param>
-    void ReportException(Exception exception, string message);
-
-    /// <summary>
     /// Reports a message that must be logged, to the host process.
     /// </summary>
     /// <param name="message">Message to report.</param>
     void ReportMessage(LogMessage message);
+
+    /// <summary>
+    /// Reports a serie of messages that must be logged, to the host process.
+    /// </summary>
+    /// <param name="message">Message to report.</param>
+    void ReportMessage(IEnumerable<LogMessage> message);
 
     /// <summary>
     /// Returns the maximum <see cref="LogLevel"/> needed by <see cref="ReportMessage"/>
