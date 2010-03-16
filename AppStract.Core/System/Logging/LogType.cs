@@ -25,6 +25,7 @@ namespace AppStract.Core.System.Logging
 {
   public enum LogType
   {
+    Other,
     Console,
     File,
     Null

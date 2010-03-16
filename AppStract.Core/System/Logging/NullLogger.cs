@@ -23,11 +23,13 @@
 
 namespace AppStract.Core.System.Logging
 {
+  /// <summary>
+  /// A <see cref="Logger"/> which ignores all received messages.
+  /// </summary>
   public class NullLogger : Logger
   {
 
     public NullLogger()
-      : base()
     {
       _logType = LogType.Null;
     }
