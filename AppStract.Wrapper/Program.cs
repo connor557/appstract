@@ -23,7 +23,6 @@
 
 using System;
 using System.Threading;
-using AppStract.Core.System.Logging;
 using AppStract.Server;
 
 namespace AppStract.Wrapper
@@ -56,7 +55,7 @@ namespace AppStract.Wrapper
         if (GuestCore.Initialized && !GuestCore.Connected)
           break;
       }
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "Wrapper process terminates with exit code " + _exitCode), false);
+      GuestCore.Log.Debug("Wrapper process terminates with exit code " + _exitCode);
       return _exitCode;
     }
 
@@ -67,7 +66,7 @@ namespace AppStract.Wrapper
     /// <param name="e"></param>
     private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
-      GuestCore.Log(new LogMessage(LogLevel.Critical, "Target process threw an unhandled exception.", e.ExceptionObject), false);
+      GuestCore.Log.Critical("Target process threw an unhandled exception.", e.ExceptionObject);
       // Not sure if the following is necessary since the process is already dying from the unhandled exception
       _exitCode = -1;
       _exit = true;

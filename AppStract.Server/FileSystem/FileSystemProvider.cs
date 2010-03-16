@@ -25,7 +25,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using AppStract.Core.System.Logging;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Utilities.Observables;
 
@@ -210,7 +209,7 @@ namespace AppStract.Server.FileSystem
       if (fileRequest.Name.StartsWith(@"\\.\")
           || FileAccessRedirector.IsTemporaryLocation(fileRequest.FullName))
         return new FileTableEntry(fileRequest.FullName, fileRequest.FullName, FileKind.Unspecified);
-      GuestCore.Log(new LogMessage(LogLevel.Debug, "Guest process requested file: " + fileRequest));
+      GuestCore.Log.Debug("Guest process requested file: " + fileRequest);
       // Are we looking for a library?
       if (fileRequest.ResourceKind == ResourceKind.Library)
         return new FileTableEntry(fileRequest.Name, FindLibrary(fileRequest.Name), FileKind.File);
@@ -231,7 +230,7 @@ namespace AppStract.Server.FileSystem
         // Add a new entry to the file table and return it.
         var entry = AddNewEntryToFileTable(fileRequest);
         entry.Value = Path.Combine(_root, entry.Value);
-        GuestCore.Log(new LogMessage(LogLevel.Debug, "New FileTableEntry: " + entry));
+        GuestCore.Log.Debug("New FileTableEntry: " + entry);
         return entry;
       }
       // Else, the file won't be created.

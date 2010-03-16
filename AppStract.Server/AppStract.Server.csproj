@@ -35,7 +35,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;SYNCLOG</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -90,6 +90,7 @@
     <Compile Include="Hooking\HookImplementations.Registry.cs" />
     <Compile Include="Hooking\HookingException.cs" />
     <Compile Include="Hooking\HookManager.cs" />
+    <Compile Include="LogBus.cs" />
     <Compile Include="Registry\Data\TransparentRegistry.cs" />
     <Compile Include="Registry\Data\RegistryBase.cs" />
     <Compile Include="Registry\Data\RegistryTranslator.cs" />

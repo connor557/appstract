@@ -23,7 +23,6 @@
 
 using System;
 using System.Runtime.InteropServices;
-using AppStract.Core.System.Logging;
 using AppStract.Core.Virtualization.Interop;
 using AppStract.Core.Virtualization.Registry;
 using AppStract.Utilities.Extensions;
@@ -62,8 +61,8 @@ namespace AppStract.Server.Hooking
       {
         uint hSubKey;
         var resultCode = _registry.OpenKey(handle, subKey, out hSubKey);
-        GuestCore.Log(new LogMessage(LogLevel.Debug, @"OpenKey({0}\\{1}) => {2}", hKey, subKey,
-                                     resultCode == NativeResultCode.Success ? hSubKey.ToString() : resultCode.ToString()));
+        GuestCore.Log.Debug(@"OpenKey({0}\\{1}) => {2}", hKey, subKey,
+                            resultCode == NativeResultCode.Success ? hSubKey.ToString() : resultCode.ToString());
         phkResult = new UIntPtr(hSubKey);
         return resultCode;
       }
@@ -113,10 +112,10 @@ namespace AppStract.Server.Hooking
       {
         uint phkResultHandle;
         var resultCode = _registry.CreateKey(handle, lpSubKey, out phkResultHandle, out lpdwDisposition);
-        GuestCore.Log(new LogMessage(LogLevel.Debug, "CreateKey(HKey={0} NewSubKey={1}) => {2}",
-                                     hKey, lpSubKey, resultCode == NativeResultCode.Success
-                                                       ? lpdwDisposition + " HKey =" + phkResultHandle
-                                                       : resultCode.ToString()));
+        GuestCore.Log.Debug("CreateKey(HKey={0} NewSubKey={1}) => {2}",
+                            hKey, lpSubKey, resultCode == NativeResultCode.Success
+                                              ? lpdwDisposition + " HKey =" + phkResultHandle
+                                              : resultCode.ToString());
         phkResult = new UIntPtr(phkResultHandle);
         return resultCode;
       }
@@ -134,7 +133,7 @@ namespace AppStract.Server.Hooking
         return NativeResultCode.InvalidHandle;
       using (HookManager.ACL.GetHookingExclusion())
       {
-        GuestCore.Log(new LogMessage(LogLevel.Debug, "CloseKey(HKey={0})", handle));
+        GuestCore.Log.Debug("CloseKey(HKey={0})", handle);
         return _registry.CloseKey(handle);
       }
     }
@@ -179,8 +178,8 @@ namespace AppStract.Server.Hooking
       {
         VirtualRegistryValue virtualRegistryValue;
         var resultCode = _registry.QueryValue(handle, lpValueName, out virtualRegistryValue);
-        GuestCore.Log(new LogMessage(LogLevel.Debug, "QueryValue(HKey={0} ValueName={1}) => {2}",
-                                     handle, lpValueName, resultCode));
+        GuestCore.Log.Debug("QueryValue(HKey={0} ValueName={1}) => {2}",
+                            handle, lpValueName, resultCode);
         if (resultCode != NativeResultCode.Success)
           return resultCode;
         // Marshal all data to the specified pointers.
@@ -224,8 +223,8 @@ namespace AppStract.Server.Hooking
         var data = lpData.Read<byte[]>(cbData);
         var registryValue = new VirtualRegistryValue(lpValueName, data, dwType);
         var resultCode = _registry.SetValue(handle, registryValue);
-        GuestCore.Log(new LogMessage(LogLevel.Debug, "SetValue(HKey={0} Name={1} Type={2}) => {3}",
-                                     handle, lpValueName, dwType, resultCode));
+        GuestCore.Log.Debug("SetValue(HKey={0} Name={1} Type={2}) => {3}",
+                            handle, lpValueName, dwType, resultCode);
         return resultCode;
       }
     }
