@@ -122,19 +122,15 @@ namespace AppStract.Core.System.IPC
       /// No action required.
     }
 
-    public void ReportException(Exception exception)
-    {
-      CoreBus.Log.Error("An unexpected exception occured in the guest process.", exception);
-    }
-
-    public void ReportException(Exception exception, string message)
-    {
-      CoreBus.Log.Error(message, exception);
-    }
-
     public void ReportMessage(LogMessage message)
     {
       CoreBus.Log.Log(message);
+    }
+
+    public void ReportMessage(IEnumerable<LogMessage> messages)
+    {
+      foreach (var message in messages)
+        CoreBus.Log.Log(message);
     }
 
     public LogLevel GetRequiredLogLevel()
