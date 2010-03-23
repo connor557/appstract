@@ -114,7 +114,7 @@ namespace AppStract.Server.Hooking
         var resultCode = _registry.CreateKey(handle, lpSubKey, out phkResultHandle, out lpdwDisposition);
         GuestCore.Log.Debug("CreateKey(HKey={0} NewSubKey={1}) => {2}",
                             hKey, lpSubKey, resultCode == NativeResultCode.Success
-                                              ? lpdwDisposition + " HKey =" + phkResultHandle
+                                              ? lpdwDisposition + " HKey=" + phkResultHandle
                                               : resultCode.ToString());
         phkResult = new UIntPtr(phkResultHandle);
         return resultCode;
