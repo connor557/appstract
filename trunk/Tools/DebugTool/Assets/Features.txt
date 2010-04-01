@@ -1,0 +1,28 @@
+
+Planned features
+============================
+
+- Log Analyzer
+----------------------------
+	* Replace handles with key names, and reverse
+	* Color lines, depending on type of log line (debug, warning, error, ...)
+	* Display a registry handle tree, whereby the selected handle is traced from its origin to all its child handles
+
+- Database Analyzer
+----------------------------
+	* Browse databases
+	* Edit databases
+	* Check databases for errors (duplicated data, unlinked handles, ...)
+	* Link database to a log and scan for errors
+
+- Process Diagnostics
+----------------------------
+	* [Future] Attach to host and/or guest process, try to collect diagnostic information
+
+- System Restore
+----------------------------
+	* Restore configuration files
+		-> Fix errors (unclosed tags, missing values)
+		-> Reset to default values
+	* Browse AppStract's assemblies found in GAC, unregister if required
+	* [Future] Support snapshots
