@@ -1,0 +1,268 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{604EEDB2-3232-4B7A-8B3A-8D4A981A0D38}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>AppStract.DebugTool</RootNamespace>
+    <AssemblyName>AppStract.DebugTool</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controls\AdvancedRichTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\LineChangedEventHandler.cs" />
+    <Compile Include="Controls\LineEventArgs.cs" />
+    <Compile Include="Controls\LineNumberDockSide.cs" />
+    <Compile Include="Controls\LineNumberItem.cs" />
+    <Compile Include="Controls\RichTextBoxLineNumbers.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="FrmMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmMain.Designer.cs">
+      <DependentUpon>FrmMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="FrmMain.resx">
+      <DependentUpon>FrmMain.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TabPages\LogAnalyzerPage.resx">
+      <DependentUpon>LogAnalyzerPage.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="StringExtensions.cs" />
+    <Compile Include="TabPages\LogAnalyzerPage.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="TabPages\LogAnalyzerPage.Designer.cs">
+      <DependentUpon>LogAnalyzerPage.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\application16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\download16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\email16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\favorites16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\forward16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\my_documents16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\pause16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\play16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\rewind16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\stop16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\about16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\add_file16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\add_folder16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\break16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\close16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\connect16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\copy16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\cut16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\delete16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\disconnect16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\edit16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\folder16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\globe16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\help16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\home16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\html_file16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\image_file16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\new16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\open16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\opened_folder16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\paste16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\preview16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\save16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\search16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\synchronize16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\Record16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\StepBack16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\StepForward16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\Analyze16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\StepDown16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\StepUp16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\16x16\fast_forward.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\16x16\record.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\16x16\rewind.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\16x16\search.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\16x16\skip_backward.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\16x16\skip_forward.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\16x16\open.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\16x16\shuffle_off.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\16x16\shuffle_on.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icons\16x16\save.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
