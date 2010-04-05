@@ -428,8 +428,10 @@ namespace AppStract.Utilities.Extensions
         throw new ArgumentNullException("objectType");
       if (objectType.IsEnum)
         objectType = Enum.GetUnderlyingType(objectType);
-      if (objectType == typeof (string))
-        return Marshal.PtrToStringAuto(ptr);
+      if (objectType == typeof(string))
+        return pointerSize == 0
+                 ? Marshal.PtrToStringAuto(ptr)
+                 : Marshal.PtrToStringAuto(ptr, (int) pointerSize/2);
       if (objectType == typeof (Int16))
         return Marshal.ReadInt16(ptr);
       if (objectType == typeof (Int32))
