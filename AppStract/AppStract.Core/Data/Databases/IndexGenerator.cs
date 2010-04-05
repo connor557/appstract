@@ -23,6 +23,7 @@
 
 using System.Collections.Generic;
 using System.Threading;
+using AppStract.Utilities.Extensions;
 
 namespace AppStract.Core.Data.Databases
 {
@@ -114,7 +115,7 @@ namespace AppStract.Core.Data.Databases
           _freeIndices.RemoveAt(_freeIndices.Count - 1);
           return freeIndex;
         }
-        /// ELSE: find a new index.
+        // ELSE: find a new index.
         do
         {
           _currentIndex++;
@@ -145,15 +146,27 @@ namespace AppStract.Core.Data.Databases
     /// </returns>
     public bool Detach(IIndexUser indexUser)
     {
-      _usersLock.EnterWriteLock();
-      try
-      {
+      using (_usersLock.EnterDisposableWriteLock())
         return _users.Remove(indexUser);
-      }
-      finally
-      {
-        _usersLock.ExitWriteLock();
-      }
+    }
+
+    /// <summary>
+    /// Returns true if the specified index is already used by one of the users.
+    /// </summary>
+    /// <param name="indexToValidate"></param>
+    /// <returns></returns>
+    public bool IsInUse(uint indexToValidate)
+    {
+      // First check the ranges with indices to exclude.
+      foreach (var range in _excludedRanges)
+        if (range.IsInRange(indexToValidate))
+          return true;
+      // Now check if one of the users holds the index.
+      using (_usersLock.EnterDisposableReadLock())
+        foreach (var user in _users)
+          if (user.IsUsedIndex(indexToValidate))
+            return true;
+      return false;
     }
 
     #endregion
@@ -168,54 +181,10 @@ namespace AppStract.Core.Data.Databases
     /// <param name="user"></param>
     private void RegisterUser(IIndexUser user)
     {
-      _usersLock.EnterUpgradeableReadLock();
-      try
-      {
-        if (_users.Contains(user))
-          return;
-        _usersLock.EnterWriteLock();
-        try
-        {
-          _users.Add(user); 
-        }
-        finally
-        {
-          _usersLock.ExitWriteLock();
-        }
-      }
-      finally
-      {
-        _usersLock.ExitUpgradeableReadLock();
-      }
-    }
-
-    /// <summary>
-    /// Returns true if the specified index (<paramref name="indexToValidate"/>)
-    /// is already used by one of the users (<see cref="_users"/>).
-    /// </summary>
-    /// <param name="indexToValidate"></param>
-    /// <returns></returns>
-    private bool IsInUse(uint indexToValidate)
-    {
-      /// First check the ranges with indices to exclude.
-      foreach (IndexRange range in _excludedRanges)
-        if (range.IsInRange(indexToValidate))
-          return true;
-      /// Now check if one of the users holds the index.
-      _usersLock.EnterReadLock();
-      try
-      {
-        foreach (IIndexUser user in _users)
-        {
-          if (user.IsUsedIndex(indexToValidate))
-            return true;
-        }
-      }
-      finally
-      {
-        _usersLock.ExitReadLock();
-      }
-      return false;
+      using (_usersLock.EnterDisposableUpgradeableReadLock())
+        if (!_users.Contains(user))
+          using (_usersLock.EnterDisposableWriteLock())
+            _users.Add(user);
     }
 
     #endregion
