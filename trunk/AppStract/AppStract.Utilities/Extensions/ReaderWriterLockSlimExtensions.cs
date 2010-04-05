@@ -32,6 +32,62 @@ namespace AppStract.Utilities.Extensions
   public static class ReaderWriterLockSlimExtensions
   {
 
+    #region Private Types
+
+    /// <summary>
+    /// Helper class for exiting locks.
+    /// </summary>
+    private class LockExiter : IDisposable
+    {
+
+      #region Delegates
+
+      public delegate void ExitLock();
+      public delegate bool VerifyLock();
+
+      #endregion
+
+      #region Variables
+
+      private readonly ExitLock _exitLock;
+      private readonly VerifyLock _verifyLock;
+
+      #endregion
+
+      #region Constructors
+
+      /// <summary>
+      /// Initializes a new instance of <see cref="LockExiter"/>.
+      /// </summary>
+      /// <param name="exitLockMethod">The delegate to invoke if a call to <paramref name="verifyLockMethod"/> returns true.</param>
+      /// <param name="verifyLockMethod">The delegate indicating whether <paramref name="exitLockMethod"/> is allowed to be invoked.</param>
+      public LockExiter(ExitLock exitLockMethod, VerifyLock verifyLockMethod)
+      {
+        _exitLock = exitLockMethod;
+        _verifyLock = verifyLockMethod;
+      }
+
+      #endregion
+
+      #region IDisposable Members
+
+      /// <summary>
+      /// Exits the acquired lock.
+      /// </summary>
+      public void Dispose()
+      {
+        if (_verifyLock())
+          _exitLock();
+      }
+
+      #endregion
+
+    }
+
+    #endregion
+
+    #region Public Extension Methods
+
     /// <summary>
     /// Tries to enter the lock in read mode,
     /// and returns an object that exits the acquired lock on disposal.
@@ -88,6 +144,22 @@ namespace AppStract.Utilities.Extensions
     }
 
     /// <summary>
+    /// Gets a value that indicates whether the current thread has entered the lock in any mode.
+    /// </summary>
+    /// <param name="lockSlim"></param>
+    /// <returns></returns>
+    public static bool IsAnyLockHeld(this ReaderWriterLockSlim lockSlim)
+    {
+      return lockSlim.IsReadLockHeld
+             || lockSlim.IsUpgradeableReadLockHeld
+             || lockSlim.IsWriteLockHeld;
+    }
+
+    #endregion
+
+    #region Private Extension Methods
+
+    /// <summary>
     /// Returns the value of <see cref="ReaderWriterLockSlim.IsReadLockHeld"/>.
     /// </summary>
     /// <param name="lockSlim"></param>
@@ -117,55 +189,7 @@ namespace AppStract.Utilities.Extensions
       return lockSlim.IsWriteLockHeld;
     }
 
-    /// <summary>
-    /// Helper class for exiting locks.
-    /// </summary>
-    private class LockExiter : IDisposable
-    {
-
-      #region Delegates
-
-      public delegate void ExitLock();
-      public delegate bool VerifyLock();
-
-      #endregion
-
-      #region Variables
-
-      private readonly ExitLock _exitLock;
-      private readonly VerifyLock _verifyLock;
-
-      #endregion
-
-      #region Constructors
-
-      /// <summary>
-      /// Initializes a new instance of <see cref="LockExiter"/>.
-      /// </summary>
-      /// <param name="exitLockMethod">The delegate to invoke if a call to <paramref name="verifyLockMethod"/> returns true.</param>
-      /// <param name="verifyLockMethod">The delegate indicating whether <paramref name="exitLockMethod"/> is allowed to be invoked.</param>
-      public LockExiter(ExitLock exitLockMethod, VerifyLock verifyLockMethod)
-      {
-        _exitLock = exitLockMethod;
-        _verifyLock = verifyLockMethod;
-      }
-
-      #endregion
-
-      #region IDisposable Members
-
-      /// <summary>
-      /// Exits the acquired lock.
-      /// </summary>
-      public void Dispose()
-      {
-        if (_verifyLock())
-          _exitLock();
-      }
-
-      #endregion
-    
-    }
+    #endregion
 
   }
 }
