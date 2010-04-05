@@ -7420,6 +7420,14 @@ namespace AppStract.Core.Virtualization.Interop
     /// <summary>
     /// ERROR_IPSEC_IKE_NEG_STATUS_END
     /// </summary>
-    ERROR_IPSEC_IKE_NEG_STATUS_END = 13884
+    ERROR_IPSEC_IKE_NEG_STATUS_END = 13884,
+    /// <summary>
+    /// STATUS_BUFFER_TOO_SMALL - The buffer is too small to contain the entry. No information has been written to the buffer.
+    /// </summary>
+    BufferTooSmall = 0xC0000023,
+    /// <summary>
+    /// STATUS_BUFFER_OVERFLOW - The data was too large to fit into the specified buffer.
+    /// </summary>
+    BufferOverflow = 0x80000005
   }
 }
