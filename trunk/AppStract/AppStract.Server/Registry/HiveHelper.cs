@@ -128,6 +128,7 @@ namespace AppStract.Server.Registry
       }
       public static int GetIdFor(string value)
       {
+        value = value.ToUpperInvariant();
         return FindIndex(_names, value, (i, j) => i == j);
       }
       public static int GetIdFor(RegistryKey value)
