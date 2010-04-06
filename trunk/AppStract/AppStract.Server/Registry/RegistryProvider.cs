@@ -21,11 +21,13 @@
 
 #endregion
 
+using System;
 using AppStract.Core.Virtualization.Interop;
 using AppStract.Server.Registry.Data;
 using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.Registry;
 using AppStract.Utilities.Observables;
+using ValueType=AppStract.Core.Virtualization.Registry.ValueType;
 
 namespace AppStract.Server.Registry
 {
@@ -100,11 +102,54 @@ namespace AppStract.Server.Registry
       if (HiveHelper.IsHiveHandle(hKey, out keyName))
       {
         return HiveHelper.GetHive(keyName).GetAccessMechanism() == AccessMechanism.Transparent
-                 ? (RegistryBase)_transparentRegistry
+                 ? (RegistryBase) _transparentRegistry
                  : _virtualRegistry;
       }
-      GuestCore.Log.Error("Unknown registry key handle => " + hKey);
-      return null;
+      // hKey is an unknown handle, try to virtualize this handle.
+      return TryRecoverUnknownHandle(hKey, out keyName);
+    }
+
+    /// <summary>
+    /// Tries to recover from an unknown handle.
+    /// </summary>
+    /// <param name="hKey">The unknown key handle to try to virtualize.</param>
+    /// <param name="keyName">
+    /// The string representation for <paramref name="hKey"/> as retrieved during recovery
+    /// and as used by the returned <see cref="RegistryBase"/>.
+    /// </param>
+    /// <returns></returns>
+    private RegistryBase TryRecoverUnknownHandle(uint hKey, out string keyName)
+    {
+      keyName = RegistryHelper.GetNameByHandle(hKey);
+      if (keyName == null)
+      {
+        GuestCore.Log.Error("Unknown registry key handle => {0}", hKey);
+        return null;
+      }
+      GuestCore.Log.Warning("Recovering from unknown registry key handle => {0} => {1}", hKey, keyName);
+      // Find the targeted virtual registry.
+      var hive = HiveHelper.GetHive(keyName);
+      var target = hive.GetAccessMechanism() == AccessMechanism.Transparent
+                     ? (RegistryBase) _transparentRegistry
+                     : _virtualRegistry;
+      // Teach target about this unknown key handle.
+      uint handle;
+      if (!target.OpenKey(keyName, out handle))
+      {
+        GuestCore.Log.Error("Unable to recover from unknown registry key handle => {0}", hKey, keyName);
+        return null;
+      }
+      try
+      {
+        target.AddAlias(handle, hKey);
+      }
+      catch (ApplicationException e)
+      {
+        GuestCore.Log.Error("Unable to recover from unknown registry key handle => {0}", e, hKey, keyName);
+        return null;
+      }
+      RegistryHelper.CloseRegistryKey(hKey);
+      return target;
     }
 
     #endregion
@@ -142,10 +187,17 @@ namespace AppStract.Server.Registry
 
     public NativeResultCode CloseKey(uint hKey)
     {
-      // The virtual registry doesn't close keys,
-      // so only call the transparent registry to close the key.
-      _transparentRegistry.CloseKey(hKey);
-      return NativeResultCode.Success;
+      string keyName;
+      // First try to close the key from the transparent registry,
+      // then try to close the key from the virtual registry.
+      // The virtual registry doesn't close keys, but aliases should always be freed.
+      if (_transparentRegistry.CloseKey(hKey)
+          || _virtualRegistry.RemoveAlias(hKey)
+          || _virtualRegistry.IsKnownKey(hKey, out keyName))
+        return NativeResultCode.Success;
+      // None of both registries knows the handle, pass the call to the host registry.
+      GuestCore.Log.Warning("Unknown registry key handle => {0}", hKey);
+      return NativeAPI.RegCloseKey(hKey);
     }
 
     public NativeResultCode DeleteKey(uint hKey)

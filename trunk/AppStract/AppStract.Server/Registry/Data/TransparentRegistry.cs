@@ -53,10 +53,10 @@ namespace AppStract.Server.Registry.Data
     /// Closes a key.
     /// </summary>
     /// <param name="hKey">Key to close.</param>
-    public void CloseKey(uint hKey)
+    public bool CloseKey(uint hKey)
     {
       // Let the base delete the key from its internal dictionary.
-      base.DeleteKey(hKey);
+      return base.DeleteKey(hKey) == NativeResultCode.Success;
     }
 
     #endregion
