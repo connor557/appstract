@@ -22,7 +22,10 @@
 #endregion
 
 using System;
+using System.Runtime.InteropServices;
+using AppStract.Core.Virtualization.Interop;
 using AppStract.Core.Virtualization.Registry;
+using AppStract.Utilities.Extensions;
 using Microsoft.Win32;
 using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
 
@@ -35,6 +38,36 @@ namespace AppStract.Server.Registry
   {
 
     #region Public Methods
+
+    /// <summary>
+    /// Returns the name of registry key which has been assigned the specified handle by the host registry.
+    /// </summary>
+    /// <param name="hKey"></param>
+    /// <returns>The registry key name associated to the handle. If no name can be retrieved, null is returned.</returns>
+    public static string GetNameByHandle(uint hKey)
+    {
+      var ptrSize = 0;
+      var ptr = Marshal.AllocHGlobal(ptrSize);
+      var resultCode = NativeAPI.NtQueryKey(new UIntPtr(hKey), NativeAPI.KeyInformationClass.KeyNameInformation,
+                                            ptr, ptrSize, out ptrSize);
+      Marshal.FreeHGlobal(ptr);
+      if (resultCode != NativeResultCode.BufferTooSmall && resultCode != NativeResultCode.BufferOverflow)
+        return null; // No data available
+      ptr = Marshal.AllocHGlobal(ptrSize);
+      resultCode = NativeAPI.NtQueryKey(new UIntPtr(hKey), NativeAPI.KeyInformationClass.KeyNameInformation,
+                                        ptr, ptrSize, out ptrSize);
+      // If success, the pointer is expected to point to a KEY_NAME_INFORMATION struct instance.
+      // This struct always has an integer on the first 4 bytes and characters on all following bytes, if any.
+      // All pointed data is read as one string, the key name is then obtained by removing the first 4 bytes.
+      var keyName = resultCode == NativeResultCode.Success
+                      ? ptr.Read<string>((uint) ptrSize).Substring(2)
+                      : null;
+      Marshal.FreeHGlobal(ptr);
+      if (resultCode != NativeResultCode.Success)
+        Marshal.ThrowExceptionForHR((int) resultCode);
+      keyName = Data.RegistryTranslator.FromWin32Path(keyName);
+      return keyName;
+    }
 
     /// <summary>
     /// Combines two keynames to one keyname.
@@ -116,6 +149,16 @@ namespace AppStract.Server.Registry
       {
         return null;
       }
+    }
+
+    /// <summary>
+    /// Closes a handle to the specified registry key.
+    /// </summary>
+    /// <param name="hKey"></param>
+    /// <returns></returns>
+    public static bool CloseRegistryKey(uint hKey)
+    {
+      return NativeAPI.RegCloseKey(hKey) == NativeResultCode.Success;
     }
 
     /// <summary>

@@ -21,6 +21,7 @@
 
 #endregion
 
+using System;
 using System.Security.Principal;
 using Microsoft.Win32;
 
@@ -97,6 +98,38 @@ namespace AppStract.Server.Registry.Data
     #endregion
 
     #region Public Methods
+
+    /// <summary>
+    /// Returns the given <paramref name="win32RegistryPath"/> as a normal "HKEY_" full registry path.
+    /// The return value is a lower cased string.
+    /// </summary>
+    /// <remarks>
+    /// Example of a win32 registry path:
+    ///   \REGISTRY\MACHINE\SOFTWARE\Microsoft
+    /// Example of the returned value:
+    ///   hkey_local_machine\software\microsoft
+    /// </remarks>
+    /// <param name="win32RegistryPath"></param>
+    /// <returns></returns>
+    public static string FromWin32Path(string win32RegistryPath)
+    {
+      win32RegistryPath = win32RegistryPath.ToLowerInvariant();
+      if (!win32RegistryPath.StartsWith(@"\registry\"))
+        return win32RegistryPath;
+      win32RegistryPath = win32RegistryPath.Substring(@"\registry\".Length);
+      if (win32RegistryPath.StartsWith(@"user\"))
+      {
+        win32RegistryPath = win32RegistryPath.Substring(@"user\".Length);
+        return win32RegistryPath.StartsWith(_currentUserSid)
+                 ? @"hkey_current_user" + win32RegistryPath.Substring(_currentUserSid.Length)
+                 : @"hkey_users\" + win32RegistryPath;
+      }
+      if (win32RegistryPath.StartsWith(@"machine\"))
+        return "hkey_local_machine" + win32RegistryPath.Substring("machine".Length);
+      // Throw exception, other possible values are undocumented and not yet researched
+      throw new NotImplementedException("No implementation for \"\\REGISTRY\\" + win32RegistryPath +
+                                        "\". Only \"\\REGISTRY\\USER\\\" and \"\\REGISTRY\\MACHINE\\\" are implemented.");
+    }
 
     /// <summary>
     /// Redirects the given <paramref name="fullRegistryPath"/> to the equivalent path
