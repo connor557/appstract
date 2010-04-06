@@ -41,37 +41,37 @@ namespace AppStract.Server.Registry.Data
     #region Variables
 
     /// <summary>
-    /// The string representing the CurrentUser of the virtual environment.
+    /// The lower cased string representing the CurrentUser of the virtual environment.
     /// </summary>
     private const string _virtualCurrentUser = "s-appstract-user";
     /// <summary>
-    /// The string representing the CurrentConfig of the virtual environment.
+    /// The lower cased string representing the CurrentConfig of the virtual environment.
     /// </summary>
     private const string _virtualCurrentHardwareProfile = "appstract-config";
     /// <summary>
-    /// The string representing the SID of the current user of the host operating system.
+    /// The lower cased string representing the SID of the current user of the host operating system.
     /// Also referred to as the real current user.
     /// </summary>
     private static readonly string _currentUserSid;
     /// <summary>
-    /// The string representing the current hardware profile (CurrentConfig) of the host operating system.
+    /// The lower case string representing the current hardware profile (CurrentConfig) of the host operating system.
     /// Also referred to as the real current config, or real current hardware profile.
     /// </summary>
     private static readonly string _currentHardwareProfile;
     /// <summary>
-    /// The full path to the real current user's profile.
+    /// The lower cased full path to the real current user's profile.
     /// </summary>
     private static readonly string _currentUserFullPath;
     /// <summary>
-    /// The full path to the real current hardware profile.
+    /// The lower cased full path to the real current hardware profile.
     /// </summary>
     private static readonly string _currentHardwareProfileFullPath;
     /// <summary>
-    /// The full path to the virtual current user's profile.
+    /// The lower cased full path to the virtual current user's profile.
     /// </summary>
     private static readonly string _virtualCurrentUserFullPath;
     /// <summary>
-    /// The full path to the  virtual current hardware profile.
+    /// The lower cased full path to the  virtual current hardware profile.
     /// </summary>
     private static readonly string _virtualCurrentHardwareProfileFullPath;
 
@@ -87,7 +87,7 @@ namespace AppStract.Server.Registry.Data
       _virtualCurrentHardwareProfileFullPath = @"hkey_local_machine\system\currentcontrolset\hardware profiles\"
                                                + _virtualCurrentHardwareProfile;
       // Default value is ".DEFAULT", which is also the default value used by Windows.
-      _currentUserSid = GetCurrentUserSID(".default");
+      _currentUserSid = GetCurrentUserSID(".default").ToLowerInvariant();
       _currentUserFullPath = @"hkey_users\" + _currentUserSid;
       // Default value is "0001", the most common value for profile-numbers.
       _currentHardwareProfile = GetCurrentProfileNumber("0001");
