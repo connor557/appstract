@@ -52,7 +52,7 @@ namespace AppStract.Server.Registry.Data
       var virtualKeyPath = RegistryTranslator.ToVirtualPath(keyFullPath);
       if (base.OpenKey(virtualKeyPath, out hResult))
         return true;
-      if (!RegistryHelper.KeyExists(keyFullPath))
+      if (!HostRegistry.KeyExists(keyFullPath))
         return false;
       var virtualRegistryKey = ConstructRegistryKey(virtualKeyPath);
       WriteKey(virtualRegistryKey, true);
@@ -80,7 +80,7 @@ namespace AppStract.Server.Registry.Data
       {
         ValueType valueType;
         var realKeyPath = RegistryTranslator.ToRealPath(keyPath);
-        var data = RegistryHelper.QueryRegistryValue(realKeyPath, valueName, out valueType);
+        var data = HostRegistry.QueryValue(realKeyPath, valueName, out valueType);
         if (data == null)
           return NativeResultCode.FileNotFound;
         value = new VirtualRegistryValue(valueName, data.ToByteArray(), valueType);

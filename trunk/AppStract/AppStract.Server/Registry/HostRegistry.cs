@@ -32,42 +32,12 @@ using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
 namespace AppStract.Server.Registry
 {
   /// <summary>
-  /// Provides helper methods for the registry.
+  /// Provides helper methods for manipulating the host's registry.
   /// </summary>
-  public static class RegistryHelper
+  public static class HostRegistry
   {
 
     #region Public Methods
-
-    /// <summary>
-    /// Returns the name of registry key which has been assigned the specified handle by the host registry.
-    /// </summary>
-    /// <param name="hKey"></param>
-    /// <returns>The registry key name associated to the handle. If no name can be retrieved, null is returned.</returns>
-    public static string GetNameByHandle(uint hKey)
-    {
-      var ptrSize = 0;
-      var ptr = Marshal.AllocHGlobal(ptrSize);
-      var resultCode = NativeAPI.NtQueryKey(new UIntPtr(hKey), NativeAPI.KeyInformationClass.KeyNameInformation,
-                                            ptr, ptrSize, out ptrSize);
-      Marshal.FreeHGlobal(ptr);
-      if (resultCode != NativeResultCode.BufferTooSmall && resultCode != NativeResultCode.BufferOverflow)
-        return null; // No data available
-      ptr = Marshal.AllocHGlobal(ptrSize);
-      resultCode = NativeAPI.NtQueryKey(new UIntPtr(hKey), NativeAPI.KeyInformationClass.KeyNameInformation,
-                                        ptr, ptrSize, out ptrSize);
-      // If success, the pointer is expected to point to a KEY_NAME_INFORMATION struct instance.
-      // This struct always has an integer on the first 4 bytes and characters on all following bytes, if any.
-      // All pointed data is read as one string, the key name is then obtained by removing the first 4 bytes.
-      var keyName = resultCode == NativeResultCode.Success
-                      ? ptr.Read<string>((uint) ptrSize).Substring(2)
-                      : null;
-      Marshal.FreeHGlobal(ptr);
-      if (resultCode != NativeResultCode.Success)
-        Marshal.ThrowExceptionForHR((int) resultCode);
-      keyName = Data.RegistryTranslator.FromWin32Path(keyName);
-      return keyName;
-    }
 
     /// <summary>
     /// Combines two keynames to one keyname.
@@ -98,33 +68,12 @@ namespace AppStract.Server.Registry
     }
 
     /// <summary>
-    /// Opens a <see cref="RegistryKey"/> matching the specified <paramref name="keyPath"/>, from the real registry.
-    /// </summary>
-    /// <param name="keyPath"></param>
-    /// <param name="writable"></param>
-    /// <returns>The opened <see cref="RegistryKey"/>; Or null, in case the method failed</returns>
-    public static RegistryKey OpenRegistryKey(string keyPath, bool writable)
-    {
-      var key = HiveHelper.GetHive(keyPath, out keyPath).AsRegistryKey();
-      if (keyPath == null)
-        return key;
-      try
-      {
-        return key.OpenSubKey(keyPath, writable);
-      }
-      catch
-      {
-        return null;
-      }
-    }
-
-    /// <summary>
-    /// Creates the specified key in the host's registry, and returns it.
+    /// Creates and returns a <see cref="RegistryKey"/> for the specified key path.
     /// </summary>
     /// <param name="keyPath">The full path of the key, including the root key.</param>
     /// <param name="creationDisposition">Whether the key has been opened or created.</param>
     /// <returns></returns>
-    public static RegistryKey CreateRegistryKey(string keyPath, out RegCreationDisposition creationDisposition)
+    public static RegistryKey CreateKey(string keyPath, out RegCreationDisposition creationDisposition)
     {
       string subKeyName;
       var registryKey = HiveHelper.GetHive(keyPath, out subKeyName).AsRegistryKey();
@@ -152,13 +101,43 @@ namespace AppStract.Server.Registry
     }
 
     /// <summary>
-    /// Closes a handle to the specified registry key.
+    /// Closes the specified handle, which is supposed to be an open handle provided by the host's registry.
     /// </summary>
     /// <param name="hKey"></param>
     /// <returns></returns>
-    public static bool CloseRegistryKey(uint hKey)
+    public static bool CloseKey(uint hKey)
     {
       return NativeAPI.RegCloseKey(hKey) == NativeResultCode.Success;
+    }
+
+    /// <summary>
+    /// Returns the name of registry key which has been assigned the specified handle by the host registry.
+    /// </summary>
+    /// <param name="hKey"></param>
+    /// <returns>The registry key name associated to the handle. If no name can be retrieved, null is returned.</returns>
+    public static string GetKeyNameByHandle(uint hKey)
+    {
+      var ptrSize = 0;
+      var ptr = Marshal.AllocHGlobal(ptrSize);
+      var resultCode = NativeAPI.NtQueryKey(new UIntPtr(hKey), NativeAPI.KeyInformationClass.KeyNameInformation,
+                                            ptr, ptrSize, out ptrSize);
+      Marshal.FreeHGlobal(ptr);
+      if (resultCode != NativeResultCode.BufferTooSmall && resultCode != NativeResultCode.BufferOverflow)
+        return null; // No data available
+      ptr = Marshal.AllocHGlobal(ptrSize);
+      resultCode = NativeAPI.NtQueryKey(new UIntPtr(hKey), NativeAPI.KeyInformationClass.KeyNameInformation,
+                                        ptr, ptrSize, out ptrSize);
+      // If success, the pointer is expected to point to a KEY_NAME_INFORMATION struct instance.
+      // This struct always has an integer on the first 4 bytes and characters on all following bytes, if any.
+      // All pointed data is read as one string, the key name is then obtained by removing the first 4 bytes.
+      var keyName = resultCode == NativeResultCode.Success
+                      ? ptr.Read<string>((uint)ptrSize).Substring(2)
+                      : null;
+      Marshal.FreeHGlobal(ptr);
+      if (resultCode != NativeResultCode.Success)
+        Marshal.ThrowExceptionForHR((int)resultCode);
+      keyName = Data.RegistryTranslator.FromWin32Path(keyName);
+      return keyName;
     }
 
     /// <summary>
@@ -168,7 +147,7 @@ namespace AppStract.Server.Registry
     /// <returns>Whether the key exist's in the current host's registry.</returns>
     public static bool KeyExists(string keyFullPath)
     {
-      var key = OpenRegistryKey(keyFullPath, false);
+      var key = OpenKey(keyFullPath, false);
       if (key == null)
         return false;
       key.Close();
@@ -176,17 +155,37 @@ namespace AppStract.Server.Registry
     }
 
     /// <summary>
+    /// Opens a <see cref="RegistryKey"/> matching the specified <paramref name="keyPath"/>.
+    /// </summary>
+    /// <param name="keyPath"></param>
+    /// <param name="writable"></param>
+    /// <returns>The opened <see cref="RegistryKey"/>; Or null, in case the method failed</returns>
+    public static RegistryKey OpenKey(string keyPath, bool writable)
+    {
+      var key = HiveHelper.GetHive(keyPath, out keyPath).AsRegistryKey();
+      if (keyPath == null)
+        return key;
+      try
+      {
+        return key.OpenSubKey(keyPath, writable);
+      }
+      catch
+      {
+        return null;
+      }
+    }
+
+    /// <summary>
     /// Returns the value for <paramref name="valueName"/> under the specified <paramref name="keyPath"/>.
-    /// This value is read from the real registry.
     /// </summary>
     /// <param name="keyPath"></param>
     /// <param name="valueName"></param>
     /// <param name="valueType"></param>
     /// <returns></returns>
-    public static object QueryRegistryValue(string keyPath, string valueName, out ValueType valueType)
+    public static object QueryValue(string keyPath, string valueName, out ValueType valueType)
     {
       valueType = ValueType.REG_NONE;
-      var key = OpenRegistryKey(keyPath, false);
+      var key = OpenKey(keyPath, false);
       if (key == null)
         return null;
       var value = key.GetValue(valueName);

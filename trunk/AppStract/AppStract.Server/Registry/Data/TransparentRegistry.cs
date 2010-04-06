@@ -68,7 +68,7 @@ namespace AppStract.Server.Registry.Data
       // Always create a new VirtualRegistryKey, no matter if if one already exists for keyName.
       // Why? There is no counter for the number of users of each handle.
       // => if one user closes the handle, other users won't be able to use it anymore.
-      if (!RegistryHelper.KeyExists(keyFullPath))
+      if (!HostRegistry.KeyExists(keyFullPath))
       {
         hKey = 0;
         return false;
@@ -80,7 +80,7 @@ namespace AppStract.Server.Registry.Data
     public override NativeResultCode CreateKey(string keyFullPath, out uint hKey, out RegCreationDisposition creationDisposition)
     {
       // Create the key in the real registry.
-      var registryKey = RegistryHelper.CreateRegistryKey(keyFullPath, out creationDisposition);
+      var registryKey = HostRegistry.CreateKey(keyFullPath, out creationDisposition);
       if (registryKey == null)
       {
         hKey = 0;
@@ -102,7 +102,7 @@ namespace AppStract.Server.Registry.Data
       int index = keyName.LastIndexOf(@"\");
       string subKeyName = keyName.Substring(index + 1);
       keyName = keyName.Substring(0, index);
-      RegistryKey regKey = RegistryHelper.OpenRegistryKey(keyName, true);
+      RegistryKey regKey = HostRegistry.OpenKey(keyName, true);
       try
       {
         if (regKey != null)
@@ -131,7 +131,7 @@ namespace AppStract.Server.Registry.Data
       try
       {
         ValueType valueType;
-        var data = RegistryHelper.QueryRegistryValue(keyPath, valueName, out valueType);
+        var data = HostRegistry.QueryValue(keyPath, valueName, out valueType);
         if (data == null)
           return NativeResultCode.FileNotFound;
         value = new VirtualRegistryValue(valueName, data.ToByteArray(), valueType);
@@ -167,7 +167,7 @@ namespace AppStract.Server.Registry.Data
         return NativeResultCode.InvalidHandle;
       try
       {
-        var regKey = RegistryHelper.OpenRegistryKey(keyPath, true);
+        var regKey = HostRegistry.OpenKey(keyPath, true);
         if (regKey == null)
           return NativeResultCode.FileNotFound;
         regKey.DeleteValue(valueName, true);

@@ -98,7 +98,7 @@
     <Compile Include="Registry\Data\VirtualRegistry.cs" />
     <Compile Include="Registry\AccessMechanism.cs" />
     <Compile Include="Registry\HiveHelper.cs" />
-    <Compile Include="Registry\RegistryHelper.cs" />
+    <Compile Include="Registry\HostRegistry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Registry\RegistryProvider.cs" />
   </ItemGroup>
