@@ -109,11 +109,12 @@ namespace AppStract.Core.Data.Databases
       RegisterUser(indexRequester);
       lock (_indicesLock)
       {
-        if (_freeIndices.Count != 0)
+        while (_freeIndices.Count != 0)
         {
           var freeIndex = _freeIndices[_freeIndices.Count - 1];
           _freeIndices.RemoveAt(_freeIndices.Count - 1);
-          return freeIndex;
+          if (!IsInUse(freeIndex))
+            return freeIndex;
         }
         // ELSE: find a new index.
         do
