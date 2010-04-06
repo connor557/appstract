@@ -133,8 +133,9 @@ namespace AppStract.Server.Hooking
         return NativeResultCode.InvalidHandle;
       using (HookManager.ACL.GetHookingExclusion())
       {
-        GuestCore.Log.Debug("CloseKey(HKey={0})", handle);
-        return _registry.CloseKey(handle);
+        var resultCode = _registry.CloseKey(handle);
+        GuestCore.Log.Debug("CloseKey(HKey={0}) => {1}", handle, resultCode);
+        return resultCode;
       }
     }
 
