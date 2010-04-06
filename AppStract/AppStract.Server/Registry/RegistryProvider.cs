@@ -120,7 +120,7 @@ namespace AppStract.Server.Registry
     /// <returns></returns>
     private RegistryBase TryRecoverUnknownHandle(uint hKey, out string keyName)
     {
-      keyName = RegistryHelper.GetNameByHandle(hKey);
+      keyName = HostRegistry.GetKeyNameByHandle(hKey);
       if (keyName == null)
       {
         GuestCore.Log.Error("Unknown registry key handle => {0}", hKey);
@@ -148,7 +148,7 @@ namespace AppStract.Server.Registry
         GuestCore.Log.Error("Unable to recover from unknown registry key handle => {0}", e, hKey, keyName);
         return null;
       }
-      RegistryHelper.CloseRegistryKey(hKey);
+      HostRegistry.CloseKey(hKey);
       return target;
     }
 
@@ -165,7 +165,7 @@ namespace AppStract.Server.Registry
         hSubKey = 0;
         return NativeResultCode.InvalidHandle;
       }
-      keyName = RegistryHelper.CombineKeyNames(keyName, subKeyName);
+      keyName = HostRegistry.CombineKeyNames(keyName, subKeyName);
       return registry.OpenKey(keyName, out hSubKey)
                ? NativeResultCode.Success
                : NativeResultCode.FileNotFound;
@@ -181,7 +181,7 @@ namespace AppStract.Server.Registry
         creationDisposition = RegCreationDisposition.NoKeyCreated;
         return NativeResultCode.InvalidHandle;
       }
-      keyName = RegistryHelper.CombineKeyNames(keyName, subKeyName);
+      keyName = HostRegistry.CombineKeyNames(keyName, subKeyName);
       return registry.CreateKey(keyName, out hSubKey, out creationDisposition);
     }
 
