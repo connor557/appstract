@@ -59,7 +59,7 @@ namespace AppStract.Server.Registry.Data
 
     #region Overridden Methods
 
-    public override bool OpenKey(string keyFullPath, out uint hKey)
+    public override NativeResultCode OpenKey(string keyFullPath, out uint hKey)
     {
       // Always create a new VirtualRegistryKey, no matter if if one already exists for keyName.
       // Why? There is no counter for the number of users of each handle.
@@ -67,10 +67,10 @@ namespace AppStract.Server.Registry.Data
       if (!HostRegistry.KeyExists(keyFullPath))
       {
         hKey = 0;
-        return false;
+        return NativeResultCode.FileNotFound;
       }
       hKey = BufferKey(keyFullPath);
-      return true;
+      return NativeResultCode.Success;
     }
 
     public override NativeResultCode CreateKey(string keyFullPath, out uint hKey, out RegCreationDisposition creationDisposition)
