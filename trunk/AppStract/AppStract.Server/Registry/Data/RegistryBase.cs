@@ -156,6 +156,21 @@ namespace AppStract.Server.Registry.Data
     }
 
     /// <summary>
+    /// Closes a key handle.
+    /// </summary>
+    /// <param name="hKey"></param>
+    /// <returns></returns>
+    public virtual NativeResultCode CloseKey(uint hKey)
+    {
+      string keyPath;
+      if (!IsKnownKey(hKey, out keyPath))
+        return NativeResultCode.InvalidHandle;
+      // Aliases should always be freed. Removing items from _keys is implemented by DeleteKey()
+      RemoveAlias(hKey);
+      return NativeResultCode.Success;
+    }
+
+    /// <summary>
     /// Deletes the key with the specified index.
     /// </summary>
     /// <param name="hKey"></param>

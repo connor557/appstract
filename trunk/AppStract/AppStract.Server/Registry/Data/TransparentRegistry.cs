@@ -57,41 +57,6 @@ namespace AppStract.Server.Registry.Data
 
     #endregion
 
-    #region Public Methods
-
-    /// <summary>
-    /// Closes a key.
-    /// </summary>
-    /// <param name="hKey">Key to close.</param>
-    public bool CloseKey(uint hKey)
-    {
-      // In the transparent registry keys are closed in one of the following two ways:
-      // - If hKey is an alias, the alias is removed.
-      // - If hKey is not an alias, hKey is removed from the internal dictionary by base.DeleteKey()
-      //   BUT if hKey has aliases pointing to it, the removal needs to wait until all aliases are closed.
-      uint realKey;
-      if (IsAlias(hKey, out realKey))
-      {
-        RemoveAlias(hKey);
-        lock (_keysPendingClosureSyncRoot)
-          if (_keysPendingClosure.Contains(realKey)
-              && !HasAliases(realKey))
-          {
-            base.DeleteKey(realKey);
-            _keysPendingClosure.Remove(realKey);
-          }
-        return true;
-      }
-      if (!HasAliases(hKey))
-        return base.DeleteKey(hKey) == NativeResultCode.Success;
-      lock (_keysPendingClosureSyncRoot)
-        if (!_keysPendingClosure.Contains(hKey))
-          _keysPendingClosure.Add(hKey);
-      return true;
-    }
-
-    #endregion
-
     #region Overridden Methods
 
     public override bool OpenKey(string keyFullPath, out uint hKey)
@@ -119,6 +84,33 @@ namespace AppStract.Server.Registry.Data
       }
       registryKey.Close();
       hKey = BufferKey(keyFullPath);
+      return NativeResultCode.Success;
+    }
+
+    public override NativeResultCode CloseKey(uint hKey)
+    {
+      // In the transparent registry keys are closed in one of the following two ways:
+      // - If hKey is an alias, the alias is removed.
+      // - If hKey is not an alias, hKey is removed from the internal dictionary by base.DeleteKey()
+      //   BUT if hKey has aliases pointing to it, the removal needs to wait until all aliases are closed.
+      uint realKey;
+      if (IsAlias(hKey, out realKey))
+      {
+        RemoveAlias(hKey);
+        lock (_keysPendingClosureSyncRoot)
+          if (_keysPendingClosure.Contains(realKey)
+              && !HasAliases(realKey))
+          {
+            base.DeleteKey(realKey);
+            _keysPendingClosure.Remove(realKey);
+          }
+        return NativeResultCode.Success;
+      }
+      if (!HasAliases(hKey))
+        return base.DeleteKey(hKey);
+      lock (_keysPendingClosureSyncRoot)
+        if (!_keysPendingClosure.Contains(hKey))
+          _keysPendingClosure.Add(hKey);
       return NativeResultCode.Success;
     }
 
