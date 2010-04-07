@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.Interop;
 using AppStract.Core.Virtualization.Registry;
@@ -38,11 +39,20 @@ namespace AppStract.Server.Registry.Data
   public sealed class TransparentRegistry : RegistryBase
   {
 
+    #region Variables
+
+    private readonly ICollection<uint> _keysPendingClosure;
+    private readonly object _keysPendingClosureSyncRoot;
+
+    #endregion
+
     #region Constructors
 
     public TransparentRegistry(IndexGenerator indexGenerator)
       : base(indexGenerator)
     {
+      _keysPendingClosure = new List<uint>();
+      _keysPendingClosureSyncRoot = new object();
     }
 
     #endregion
@@ -55,8 +65,29 @@ namespace AppStract.Server.Registry.Data
     /// <param name="hKey">Key to close.</param>
     public bool CloseKey(uint hKey)
     {
-      // Let the base delete the key from its internal dictionary.
-      return base.DeleteKey(hKey) == NativeResultCode.Success;
+      // In the transparent registry keys are closed in one of the following two ways:
+      // - If hKey is an alias, the alias is removed.
+      // - If hKey is not an alias, hKey is removed from the internal dictionary by base.DeleteKey()
+      //   BUT if hKey has aliases pointing to it, the removal needs to wait until all aliases are closed.
+      uint realKey;
+      if (IsAlias(hKey, out realKey))
+      {
+        RemoveAlias(hKey);
+        lock (_keysPendingClosureSyncRoot)
+          if (_keysPendingClosure.Contains(realKey)
+              && !HasAliases(realKey))
+          {
+            base.DeleteKey(realKey);
+            _keysPendingClosure.Remove(realKey);
+          }
+        return true;
+      }
+      if (!HasAliases(hKey))
+        return base.DeleteKey(hKey) == NativeResultCode.Success;
+      lock (_keysPendingClosureSyncRoot)
+        if (!_keysPendingClosure.Contains(hKey))
+          _keysPendingClosure.Add(hKey);
+      return true;
     }
 
     #endregion
