@@ -187,14 +187,12 @@ namespace AppStract.Server.Registry
 
     public NativeResultCode CloseKey(uint hKey)
     {
-      string keyName;
-      // First try to close the key from the transparent registry,
-      // then try to close the key from the virtual registry.
-      // The virtual registry doesn't close keys, but aliases should always be freed.
-      if (_transparentRegistry.CloseKey(hKey)
-          || _virtualRegistry.RemoveAlias(hKey)
-          || _virtualRegistry.IsKnownKey(hKey, out keyName))
-        return NativeResultCode.Success;
+      var resultCode = _transparentRegistry.CloseKey(hKey);
+      if (resultCode != NativeResultCode.InvalidHandle)
+        return resultCode;
+      resultCode = _virtualRegistry.CloseKey(hKey);
+      if (resultCode != NativeResultCode.InvalidHandle)
+        return resultCode;
       // None of both registries knows the handle, pass the call to the host registry.
       GuestCore.Log.Warning("Unknown registry key handle => {0}", hKey);
       return NativeAPI.RegCloseKey(hKey);
