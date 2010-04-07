@@ -252,22 +252,22 @@ namespace AppStract.Server.Registry.Data
     /// An uncompatible alias already exists for an other virtual key.
     /// </exception>
     /// <param name="hKey">The virtual key handle, known by the current <see cref="RegistryBase"/>.</param>
-    /// <param name="aliasKeyHandle">The handle to add as alias for <paramref name="hKey"/>.</param>
-    public virtual void AddAlias(uint hKey, uint aliasKeyHandle)
+    /// <param name="aliasHKey">The handle to add as alias for <paramref name="hKey"/>.</param>
+    public void AddAlias(uint hKey, uint aliasHKey)
     {
       using (_keysSynchronizationLock.EnterDisposableUpgradeableReadLock())
       {
         hKey = EnsureHandleIsNoAlias(hKey);
         if (!_keys.ContainsKey(hKey))
           throw new ArgumentException("The handle specified is unknown to the current RegistryBase.", "hKey");
-        if (!_keyAliases.ContainsKey(aliasKeyHandle))
+        if (!_keyAliases.ContainsKey(aliasHKey))
         {
-          if (_indexGenerator.IsInUse(aliasKeyHandle))
+          if (_indexGenerator.IsInUse(aliasHKey))
             throw new ApplicationException("The alias key handle already exists in the virtual registry.");
           using (_keysSynchronizationLock.EnterDisposableWriteLock())
-            _keyAliases.Add(aliasKeyHandle, hKey);
+            _keyAliases.Add(aliasHKey, hKey);
         }
-        else if (_keyAliases[aliasKeyHandle] != hKey)
+        else if (_keyAliases[aliasHKey] != hKey)
           throw new ApplicationException("An incompatible alias already exists for an other virtual key.");
       }
     }
@@ -275,50 +275,14 @@ namespace AppStract.Server.Registry.Data
     /// <summary>
     /// Removes an alias.
     /// </summary>
-    /// <param name="aliasKeyHandle">The to alias to be removed.</param>
-    public virtual bool RemoveAlias(uint aliasKeyHandle)
+    /// <param name="aliasHKey">The to alias to be removed.</param>
+    public bool RemoveAlias(uint aliasHKey)
     {
       using (_keysSynchronizationLock.EnterDisposableUpgradeableReadLock())
-        if (_keyAliases.ContainsKey(aliasKeyHandle))
+        if (_keyAliases.ContainsKey(aliasHKey))
           using (_keysSynchronizationLock.EnterDisposableWriteLock())
-            return _keyAliases.Remove(aliasKeyHandle);
+            return _keyAliases.Remove(aliasHKey);
       return false;
-    }
-
-    /// <summary>
-    /// Removes al aliases for a known key handle.
-    /// </summary>
-    /// <exception cref="ArgumentException">
-    /// An <see cref="ArgumentException"/> is thrown if <paramref name="virtualKeyHandle"/>
-    /// is unknown the the current <see cref="RegistryBase"/>.
-    /// </exception>
-    /// <param name="virtualKeyHandle">The virtual key handle to remove all aliases for.</param>
-    public virtual void RemoveAliasesFor(uint virtualKeyHandle)
-    {
-      // Verify if virtualKeyHandle is a known key.
-      var upgradeableLock = _keysSynchronizationLock.IsAnyLockHeld()
-                              ? null
-                              : _keysSynchronizationLock.EnterDisposableUpgradeableReadLock();
-      if (!_keys.ContainsKey(virtualKeyHandle))
-        throw new ArgumentException("The handle specified is unknown to the current RegistryBase.", "virtualKeyHandle");
-      var aliases = new List<uint>();
-      // Find all aliases
-      foreach (var alias in _keyAliases)
-        if (alias.Value == virtualKeyHandle)
-          aliases.Add(alias.Key);
-      // Remove all aliases for this key.
-      if (aliases.Count != 0)
-      {
-        var writeLock = _keysSynchronizationLock.IsWriteLockHeld
-                          ? null
-                          : _keysSynchronizationLock.EnterDisposableWriteLock();
-        foreach (var alias in aliases)
-          _keyAliases.Remove(alias);
-        if (writeLock != null)
-          writeLock.Dispose();
-      }
-      if (upgradeableLock != null)
-        upgradeableLock.Dispose();
     }
 
     #endregion
@@ -354,6 +318,68 @@ namespace AppStract.Server.Registry.Data
       if (!discardOldKeyValues)
         registryKey = LoadAllValues(registryKey, false, true);
       WriteKey(registryKey);
+    }
+
+    /// <summary>
+    /// Returns whether or not <see cref="aliasHKey"/> is an alias pointing to another key.
+    /// </summary>
+    /// <param name="aliasHKey">The handle to check.</param>
+    /// <param name="hKey">The key pointed to by <paramref name="aliasHKey"/>, if any.</param>
+    /// <returns></returns>
+    protected bool IsAlias(uint aliasHKey, out uint hKey)
+    {
+      using (_keysSynchronizationLock.EnterDisposableReadLock())
+      {
+        var isAlias = _keyAliases.ContainsKey(aliasHKey);
+        hKey = isAlias ? _keyAliases[aliasHKey] : 0;
+        return isAlias;
+      }
+    }
+
+    /// <summary>
+    /// Returns whether or not the given <see cref="hKey"/> has aliases pointing to it.
+    /// </summary>
+    /// <param name="hKey"></param>
+    /// <returns></returns>
+    protected bool HasAliases(uint hKey)
+    {
+      using (_keysSynchronizationLock.EnterDisposableReadLock())
+        return _keyAliases.Values.Contains(hKey);
+    }
+
+    /// <summary>
+    /// Removes al aliases for a known key handle.
+    /// </summary>
+    /// <exception cref="ArgumentException">
+    /// An <see cref="ArgumentException"/> is thrown if <paramref name="hKey"/>
+    /// is unknown the the current <see cref="RegistryBase"/>.
+    /// </exception>
+    /// <param name="hKey">The virtual key handle to remove all aliases for.</param>
+    protected void RemoveAliasesFor(uint hKey)
+    {
+      var upgradeableLock = _keysSynchronizationLock.IsAnyLockHeld()
+                              ? null
+                              : _keysSynchronizationLock.EnterDisposableUpgradeableReadLock();
+      if (!_keys.ContainsKey(hKey))
+        throw new ArgumentException("The handle specified is unknown to the current RegistryBase.", "hKey");
+      var aliases = new List<uint>();
+      // Find all aliases
+      foreach (var alias in _keyAliases)
+        if (alias.Value == hKey)
+          aliases.Add(alias.Key);
+      // Remove all aliases for this key.
+      if (aliases.Count != 0)
+      {
+        var writeLock = _keysSynchronizationLock.IsWriteLockHeld
+                          ? null
+                          : _keysSynchronizationLock.EnterDisposableWriteLock();
+        foreach (var alias in aliases)
+          _keyAliases.Remove(alias);
+        if (writeLock != null)
+          writeLock.Dispose();
+      }
+      if (upgradeableLock != null)
+        upgradeableLock.Dispose();
     }
 
     #endregion
