@@ -47,17 +47,17 @@ namespace AppStract.Server.Registry.Data
 
     #region Overridden Methods
 
-    public override bool OpenKey(string keyFullPath, out uint hResult)
+    public override NativeResultCode OpenKey(string keyFullPath, out uint hResult)
     {
       var virtualKeyPath = RegistryTranslator.ToVirtualPath(keyFullPath);
-      if (base.OpenKey(virtualKeyPath, out hResult))
-        return true;
+      if (base.OpenKey(virtualKeyPath, out hResult) == NativeResultCode.Success)
+        return NativeResultCode.Success;
       if (!HostRegistry.KeyExists(keyFullPath))
-        return false;
+        return NativeResultCode.FileNotFound;
       var virtualRegistryKey = ConstructRegistryKey(virtualKeyPath);
       WriteKey(virtualRegistryKey, true);
       hResult = virtualRegistryKey.Handle;
-      return true;
+      return NativeResultCode.Success;
     }
 
     public override NativeResultCode CreateKey(string keyFullPath, out uint hKey, out RegCreationDisposition creationDisposition)

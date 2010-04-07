@@ -118,7 +118,7 @@ namespace AppStract.Server.Registry.Data
     /// <param name="keyFullPath"></param>
     /// <param name="hKey"></param>
     /// <returns></returns>
-    public virtual bool OpenKey(string keyFullPath, out uint hKey)
+    public virtual NativeResultCode OpenKey(string keyFullPath, out uint hKey)
     {
       VirtualRegistryKey key;
       using (_keysSynchronizationLock.EnterDisposableReadLock())
@@ -126,10 +126,10 @@ namespace AppStract.Server.Registry.Data
       if (key == null)
       {
         hKey = 0;
-        return false;
+        return NativeResultCode.FileNotFound;
       }
       hKey = key.Handle;
-      return true;
+      return NativeResultCode.Success;
     }
 
     /// <summary>
@@ -141,7 +141,7 @@ namespace AppStract.Server.Registry.Data
     /// <returns></returns>
     public virtual NativeResultCode CreateKey(string keyFullPath, out uint hKey, out RegCreationDisposition creationDisposition)
     {
-      if (OpenKey(keyFullPath, out hKey))
+      if (OpenKey(keyFullPath, out hKey) == NativeResultCode.Success)
       {
         creationDisposition = RegCreationDisposition.OpenedExistingKey;
       }

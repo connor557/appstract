@@ -134,7 +134,7 @@ namespace AppStract.Server.Registry
                      : _virtualRegistry;
       // Teach target about this unknown key handle.
       uint handle;
-      if (!target.OpenKey(keyName, out handle))
+      if (target.OpenKey(keyName, out handle) != NativeResultCode.Success)
       {
         GuestCore.Log.Error("Unable to recover from unknown registry key handle => {0}", hKey, keyName);
         return null;
@@ -166,9 +166,7 @@ namespace AppStract.Server.Registry
         return NativeResultCode.InvalidHandle;
       }
       keyName = HostRegistry.CombineKeyNames(keyName, subKeyName);
-      return registry.OpenKey(keyName, out hSubKey)
-               ? NativeResultCode.Success
-               : NativeResultCode.FileNotFound;
+      return registry.OpenKey(keyName, out hSubKey);
     }
 
     public NativeResultCode CreateKey(uint hKey, string subKeyName, out uint hSubKey, out RegCreationDisposition creationDisposition)
