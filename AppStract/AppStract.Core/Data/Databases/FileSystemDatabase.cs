@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
-using AppStract.Core.Virtualization.FileSystem;
+using AppStract.Core.Virtualization.Engine.FileSystem;
 using AppStract.Utilities.Helpers;
 
 namespace AppStract.Core.Data.Databases

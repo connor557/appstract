@@ -23,7 +23,7 @@
 
 using System.IO;
 
-namespace AppStract.Core.Virtualization.FileSystem
+namespace AppStract.Core.Virtualization.Engine.FileSystem
 {
   /// <summary>
   /// Request of the guest process for a file, directory, or library.

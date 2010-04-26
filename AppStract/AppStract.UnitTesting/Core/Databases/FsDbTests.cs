@@ -26,7 +26,7 @@ using System.Linq;
 using System.Threading;
 using AppStract.Core;
 using AppStract.Core.Data.Databases;
-using AppStract.Core.Virtualization.FileSystem;
+using AppStract.Core.Virtualization.Engine.FileSystem;
 using NUnit.Framework;
 
 namespace AppStract.UnitTesting.Core.Databases

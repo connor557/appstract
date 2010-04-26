@@ -28,9 +28,9 @@ using System.Text;
 using System.Threading;
 using AppStract.Core;
 using AppStract.Core.Data.Databases;
-using AppStract.Core.Virtualization.Registry;
+using AppStract.Core.Virtualization.Engine.Registry;
 using NUnit.Framework;
-using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
+using ValueType = AppStract.Core.Virtualization.Engine.Registry.ValueType;
 
 namespace AppStract.UnitTesting.Core.Databases
 {

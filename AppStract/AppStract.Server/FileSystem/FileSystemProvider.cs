@@ -25,7 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using AppStract.Core.Virtualization.FileSystem;
+using AppStract.Core.Virtualization.Engine.FileSystem;
 using AppStract.Utilities.Observables;
 
 namespace AppStract.Server.FileSystem

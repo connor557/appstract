@@ -24,8 +24,8 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using AppStract.Core.Virtualization.FileSystem;
-using AppStract.Core.Virtualization.Interop;
+using AppStract.Core.Virtualization.Engine;
+using AppStract.Core.Virtualization.Engine.FileSystem;
 using AppStract.Utilities.Helpers;
 
 namespace AppStract.Server.Hooking

@@ -23,10 +23,10 @@
 
 using System;
 using System.Runtime.InteropServices;
-using AppStract.Core.Virtualization.Interop;
-using AppStract.Core.Virtualization.Registry;
+using AppStract.Core.Virtualization.Engine;
+using AppStract.Core.Virtualization.Engine.Registry;
 using AppStract.Utilities.Extensions;
-using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
+using ValueType = AppStract.Core.Virtualization.Engine.Registry.ValueType;
 
 namespace AppStract.Server.Hooking
 {

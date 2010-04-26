@@ -22,8 +22,8 @@
 #endregion
 
 using System.Collections.Generic;
-using AppStract.Core.Virtualization.FileSystem;
-using AppStract.Core.Virtualization.Registry;
+using AppStract.Core.Virtualization.Engine.FileSystem;
+using AppStract.Core.Virtualization.Engine.Registry;
 
 namespace AppStract.Core.System.IPC
 {

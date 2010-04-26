@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace AppStract.Core.Virtualization.FileSystem
+namespace AppStract.Core.Virtualization.Engine.FileSystem
 {
   /// <summary>
   /// Provides access to the virtual file system.

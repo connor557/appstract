@@ -23,7 +23,7 @@
 
 using System;
 
-namespace AppStract.Core.Virtualization.Registry
+namespace AppStract.Core.Virtualization.Engine.Registry
 {
   /// <summary>
   /// A mask that specifies the access rights for the key.
