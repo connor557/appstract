@@ -29,7 +29,7 @@ using AppStract.Core.System.IPC;
 using AppStract.Core.Virtualization.FileSystem;
 using AppStract.Core.Virtualization.Process;
 
-namespace AppStract.Core.Virtualization.Packaging
+namespace AppStract.Core.Virtualization.Process.Packaging
 {
   /// <summary>
   /// Derived from <see cref="VirtualizedProcess"/>

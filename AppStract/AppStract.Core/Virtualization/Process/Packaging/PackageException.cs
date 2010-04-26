@@ -24,7 +24,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace AppStract.Core.Virtualization.Packaging
+namespace AppStract.Core.Virtualization.Process.Packaging
 {
   /// <summary>
   /// Represents an error related to the packaging of an application.
