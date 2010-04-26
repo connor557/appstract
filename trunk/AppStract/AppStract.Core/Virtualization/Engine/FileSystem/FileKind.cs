@@ -21,28 +21,24 @@
 
 #endregion
 
-namespace AppStract.Core.Virtualization.Registry
+namespace AppStract.Core.Virtualization.Engine.FileSystem
 {
   /// <summary>
-  /// Represents how a key handle is retrieved from the registry, when using a create function.
+  /// The kind of file.
   /// </summary>
-  public enum RegCreationDisposition
+  public enum FileKind
   {
     /// <summary>
-    /// The key is not created, mostly due to an exception caused by for example an invalid handle.
+    /// The <see cref="FileKind"/> is unknown.
     /// </summary>
-    /// <remarks>
-    /// In most cases an error code is returned by methods using <see cref="RegCreationDisposition"/>,
-    /// the value of that code can potentially provide more information on why the key is not created.
-    /// </remarks>
-    NoKeyCreated = 0x0,
+    Unspecified,
     /// <summary>
-    /// The key did not exist and was created.
+    /// The path associated links to a file.
     /// </summary>
-    CreatedNewKey = 0x1,
+    File,
     /// <summary>
-    /// The key existed and was simply opened without being changed.
+    /// The path associated links to a directory.
     /// </summary>
-    OpenedExistingKey = 0x2
+    Directory
   }
 }

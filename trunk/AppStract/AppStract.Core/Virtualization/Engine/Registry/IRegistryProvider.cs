@@ -21,9 +21,7 @@
 
 #endregion
 
-using AppStract.Core.Virtualization.Interop;
-
-namespace AppStract.Core.Virtualization.Registry
+namespace AppStract.Core.Virtualization.Engine.Registry
 {
   /// <summary>
   /// Provides access to the virtual registry.

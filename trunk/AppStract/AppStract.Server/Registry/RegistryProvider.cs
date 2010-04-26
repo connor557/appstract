@@ -21,9 +21,9 @@
 
 #endregion
 
-using AppStract.Core.Virtualization.Interop;
 using AppStract.Core.Data.Databases;
-using AppStract.Core.Virtualization.Registry;
+using AppStract.Core.Virtualization.Engine;
+using AppStract.Core.Virtualization.Engine.Registry;
 using AppStract.Utilities.Observables;
 
 namespace AppStract.Server.Registry

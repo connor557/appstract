@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using AppStract.Utilities.Helpers;
 using Microsoft.Win32;
 
-namespace AppStract.Core.Virtualization.Registry
+namespace AppStract.Core.Virtualization.Engine.Registry
 {
   /// <summary>
   /// The codes indicating the type of data stored in a specified value.

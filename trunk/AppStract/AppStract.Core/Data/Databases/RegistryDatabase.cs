@@ -26,9 +26,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
-using AppStract.Core.Virtualization.Registry;
+using AppStract.Core.Virtualization.Engine.Registry;
 using AppStract.Utilities.Helpers;
-using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
+using ValueType = AppStract.Core.Virtualization.Engine.Registry.ValueType;
 
 namespace AppStract.Core.Data.Databases
 {

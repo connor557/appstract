@@ -25,7 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace AppStract.Core.Virtualization.FileSystem
+namespace AppStract.Core.Virtualization.Engine.FileSystem
 {
   /// <summary>
   /// FileTableEntry is a key/value pair used to link a path used in the real file system

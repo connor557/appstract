@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2008-2009 Simon Allaeys
+#region Copyright (C) 2008-2009 Simon Allaeys
 
 /*
     Copyright (C) 2008-2009 Simon Allaeys
@@ -21,20 +21,23 @@
 
 #endregion
 
-namespace AppStract.Core.Virtualization.FileSystem
+using AppStract.Utilities.Observables;
+
+namespace AppStract.Core.Virtualization.Engine.FileSystem
 {
   /// <summary>
-  /// The type of the requested resource.
+  /// Defines a method to activate the synchronization of the file table used by the virtual file system,
+  /// with an <see cref="ObservableDictionary{TKey,TValue}"/>.
   /// </summary>
-  public enum ResourceKind
+  public interface IFileSystemSynchronizer
   {
+
     /// <summary>
-    /// Request for a file or directory.
+    /// Loads all known file table entries to the given <see cref="ObservableDictionary{TKey,TValue}"/>,
+    /// and ensures continuous registry synchronization by attaching listeners to <paramref name="fileTable"/>.
     /// </summary>
-    FileOrDirectory,
-    /// <summary>
-    /// Request for a library.
-    /// </summary>
-    Library
+    /// <param name="fileTable">The <see cref="ObservableDictionary{TKey,TValue}"/> to load the file table to.</param>
+    void SynchronizeFileSystemTableWith(ObservableDictionary<string, string> fileTable);
+
   }
 }

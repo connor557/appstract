@@ -24,8 +24,8 @@
 using System;
 using System.Collections.Generic;
 using AppStract.Core.Data.Databases;
-using AppStract.Core.Virtualization.Interop;
-using AppStract.Core.Virtualization.Registry;
+using AppStract.Core.Virtualization.Engine;
+using AppStract.Core.Virtualization.Engine.Registry;
 using AppStract.Server.Registry.Data;
 
 namespace AppStract.Server.Registry

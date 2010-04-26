@@ -24,7 +24,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace AppStract.Core.Virtualization.Registry
+namespace AppStract.Core.Virtualization.Engine.Registry
 {
   [Serializable]
   public class VirtualRegistryKey

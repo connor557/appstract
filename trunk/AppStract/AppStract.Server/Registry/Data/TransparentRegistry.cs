@@ -24,11 +24,11 @@
 using System;
 using System.Collections.Generic;
 using AppStract.Core.Data.Databases;
-using AppStract.Core.Virtualization.Interop;
-using AppStract.Core.Virtualization.Registry;
+using AppStract.Core.Virtualization.Engine;
+using AppStract.Core.Virtualization.Engine.Registry;
 using AppStract.Utilities.Extensions;
 using Microsoft.Win32;
-using ValueType = AppStract.Core.Virtualization.Registry.ValueType;
+using ValueType = AppStract.Core.Virtualization.Engine.Registry.ValueType;
 
 namespace AppStract.Server.Registry.Data
 {

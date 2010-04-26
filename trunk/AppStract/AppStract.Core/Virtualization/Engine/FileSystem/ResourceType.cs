@@ -1,4 +1,4 @@
-#region Copyright (C) 2008-2009 Simon Allaeys
+﻿#region Copyright (C) 2008-2009 Simon Allaeys
 
 /*
     Copyright (C) 2008-2009 Simon Allaeys
@@ -21,22 +21,20 @@
 
 #endregion
 
-using AppStract.Utilities.Observables;
-
-namespace AppStract.Core.Virtualization.Registry
+namespace AppStract.Core.Virtualization.Engine.FileSystem
 {
   /// <summary>
-  /// Defines a method to activate the synchronization of the virtual registry with an <see cref="ObservableDictionary{TKey,TValue}"/>.
+  /// The type of the requested resource.
   /// </summary>
-  public interface IRegistrySynchronizer
+  public enum ResourceKind
   {
-
     /// <summary>
-    /// Loads all known registry keys and their associated values to the given <see cref="ObservableDictionary{TKey,TValue}"/>,
-    /// and ensures continuous registry synchronization by attaching listeners to <paramref name="keyList"/>.
+    /// Request for a file or directory.
     /// </summary>
-    /// <param name="keyList">The <see cref="ObservableDictionary{TKey,TValue}"/> to synchronize the registry with.</param>
-    void SynchronizeRegistryWith(ObservableDictionary<uint, VirtualRegistryKey> keyList);
-
+    FileOrDirectory,
+    /// <summary>
+    /// Request for a library.
+    /// </summary>
+    Library
   }
 }

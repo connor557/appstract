@@ -21,30 +21,28 @@
 
 #endregion
 
-using System.Collections.Generic;
-using AppStract.Core.Data.Databases;
-using AppStract.Core.Virtualization.Engine.FileSystem;
-using AppStract.Core.Virtualization.Engine.Registry;
-
-namespace AppStract.Core.System.IPC
+namespace AppStract.Core.Virtualization.Engine.Registry
 {
   /// <summary>
-  /// Interface for interprocess data synchronization.
+  /// Represents how a key handle is retrieved from the registry, when using a create function.
   /// </summary>
-  public interface ISynchronizer
+  public enum RegCreationDisposition
   {
-
     /// <summary>
-    /// Commits the specified <see cref="DatabaseAction{T}"/>s to the file system database.
+    /// The key is not created, mostly due to an exception caused by for example an invalid handle.
     /// </summary>
-    /// <param name="actions">Actions to commit.</param>
-    void SyncFileSystemActions(IEnumerable<DatabaseAction<FileTableEntry>> actions);
-
+    /// <remarks>
+    /// In most cases an error code is returned by methods using <see cref="RegCreationDisposition"/>,
+    /// the value of that code can potentially provide more information on why the key is not created.
+    /// </remarks>
+    NoKeyCreated = 0x0,
     /// <summary>
-    /// Commits the specified <see cref="DatabaseAction{T}"/>s to the registry database.
+    /// The key did not exist and was created.
     /// </summary>
-    /// <param name="actions">Actions to commit.</param>
-    void SyncRegistryActions(IEnumerable<DatabaseAction<VirtualRegistryKey>> actions);
-
+    CreatedNewKey = 0x1,
+    /// <summary>
+    /// The key existed and was simply opened without being changed.
+    /// </summary>
+    OpenedExistingKey = 0x2
   }
 }

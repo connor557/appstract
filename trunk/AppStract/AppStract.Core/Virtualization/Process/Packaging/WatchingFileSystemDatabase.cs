@@ -23,7 +23,7 @@
 
 using System.Collections.Generic;
 using AppStract.Core.Data.Databases;
-using AppStract.Core.Virtualization.FileSystem;
+using AppStract.Core.Virtualization.Engine.FileSystem;
 
 namespace AppStract.Core.Virtualization.Process.Packaging
 {

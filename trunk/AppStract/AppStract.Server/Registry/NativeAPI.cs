@@ -23,7 +23,7 @@
 
 using System;
 using System.Runtime.InteropServices;
-using AppStract.Core.Virtualization.Interop;
+using AppStract.Core.Virtualization.Engine;
 
 namespace AppStract.Server.Registry
 {
