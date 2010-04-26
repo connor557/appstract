@@ -27,7 +27,7 @@ using AppStract.Core.Data.Application;
 using AppStract.Core.Virtualization.Interop;
 using AppStract.Core.Virtualization.Process;
 
-namespace AppStract.Core.Virtualization.Packaging
+namespace AppStract.Core.Virtualization.Process.Packaging
 {
   /// <summary>
   /// Class able to package an application.

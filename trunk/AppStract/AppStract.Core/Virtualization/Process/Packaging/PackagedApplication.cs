@@ -23,7 +23,7 @@
 
 using System.Collections.Generic;
 
-namespace AppStract.Core.Virtualization.Packaging
+namespace AppStract.Core.Virtualization.Process.Packaging
 {
   /// <summary>
   /// Represents a packaged application. The data can be used to create an instance of

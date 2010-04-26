@@ -24,7 +24,7 @@
 using System;
 using System.Collections.Generic;
 using AppStract.Core.Data.Application;
-using AppStract.Core.Virtualization.Packaging;
+using AppStract.Core.Virtualization.Process.Packaging;
 using AppStract.Manager.Wizard.AppSetup;
 
 namespace AppStract.Manager.Wizard
