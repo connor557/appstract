@@ -116,7 +116,7 @@ namespace AppStract.Utilities.Helpers
     /// <returns></returns>
     public static T DeserializeFromString<T>(string data)
     {
-      var serializer = new XmlSerializer(data.GetType());
+      var serializer = new XmlSerializer(typeof(T));
       try
       {
         using (var stream = new StringReader("myString"))
