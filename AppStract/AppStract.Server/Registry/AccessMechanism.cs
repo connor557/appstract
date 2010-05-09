@@ -31,18 +31,22 @@ namespace AppStract.Server.Registry
   public enum AccessMechanism
   {
     /// <summary>
-    /// All read and write actions are passed to the host's registry.
+    /// All read and write actions are passed to the virtual registry.
     /// </summary>
-    Transparent,
+    Virtual,
+    /// <summary>
+    /// All read actions on unknown keys copy the requested key and/or values from the host's registry.
+    /// Write actions are always performed on the virtual registry.
+    /// </summary>
+    CreateAndCopy,
     /// <summary>
     /// Read actions are transparent on unknown keys,
     /// write actions are always performed on the virtual registry.
     /// </summary>
     TransparentRead,
     /// <summary>
-    /// The first read action copies the requested values of the key from the host's registry.
-    /// Write actions are always performed on the virtual registry.
+    /// All read and write actions are passed to the host's registry.
     /// </summary>
-    CreateAndCopy
+    Transparent,
   }
 }

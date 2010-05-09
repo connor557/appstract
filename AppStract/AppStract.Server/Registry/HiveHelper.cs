@@ -300,6 +300,17 @@ namespace AppStract.Server.Registry
     /// <returns>The <see cref="AccessMechanism"/>, indicating how the hive should be accessed.</returns>
     public static AccessMechanism GetAccessMechanism(this RegistryHive hive)
     {
+      return GetAccessMechanism(hive, null);
+    }
+
+    /// <summary>
+    /// Returns the required access mechanism to use on a key.
+    /// </summary>
+    /// <param name="hive">The registry hive to return the <see cref="AccessMechanism"/> for.</param>
+    /// <param name="subKey">The full path of the hive's targetted subkey.</param>
+    /// <returns>The <see cref="AccessMechanism"/>, indicating how the hive should be accessed.</returns>
+    public static AccessMechanism GetAccessMechanism(this RegistryHive hive, string subKey)
+    {
       if (hive == RegistryHive.Users
           || hive == RegistryHive.CurrentUser)
         return AccessMechanism.CreateAndCopy;

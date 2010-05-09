@@ -52,7 +52,10 @@ namespace AppStract.Server.Registry.Data
       var virtualKeyPath = RegistryTranslator.ToVirtualPath(keyFullPath);
       if (base.OpenKey(virtualKeyPath, out hResult) == NativeResultCode.Success)
         return NativeResultCode.Success;
-      if (!HostRegistry.KeyExists(keyFullPath))
+      string subKey;
+      var access = HiveHelper.GetHive(keyFullPath, out subKey).GetAccessMechanism(subKey);
+      if (access == AccessMechanism.Virtual
+          || !HostRegistry.KeyExists(keyFullPath))
         return NativeResultCode.FileNotFound;
       var virtualRegistryKey = ConstructRegistryKey(virtualKeyPath);
       WriteKey(virtualRegistryKey, true);
@@ -75,6 +78,11 @@ namespace AppStract.Server.Registry.Data
       string keyPath;
       if (!IsKnownKey(hKey, out keyPath))
         return NativeResultCode.InvalidHandle;
+      string subKey;
+      var access = HiveHelper.GetHive(keyPath, out subKey).GetAccessMechanism(subKey);
+      // Determine if the value can be queried from the real registry.
+      if (access == AccessMechanism.Virtual)
+        return NativeResultCode.FileNotFound;
       // Query the value from the real registry.
       try
       {
@@ -90,7 +98,6 @@ namespace AppStract.Server.Registry.Data
         return NativeResultCode.AccessDenied;
       }
       // Determine whether the newly acquired value needs to be written to the base.
-      var access = HiveHelper.GetHive(keyPath).GetAccessMechanism();
       if (access == AccessMechanism.CreateAndCopy)
       {
         var key = new VirtualRegistryKey(hKey, keyPath);
