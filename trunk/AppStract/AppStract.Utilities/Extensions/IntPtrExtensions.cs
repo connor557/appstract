@@ -295,6 +295,70 @@ namespace AppStract.Utilities.Extensions
 
     #endregion
 
+    #region byte[].ToObject()
+
+    /// <summary>
+    /// Converts a byte array to an object of the specified type.
+    /// </summary>
+    /// <typeparam name="T">Type of the object to convert the byte array to.</typeparam>
+    /// <param name="data">Byte array to convert to an instance of the specified type.</param>
+    /// <returns></returns>
+    public static T ToObject<T>(this byte[] data)
+    {
+      var type = typeof(T);
+      return (T)data.ToObject(type);
+    }
+
+    /// <summary>
+    /// Converts a byte array to an object of the specified type.
+    /// </summary>
+    /// <exception cref="ArgumentNullException">
+    /// An <see cref="ArgumentNullException"/> is thrown if <paramref name="type"/> is null.
+    /// </exception>
+    /// <param name="data">Byte array to convert to an instance of the specified type.</param>
+    /// <param name="type">Type of the object to convert the byte array to.</param>
+    /// <returns></returns>
+    public static object ToObject(this byte[] data, Type type)
+    {
+      if (data == null)
+        throw new NullReferenceException();
+      if (type == null)
+        throw new ArgumentNullException("type");
+      if (type.IsEnum)
+        type = Enum.GetUnderlyingType(type);
+      if (type == typeof(byte[]))
+        return data;
+      if (type == typeof(string))
+        return new System.Text.ASCIIEncoding().GetString(data);
+      if (type == typeof(char))
+        return BitConverter.ToChar(data, 0);
+      if (type == typeof(Int16))
+        return BitConverter.ToInt16(data, 0);
+      if (type == typeof(UInt16))
+        return BitConverter.ToUInt16(data, 0);
+      if (type == typeof(Int32))
+        return BitConverter.ToInt32(data, 0);
+      if (type == typeof(UInt32))
+        return BitConverter.ToUInt32(data, 0);
+      if (type == typeof(Int64))
+        return BitConverter.ToInt64(data, 0);
+      if (type == typeof(UInt64))
+        return BitConverter.ToUInt64(data, 0);
+      if (type == typeof(float))
+        return BitConverter.ToSingle(data, 0);
+      if (type == typeof(double))
+        return BitConverter.ToDouble(data, 0);
+      if (!type.IsSerializable)
+        throw new NotSupportedException("\"" + type + "\" is not supported.");
+      using (var ms = new MemoryStream(data, false))
+      {
+        var formatter = new BinaryFormatter();
+        return formatter.Deserialize(ms);
+      }
+    }
+
+    #endregion
+
     #region IntPtr.Write()
 
     /// <summary>
