@@ -64,10 +64,12 @@ namespace AppStract.Utilities.Extensions
         return ((double) o).ToByteArray();
       if (!oType.IsSerializable)
         throw new NotSupportedException("\"" + oType + "\" is not supported.");
-      var ms = new MemoryStream();
-      var bf1 = new BinaryFormatter();
-      bf1.Serialize(ms, o);
-      return ms.ToArray();
+      using (var ms = new MemoryStream())
+      {
+        var formatter = new BinaryFormatter();
+        formatter.Serialize(ms, o);
+        return ms.ToArray();
+      }
     }
 
     public static byte[] ToByteArray(this string o)
