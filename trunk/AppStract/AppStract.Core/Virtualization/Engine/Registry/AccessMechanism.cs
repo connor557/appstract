@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace AppStract.Server.Registry
+namespace AppStract.Core.Virtualization.Engine.Registry
 {
   /// <summary>
   /// The required access mechanism on a key,

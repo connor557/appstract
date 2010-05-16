@@ -97,7 +97,6 @@
     <Compile Include="Registry\Data\RegistryBase.cs" />
     <Compile Include="Registry\Data\RegistryTranslator.cs" />
     <Compile Include="Registry\Data\VirtualRegistry.cs" />
-    <Compile Include="Registry\AccessMechanism.cs" />
     <Compile Include="Registry\HiveHelper.cs" />
     <Compile Include="Registry\HostRegistry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
