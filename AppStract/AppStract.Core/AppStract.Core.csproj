@@ -113,6 +113,7 @@
     <Compile Include="Data\Settings\UserConfig.cs" />
     <Compile Include="System\IPC\ConnectionManager.cs" />
     <Compile Include="Virtualization\Engine\NativeResultCode.cs" />
+    <Compile Include="Virtualization\Engine\Registry\AccessMechanism.cs" />
     <Compile Include="Virtualization\Process\Packaging\PackageException.cs" />
     <Compile Include="Virtualization\Process\Packaging\Packager.cs" />
     <Compile Include="Virtualization\Process\Packaging\PackagedApplication.cs" />
