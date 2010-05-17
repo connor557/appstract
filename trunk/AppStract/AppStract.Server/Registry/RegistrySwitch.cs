@@ -27,6 +27,7 @@ using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.Engine;
 using AppStract.Core.Virtualization.Engine.Registry;
 using AppStract.Server.Registry.Data;
+using Microsoft.Win32;
 
 namespace AppStract.Server.Registry
 {
@@ -52,6 +53,11 @@ namespace AppStract.Server.Registry
 
     #region Constructors
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="RegistrySwitch"/>.
+    /// </summary>
+    /// <param name="indexGenerator">The <see cref="IndexGenerator"/> to use for generating virtual key handles.</param>
+    /// <param name="knownKeys">A list of all known virtual registry keys.</param>
     public RegistrySwitch(IndexGenerator indexGenerator, IDictionary<uint, VirtualRegistryKey> knownKeys)
     {
       _transparentRegistry = new TransparentRegistry(indexGenerator);
@@ -63,53 +69,42 @@ namespace AppStract.Server.Registry
     #region Public Methods
 
     /// <summary>
-    /// Returns the <see cref="RegistryBase"/> able to process requests for the given <paramref name="hKey"/>.
+    /// Returns the registry that must be used to handle te specified <see cref="RegistryRequest"/> with.
     /// </summary>
-    /// <param name="hKey">The key handle to get the target registry for.</param>
+    /// <param name="request">The <see cref="RegistryRequest"/> to get the handling registry for.</param>
     /// <returns></returns>
-    public RegistryBase GetRegistryFor(uint hKey)
+    public RegistryBase GetRegistryFor(RegistryRequest request)
     {
-      string keyFullPath;
-      return GetRegistryFor(hKey, out keyFullPath);
+      return GetRegistryFor(request, true);
     }
 
     /// <summary>
-    /// Returns the <see cref="RegistryBase"/> able to process requests for the given <paramref name="hKey"/>.
+    /// Returns the registry that must be used to handle te specified <see cref="RegistryRequest"/> with.
     /// </summary>
-    /// <param name="hKey">The key handle to get the target registry for.</param>
-    /// <param name="keyFullPath">
-    /// The string representation for <paramref name="hKey"/>, as used by the returned <see cref="RegistryBase"/>.
-    /// </param>
+    /// <param name="request">The <see cref="RegistryRequest"/> to get the handling registry for.</param>
+    /// <param name="recoverHandle">Indicates whether or not a possible unknown <see cref="RegistryRequest.Handle"/> should be recovered and virtualized.</param>
     /// <returns></returns>
-    public RegistryBase GetRegistryFor(uint hKey, out string keyFullPath)
+    public RegistryBase GetRegistryFor(RegistryRequest request, bool recoverHandle)
     {
-      return GetRegistryFor(hKey, out keyFullPath, true);
-    }
-
-    /// <summary>
-    /// Returns the <see cref="RegistryBase"/> able to process requests for the given <paramref name="hKey"/>.
-    /// </summary>
-    /// <param name="hKey">The key handle to get the target registry for.</param>
-    /// <param name="keyFullPath">
-    /// The string representation for <paramref name="hKey"/>, as used by the returned <see cref="RegistryBase"/>.
-    /// </param>
-    /// <param name="recoverHandle">
-    /// Whether or not hKey should be recovered if it can't be found in the virtual registry.
-    /// </param>
-    /// <returns></returns>
-    public RegistryBase GetRegistryFor(uint hKey, out string keyFullPath, bool recoverHandle)
-    {
-      if (_virtualRegistry.IsKnownKey(hKey, out keyFullPath))
-        return _virtualRegistry;
-      if (_transparentRegistry.IsKnownKey(hKey, out keyFullPath))
-        return _transparentRegistry;
-      if (HiveHelper.IsHiveHandle(hKey, out keyFullPath))
-        return GetRegistryFor(keyFullPath);
-      // hKey is an unknown handle, try to virtualize this handle.
-      if (recoverHandle)
-        return TryRecoverUnknownHandle(hKey, out keyFullPath);
-      GuestCore.Log.Error("Unknown registry key handle => {0}", hKey);
-      return null;
+      if (request == null)
+        throw new ArgumentNullException("request");
+      RegistryBase result = null;
+      if (_virtualRegistry.IsKnownKey(request))
+        result = _virtualRegistry;
+      else if (_transparentRegistry.IsKnownKey(request))
+        result = _transparentRegistry;
+      else if (HiveHelper.IsHiveHandle(request.Handle))
+      {
+        request.KeyFullPath = HiveHelper.GetHive(request.Handle).AsRegistryHiveName();
+        result = GetDefaultRegistryFor(request);
+      }
+      else if (recoverHandle)
+        // Unknown handle, and allowed to be recovered and virtualized.
+        result = TryRecoverUnknownHandle(request);
+      else
+        GuestCore.Log.Error("Unknown registry key handle => {0}", request.Handle);
+      request.AccessMechanism = GetAccessMechanism(request.KeyFullPath);
+      return result;
     }
 
     #endregion
@@ -117,14 +112,37 @@ namespace AppStract.Server.Registry
     #region Private Methods
 
     /// <summary>
-    /// Returns the <see cref="RegistryBase"/> able to process requests for the given <paramref name="keyFullPath"/>.
+    /// Returns the required access mechanism to use on a key.
     /// </summary>
-    /// <param name="keyFullPath">The string representation of the key to get the target registry for.</param>
-    /// <returns></returns>
-    private RegistryBase GetRegistryFor(string keyFullPath)
+    /// <param name="keyFullPath">The key's full path.</param>
+    /// <returns>The <see cref="AccessMechanism"/>, indicating how the key should be accessed.</returns>
+    private static AccessMechanism GetAccessMechanism(string keyFullPath)
     {
+      if (string.IsNullOrEmpty(keyFullPath))
+        return AccessMechanism.Virtual;
       var hive = HiveHelper.GetHive(keyFullPath);
-      return hive.GetAccessMechanism() == AccessMechanism.Transparent
+      if (hive == RegistryHive.Users
+          || hive == RegistryHive.CurrentUser)
+        return AccessMechanism.CreateAndCopy;
+      if (hive == RegistryHive.CurrentConfig
+          || hive == RegistryHive.LocalMachine
+          || hive == RegistryHive.ClassesRoot)
+        return AccessMechanism.TransparentRead;
+      if (hive == RegistryHive.PerformanceData
+          || hive == RegistryHive.DynData)
+        return AccessMechanism.Transparent;
+      throw new ApplicationException("Can't determine required action for unknown subkeys of  \"" + hive + "\"");
+    }
+
+    /// <summary>
+    /// Returns the <see cref="RegistryBase"/> able to process requests for the given <paramref name="request"/>.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    private RegistryBase GetDefaultRegistryFor(RegistryRequest request)
+    {
+      request.AccessMechanism = GetAccessMechanism(request.KeyFullPath);
+      return request.AccessMechanism == AccessMechanism.Transparent
                ? _transparentRegistry
                : _virtualRegistry;
     }
@@ -132,40 +150,39 @@ namespace AppStract.Server.Registry
     /// <summary>
     /// Tries to recover from an unknown handle.
     /// </summary>
-    /// <param name="hKey">The unknown key handle to try to virtualize.</param>
-    /// <param name="keyFullPath">
-    /// The string representation for <paramref name="hKey"/> as retrieved during recovery
-    /// and as used by the returned <see cref="RegistryBase"/>.
+    /// <param name="request">The request for the unknown key handle to try to virtualize.</param>
     /// </param>
     /// <returns></returns>
-    private RegistryBase TryRecoverUnknownHandle(uint hKey, out string keyFullPath)
+    private RegistryBase TryRecoverUnknownHandle(RegistryRequest request)
     {
-      keyFullPath = HostRegistry.GetKeyNameByHandle(hKey);
-      if (keyFullPath == null)
+      request.KeyFullPath = HostRegistry.GetKeyNameByHandle(request.Handle);
+      if (request.KeyFullPath == null)
       {
-        GuestCore.Log.Error("Unknown registry key handle => {0}", hKey);
+        GuestCore.Log.Error("Unknown registry key handle => {0}", request.Handle);
         return null;
       }
-      GuestCore.Log.Warning("Recovering from unknown registry key handle => {0} => {1}", hKey, keyFullPath);
-      // Teach target about this unknown key handle.
-      var target = GetRegistryFor(keyFullPath);
-      uint handle;
-      if (target.OpenKey(keyFullPath, out handle) != NativeResultCode.Success)
+      GuestCore.Log.Warning("Recovering from unknown registry key handle => {0} => {1}", request.Handle,
+                            request.KeyFullPath);
+      // Teach target about the recovered key handle.
+      var recoveredHandle = request.Handle;
+      var target = GetDefaultRegistryFor(request);
+      Exception error = null;
+      if (target.OpenKey(request) == NativeResultCode.Success)
       {
-        GuestCore.Log.Error("Unable to recover from unknown registry key handle => {0}", hKey, keyFullPath);
-        return null;
+        try
+        {
+          target.AddAlias(request.Handle, recoveredHandle);
+          HostRegistry.CloseKey(recoveredHandle);
+          return target;
+        }
+        catch (ApplicationException e)
+        {
+          error = e;
+        }
       }
-      try
-      {
-        target.AddAlias(handle, hKey);
-      }
-      catch (ApplicationException e)
-      {
-        GuestCore.Log.Error("Unable to recover from unknown registry key handle => {0}", e, hKey, keyFullPath);
-        return null;
-      }
-      HostRegistry.CloseKey(hKey);
-      return target;
+      GuestCore.Log.Error("Unable to recover from unknown registry key handle => {0}",
+                          error, request.Handle, request.KeyFullPath);
+      return null;
     }
 
     #endregion

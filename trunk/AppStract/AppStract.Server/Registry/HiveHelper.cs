@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AppStract.Core.Virtualization.Engine.Registry;
 using Microsoft.Win32;
 
 namespace AppStract.Server.Registry
@@ -277,9 +276,36 @@ namespace AppStract.Server.Registry
       throw new ApplicationException(string.Format("The requested hive \"{0}\" can't be found.", keyName));
     }
 
+    /// <summary>
+    /// Returns the registry hive with the specified handle.
+    /// </summary>
+    /// <exception cref="ApplicationException">
+    /// An <see cref="ApplicationException"/> is thrown if the <see cref="RegistryHive"/>
+    /// can't be determined from <paramref name="hKey"/>.
+    /// </exception>
+    /// <param name="hKey"></param>
+    /// <returns></returns>
+    public static RegistryHive GetHive(uint hKey)
+    {
+      RegistryHive hive;
+      if (!IsHiveHandle(hKey, out hive))
+        throw new ApplicationException("Can't determine a registry hive from key handle " + hKey);
+      return hive;
+    }
+
     #endregion
 
     #region Extension Methods
+
+    /// <summary>
+    /// Returns the full name of the root key associated with the current <see cref="RegistryHive"/>.
+    /// </summary>
+    /// <param name="registryHive">Indicator of the registry hive which full name must be returned.</param>
+    /// <returns>The full name of the root key matching the <see cref="RegistryHive"/>.</returns>
+    public static string AsRegistryHiveName(this RegistryHive registryHive)
+    {
+      return HiveMap.GetNameById(HiveMap.GetIdFor(registryHive));
+    }
 
     /// <summary>
     /// Returns the root key associated with the current <see cref="RegistryHive"/>.
@@ -292,37 +318,6 @@ namespace AppStract.Server.Registry
       return HiveMap.IsLegalId(id)
                ? HiveMap.GetKeyById(id)
                : null;
-    }
-
-    /// <summary>
-    /// Returns the required access mechanism to use on a key.
-    /// </summary>
-    /// <param name="hive">The registry hive to return the <see cref="AccessMechanism"/> for.</param>
-    /// <returns>The <see cref="AccessMechanism"/>, indicating how the hive should be accessed.</returns>
-    public static AccessMechanism GetAccessMechanism(this RegistryHive hive)
-    {
-      return GetAccessMechanism(hive, null);
-    }
-
-    /// <summary>
-    /// Returns the required access mechanism to use on a key.
-    /// </summary>
-    /// <param name="hive">The registry hive to return the <see cref="AccessMechanism"/> for.</param>
-    /// <param name="subKey">The full path of the hive's targetted subkey.</param>
-    /// <returns>The <see cref="AccessMechanism"/>, indicating how the hive should be accessed.</returns>
-    public static AccessMechanism GetAccessMechanism(this RegistryHive hive, string subKey)
-    {
-      if (hive == RegistryHive.Users
-          || hive == RegistryHive.CurrentUser)
-        return AccessMechanism.CreateAndCopy;
-      if (hive == RegistryHive.CurrentConfig
-          || hive == RegistryHive.LocalMachine
-          || hive == RegistryHive.ClassesRoot)
-        return AccessMechanism.TransparentRead;
-      if (hive == RegistryHive.PerformanceData
-          || hive == RegistryHive.DynData)
-        return AccessMechanism.Transparent;
-      throw new ApplicationException("Can't determine required action for unknown subkeys of  \"" + hive + "\"");
     }
 
     #endregion
