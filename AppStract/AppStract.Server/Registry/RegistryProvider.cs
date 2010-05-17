@@ -66,24 +66,30 @@ namespace AppStract.Server.Registry
 
     public NativeResultCode OpenKey(uint hKey, string subKeyName, out uint hSubKey)
     {
-      string keyName;
-      var registry = _switch.GetRegistryFor(hKey, out keyName);
-      if (registry == null)
+      var request = new RegistryRequest {Handle = hKey};
+      var registry = _switch.GetRegistryFor(request);
+      if (registry != null)
       {
-        hSubKey = 0;
-        return NativeResultCode.InvalidHandle;
+        request.KeyFullPath = HostRegistry.CombineKeyNames(request.KeyFullPath, subKeyName);
+        var result = registry.OpenKey(request);
+        hSubKey = request.Handle;
+        return result;
       }
-      keyName = HostRegistry.CombineKeyNames(keyName, subKeyName);
-      return registry.OpenKey(keyName, out hSubKey);
+      hSubKey = 0;
+      return NativeResultCode.InvalidHandle;
     }
 
     public NativeResultCode CreateKey(uint hKey, string subKeyName, out uint hSubKey, out RegCreationDisposition creationDisposition)
     {
-      string keyName;
-      var registry = _switch.GetRegistryFor(hKey, out keyName);
-      keyName = HostRegistry.CombineKeyNames(keyName, subKeyName);
+      var request = new RegistryRequest { Handle = hKey };
+      var registry = _switch.GetRegistryFor(request);
+      request.KeyFullPath = HostRegistry.CombineKeyNames(request.KeyFullPath, subKeyName);
       if (registry != null)
-        return registry.CreateKey(keyName, out hSubKey, out creationDisposition);
+      {
+        var result = registry.CreateKey(request, out creationDisposition);
+        hSubKey = request.Handle;
+        return result;
+      }
       hSubKey = 0;
       creationDisposition = RegCreationDisposition.NoKeyCreated;
       return NativeResultCode.InvalidHandle;
@@ -91,39 +97,47 @@ namespace AppStract.Server.Registry
 
     public NativeResultCode CloseKey(uint hKey)
     {
-      string keyPath;
-      var registry = _switch.GetRegistryFor(hKey, out keyPath, false);
-      return registry != null ? registry.CloseKey(hKey) : NativeAPI.RegCloseKey(hKey);
+      var request = new RegistryRequest {Handle = hKey};
+      var registry = _switch.GetRegistryFor(request, false);
+      return registry != null ? registry.CloseKey(request) : NativeAPI.RegCloseKey(hKey);
     }
 
     public NativeResultCode DeleteKey(uint hKey)
     {
       if (HiveHelper.IsHiveHandle(hKey))
         return NativeResultCode.AccessDenied;
-      var registry = _switch.GetRegistryFor(hKey);
+      var request = new RegistryRequest {Handle = hKey};
+      var registry = _switch.GetRegistryFor(request);
       return registry != null
-               ? registry.DeleteKey(hKey)
+               ? registry.DeleteKey(request)
                : NativeResultCode.InvalidHandle;
     }
 
     public NativeResultCode QueryValue(uint hKey, string valueName, out VirtualRegistryValue value)
     {
-      value = new VirtualRegistryValue(valueName, null, ValueType.INVALID);
-      if (HiveHelper.IsHiveHandle(hKey))
-        return NativeResultCode.AccessDenied;
-      var registry = _switch.GetRegistryFor(hKey);
-      return registry != null
-               ? registry.QueryValue(hKey, valueName, out value)
-               : NativeResultCode.InvalidHandle;
+      NativeResultCode result;
+      var request = new RegistryValueRequest(valueName) { Handle = hKey };
+      if (!HiveHelper.IsHiveHandle(hKey))
+      {
+        var registry = _switch.GetRegistryFor(request);
+        result = registry != null
+                   ? registry.QueryValue(request)
+                   : NativeResultCode.InvalidHandle;
+      }
+      else
+        result = NativeResultCode.AccessDenied;
+      value = request.Value;
+      return result;
     }
 
     public NativeResultCode SetValue(uint hKey, VirtualRegistryValue value)
     {
       if (HiveHelper.IsHiveHandle(hKey))
         return NativeResultCode.AccessDenied;
-      var registry = _switch.GetRegistryFor(hKey);
+      var request = new RegistryValueRequest {Handle = hKey, Value = value};
+      var registry = _switch.GetRegistryFor(request);
       return registry != null
-               ? registry.SetValue(hKey, value)
+               ? registry.SetValue(request)
                : NativeResultCode.InvalidHandle;
     }
 
@@ -131,9 +145,11 @@ namespace AppStract.Server.Registry
     {
       if (HiveHelper.IsHiveHandle(hKey))
         return NativeResultCode.AccessDenied;
-      var registry = _switch.GetRegistryFor(hKey);
+      var value = new VirtualRegistryValue {Name = valueName};
+      var request = new RegistryValueRequest { Handle = hKey, Value = value };
+      var registry = _switch.GetRegistryFor(request);
       return registry != null
-               ? registry.DeleteValue(hKey, valueName)
+               ? registry.DeleteValue(request)
                : NativeResultCode.InvalidHandle;
     }
 

@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2008-2009 Simon Allaeys
+﻿#region Copyright (C) 2009-2010 Simon Allaeys
 
 /*
     Copyright (C) 2008-2009 Simon Allaeys
@@ -27,7 +27,6 @@ using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.Engine;
 using AppStract.Core.Virtualization.Engine.Registry;
 using AppStract.Utilities.Extensions;
-using Microsoft.Win32;
 using ValueType = AppStract.Core.Virtualization.Engine.Registry.ValueType;
 
 namespace AppStract.Server.Registry.Data
@@ -59,82 +58,81 @@ namespace AppStract.Server.Registry.Data
 
     #region Overridden Methods
 
-    public override NativeResultCode OpenKey(string keyFullPath, out uint hKey)
+    public override NativeResultCode OpenKey(RegistryRequest request)
     {
       // Always create a new VirtualRegistryKey, no matter if if one already exists for keyName.
       // Why? There is no counter for the number of users of each handle.
       // => if one user closes the handle, other users won't be able to use it anymore.
-      if (!HostRegistry.KeyExists(keyFullPath))
+      if (HostRegistry.KeyExists(request.KeyFullPath))
       {
-        hKey = 0;
-        return NativeResultCode.FileNotFound;
+        request.Handle = BufferKey(request.KeyFullPath);
+        return NativeResultCode.Success;
       }
-      hKey = BufferKey(keyFullPath);
-      return NativeResultCode.Success;
+      request.Handle = 0;
+      return NativeResultCode.FileNotFound;
     }
 
-    public override NativeResultCode CreateKey(string keyFullPath, out uint hKey, out RegCreationDisposition creationDisposition)
+    public override NativeResultCode CreateKey(RegistryRequest request, out RegCreationDisposition creationDisposition)
     {
       // Create the key in the real registry.
-      var registryKey = HostRegistry.CreateKey(keyFullPath, out creationDisposition);
-      if (registryKey == null)
+      var registryKey = HostRegistry.CreateKey(request.KeyFullPath, out creationDisposition);
+      if (registryKey != null)
       {
-        hKey = 0;
-        return NativeResultCode.AccessDenied;
+        registryKey.Close();
+        request.Handle = BufferKey(request.KeyFullPath);
+        return NativeResultCode.Success;
       }
-      registryKey.Close();
-      hKey = BufferKey(keyFullPath);
-      return NativeResultCode.Success;
+      request.Handle = 0;
+      return NativeResultCode.AccessDenied;
     }
 
-    public override NativeResultCode CloseKey(uint hKey)
+    public override NativeResultCode CloseKey(RegistryRequest request)
     {
       // In the transparent registry keys are closed in one of the following two ways:
       // - If hKey is an alias, the alias is removed.
       // - If hKey is not an alias, hKey is removed from the internal dictionary by base.DeleteKey()
       //   BUT if hKey has aliases pointing to it, the removal needs to wait until all aliases are closed.
       uint realKey;
-      if (IsAlias(hKey, out realKey))
+      if (IsAlias(request.Handle, out realKey))
       {
-        RemoveAlias(hKey);
+        RemoveAlias(request.Handle);
         lock (_keysPendingClosureSyncRoot)
           if (_keysPendingClosure.Contains(realKey)
               && !HasAliases(realKey))
           {
-            base.DeleteKey(realKey);
+            base.DeleteKey(new RegistryRequest {Handle = realKey});
             _keysPendingClosure.Remove(realKey);
           }
         return NativeResultCode.Success;
       }
-      if (!HasAliases(hKey))
-        return base.DeleteKey(hKey);
+      if (!HasAliases(request.Handle))
+        return base.DeleteKey(request);
       lock (_keysPendingClosureSyncRoot)
-        if (!_keysPendingClosure.Contains(hKey))
-          _keysPendingClosure.Add(hKey);
+        if (!_keysPendingClosure.Contains(request.Handle))
+          _keysPendingClosure.Add(request.Handle);
       return NativeResultCode.Success;
     }
 
-    public override NativeResultCode DeleteKey(uint hKey)
+    public override NativeResultCode DeleteKey(RegistryRequest request)
     {
       // Overriden, first delete the real key.
-      if (HiveHelper.IsHiveHandle(hKey))
+      if (HiveHelper.IsHiveHandle(request.Handle))
         return NativeResultCode.AccessDenied;
-      string keyName;
-      if (!IsKnownKey(hKey, out keyName))
+      if (!IsKnownKey(request))
         return NativeResultCode.InvalidHandle;
-      int index = keyName.LastIndexOf(@"\");
-      string subKeyName = keyName.Substring(index + 1);
-      keyName = keyName.Substring(0, index);
-      RegistryKey regKey = HostRegistry.OpenKey(keyName, true);
+      var index = request.KeyFullPath.LastIndexOf(@"\");
+      var subKeyName = request.KeyFullPath.Substring(index + 1);
+      var keyFullPath = request.KeyFullPath.Substring(0, index);
+      var registryKey = HostRegistry.OpenKey(keyFullPath, true);
       try
       {
-        if (regKey != null)
-          regKey.DeleteSubKeyTree(subKeyName);
+        if (registryKey != null)
+          registryKey.DeleteSubKeyTree(subKeyName);
       }
       catch (ArgumentException)
       {
         // Key is not found in real registry, call base to delete it from the buffer.
-        base.DeleteKey(hKey);
+        base.DeleteKey(request);
         return NativeResultCode.FileNotFound;
       }
       catch
@@ -142,69 +140,74 @@ namespace AppStract.Server.Registry.Data
         return NativeResultCode.AccessDenied;
       }
       // Real key is deleted, now delete the virtual one.
-      return base.DeleteKey(hKey);
+      return base.DeleteKey(request);
     }
 
-    public override NativeResultCode QueryValue(uint hKey, string valueName, out VirtualRegistryValue value)
+    public override NativeResultCode QueryValue(RegistryValueRequest request)
     {
-      value = new VirtualRegistryValue(valueName, null, ValueType.INVALID);
-      string keyPath;
-      if (!IsKnownKey(hKey, out keyPath))
-        return NativeResultCode.InvalidHandle;
-      try
+      if (IsKnownKey(request))
       {
-        ValueType valueType;
-        var data = HostRegistry.QueryValue(keyPath, valueName, out valueType);
-        if (data == null)
+        try
+        {
+          ValueType valueType;
+          var data = HostRegistry.QueryValue(request.KeyFullPath, request.Value.Name, out valueType);
+          if (data != null)
+          {
+            request.Value = new VirtualRegistryValue(request.Value.Name, data.ToByteArray(), valueType);
+            return NativeResultCode.Success;
+          }
           return NativeResultCode.FileNotFound;
-        value = new VirtualRegistryValue(valueName, data.ToByteArray(), valueType);
-        return NativeResultCode.Success;
+        }
+        catch
+        {
+          return NativeResultCode.AccessDenied;
+        }
       }
-      catch
-      {
-        return NativeResultCode.AccessDenied;
-      }
+      return NativeResultCode.InvalidHandle;
     }
 
-    public override NativeResultCode SetValue(uint hKey, VirtualRegistryValue value)
+    public override NativeResultCode SetValue(RegistryValueRequest request)
     {
-      string keyPath;
-      if (!IsKnownKey(hKey, out keyPath))
-        return NativeResultCode.InvalidHandle;
-      try
+      if (IsKnownKey(request))
       {
-        // Bug: Will the registry contain a correct value here?
-        Microsoft.Win32.Registry.SetValue(keyPath, value.Name, value.Data, value.Type.AsValueKind());
+        try
+        {
+          // Bug: Will the registry contain a correct value here?
+          Microsoft.Win32.Registry.SetValue(request.KeyFullPath, request.Value.Name, request.Value.Data,
+                                            request.Value.Type.AsValueKind());
+          return NativeResultCode.Success;
+        }
+        catch
+        {
+          return NativeResultCode.AccessDenied;
+        }
       }
-      catch
-      {
-        return NativeResultCode.AccessDenied;
-      }
-      return NativeResultCode.Success;
+      return NativeResultCode.InvalidHandle;
     }
 
-    public override NativeResultCode DeleteValue(uint hKey, string valueName)
+    public override NativeResultCode DeleteValue(RegistryValueRequest request)
     {
-      string keyPath;
-      if (!IsKnownKey(hKey, out keyPath))
-        return NativeResultCode.InvalidHandle;
-      try
+      if (IsKnownKey(request))
       {
-        var regKey = HostRegistry.OpenKey(keyPath, true);
-        if (regKey == null)
+        try
+        {
+          var regKey = HostRegistry.OpenKey(request.KeyFullPath, true);
+          if (regKey == null)
+            return NativeResultCode.FileNotFound;
+          regKey.DeleteValue(request.Value.Name, true);
+          regKey.Close();
+          return NativeResultCode.Success;
+        }
+        catch (ArgumentException)
+        {
           return NativeResultCode.FileNotFound;
-        regKey.DeleteValue(valueName, true);
-        regKey.Close();
-        return NativeResultCode.Success;
+        }
+        catch
+        {
+          return NativeResultCode.AccessDenied;
+        }
       }
-      catch (ArgumentException)
-      {
-        return NativeResultCode.FileNotFound;
-      }
-      catch
-      {
-        return NativeResultCode.AccessDenied;
-      }
+      return NativeResultCode.InvalidHandle;
     }
 
     #endregion

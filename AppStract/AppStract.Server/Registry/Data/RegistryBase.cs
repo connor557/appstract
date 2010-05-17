@@ -29,7 +29,6 @@ using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.Engine;
 using AppStract.Core.Virtualization.Engine.Registry;
 using AppStract.Utilities.Extensions;
-using ValueType=AppStract.Core.Virtualization.Engine.Registry.ValueType;
 
 namespace AppStract.Server.Registry.Data
 {
@@ -90,165 +89,154 @@ namespace AppStract.Server.Registry.Data
     #region Public Methods
 
     /// <summary>
-    /// Returns whether the database knows a key with the specified index.
-    /// The full path of the key is set to <paramref name="keyFullPath"/> if the key is known.
+    /// Returns whether the database knows a key with the handle specified in <paramref name="request"/>.
+    /// The full path of the key is set to <paramref name="request.KeyFullPath"/> if the key is known.
     /// </summary>
-    /// <param name="hkey">The index to search a key for.</param>
-    /// <param name="keyFullPath">The name of the key, as used in the host's registry.</param>
+    /// <param name="request">The index to search a key for.</param>
     /// <returns></returns>
-    public bool IsKnownKey(uint hkey, out string keyFullPath)
+    public bool IsKnownKey(RegistryRequest request)
     {
       using (_keysSynchronizationLock.EnterDisposableReadLock())
       {
-        if (_keyAliases.ContainsKey(hkey))
-          hkey = _keyAliases[hkey];
-        if (_keys.Keys.Contains(hkey))
+        if (_keyAliases.ContainsKey(request.Handle))
+          request.Handle = _keyAliases[request.Handle];
+        if (_keys.Keys.Contains(request.Handle))
         {
-          keyFullPath = _keys[hkey].Path;
+          request.KeyFullPath = _keys[request.Handle].Path;
           return true;
         }
       }
-      keyFullPath = null;
       return false;
     }
 
     /// <summary>
     /// Opens the key from the specified path.
+    /// The open handle is set to <paramref name="request.Handle"/>.
     /// </summary>
-    /// <param name="keyFullPath"></param>
-    /// <param name="hKey"></param>
+    /// <param name="request"></param>
     /// <returns></returns>
-    public virtual NativeResultCode OpenKey(string keyFullPath, out uint hKey)
+    public virtual NativeResultCode OpenKey(RegistryRequest request)
     {
       VirtualRegistryKey key;
       using (_keysSynchronizationLock.EnterDisposableReadLock())
-        key = _keys.Values.FirstOrDefault(k => k.Path.ToLowerInvariant() == keyFullPath);
+        key = _keys.Values.FirstOrDefault(k => k.Path.ToLowerInvariant() == request.KeyFullPath.ToLowerInvariant());
       if (key == null)
-      {
-        hKey = 0;
         return NativeResultCode.FileNotFound;
-      }
-      hKey = key.Handle;
+      request.Handle = key.Handle;
       return NativeResultCode.Success;
     }
 
     /// <summary>
     /// Creates a key with the specified path.
+    /// The open handle is set to <paramref name="request.Handle"/>.
     /// </summary>
-    /// <param name="keyFullPath">The path for the new key.</param>
-    /// <param name="hKey">The allocated index.</param>
+    /// <param name="request"></param>
     /// <param name="creationDisposition">Whether the key is opened or created.</param>
     /// <returns></returns>
-    public virtual NativeResultCode CreateKey(string keyFullPath, out uint hKey, out RegCreationDisposition creationDisposition)
+    public virtual NativeResultCode CreateKey(RegistryRequest request, out RegCreationDisposition creationDisposition)
     {
-      if (OpenKey(keyFullPath, out hKey) == NativeResultCode.Success)
+      if (OpenKey(request) == NativeResultCode.Success)
       {
         creationDisposition = RegCreationDisposition.OpenedExistingKey;
       }
       else
       {
         creationDisposition = RegCreationDisposition.CreatedNewKey;
-        VirtualRegistryKey key = ConstructRegistryKey(keyFullPath);
-        WriteKey(key);
-        hKey = key.Handle;
+        var regKey = ConstructRegistryKey(request.KeyFullPath);
+        WriteKey(regKey);
+        request.Handle = regKey.Handle;
       }
       return NativeResultCode.Success;
     }
 
     /// <summary>
-    /// Closes a key handle.
+    /// Closes the key handle specified in <paramref name="request"/>.
     /// </summary>
-    /// <param name="hKey"></param>
+    /// <param name="request"></param>
     /// <returns></returns>
-    public virtual NativeResultCode CloseKey(uint hKey)
+    public virtual NativeResultCode CloseKey(RegistryRequest request)
     {
-      string keyPath;
-      if (!IsKnownKey(hKey, out keyPath))
+      if (!IsKnownKey(request))
         return NativeResultCode.InvalidHandle;
       // Aliases should always be freed. Removing items from _keys is implemented by DeleteKey()
-      RemoveAlias(hKey);
+      RemoveAlias(request.Handle);
       return NativeResultCode.Success;
     }
 
     /// <summary>
-    /// Deletes the key with the specified index.
+    /// Deletes the key associated with the handle specified in <paramref name="request"/>.
     /// </summary>
-    /// <param name="hKey"></param>
+    /// <param name="request"></param>
     /// <returns></returns>
-    public virtual NativeResultCode DeleteKey(uint hKey)
+    public virtual NativeResultCode DeleteKey(RegistryRequest request)
     {
       using (_keysSynchronizationLock.EnterDisposableWriteLock())
       {
-        hKey = EnsureHandleIsNoAlias(hKey);
-        if (!_keys.ContainsKey(hKey))
+        request.Handle = EnsureHandleIsNoAlias(request.Handle);
+        if (!_keys.ContainsKey(request.Handle))
           return NativeResultCode.InvalidHandle;
-        RemoveAliasesFor(hKey);
-        _keys.Remove(hKey);
+        RemoveAliasesFor(request.Handle);
+        _keys.Remove(request.Handle);
       }
-      _indexGenerator.Release(hKey);
+      _indexGenerator.Release(request.Handle);
       return NativeResultCode.Success;
     }
 
     /// <summary>
-    /// Retrieves the value associated with the specified key and name.
-    /// Returns null if the key or name is not found.
+    /// Retrieves the value associated with the key and name specified in <paramref name="request"/>.
+    /// The queried value is set to <paramref name="request.Value"/>.
     /// </summary>
-    /// <param name="hKey"></param>
-    /// <param name="valueName"></param>
-    /// <param name="value"></param>
+    /// <param name="request"></param>
     /// <returns></returns>
-    public virtual NativeResultCode QueryValue(uint hKey, string valueName, out VirtualRegistryValue value)
+    public virtual NativeResultCode QueryValue(RegistryValueRequest request)
     {
-      value = new VirtualRegistryValue(valueName, null, ValueType.INVALID);
       using (_keysSynchronizationLock.EnterDisposableReadLock())
       {
-        hKey = EnsureHandleIsNoAlias(hKey);
+        var hKey = EnsureHandleIsNoAlias(request.Handle);
         if (!_keys.Keys.Contains(hKey))
           return NativeResultCode.InvalidHandle;
         var key = _keys[hKey];
-        if (!key.Values.Keys.Contains(valueName))
+        if (!key.Values.Keys.Contains(request.Value.Name))
           return NativeResultCode.FileNotFound;
-        value = key.Values[valueName];
+        request.Value = key.Values[request.Value.Name];
         return NativeResultCode.Success;
       }
     }
 
     /// <summary>
-    /// Sets a value for the key with the specified handle.
+    /// Sets the <paramref name="request.Value"/> to the key specified in <paramref name="request"/>.
     /// </summary>
-    /// <param name="hKey">Handle of the key to set a value for.</param>
-    /// <param name="value">The data to set for the value.</param>
+    /// <param name="request"></param>
     /// <returns></returns>
-    public virtual NativeResultCode SetValue(uint hKey, VirtualRegistryValue value)
+    public virtual NativeResultCode SetValue(RegistryValueRequest request)
     {
       using (_keysSynchronizationLock.EnterDisposableReadLock())
       {
-        hKey = EnsureHandleIsNoAlias(hKey);
+        var hKey = EnsureHandleIsNoAlias(request.Handle);
         if (!_keys.Keys.Contains(hKey))
           return NativeResultCode.InvalidHandle;
         var key = _keys[hKey];
-        if (key.Values.Keys.Contains(value.Name))
-          key.Values[value.Name] = value;
+        if (key.Values.Keys.Contains(request.Value.Name))
+          key.Values[request.Value.Name] = request.Value;
         else
-          key.Values.Add(value.Name, value);
+          key.Values.Add(request.Value.Name, request.Value);
       }
       return NativeResultCode.Success;
     }
 
     /// <summary>
-    /// Deletes a value from the key with the specified handle.
+    /// Deletes the <paramref name="request.Value"/> from the key specified in <paramref name="request"/>.
     /// </summary>
-    /// <param name="hKey">Key to delete a value from.</param>
-    /// <param name="valueName">The name of the value to delete.</param>
+    /// <param name="request"></param>
     /// <returns></returns>
-    public virtual NativeResultCode DeleteValue(uint hKey, string valueName)
+    public virtual NativeResultCode DeleteValue(RegistryValueRequest request)
     {
       using (_keysSynchronizationLock.EnterDisposableReadLock())
       {
-        hKey = EnsureHandleIsNoAlias(hKey);
+        var hKey = EnsureHandleIsNoAlias(request.Handle);
         if (!_keys.Keys.Contains(hKey))
           return NativeResultCode.InvalidHandle;
-        return _keys[hKey].Values.Remove(valueName)
+        return _keys[hKey].Values.Remove(request.Value.Name)
                  ? NativeResultCode.Success
                  : NativeResultCode.FileNotFound;
       }

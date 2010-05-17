@@ -47,61 +47,61 @@ namespace AppStract.Server.Registry.Data
 
     #region Overridden Methods
 
-    public override NativeResultCode OpenKey(string keyFullPath, out uint hResult)
+    public override NativeResultCode OpenKey(RegistryRequest request)
     {
-      var virtualKeyPath = RegistryTranslator.ToVirtualPath(keyFullPath);
-      if (base.OpenKey(virtualKeyPath, out hResult) == NativeResultCode.Success)
+      var virtualKeyPath = RegistryTranslator.ToVirtualPath(request.KeyFullPath);
+      var virtReq = new RegistryRequest(request) { KeyFullPath = virtualKeyPath };
+      if (base.OpenKey(virtReq) == NativeResultCode.Success)
+      {
+        request.Handle = virtReq.Handle;
         return NativeResultCode.Success;
-      string subKey;
-      var access = HiveHelper.GetHive(keyFullPath, out subKey).GetAccessMechanism(subKey);
-      if (access == AccessMechanism.Virtual
-          || !HostRegistry.KeyExists(keyFullPath))
+      }
+      if (request.AccessMechanism == AccessMechanism.Virtual
+          || !HostRegistry.KeyExists(request.KeyFullPath))
         return NativeResultCode.FileNotFound;
       var virtualRegistryKey = ConstructRegistryKey(virtualKeyPath);
       WriteKey(virtualRegistryKey, true);
-      hResult = virtualRegistryKey.Handle;
+      request.Handle = virtualRegistryKey.Handle;
       return NativeResultCode.Success;
     }
 
-    public override NativeResultCode CreateKey(string keyFullPath, out uint hKey, out RegCreationDisposition creationDisposition)
+    public override NativeResultCode CreateKey(RegistryRequest request, out RegCreationDisposition creationDisposition)
     {
-      keyFullPath = RegistryTranslator.ToVirtualPath(keyFullPath);
-      return base.CreateKey(keyFullPath, out hKey, out creationDisposition);
+      var virtualKeyPath = RegistryTranslator.ToVirtualPath(request.KeyFullPath);
+      var virtReq = new RegistryRequest(request) {KeyFullPath = virtualKeyPath};
+      var result = base.CreateKey(virtReq, out creationDisposition);
+      request.Handle = virtReq.Handle;
+      return result;
     }
 
-    public override NativeResultCode QueryValue(uint hKey, string valueName, out VirtualRegistryValue value)
+    public override NativeResultCode QueryValue(RegistryValueRequest request)
     {
-      var resultCode = base.QueryValue(hKey, valueName, out value);
+      var resultCode = base.QueryValue(request);
       if (resultCode != NativeResultCode.FileNotFound)
-        return resultCode;
-      // Base doesn't know the requested value.
-      string keyPath;
-      if (!IsKnownKey(hKey, out keyPath))
-        return NativeResultCode.InvalidHandle;
-      string subKey;
-      var access = HiveHelper.GetHive(keyPath, out subKey).GetAccessMechanism(subKey);
-      // Determine if the value can be queried from the real registry.
-      if (access == AccessMechanism.Virtual)
-        return NativeResultCode.FileNotFound;
+        return resultCode;                      // Base knows the value
+      if (!IsKnownKey(request))
+        return NativeResultCode.InvalidHandle;  // Base does not know the handle
+      if (request.AccessMechanism == AccessMechanism.Virtual)
+        return NativeResultCode.FileNotFound;   // Not allowed to retrieve value from host registry
       // Query the value from the real registry.
       try
       {
         ValueType valueType;
-        var realKeyPath = RegistryTranslator.ToRealPath(keyPath);
-        var data = HostRegistry.QueryValue(realKeyPath, valueName, out valueType);
+        var realKeyPath = RegistryTranslator.ToRealPath(request.KeyFullPath);
+        var data = HostRegistry.QueryValue(realKeyPath, request.Value.Name, out valueType);
         if (data == null)
           return NativeResultCode.FileNotFound;
-        value = new VirtualRegistryValue(valueName, data.ToByteArray(), valueType);
+        request.Value = new VirtualRegistryValue(request.Value.Name, data.ToByteArray(), valueType);
       }
       catch
       {
         return NativeResultCode.AccessDenied;
       }
       // Determine whether the newly acquired value needs to be written to the base.
-      if (access == AccessMechanism.CreateAndCopy)
+      if (request.AccessMechanism == AccessMechanism.CreateAndCopy)
       {
-        var key = new VirtualRegistryKey(hKey, keyPath);
-        key.Values.Add(valueName, value);
+        var key = new VirtualRegistryKey(request.Handle, request.KeyFullPath);
+        key.Values.Add(request.Value.Name, request.Value);
         WriteKey(key, false);
       }
       return NativeResultCode.Success;
