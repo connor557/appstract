@@ -46,6 +46,12 @@ namespace AppStract.Core.System.IPC
     }
 
     /// <summary>
+    /// Gets the engine rules to apply on the registry virtualization engine.
+    /// </summary>
+    /// <returns></returns>
+    RegistryRuleCollection GetRegistryEngineRules();
+
+    /// <summary>
     /// Returns all known <see cref="FileTableEntry"/> as an <see cref="IEnumerable{T}"/>.
     /// </summary>
     /// <returns></returns>

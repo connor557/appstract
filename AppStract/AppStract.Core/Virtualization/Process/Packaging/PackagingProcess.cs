@@ -80,7 +80,7 @@ namespace AppStract.Core.Virtualization.Process.Packaging
       registryDatabase.Initialize();
       var fileSystemDatabase = WatchingFileSystemDatabase.CreateDefaultDatabase(startInfo.Files.DatabaseFileSystem.FileName);
       fileSystemDatabase.Initialize();
-      var synchronizer = new ProcessSynchronizer(fileSystemDatabase, startInfo.WorkingDirectory, registryDatabase);
+      var synchronizer = new ProcessSynchronizer(fileSystemDatabase, startInfo.WorkingDirectory, registryDatabase, startInfo.RegistryRuleCollection);
       var process = new PackagingProcess(startInfo, synchronizer);
       process.Start();
       return process;

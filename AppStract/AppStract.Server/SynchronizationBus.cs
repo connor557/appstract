@@ -315,6 +315,12 @@ namespace AppStract.Server
 
     #region IRegistrySynchronizer Members
 
+    public RegistryRuleCollection GetEngineRules()
+    {
+      using (Hooking.HookManager.ACL.GetHookingExclusion())
+        return _loader.GetRegistryEngineRules();
+    }
+
     public void SynchronizeRegistryWith(ObservableDictionary<uint, VirtualRegistryKey> keyList)
     {
       if (keyList == null)
