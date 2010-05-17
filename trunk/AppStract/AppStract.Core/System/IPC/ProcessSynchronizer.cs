@@ -51,6 +51,10 @@ namespace AppStract.Core.System.IPC
     /// The <see cref="RegistryDatabase"/> used by the current instance.
     /// </summary>
     private readonly RegistryDatabase _registryDatabase;
+    /// <summary>
+    /// The collection of engine rules to apply on the virtual registry engine.
+    /// </summary>
+    private readonly RegistryRuleCollection _regRuleCollection;
 
     #endregion
 
@@ -83,7 +87,9 @@ namespace AppStract.Core.System.IPC
     /// <param name="fileSystemDatabaseFile">The file to use with a default <see cref="FileSystemDatabase"/>.</param>
     /// <param name="fileSystemRoot">The directory to use as root of the file system.</param>
     /// <param name="registryDatabaseFile">The file to use with a default <see cref="RegistryDatabase"/>.</param>
-    public ProcessSynchronizer(ApplicationFile fileSystemDatabaseFile, ApplicationFile fileSystemRoot, ApplicationFile registryDatabaseFile)
+    /// <param name="registryRuleCollection">The collection of engine rules to apply on the virtual registry engine.</param>
+    public ProcessSynchronizer(ApplicationFile fileSystemDatabaseFile, ApplicationFile fileSystemRoot, ApplicationFile registryDatabaseFile,
+      RegistryRuleCollection registryRuleCollection)
     {
       if (fileSystemDatabaseFile.Type != FileType.Database)
         throw new ArgumentException("The filename specified for the file system database is not valid.", "fileSystemDatabaseFile");
@@ -96,6 +102,7 @@ namespace AppStract.Core.System.IPC
       _fileSystemDatabase.Initialize();
       _registryDatabase.Initialize();
       _fileSystemRoot = fileSystemRoot.FileName;
+      _regRuleCollection = registryRuleCollection;
     }
 
     /// <summary>
@@ -104,13 +111,16 @@ namespace AppStract.Core.System.IPC
     /// <param name="fileSystemDatabase">The <see cref="FileSystemDatabase"/> to send the incomming <see cref="DatabaseAction{T}"/>s to.</param>
     /// <param name="fileSystemRoot">The directory to use as root of the file system.</param>
     /// <param name="registryDatabase">The <see cref="RegistryDatabase"/> to send the incomming <see cref="DatabaseAction{T}"/>s to.</param>
-    public ProcessSynchronizer(FileSystemDatabase fileSystemDatabase, ApplicationFile fileSystemRoot, RegistryDatabase registryDatabase)
+    /// <param name="registryRuleCollection">The collection of engine rules to apply on the virtual registry engine.</param>
+    public ProcessSynchronizer(FileSystemDatabase fileSystemDatabase, ApplicationFile fileSystemRoot, RegistryDatabase registryDatabase,
+      RegistryRuleCollection registryRuleCollection)
     {
       if (fileSystemRoot.Type != FileType.Directory)
         throw new ArgumentException("The root location specified for the file system is not valid.", "fileSystemRoot");
       _fileSystemDatabase = fileSystemDatabase;
       _registryDatabase = registryDatabase;
       _fileSystemRoot = fileSystemRoot.FileName;
+      _regRuleCollection = registryRuleCollection;
     }
 
     #endregion
@@ -159,6 +169,11 @@ namespace AppStract.Core.System.IPC
     public string FileSystemRoot
     {
       get { return _fileSystemRoot; }
+    }
+
+    public RegistryRuleCollection GetRegistryEngineRules()
+    {
+      return _regRuleCollection;
     }
 
     public IEnumerable<FileTableEntry> LoadFileSystemTable()

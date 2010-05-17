@@ -24,6 +24,7 @@
 using System;
 using System.IO;
 using AppStract.Core.Data.Application;
+using AppStract.Core.Virtualization.Engine.Registry;
 
 namespace AppStract.Core.Virtualization.Process
 {
@@ -38,6 +39,7 @@ namespace AppStract.Core.Virtualization.Process
     private readonly ApplicationFiles _files;
     private ApplicationFile _workingDirectory;
     private string _arguments;
+    private RegistryRuleCollection _registryRuleCollection;
 
     #endregion
 
@@ -56,11 +58,14 @@ namespace AppStract.Core.Virtualization.Process
     /// Gets or sets the container's root from which the process starts.
     /// </summary>
     /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="ArgumentNullException"></exception>
     public ApplicationFile WorkingDirectory
     {
       get { return _workingDirectory; }
       set
       {
+        if (value == null)
+          throw new ArgumentNullException();
         if (value.Type != FileType.Directory)
           throw new ArgumentException("The working directory specified is not a directory.",
                                       "value");
@@ -71,15 +76,30 @@ namespace AppStract.Core.Virtualization.Process
     /// <summary>
     /// Gets or sets the set of command-line parameters to use when starting the application.
     /// </summary>
-    /// <exception cref="NullReferenceException"></exception>
+    /// <exception cref="ArgumentNullException"></exception>
     public string Arguments
     {
       get { return _arguments; }
       set
       {
         if (_arguments == null)
-          throw new NullReferenceException();
+          throw new ArgumentNullException();
         _arguments = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets the collection of engine rules to apply on the virtual registry of any <see cref="VirtualizedProcess"/>
+    /// started with the current <see cref="VirtualProcessStartInfo"/>.
+    /// </summary>
+    public RegistryRuleCollection RegistryRuleCollection
+    {
+      get { return _registryRuleCollection; }
+      set
+      {
+        if (_registryRuleCollection == null)
+          throw new ArgumentNullException();
+        _registryRuleCollection = value;
       }
     }
 
@@ -137,6 +157,7 @@ namespace AppStract.Core.Virtualization.Process
                  };
       _arguments = "";
       _workingDirectory = workingDirectory;
+      _registryRuleCollection = new RegistryRuleCollection();
     }
 
     #endregion

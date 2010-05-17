@@ -48,6 +48,10 @@ namespace AppStract.Server.Registry
     /// Contains the open keys leading to hives that are not portable.
     /// </summary>
     private readonly RegistryBase _transparentRegistry;
+    /// <summary>
+    /// The collection of engine rules to apply during the target registry decision process.
+    /// </summary>
+    private readonly RegistryRuleCollection _engineRules;
 
     #endregion
 
@@ -58,10 +62,12 @@ namespace AppStract.Server.Registry
     /// </summary>
     /// <param name="indexGenerator">The <see cref="IndexGenerator"/> to use for generating virtual key handles.</param>
     /// <param name="knownKeys">A list of all known virtual registry keys.</param>
-    public RegistrySwitch(IndexGenerator indexGenerator, IDictionary<uint, VirtualRegistryKey> knownKeys)
+    /// <param name="ruleCollection">The collection of engine rules to consider when deciding on a target registry.</param>
+    public RegistrySwitch(IndexGenerator indexGenerator, IDictionary<uint, VirtualRegistryKey> knownKeys, RegistryRuleCollection ruleCollection)
     {
       _transparentRegistry = new TransparentRegistry(indexGenerator);
       _virtualRegistry = new VirtualRegistry(indexGenerator, knownKeys);
+      _engineRules = ruleCollection;
     }
 
     #endregion
@@ -116,10 +122,13 @@ namespace AppStract.Server.Registry
     /// </summary>
     /// <param name="keyFullPath">The key's full path.</param>
     /// <returns>The <see cref="AccessMechanism"/>, indicating how the key should be accessed.</returns>
-    private static AccessMechanism GetAccessMechanism(string keyFullPath)
+    private AccessMechanism GetAccessMechanism(string keyFullPath)
     {
       if (string.IsNullOrEmpty(keyFullPath))
         return AccessMechanism.Virtual;
+      AccessMechanism accessMechanism;
+      if (_engineRules.HasRule(keyFullPath, out accessMechanism))
+        return accessMechanism;
       var hive = HiveHelper.GetHive(keyFullPath);
       if (hive == RegistryHive.Users
           || hive == RegistryHive.CurrentUser)

@@ -57,7 +57,8 @@ namespace AppStract.Server.Registry
       indexGenerator.ExcludedRanges.Add(new IndexRange(0x80000000, 0x80000006));
       var knownKeys = new ObservableDictionary<uint, VirtualRegistryKey>();
       dataSource.SynchronizeRegistryWith(knownKeys);
-      _switch = new RegistrySwitch(indexGenerator, knownKeys);
+      var engineRules = dataSource.GetEngineRules();
+      _switch = new RegistrySwitch(indexGenerator, knownKeys, engineRules);
     }
 
     #endregion
