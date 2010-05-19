@@ -32,6 +32,12 @@ namespace AppStract.Core.Data.Application
   public sealed class ApplicationData : ISerializable
   {
 
+    #region Constants
+
+    private const SerializerType _SerializerType = SerializerType.Binary;
+
+    #endregion
+
     #region Variables
 
     private ApplicationSettings _settings;
@@ -89,7 +95,7 @@ namespace AppStract.Core.Data.Application
     {
       try
       {
-        XmlSerializationHelper.Serialize(filename, applicationData);
+        SerializationHelper.Serialize(filename, applicationData, _SerializerType);
         return true;
       }
       catch (Exception e)
@@ -109,7 +115,7 @@ namespace AppStract.Core.Data.Application
     {
       try
       {
-        return XmlSerializationHelper.Deserialize<ApplicationData>(filename);
+        return SerializationHelper.Deserialize<ApplicationData>(filename, _SerializerType);
       }
       catch (Exception e)
       {

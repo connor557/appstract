@@ -32,6 +32,12 @@ namespace AppStract.Core.Data.Settings
   public class UserConfig
   {
 
+    #region Constants
+
+    private const SerializerType _SerializerType = SerializerType.XML;
+
+    #endregion
+
     #region Properties
 
     /// <summary>
@@ -61,7 +67,7 @@ namespace AppStract.Core.Data.Settings
       try
       {
         if (File.Exists(filename))
-          return XmlSerializationHelper.Deserialize<UserConfig>(filename);
+          return SerializationHelper.Deserialize<UserConfig>(filename, _SerializerType);
       }
       catch (Exception ex)
       {
@@ -74,7 +80,7 @@ namespace AppStract.Core.Data.Settings
 
     public static bool SaveTo(UserConfig cnf, string filename)
     {
-      return XmlSerializationHelper.TrySerialize(filename, cnf);
+      return SerializationHelper.TrySerialize(filename, cnf, _SerializerType);
     }
 
     #endregion
