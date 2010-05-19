@@ -27,7 +27,6 @@ using AppStract.Core.Data.Application;
 using AppStract.Core.Data.Databases;
 using AppStract.Core.System.IPC;
 using AppStract.Core.Virtualization.Engine.FileSystem;
-using AppStract.Core.Virtualization.Process;
 
 namespace AppStract.Core.Virtualization.Process.Packaging
 {

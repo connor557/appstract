@@ -75,7 +75,7 @@ namespace AppStract.Core.Data.Application
       _files = new ApplicationFiles();
     }
 
-    public ApplicationData(SerializationInfo info, StreamingContext context)
+    private ApplicationData(SerializationInfo info, StreamingContext context)
     {
       _settings = (ApplicationSettings)info.GetValue("Settings", typeof(ApplicationSettings));
       _files = (ApplicationFiles)info.GetValue("Files", typeof(ApplicationFiles));

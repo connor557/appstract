@@ -22,11 +22,22 @@
 #endregion
 
 using System;
+using AppStract.Core.Virtualization.Engine.Registry;
 
 namespace AppStract.Core.Data.Application
 {
   [Serializable]
   public sealed class ApplicationSettings
   {
+
+    /// <summary>
+    /// Gets or sets the collection of engine rules to apply on the virtual registry.
+    /// </summary>
+    public RegistryRuleCollection RegistryEngineRuleCollection
+    {
+      get;
+      set;
+    }
+
   }
 }
