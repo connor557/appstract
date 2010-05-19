@@ -25,7 +25,7 @@ using System;
 using System.Threading;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Virtualization.Engine;
-using AppStract.Core.Virtualization.Process;
+using AppStract.Core.Virtualization.Engine.Registry;
 
 namespace AppStract.Core.Virtualization.Process.Packaging
 {
@@ -85,6 +85,7 @@ namespace AppStract.Core.Virtualization.Process.Packaging
     public Packager(string executable, string outputFolder)
     {
       ApplicationData data = new ApplicationData();
+      data.Settings.RegistryEngineRuleCollection = new RegistryRuleCollection();
       var workingDirectory = new ApplicationFile(outputFolder);
       if (workingDirectory.Type != FileType.Directory)
         throw new ArgumentException("The value specified for the outputFolder is invalid.", "outputFolder");

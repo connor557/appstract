@@ -31,7 +31,7 @@ namespace AppStract.Core.Virtualization.Process
   /// <summary>
   /// Specifies a set of values that are used when starting a <see cref="VirtualizedProcess"/>.
   /// </summary>
-  public class VirtualProcessStartInfo
+  public sealed class VirtualProcessStartInfo
   {
 
     #region Variables
@@ -157,7 +157,7 @@ namespace AppStract.Core.Virtualization.Process
                  };
       _arguments = "";
       _workingDirectory = workingDirectory;
-      _registryRuleCollection = new RegistryRuleCollection();
+      _registryRuleCollection = data.Settings.RegistryEngineRuleCollection ?? new RegistryRuleCollection();
     }
 
     #endregion
