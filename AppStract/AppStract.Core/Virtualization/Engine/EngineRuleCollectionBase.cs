@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -44,7 +45,7 @@ namespace AppStract.Core.Virtualization.Engine
   /// <typeparam name="TIdentifier">The type of object identifying a <see cref="EngineRule{TIdentifier,TRule}"/>.</typeparam>
   /// <typeparam name="TRule">The type of of object representing an engine rule.</typeparam>
   [Serializable]
-  public abstract class EngineRuleCollectionBase<TIdentifier, TRule> : ISerializable
+  public abstract class EngineRuleCollectionBase<TIdentifier, TRule> : IEnumerable<EngineRule<TIdentifier, TRule>>, ISerializable
   {
 
     #region Variables
@@ -216,6 +217,24 @@ namespace AppStract.Core.Virtualization.Engine
         if (Matches(_rules[i].Identifier, identifier))
           return i;
       return -1;
+    }
+
+    #endregion
+
+    #region IEnumerable<EngineRule<TIdentifier,TRule>> Members
+
+    public IEnumerator<EngineRule<TIdentifier, TRule>> GetEnumerator()
+    {
+      return _rules.GetEnumerator();
+    }
+
+    #endregion
+
+    #region IEnumerable Members
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return _rules.GetEnumerator();
     }
 
     #endregion
