@@ -32,6 +32,7 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
 
     #region Variables
 
+    private bool _dataSourceLocked;
     private ApplicationData _data;
 
     #endregion
@@ -50,6 +51,7 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
 
     private void UpdateDataSource()
     {
+      if (_dataSourceLocked) return;
       _data.Files.Executable.FileName = _txtExecutable.Text;
       _data.Files.DatabaseFileSystem.FileName = _txtFileSystemDatabase.Text;
       _data.Files.RootDirectory.FileName = _txtFileSystemRootDirectory.Text;
@@ -82,10 +84,12 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
         _data.Files.RootDirectory = new ApplicationFile();
       if (_data.Files.DatabaseRegistry == null)
         _data.Files.DatabaseRegistry = new ApplicationFile();
+      _dataSourceLocked = true;
       _txtExecutable.Text = _data.Files.Executable.FileName;
       _txtFileSystemDatabase.Text = _data.Files.DatabaseFileSystem.FileName;
       _txtFileSystemRootDirectory.Text = _data.Files.RootDirectory.FileName;
       _txtRegistryDatabase.Text = _data.Files.DatabaseRegistry.FileName;
+      _dataSourceLocked = false;
       Enabled = true;
     }
 

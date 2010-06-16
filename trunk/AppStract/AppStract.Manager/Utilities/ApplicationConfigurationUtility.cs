@@ -30,20 +30,49 @@ namespace AppStract.Manager.Utilities
   public partial class ApplicationConfigurationUtility : Form
   {
 
+    #region Constants
+
+    private const string _WindowTitle = "Application Configuration";
+    private const string _BlockFileInteractionWindowTitle = "Application Configuration [Locked Mode]";
+
+    #endregion
+
     #region Variables
 
+    private bool _blockFileInteraction;
     private string _dataFile;
     private ApplicationData _data;
+
+    #endregion
+
+    #region Properties
+
+    public bool BlockFileInteraction
+    {
+      get { return _blockFileInteraction; }
+      set
+      {
+        _blockFileInteraction = value;
+        UpdateGlobalGUI();
+      }
+    }
 
     #endregion
 
     #region Constructors
 
     public ApplicationConfigurationUtility()
+      : this(false)
+    {
+    }
+
+    public ApplicationConfigurationUtility(bool blockFileInteraction)
     {
       InitializeComponent();
+      _blockFileInteraction = blockFileInteraction;
       _tabPageApplicationFiles.Controls.Add(new ApplicationFilesPage { Dock = DockStyle.Fill });
       _tabPageEngineSettings.Controls.Add(new EngineSettingsPage { Dock = DockStyle.Fill });
+      UpdateGlobalGUI();
     }
 
     #endregion
@@ -53,8 +82,7 @@ namespace AppStract.Manager.Utilities
     public void LoadApplicationData(ApplicationData data)
     {
       _data = data;
-      _saveToolStripMenuItem.Enabled = true;
-      _saveAsToolStripMenuItem.Enabled = true;
+      UpdateGlobalGUI();
       foreach (Control tabPage in _tabMain.TabPages)
         foreach (IApplicationConfigurationPage page in tabPage.Controls)
           page.BindDataSource(data);
@@ -64,9 +92,20 @@ namespace AppStract.Manager.Utilities
 
     #region Private Methods
 
+    private void UpdateGlobalGUI()
+    {
+      Text = _blockFileInteraction ? _BlockFileInteractionWindowTitle : _WindowTitle;
+      _saveToolStripMenuItem.Enabled = _data != null;
+      _saveAsToolStripMenuItem.Enabled = _data != null;
+      _newToolStripMenuItem.Enabled = !_blockFileInteraction;
+      _openToolStripMenuItem.Enabled = _openToolStripMenuItem.Enabled && !_blockFileInteraction;
+      _saveAsToolStripMenuItem.Enabled = _saveAsToolStripMenuItem.Enabled && !_blockFileInteraction;
+      _saveToolStripMenuItem.Enabled = _saveToolStripMenuItem.Enabled && !_blockFileInteraction;
+    }
+
     private bool VerifyClosingFile()
     {
-      if (_data == null) return true;
+      if (_data == null || _blockFileInteraction) return true;
       var dialogResult = MessageBox.Show("Do you want to save your changes?", "Save changes?",
                                          MessageBoxButtons.YesNoCancel,
                                          MessageBoxIcon.Question);
