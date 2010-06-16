@@ -51,7 +51,7 @@ namespace AppStract.Manager.Utilities
     /// </summary>
     private void InitializeComponent()
     {
-      this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+      this._menuStrip = new System.Windows.Forms.MenuStrip();
       this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this._newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this._openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -62,19 +62,19 @@ namespace AppStract.Manager.Utilities
       this._tabMain = new System.Windows.Forms.TabControl();
       this._tabPageApplicationFiles = new System.Windows.Forms.TabPage();
       this._tabPageEngineSettings = new System.Windows.Forms.TabPage();
-      this.menuStrip1.SuspendLayout();
+      this._menuStrip.SuspendLayout();
       this._tabMain.SuspendLayout();
       this.SuspendLayout();
       // 
-      // menuStrip1
+      // _menuStrip
       // 
-      this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+      this._menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem});
-      this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-      this.menuStrip1.Name = "menuStrip1";
-      this.menuStrip1.Size = new System.Drawing.Size(741, 24);
-      this.menuStrip1.TabIndex = 0;
-      this.menuStrip1.Text = "menuStrip1";
+      this._menuStrip.Location = new System.Drawing.Point(0, 0);
+      this._menuStrip.Name = "_menuStrip";
+      this._menuStrip.Size = new System.Drawing.Size(741, 24);
+      this._menuStrip.TabIndex = 0;
+      this._menuStrip.Text = "menuStrip1";
       // 
       // fileToolStripMenuItem
       // 
@@ -166,19 +166,19 @@ namespace AppStract.Manager.Utilities
       this._tabPageEngineSettings.Text = "Engine Settings";
       this._tabPageEngineSettings.UseVisualStyleBackColor = true;
       // 
-      // FrmApplicationConfiguration
+      // ApplicationConfigurationUtility
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(741, 440);
       this.Controls.Add(this._tabMain);
-      this.Controls.Add(this.menuStrip1);
-      this.MainMenuStrip = this.menuStrip1;
-      this.Name = "FrmApplicationConfiguration";
+      this.Controls.Add(this._menuStrip);
+      this.MainMenuStrip = this._menuStrip;
+      this.Name = "ApplicationConfigurationUtility";
       this.Text = "Application Configuration";
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmApplicationConfiguration_FormClosing);
-      this.menuStrip1.ResumeLayout(false);
-      this.menuStrip1.PerformLayout();
+      this._menuStrip.ResumeLayout(false);
+      this._menuStrip.PerformLayout();
       this._tabMain.ResumeLayout(false);
       this.ResumeLayout(false);
       this.PerformLayout();
@@ -187,7 +187,7 @@ namespace AppStract.Manager.Utilities
 
     #endregion
 
-    private System.Windows.Forms.MenuStrip menuStrip1;
+    private System.Windows.Forms.MenuStrip _menuStrip;
     private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
     private System.Windows.Forms.TabControl _tabMain;
     private System.Windows.Forms.TabPage _tabPageApplicationFiles;

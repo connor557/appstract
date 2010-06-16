@@ -21,10 +21,12 @@
 
 #endregion
 
+using System;
 using System.Windows.Forms;
 using AppStract.Core;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Virtualization.Process.Packaging;
+using AppStract.Manager.Utilities;
 
 namespace AppStract.Manager.Packaging
 {
@@ -37,10 +39,21 @@ namespace AppStract.Manager.Packaging
     {
       CoreBus.Log.Message("Starting wizard to create a new application package.");
       PreConfigurationState preConfigurationState;
-      if (!RunPreWizard(out preConfigurationState))
-        return;
+      ApplicationData applicationData;
+      do
+      {
+        if (!RunPreWizard(out preConfigurationState))
+          return;
+        if (PrepareApplicationData(preConfigurationState, out applicationData))
+          break;  // Successfully extracted ApplicationData from the data specified in the wizard
+        if (
+          MessageBox.Show("Failed to start a packaging process from the data specified. Please retry.",
+                          "Packaging Initialization Failed", MessageBoxButtons.OKCancel, MessageBoxIcon.Error)
+          != DialogResult.OK)
+          return;
+      } while (true); 
       PackagedApplication packagedApplication;
-      if (!RunPackagingSequence(preConfigurationState, out packagedApplication))
+      if (!RunPackagingSequence(preConfigurationState, applicationData, out packagedApplication))
         return;
       CoreBus.Log.Message("Successfully constructed a package for: " + preConfigurationState.InstallerExecutable);
       var applicationDataFile = System.IO.Path.Combine(preConfigurationState.InstallerOutputDestination,
@@ -73,16 +86,37 @@ namespace AppStract.Manager.Packaging
       return true;
     }
 
-    private static bool RunPackagingSequence(PreConfigurationState preConfigurationState, out PackagedApplication packagedApplication)
+    private static bool PrepareApplicationData(PreConfigurationState preConfigurationState, out ApplicationData applicationData)
     {
       try
       {
-        var packager = new Packager(preConfigurationState.InstallerExecutable,
-                                    preConfigurationState.InstallerOutputDestination);
+        applicationData = Packager.GetDefaultApplicationData(preConfigurationState.InstallerExecutable);
+      }
+      catch (ArgumentException)
+      {
+        applicationData = null;
+        return false;
+      }
+      if (MessageBox.Show(
+            "Do you want to start the Application Configuration Utility before invoking the packaging process?",
+            "Start Application Configuration Utility?", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+          != DialogResult.Yes)
+        return false;
+      var utility = new ApplicationConfigurationUtility(true);
+      utility.LoadApplicationData(applicationData);
+      utility.ShowDialog();
+      return true;
+    }
+
+    private static bool RunPackagingSequence(PreConfigurationState preConfigurationState, ApplicationData applicationData, out PackagedApplication packagedApplication)
+    {
+      try
+      {
+        var packager = new Packager(applicationData, preConfigurationState.InstallerOutputDestination);
         packagedApplication = packager.CreatePackage();
         return true;
       }
-      catch (PackageException ex)
+      catch (Exception ex)
       {
         CoreBus.Log.Error("Packaging failed", ex);
         MessageBox.Show("Failed to package the application.\r\nPlease check the log files for more information.",
