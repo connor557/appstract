@@ -135,7 +135,7 @@ namespace AppStract.Core.Virtualization.Process.Packaging
       if (string.IsNullOrEmpty(executable))
         throw new ArgumentNullException("executable");
       ApplicationData data = new ApplicationData();
-      data.Settings.RegistryEngineRuleCollection = new RegistryRuleCollection();
+      data.Settings.RegistryEngineRuleCollection = RegistryRuleCollection.GetDefaultRuleCollection();
       data.Files.RootDirectory = new ApplicationFile(".");
       data.Files.Executable = new ApplicationFile(executable);
       if (data.Files.Executable.Type != FileType.Assembly_Managed

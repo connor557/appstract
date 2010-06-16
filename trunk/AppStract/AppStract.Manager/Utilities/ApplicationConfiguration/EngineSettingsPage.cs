@@ -57,7 +57,7 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
     private void UpdateDataSource()
     {
       if (_data == null) return;
-      var collection = new RegistryRuleCollection();
+      var collection = RegistryRuleCollection.GetEmptyRuleCollection();
       foreach (RegistryRule rule in _listEngineSettingsRegistry.Items)
         if (rule != _defaultRegistryRule)
           collection.SetRule(rule.Identifier, rule.Rule);
@@ -161,7 +161,7 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
         throw new ArgumentNullException("dataSource");
       _data = dataSource;
       if (_data.Settings.RegistryEngineRuleCollection == null)
-        _data.Settings.RegistryEngineRuleCollection = new RegistryRuleCollection();
+        _data.Settings.RegistryEngineRuleCollection = RegistryRuleCollection.GetDefaultRuleCollection();
       _listEngineSettingsRegistry.BeginUpdate();
       _listEngineSettingsRegistry.Items.Clear();
       foreach (var rule in dataSource.Settings.RegistryEngineRuleCollection)
