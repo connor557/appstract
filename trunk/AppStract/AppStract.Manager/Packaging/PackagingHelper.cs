@@ -100,11 +100,12 @@ namespace AppStract.Manager.Packaging
       if (MessageBox.Show(
             "Do you want to start the Application Configuration Utility before invoking the packaging process?",
             "Start Application Configuration Utility?", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
-          != DialogResult.Yes)
-        return false;
-      var utility = new ApplicationConfigurationUtility(true);
-      utility.LoadApplicationData(applicationData);
-      utility.ShowDialog();
+          == DialogResult.Yes)
+      {
+        var utility = new ApplicationConfigurationUtility(true);
+        utility.LoadApplicationData(applicationData);
+        utility.ShowDialog();
+      }
       return true;
     }
 
