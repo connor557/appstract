@@ -85,7 +85,7 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
       var rule = _listEngineSettingsRegistry.SelectedItem as RegistryRule;
       if (rule == null) return;
       _txtRegistryRuleKeyName.Text = rule.Identifier;
-      _cmbRegistryRuleVirtualizationType.SelectedValue = rule.Rule.ToString();
+      _cmbRegistryRuleVirtualizationType.SelectedItem = rule.Rule.ToString();
     }
 
     private void _btnEngineSettingsRegistryUp_Click(object sender, EventArgs e)
@@ -116,7 +116,12 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
     private void _btnEngineSettingsRegistryNew_Click(object sender, EventArgs e)
     {
       if (!_listEngineSettingsRegistry.Items.Contains(_defaultRegistryRule))
-        _listEngineSettingsRegistry.Items.Add(_defaultRegistryRule);
+      {
+        if (_listEngineSettingsRegistry.SelectedIndex != -1)
+          _listEngineSettingsRegistry.Items.Insert(_listEngineSettingsRegistry.SelectedIndex, _defaultRegistryRule);
+        else
+          _listEngineSettingsRegistry.Items.Insert(0, _defaultRegistryRule);
+      }
       _listEngineSettingsRegistry.SelectedItem = _defaultRegistryRule;
     }
 
