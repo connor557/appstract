@@ -83,20 +83,21 @@ namespace AppStract.Core.Virtualization.Process.Packaging
     /// <param name="executable">The application's installer executable.</param>
     /// <param name="outputFolder">The location where the application must be packaged to.</param>
     public Packager(string executable, string outputFolder)
+      : this(GetDefaultApplicationData(executable), outputFolder)
     {
-      ApplicationData data = new ApplicationData();
-      data.Settings.RegistryEngineRuleCollection = new RegistryRuleCollection();
+    }
+
+    /// <summary>
+    /// Initializes a new instance of <see cref="Packager"/>.
+    /// </summary>
+    /// <param name="applicationData">The data to base the packaging process on.</param>
+    /// <param name="outputFolder">The location where the application must be packaged to.</param>
+    public Packager(ApplicationData applicationData, string outputFolder)
+    {
       var workingDirectory = new ApplicationFile(outputFolder);
       if (workingDirectory.Type != FileType.Directory)
         throw new ArgumentException("The value specified for the outputFolder is invalid.", "outputFolder");
-      data.Files.RootDirectory = new ApplicationFile(".");
-      data.Files.Executable = new ApplicationFile(executable);
-      if (data.Files.Executable.Type != FileType.Assembly_Managed
-          && data.Files.Executable.Type != FileType.Assembly_Native)
-        throw new ArgumentException("The value specified for the executable is invalid.", "executable");
-      data.Files.DatabaseFileSystem = new ApplicationFile(_dbFileSystem);
-      data.Files.DatabaseRegistry = new ApplicationFile(_dbRegistry);
-      _startInfo = new VirtualProcessStartInfo(data, workingDirectory);
+      _startInfo = new VirtualProcessStartInfo(applicationData, workingDirectory);
       _waitHandle = new AutoResetEvent(false);
     }
 
@@ -120,6 +121,31 @@ namespace AppStract.Core.Virtualization.Process.Packaging
       return _result;
     }
 
+    /// <summary>
+    /// Returns a default instance of <see cref="ApplicationData"/> for the packaging of <see cref="executable"/>.
+    /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="ArgumentException">
+    /// An <see cref="ArgumentException"/> is thrown if the value specified for <paramref name="executable"/> is invalid.
+    /// </exception>
+    /// <param name="executable"></param>
+    /// <returns></returns>
+    public static ApplicationData GetDefaultApplicationData(string executable)
+    {
+      if (string.IsNullOrEmpty(executable))
+        throw new ArgumentNullException("executable");
+      ApplicationData data = new ApplicationData();
+      data.Settings.RegistryEngineRuleCollection = new RegistryRuleCollection();
+      data.Files.RootDirectory = new ApplicationFile(".");
+      data.Files.Executable = new ApplicationFile(executable);
+      if (data.Files.Executable.Type != FileType.Assembly_Managed
+          && data.Files.Executable.Type != FileType.Assembly_Native)
+        throw new ArgumentException("The value specified for the executable is invalid.", "executable");
+      data.Files.DatabaseFileSystem = new ApplicationFile(_dbFileSystem);
+      data.Files.DatabaseRegistry = new ApplicationFile(_dbRegistry);
+      return data;
+    }
+
     #endregion
 
     #region Private Methods
@@ -135,7 +161,7 @@ namespace AppStract.Core.Virtualization.Process.Packaging
       if (sender != _process)
         throw new ApplicationException("An unexpected exception occured in the application workflow."
                                        + " Process_Exited event is called from an unknown Process.");
-      _succeeded = exitCode == (int) NativeResultCode.Success;
+      _succeeded = exitCode == (int)NativeResultCode.Success;
       _result = !_succeeded
                   ? null
                   : new PackagedApplication(_startInfo.WorkingDirectory.FileName,
