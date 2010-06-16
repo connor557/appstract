@@ -25,15 +25,16 @@ using System;
 using System.Collections.Generic;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Virtualization.Process.Packaging;
-using AppStract.Manager.Wizard.AppSetup;
+using AppStract.Manager.Packaging.PostConfiguration;
+using AppStract.Manager.Wizard;
 
-namespace AppStract.Manager.Wizard
+namespace AppStract.Manager.Packaging
 {
 
   /// <summary>
   /// A wizard to guide the user through the setup of his new portable application.
   /// </summary>
-  public class ApplicationSetup : GenericWizard<ApplicationSetupState>
+  public class PostPackagingWizard : GenericWizard<PostConfigurationState>
   {
 
     #region Variables
@@ -41,7 +42,7 @@ namespace AppStract.Manager.Wizard
     /// <summary>
     /// The current state of the wizard.
     /// </summary>
-    private readonly ApplicationSetupState _state;
+    private readonly PostConfigurationState _state;
     /// <summary>
     /// The <see cref="PackagedApplication"/> to base the wizard on.
     /// </summary>
@@ -79,7 +80,7 @@ namespace AppStract.Manager.Wizard
     /// <summary>
     /// Gets the current state of the wizard.
     /// </summary>
-    public ApplicationSetupState State
+    public PostConfigurationState State
     {
       get { return _state; }
     }
@@ -89,13 +90,13 @@ namespace AppStract.Manager.Wizard
     #region Constructors
 
     /// <summary>
-    /// Initializes a new instance of ApplicationSetup.
+    /// Initializes a new instance of <see cref="PostPackagingWizard"/>.
     /// </summary>
     /// <param name="packagedApplication"></param>
-    public ApplicationSetup(PackagedApplication packagedApplication)
+    public PostPackagingWizard(PackagedApplication packagedApplication)
     {
       _installerResult = packagedApplication;
-      _state = new ApplicationSetupState();
+      _state = new PostConfigurationState();
     }
 
     #endregion

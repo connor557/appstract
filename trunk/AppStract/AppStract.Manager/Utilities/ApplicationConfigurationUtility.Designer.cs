@@ -21,9 +21,9 @@
 
 #endregion
 
-namespace AppStract.Manager
+namespace AppStract.Manager.Utilities
 {
-  partial class FrmApplicationConfiguration
+  partial class ApplicationConfigurationUtility
   {
     /// <summary>
     /// Required designer variable.

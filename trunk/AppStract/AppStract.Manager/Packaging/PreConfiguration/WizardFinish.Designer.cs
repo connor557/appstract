@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace AppStract.Manager.Wizard.AppSetup
+namespace AppStract.Manager.Packaging.PreConfiguration
 {
   partial class WizardFinish
   {
@@ -51,9 +51,10 @@ namespace AppStract.Manager.Wizard.AppSetup
     /// </summary>
     private void InitializeComponent()
     {
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WizardFinish));
       this._labelHeader = new System.Windows.Forms.Label();
       this._labelContent = new System.Windows.Forms.Label();
-      this._checkBoxStartApp = new System.Windows.Forms.CheckBox();
+      this.lblWarning = new System.Windows.Forms.Label();
       this.SuspendLayout();
       // 
       // _labelHeader
@@ -72,27 +73,27 @@ namespace AppStract.Manager.Wizard.AppSetup
       this._labelContent.AutoSize = true;
       this._labelContent.Location = new System.Drawing.Point(36, 125);
       this._labelContent.Name = "_labelContent";
-      this._labelContent.Size = new System.Drawing.Size(340, 26);
+      this._labelContent.Size = new System.Drawing.Size(333, 13);
       this._labelContent.TabIndex = 4;
-      this._labelContent.Text = "Do you want to start the new portable application after you pressed the\r\nFinish b" +
-          "utton?";
+      this._labelContent.Text = "The selected installer will be launched as soon as you pressed Finish.";
       // 
-      // _checkBoxStartApp
+      // lblWarning
       // 
-      this._checkBoxStartApp.AutoSize = true;
-      this._checkBoxStartApp.Location = new System.Drawing.Point(39, 164);
-      this._checkBoxStartApp.Name = "_checkBoxStartApp";
-      this._checkBoxStartApp.Size = new System.Drawing.Size(223, 17);
-      this._checkBoxStartApp.TabIndex = 5;
-      this._checkBoxStartApp.Text = "Start the application after I pressed Finish.";
-      this._checkBoxStartApp.UseVisualStyleBackColor = true;
+      this.lblWarning.AutoSize = true;
+      this.lblWarning.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.lblWarning.ForeColor = System.Drawing.Color.Red;
+      this.lblWarning.Location = new System.Drawing.Point(20, 293);
+      this.lblWarning.Name = "lblWarning";
+      this.lblWarning.Size = new System.Drawing.Size(395, 112);
+      this.lblWarning.TabIndex = 5;
+      this.lblWarning.Text = resources.GetString("lblWarning.Text");
       // 
       // WizardFinish
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.Color.Transparent;
-      this.Controls.Add(this._checkBoxStartApp);
+      this.Controls.Add(this.lblWarning);
       this.Controls.Add(this._labelContent);
       this.Controls.Add(this._labelHeader);
       this.Name = "WizardFinish";
@@ -106,6 +107,6 @@ namespace AppStract.Manager.Wizard.AppSetup
 
     private System.Windows.Forms.Label _labelHeader;
     private System.Windows.Forms.Label _labelContent;
-    private System.Windows.Forms.CheckBox _checkBoxStartApp;
+    private System.Windows.Forms.Label lblWarning;
   }
 }

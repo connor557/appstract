@@ -26,12 +26,12 @@ using System.Windows.Forms;
 using AppStract.Core;
 using AppStract.Utilities.ManagedFusion.Insuring;
 
-namespace AppStract.Manager
+namespace AppStract.Manager.Utilities
 {
-  public partial class FrmCleanUp : Form
+  public partial class CleanUpHelper : Form
   {
 
-    public FrmCleanUp()
+    public CleanUpHelper()
     {
       InitializeComponent();
       foreach (var insurance
@@ -44,7 +44,7 @@ namespace AppStract.Manager
     {
       if (_listInsurances.Items.Count != 0)
         return;
-      MessageBox.Show("No leaked resources found on your machine.", "No work", MessageBoxButtons.OK);
+      MessageBox.Show("No leaked resources found on your machine.", "No resources leaked", MessageBoxButtons.OK);
       DialogResult = DialogResult.OK;
       Close();
     }

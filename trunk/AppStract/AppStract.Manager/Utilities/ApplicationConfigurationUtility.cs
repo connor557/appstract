@@ -23,11 +23,11 @@
 
 using System.Windows.Forms;
 using AppStract.Core.Data.Application;
-using AppStract.Manager.ApplicationConfiguration;
+using AppStract.Manager.Utilities.ApplicationConfiguration;
 
-namespace AppStract.Manager
+namespace AppStract.Manager.Utilities
 {
-  public partial class FrmApplicationConfiguration : Form
+  public partial class ApplicationConfigurationUtility : Form
   {
 
     #region Variables
@@ -39,7 +39,7 @@ namespace AppStract.Manager
 
     #region Constructors
 
-    public FrmApplicationConfiguration()
+    public ApplicationConfigurationUtility()
     {
       InitializeComponent();
       _tabPageApplicationFiles.Controls.Add(new ApplicationFilesPage { Dock = DockStyle.Fill });

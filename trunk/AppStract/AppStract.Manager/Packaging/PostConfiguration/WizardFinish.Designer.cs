@@ -21,9 +21,9 @@
 
 #endregion
 
-namespace AppStract.Manager.Wizard.AppSetup
+namespace AppStract.Manager.Packaging.PostConfiguration
 {
-  partial class WizardIntroduction
+  partial class WizardFinish
   {
     /// <summary> 
     /// Required designer variable.
@@ -53,6 +53,7 @@ namespace AppStract.Manager.Wizard.AppSetup
     {
       this._labelHeader = new System.Windows.Forms.Label();
       this._labelContent = new System.Windows.Forms.Label();
+      this._checkBoxStartApp = new System.Windows.Forms.CheckBox();
       this.SuspendLayout();
       // 
       // _labelHeader
@@ -61,28 +62,40 @@ namespace AppStract.Manager.Wizard.AppSetup
       this._labelHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this._labelHeader.Location = new System.Drawing.Point(19, 22);
       this._labelHeader.Name = "_labelHeader";
-      this._labelHeader.Size = new System.Drawing.Size(389, 24);
-      this._labelHeader.TabIndex = 0;
-      this._labelHeader.Text = "Configure your New Portable Application";
+      this._labelHeader.Size = new System.Drawing.Size(353, 72);
+      this._labelHeader.TabIndex = 3;
+      this._labelHeader.Text = "Congratulations!\r\nYou successfully completed the New\r\nPortable Application Wizard" +
+          ".";
       // 
       // _labelContent
       // 
       this._labelContent.AutoSize = true;
-      this._labelContent.Location = new System.Drawing.Point(36, 96);
+      this._labelContent.Location = new System.Drawing.Point(36, 125);
       this._labelContent.Name = "_labelContent";
-      this._labelContent.Size = new System.Drawing.Size(304, 52);
-      this._labelContent.TabIndex = 1;
-      this._labelContent.Text = "This wizard helps you configuring your new portable application\r\nfor a first time" +
-          " use.\r\n\r\nTo continue, click Next.";
+      this._labelContent.Size = new System.Drawing.Size(340, 26);
+      this._labelContent.TabIndex = 4;
+      this._labelContent.Text = "Do you want to start the new portable application after you pressed the\r\nFinish b" +
+          "utton?";
       // 
-      // WizardIntroduction
+      // _checkBoxStartApp
+      // 
+      this._checkBoxStartApp.AutoSize = true;
+      this._checkBoxStartApp.Location = new System.Drawing.Point(39, 164);
+      this._checkBoxStartApp.Name = "_checkBoxStartApp";
+      this._checkBoxStartApp.Size = new System.Drawing.Size(223, 17);
+      this._checkBoxStartApp.TabIndex = 5;
+      this._checkBoxStartApp.Text = "Start the application after I pressed Finish.";
+      this._checkBoxStartApp.UseVisualStyleBackColor = true;
+      // 
+      // WizardFinish
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.Color.Transparent;
+      this.Controls.Add(this._checkBoxStartApp);
       this.Controls.Add(this._labelContent);
       this.Controls.Add(this._labelHeader);
-      this.Name = "WizardIntroduction";
+      this.Name = "WizardFinish";
       this.Size = new System.Drawing.Size(438, 408);
       this.ResumeLayout(false);
       this.PerformLayout();
@@ -93,5 +106,6 @@ namespace AppStract.Manager.Wizard.AppSetup
 
     private System.Windows.Forms.Label _labelHeader;
     private System.Windows.Forms.Label _labelContent;
+    private System.Windows.Forms.CheckBox _checkBoxStartApp;
   }
 }

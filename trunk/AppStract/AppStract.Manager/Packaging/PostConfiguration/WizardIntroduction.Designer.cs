@@ -21,9 +21,9 @@
 
 #endregion
 
-namespace AppStract.Manager.Wizard.AppSetup
+namespace AppStract.Manager.Packaging.PostConfiguration
 {
-  partial class WizardSettings
+  partial class WizardIntroduction
   {
     /// <summary> 
     /// Required designer variable.
@@ -52,8 +52,7 @@ namespace AppStract.Manager.Wizard.AppSetup
     private void InitializeComponent()
     {
       this._labelHeader = new System.Windows.Forms.Label();
-      this._checkBoxForceVirtualFileSystem = new System.Windows.Forms.CheckBox();
-      this._labelHeaderHelp = new System.Windows.Forms.Label();
+      this._labelContent = new System.Windows.Forms.Label();
       this.SuspendLayout();
       // 
       // _labelHeader
@@ -62,42 +61,28 @@ namespace AppStract.Manager.Wizard.AppSetup
       this._labelHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this._labelHeader.Location = new System.Drawing.Point(19, 22);
       this._labelHeader.Name = "_labelHeader";
-      this._labelHeader.Size = new System.Drawing.Size(84, 24);
-      this._labelHeader.TabIndex = 3;
-      this._labelHeader.Text = "Settings";
+      this._labelHeader.Size = new System.Drawing.Size(389, 24);
+      this._labelHeader.TabIndex = 0;
+      this._labelHeader.Text = "Configure your New Portable Application";
       // 
-      // _checkBoxForceVirtualFileSystem
+      // _labelContent
       // 
-      this._checkBoxForceVirtualFileSystem.AutoSize = true;
-      this._checkBoxForceVirtualFileSystem.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
-      this._checkBoxForceVirtualFileSystem.Checked = true;
-      this._checkBoxForceVirtualFileSystem.CheckState = System.Windows.Forms.CheckState.Checked;
-      this._checkBoxForceVirtualFileSystem.Enabled = false;
-      this._checkBoxForceVirtualFileSystem.Location = new System.Drawing.Point(36, 98);
-      this._checkBoxForceVirtualFileSystem.Name = "_checkBoxForceVirtualFileSystem";
-      this._checkBoxForceVirtualFileSystem.Size = new System.Drawing.Size(354, 17);
-      this._checkBoxForceVirtualFileSystem.TabIndex = 5;
-      this._checkBoxForceVirtualFileSystem.Text = "Force my new portable application to always use the virtual filesystem.";
-      this._checkBoxForceVirtualFileSystem.UseVisualStyleBackColor = true;
+      this._labelContent.AutoSize = true;
+      this._labelContent.Location = new System.Drawing.Point(36, 96);
+      this._labelContent.Name = "_labelContent";
+      this._labelContent.Size = new System.Drawing.Size(304, 52);
+      this._labelContent.TabIndex = 1;
+      this._labelContent.Text = "This wizard helps you configuring your new portable application\r\nfor a first time" +
+          " use.\r\n\r\nTo continue, click Next.";
       // 
-      // _labelHeaderHelp
-      // 
-      this._labelHeaderHelp.AutoSize = true;
-      this._labelHeaderHelp.Location = new System.Drawing.Point(35, 54);
-      this._labelHeaderHelp.Name = "_labelHeaderHelp";
-      this._labelHeaderHelp.Size = new System.Drawing.Size(363, 13);
-      this._labelHeaderHelp.TabIndex = 8;
-      this._labelHeaderHelp.Text = "You can select your preferred settings for the new portable application here.";
-      // 
-      // WizardSettings
+      // WizardIntroduction
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.Color.Transparent;
-      this.Controls.Add(this._labelHeaderHelp);
-      this.Controls.Add(this._checkBoxForceVirtualFileSystem);
+      this.Controls.Add(this._labelContent);
       this.Controls.Add(this._labelHeader);
-      this.Name = "WizardSettings";
+      this.Name = "WizardIntroduction";
       this.Size = new System.Drawing.Size(438, 408);
       this.ResumeLayout(false);
       this.PerformLayout();
@@ -107,7 +92,6 @@ namespace AppStract.Manager.Wizard.AppSetup
     #endregion
 
     private System.Windows.Forms.Label _labelHeader;
-    private System.Windows.Forms.CheckBox _checkBoxForceVirtualFileSystem;
-    private System.Windows.Forms.Label _labelHeaderHelp;
+    private System.Windows.Forms.Label _labelContent;
   }
 }

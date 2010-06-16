@@ -23,10 +23,8 @@
 
 using System.Threading;
 using System.Windows.Forms;
-using AppStract.Core;
-using AppStract.Core.Data.Application;
-using AppStract.Core.Virtualization.Process.Packaging;
-using AppStract.Manager.Wizard;
+using AppStract.Manager.Packaging;
+using AppStract.Manager.Utilities;
 
 namespace AppStract.Manager
 {
@@ -61,64 +59,22 @@ namespace AppStract.Manager
     {
       if (Thread.CurrentThread.Name == null)
         Thread.CurrentThread.Name = "Packager";
-      CoreBus.Log.Message("Starting wizard to create a new application package.");
-      // Gather the necessary information from the user.
-      var preWizard = new NewApplication();
+      // Gather the necessary information from the user and start packaging.
       Hide();
-      try
-      {
-        if (preWizard.ShowDialog() != System.Windows.Forms.DialogResult.OK)
-          return;
-        // Start packaging.
-        PackagedApplication package;
-        try
-        {
-          CoreBus.Log.Message("Initializing packaging logics for \"{0}\".", preWizard.Result.InstallerExecutable);
-          package = new Packager(preWizard.Result.InstallerExecutable,
-                                 preWizard.Result.InstallerOutputDestination).CreatePackage();
-        }
-        catch (PackageException ex)
-        {
-          CoreBus.Log.Error("Packaging failed", ex);
-          MessageBox.Show("Failed to package the application.\r\nPlease check the log files for more information.",
-                          "Packaging failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-          // ToDo: Clean up first!
-          return;
-        }
-        CoreBus.Log.Message("Packaging succeeded. Starting wizard for initial configuration.");
-        // Packaging succeeded, now gather the required configuration data from the user.
-        var postWizard = new ApplicationSetup(package);
-        if (postWizard.ShowDialog() != System.Windows.Forms.DialogResult.OK)
-          return; /// ToDo: Clean up first!
-        // Save the resulting data.
-        var dataFilename = System.IO.Path.Combine(preWizard.Result.InstallerOutputDestination,
-                                                  CoreBus.Configuration.Application.DefaultApplicationDataFile);
-        if (!ApplicationData.Save(postWizard.Result, dataFilename))
-          // ToDo: Add some proper error handling here!
-          // ToDo: Clean up?
-          MessageBox.Show("Failed to save the application data to " + dataFilename);
-        // Start the application, if requested.
-        if (preWizard.Result.Autostart)
-          CoreManager.StartProcess(dataFilename);
-      }
-      finally
-      {
-        Show();
-      }
+      PackagingHelper.Start();
+      Show();
     }
 
     private void _btnConfigureApplication_Click(object sender, System.EventArgs e)
     {
-      FrmApplicationConfiguration frm = new FrmApplicationConfiguration();
+      ApplicationConfigurationUtility frm = new ApplicationConfigurationUtility();
       frm.ShowDialog();
     }
 
     private void _btnCleanSystem_Click(object sender, System.EventArgs e)
     {
-      FrmCleanUp frm = new FrmCleanUp();
-      Hide();
+      CleanUpHelper frm = new CleanUpHelper();
       frm.ShowDialog();
-      Show();
     }
 
     #endregion

@@ -25,7 +25,7 @@ using System;
 using System.Windows.Forms;
 using AppStract.Core.Data.Application;
 
-namespace AppStract.Manager.ApplicationConfiguration
+namespace AppStract.Manager.Utilities.ApplicationConfiguration
 {
   public partial class ApplicationFilesPage : UserControl, IApplicationConfigurationPage
   {

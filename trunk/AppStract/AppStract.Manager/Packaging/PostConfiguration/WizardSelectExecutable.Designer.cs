@@ -21,9 +21,9 @@
 
 #endregion
 
-namespace AppStract.Manager.Wizard.NewApp
+namespace AppStract.Manager.Packaging.PostConfiguration
 {
-  partial class WizardFinish
+  partial class WizardSelectExecutable
   {
     /// <summary> 
     /// Required designer variable.
@@ -51,11 +51,30 @@ namespace AppStract.Manager.Wizard.NewApp
     /// </summary>
     private void InitializeComponent()
     {
-      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WizardFinish));
+      this._listBoxItems = new System.Windows.Forms.ListBox();
+      this._labelHeaderHelp = new System.Windows.Forms.Label();
       this._labelHeader = new System.Windows.Forms.Label();
-      this._labelContent = new System.Windows.Forms.Label();
-      this.lblWarning = new System.Windows.Forms.Label();
       this.SuspendLayout();
+      // 
+      // _listBoxItems
+      // 
+      this._listBoxItems.BorderStyle = System.Windows.Forms.BorderStyle.None;
+      this._listBoxItems.FormattingEnabled = true;
+      this._listBoxItems.Location = new System.Drawing.Point(38, 89);
+      this._listBoxItems.Name = "_listBoxItems";
+      this._listBoxItems.Size = new System.Drawing.Size(378, 299);
+      this._listBoxItems.Sorted = true;
+      this._listBoxItems.TabIndex = 2;
+      this._listBoxItems.SelectedIndexChanged += new System.EventHandler(this._listBoxItems_SelectedIndexChanged);
+      // 
+      // _labelHeaderHelp
+      // 
+      this._labelHeaderHelp.AutoSize = true;
+      this._labelHeaderHelp.Location = new System.Drawing.Point(35, 54);
+      this._labelHeaderHelp.Name = "_labelHeaderHelp";
+      this._labelHeaderHelp.Size = new System.Drawing.Size(371, 13);
+      this._labelHeaderHelp.TabIndex = 10;
+      this._labelHeaderHelp.Text = "You can select the executable to start the new portable application with here.";
       // 
       // _labelHeader
       // 
@@ -63,40 +82,19 @@ namespace AppStract.Manager.Wizard.NewApp
       this._labelHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this._labelHeader.Location = new System.Drawing.Point(19, 22);
       this._labelHeader.Name = "_labelHeader";
-      this._labelHeader.Size = new System.Drawing.Size(353, 72);
-      this._labelHeader.TabIndex = 3;
-      this._labelHeader.Text = "Congratulations!\r\nYou successfully completed the New\r\nPortable Application Wizard" +
-          ".";
+      this._labelHeader.Size = new System.Drawing.Size(206, 24);
+      this._labelHeader.TabIndex = 9;
+      this._labelHeader.Text = "Select an executable";
       // 
-      // _labelContent
-      // 
-      this._labelContent.AutoSize = true;
-      this._labelContent.Location = new System.Drawing.Point(36, 125);
-      this._labelContent.Name = "_labelContent";
-      this._labelContent.Size = new System.Drawing.Size(333, 13);
-      this._labelContent.TabIndex = 4;
-      this._labelContent.Text = "The selected installer will be launched as soon as you pressed Finish.";
-      // 
-      // lblWarning
-      // 
-      this.lblWarning.AutoSize = true;
-      this.lblWarning.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this.lblWarning.ForeColor = System.Drawing.Color.Red;
-      this.lblWarning.Location = new System.Drawing.Point(20, 293);
-      this.lblWarning.Name = "lblWarning";
-      this.lblWarning.Size = new System.Drawing.Size(395, 112);
-      this.lblWarning.TabIndex = 5;
-      this.lblWarning.Text = resources.GetString("lblWarning.Text");
-      // 
-      // WizardFinish
+      // WizardSelectExecutable
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.Color.Transparent;
-      this.Controls.Add(this.lblWarning);
-      this.Controls.Add(this._labelContent);
+      this.Controls.Add(this._labelHeaderHelp);
       this.Controls.Add(this._labelHeader);
-      this.Name = "WizardFinish";
+      this.Controls.Add(this._listBoxItems);
+      this.Name = "WizardSelectExecutable";
       this.Size = new System.Drawing.Size(438, 408);
       this.ResumeLayout(false);
       this.PerformLayout();
@@ -105,8 +103,8 @@ namespace AppStract.Manager.Wizard.NewApp
 
     #endregion
 
+    private System.Windows.Forms.ListBox _listBoxItems;
+    private System.Windows.Forms.Label _labelHeaderHelp;
     private System.Windows.Forms.Label _labelHeader;
-    private System.Windows.Forms.Label _labelContent;
-    private System.Windows.Forms.Label lblWarning;
   }
 }

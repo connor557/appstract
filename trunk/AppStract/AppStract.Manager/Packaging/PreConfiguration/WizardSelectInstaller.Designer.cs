@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace AppStract.Manager.Wizard.NewApp
+namespace AppStract.Manager.Packaging.PreConfiguration
 {
   partial class WizardSelectInstaller
   {

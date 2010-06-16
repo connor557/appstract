@@ -27,7 +27,7 @@ using AppStract.Core.Data.Application;
 using AppStract.Core.Virtualization.Engine.Registry;
 using RegistryRule = AppStract.Core.Virtualization.Engine.EngineRule<string, AppStract.Core.Virtualization.Engine.Registry.AccessMechanism>;
 
-namespace AppStract.Manager.ApplicationConfiguration
+namespace AppStract.Manager.Utilities.ApplicationConfiguration
 {
   public partial class EngineSettingsPage : UserControl, IApplicationConfigurationPage
   {

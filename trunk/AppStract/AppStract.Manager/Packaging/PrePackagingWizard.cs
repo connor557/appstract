@@ -23,15 +23,16 @@
 
 using System;
 using System.Collections.Generic;
-using AppStract.Manager.Wizard.NewApp;
+using AppStract.Manager.Packaging.PreConfiguration;
+using AppStract.Manager.Wizard;
 
-namespace AppStract.Manager.Wizard
+namespace AppStract.Manager.Packaging
 {
 
   /// <summary>
   /// A wizard to guide the user through the installation of his new portable application.
   /// </summary>
-  public class NewApplication : GenericWizard<NewApplicationState>
+  public class PrePackagingWizard : GenericWizard<PreConfigurationState>
   {
 
     #region Variables
@@ -39,7 +40,7 @@ namespace AppStract.Manager.Wizard
     /// <summary>
     /// The state of the current wizard.
     /// </summary>
-    private readonly NewApplicationState _state;
+    private readonly PreConfigurationState _state;
 
     #endregion
 
@@ -53,7 +54,7 @@ namespace AppStract.Manager.Wizard
     /// -OR-
     /// An ApplicationException is thrown when the result is accessed if the wizard hasn't successfully finished.
     /// </exception>
-    public NewApplicationState Result
+    public PreConfigurationState Result
     {
       get
       {
@@ -68,11 +69,11 @@ namespace AppStract.Manager.Wizard
     #region Constructors
 
     /// <summary>
-    /// Initializes a new instance of NewApplication.
+    /// Initializes a new instance of <see cref="PrePackagingWizard"/>.
     /// </summary>
-    public NewApplication()
+    public PrePackagingWizard()
     {
-      _state = new NewApplicationState();
+      _state = new PreConfigurationState();
     }
 
     #endregion

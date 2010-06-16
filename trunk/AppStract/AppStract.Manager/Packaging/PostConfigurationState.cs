@@ -21,15 +21,20 @@
 
 #endregion
 
-using System.Windows.Forms;
-
-namespace AppStract.Manager.Wizard.AppSetup
+namespace AppStract.Manager.Packaging
 {
-  public partial class WizardIntroduction : UserControl
+  public class PostConfigurationState
   {
-    public WizardIntroduction()
-    {
-      InitializeComponent();
-    }
+
+    #region Properties
+
+    public bool StartOnEnd { get; set; }
+
+    public bool ForceVirtualFileSystem { get; set; }
+
+    public string Executable { get; set; }
+
+    #endregion
+
   }
 }

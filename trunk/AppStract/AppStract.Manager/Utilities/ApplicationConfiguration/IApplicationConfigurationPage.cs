@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2008-2009 Simon Allaeys
+﻿#region Copyright (C) 2009-2010 Simon Allaeys
 
 /*
-    Copyright (C) 2008-2009 Simon Allaeys
+    Copyright (C) 2009-2010 Simon Allaeys
  
     This file is part of AppStract
 
@@ -21,19 +21,21 @@
 
 #endregion
 
-using System.Windows.Forms;
+using AppStract.Core.Data.Application;
 
-namespace AppStract.Manager.Wizard.NewApp
+namespace AppStract.Manager.Utilities.ApplicationConfiguration
 {
-
   /// <summary>
-  /// The first page of the wizard, an introduction.
+  /// Contains a method to bind an instance of <see cref="ApplicationData"/>.
   /// </summary>
-  public partial class WizardIntroduction : UserControl
+  public interface IApplicationConfigurationPage
   {
-    public WizardIntroduction()
-    {
-      InitializeComponent();
-    }
+
+    /// <summary>
+    /// Associates the specified <see cref="ApplicationData"/> to the current <see cref="IApplicationConfigurationPage"/>.
+    /// </summary>
+    /// <param name="dataSource"></param>
+    void BindDataSource(ApplicationData dataSource);
+
   }
 }

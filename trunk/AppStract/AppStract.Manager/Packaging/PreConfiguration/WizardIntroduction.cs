@@ -23,55 +23,17 @@
 
 using System.Windows.Forms;
 
-namespace AppStract.Manager.Wizard.AppSetup
+namespace AppStract.Manager.Packaging.PreConfiguration
 {
+
   /// <summary>
-  /// The last step of the wizard.
+  /// The first page of the wizard, an introduction.
   /// </summary>
-  public partial class WizardFinish : UserControl, IWizardItem<ApplicationSetupState>
+  public partial class WizardIntroduction : UserControl
   {
-
-    #region Variables
-
-    private readonly ApplicationSetupState _state;
-
-    #endregion
-
-    #region Constructors
-
-    public WizardFinish(ApplicationSetupState state)
+    public WizardIntroduction()
     {
       InitializeComponent();
-      _state = state;
     }
-
-    #endregion
-
-    #region IWizardItem Members
-
-    public event WizardStateChangedEventHandler<ApplicationSetupState> StateChanged;
-
-    public bool AcceptableContent
-    {
-      get { return true; }
-    }
-
-    public ApplicationSetupState State
-    {
-      get { return _state; }
-    }
-
-    public void SaveState()
-    {
-      _state.StartOnEnd = _checkBoxStartApp.Checked;
-    }
-
-    public void UpdateContent()
-    {
-      _checkBoxStartApp.Checked = _state.StartOnEnd;
-    }
-
-    #endregion
-
   }
 }
