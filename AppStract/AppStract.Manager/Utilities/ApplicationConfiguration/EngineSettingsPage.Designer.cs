@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace AppStract.Manager.ApplicationConfiguration
+namespace AppStract.Manager.Utilities.ApplicationConfiguration
 {
   partial class EngineSettingsPage
   {
@@ -141,8 +141,8 @@ namespace AppStract.Manager.ApplicationConfiguration
       // _btnEngineSettingsRegistryDelete
       // 
       this._btnEngineSettingsRegistryDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                  | System.Windows.Forms.AnchorStyles.Left)
-                  | System.Windows.Forms.AnchorStyles.Right)));
+                                                                                            | System.Windows.Forms.AnchorStyles.Left)
+                                                                                           | System.Windows.Forms.AnchorStyles.Right)));
       this._btnEngineSettingsRegistryDelete.Location = new System.Drawing.Point(168, 367);
       this._btnEngineSettingsRegistryDelete.Name = "_btnEngineSettingsRegistryDelete";
       this._btnEngineSettingsRegistryDelete.Size = new System.Drawing.Size(50, 27);
@@ -154,8 +154,8 @@ namespace AppStract.Manager.ApplicationConfiguration
       // _btnEngineSettingsRegistryNew
       // 
       this._btnEngineSettingsRegistryNew.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                  | System.Windows.Forms.AnchorStyles.Left)
-                  | System.Windows.Forms.AnchorStyles.Right)));
+                                                                                         | System.Windows.Forms.AnchorStyles.Left)
+                                                                                        | System.Windows.Forms.AnchorStyles.Right)));
       this._btnEngineSettingsRegistryNew.Location = new System.Drawing.Point(113, 367);
       this._btnEngineSettingsRegistryNew.Name = "_btnEngineSettingsRegistryNew";
       this._btnEngineSettingsRegistryNew.Size = new System.Drawing.Size(49, 27);
@@ -167,8 +167,8 @@ namespace AppStract.Manager.ApplicationConfiguration
       // _btnEngineSettingsRegistryDown
       // 
       this._btnEngineSettingsRegistryDown.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                  | System.Windows.Forms.AnchorStyles.Left)
-                  | System.Windows.Forms.AnchorStyles.Right)));
+                                                                                          | System.Windows.Forms.AnchorStyles.Left)
+                                                                                         | System.Windows.Forms.AnchorStyles.Right)));
       this._btnEngineSettingsRegistryDown.Location = new System.Drawing.Point(58, 367);
       this._btnEngineSettingsRegistryDown.Name = "_btnEngineSettingsRegistryDown";
       this._btnEngineSettingsRegistryDown.Size = new System.Drawing.Size(49, 27);
@@ -191,8 +191,8 @@ namespace AppStract.Manager.ApplicationConfiguration
       // _btnEngineSettingsRegistryUp
       // 
       this._btnEngineSettingsRegistryUp.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                  | System.Windows.Forms.AnchorStyles.Left)
-                  | System.Windows.Forms.AnchorStyles.Right)));
+                                                                                        | System.Windows.Forms.AnchorStyles.Left)
+                                                                                       | System.Windows.Forms.AnchorStyles.Right)));
       this._btnEngineSettingsRegistryUp.Location = new System.Drawing.Point(3, 367);
       this._btnEngineSettingsRegistryUp.Name = "_btnEngineSettingsRegistryUp";
       this._btnEngineSettingsRegistryUp.Size = new System.Drawing.Size(49, 27);

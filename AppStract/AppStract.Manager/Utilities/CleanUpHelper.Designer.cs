@@ -21,9 +21,9 @@
 
 #endregion
 
-namespace AppStract.Manager
+namespace AppStract.Manager.Utilities
 {
-  partial class FrmCleanUp
+  partial class CleanUpHelper
   {
     /// <summary>
     /// Required designer variable.

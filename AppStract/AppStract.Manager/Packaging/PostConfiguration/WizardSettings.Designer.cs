@@ -21,9 +21,9 @@
 
 #endregion
 
-namespace AppStract.Manager.Wizard.AppSetup
+namespace AppStract.Manager.Packaging.PostConfiguration
 {
-  partial class WizardSelectExecutable
+  partial class WizardSettings
   {
     /// <summary> 
     /// Required designer variable.
@@ -51,30 +51,10 @@ namespace AppStract.Manager.Wizard.AppSetup
     /// </summary>
     private void InitializeComponent()
     {
-      this._listBoxItems = new System.Windows.Forms.ListBox();
-      this._labelHeaderHelp = new System.Windows.Forms.Label();
       this._labelHeader = new System.Windows.Forms.Label();
+      this._checkBoxForceVirtualFileSystem = new System.Windows.Forms.CheckBox();
+      this._labelHeaderHelp = new System.Windows.Forms.Label();
       this.SuspendLayout();
-      // 
-      // _listBoxItems
-      // 
-      this._listBoxItems.BorderStyle = System.Windows.Forms.BorderStyle.None;
-      this._listBoxItems.FormattingEnabled = true;
-      this._listBoxItems.Location = new System.Drawing.Point(38, 89);
-      this._listBoxItems.Name = "_listBoxItems";
-      this._listBoxItems.Size = new System.Drawing.Size(378, 299);
-      this._listBoxItems.Sorted = true;
-      this._listBoxItems.TabIndex = 2;
-      this._listBoxItems.SelectedIndexChanged += new System.EventHandler(this._listBoxItems_SelectedIndexChanged);
-      // 
-      // _labelHeaderHelp
-      // 
-      this._labelHeaderHelp.AutoSize = true;
-      this._labelHeaderHelp.Location = new System.Drawing.Point(35, 54);
-      this._labelHeaderHelp.Name = "_labelHeaderHelp";
-      this._labelHeaderHelp.Size = new System.Drawing.Size(371, 13);
-      this._labelHeaderHelp.TabIndex = 10;
-      this._labelHeaderHelp.Text = "You can select the executable to start the new portable application with here.";
       // 
       // _labelHeader
       // 
@@ -82,19 +62,42 @@ namespace AppStract.Manager.Wizard.AppSetup
       this._labelHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this._labelHeader.Location = new System.Drawing.Point(19, 22);
       this._labelHeader.Name = "_labelHeader";
-      this._labelHeader.Size = new System.Drawing.Size(206, 24);
-      this._labelHeader.TabIndex = 9;
-      this._labelHeader.Text = "Select an executable";
+      this._labelHeader.Size = new System.Drawing.Size(84, 24);
+      this._labelHeader.TabIndex = 3;
+      this._labelHeader.Text = "Settings";
       // 
-      // WizardSelectExecutable
+      // _checkBoxForceVirtualFileSystem
+      // 
+      this._checkBoxForceVirtualFileSystem.AutoSize = true;
+      this._checkBoxForceVirtualFileSystem.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
+      this._checkBoxForceVirtualFileSystem.Checked = true;
+      this._checkBoxForceVirtualFileSystem.CheckState = System.Windows.Forms.CheckState.Checked;
+      this._checkBoxForceVirtualFileSystem.Enabled = false;
+      this._checkBoxForceVirtualFileSystem.Location = new System.Drawing.Point(36, 98);
+      this._checkBoxForceVirtualFileSystem.Name = "_checkBoxForceVirtualFileSystem";
+      this._checkBoxForceVirtualFileSystem.Size = new System.Drawing.Size(354, 17);
+      this._checkBoxForceVirtualFileSystem.TabIndex = 5;
+      this._checkBoxForceVirtualFileSystem.Text = "Force my new portable application to always use the virtual filesystem.";
+      this._checkBoxForceVirtualFileSystem.UseVisualStyleBackColor = true;
+      // 
+      // _labelHeaderHelp
+      // 
+      this._labelHeaderHelp.AutoSize = true;
+      this._labelHeaderHelp.Location = new System.Drawing.Point(35, 54);
+      this._labelHeaderHelp.Name = "_labelHeaderHelp";
+      this._labelHeaderHelp.Size = new System.Drawing.Size(363, 13);
+      this._labelHeaderHelp.TabIndex = 8;
+      this._labelHeaderHelp.Text = "You can select your preferred settings for the new portable application here.";
+      // 
+      // WizardSettings
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.Color.Transparent;
       this.Controls.Add(this._labelHeaderHelp);
+      this.Controls.Add(this._checkBoxForceVirtualFileSystem);
       this.Controls.Add(this._labelHeader);
-      this.Controls.Add(this._listBoxItems);
-      this.Name = "WizardSelectExecutable";
+      this.Name = "WizardSettings";
       this.Size = new System.Drawing.Size(438, 408);
       this.ResumeLayout(false);
       this.PerformLayout();
@@ -103,8 +106,8 @@ namespace AppStract.Manager.Wizard.AppSetup
 
     #endregion
 
-    private System.Windows.Forms.ListBox _listBoxItems;
-    private System.Windows.Forms.Label _labelHeaderHelp;
     private System.Windows.Forms.Label _labelHeader;
+    private System.Windows.Forms.CheckBox _checkBoxForceVirtualFileSystem;
+    private System.Windows.Forms.Label _labelHeaderHelp;
   }
 }

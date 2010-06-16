@@ -83,30 +83,31 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApplicationConfiguration\ApplicationFilesPage.cs">
+    <Compile Include="Packaging\PackagingHelper.cs" />
+    <Compile Include="Utilities\ApplicationConfiguration\ApplicationFilesPage.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ApplicationConfiguration\ApplicationFilesPage.Designer.cs">
+    <Compile Include="Utilities\ApplicationConfiguration\ApplicationFilesPage.Designer.cs">
       <DependentUpon>ApplicationFilesPage.cs</DependentUpon>
     </Compile>
-    <Compile Include="ApplicationConfiguration\EngineSettingsPage.cs">
+    <Compile Include="Utilities\ApplicationConfiguration\EngineSettingsPage.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ApplicationConfiguration\EngineSettingsPage.Designer.cs">
+    <Compile Include="Utilities\ApplicationConfiguration\EngineSettingsPage.Designer.cs">
       <DependentUpon>EngineSettingsPage.cs</DependentUpon>
     </Compile>
-    <Compile Include="ApplicationConfiguration\IApplicationConfigurationPage.cs" />
-    <Compile Include="FrmApplicationConfiguration.cs">
+    <Compile Include="Utilities\ApplicationConfiguration\IApplicationConfigurationPage.cs" />
+    <Compile Include="Utilities\ApplicationConfigurationUtility.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FrmApplicationConfiguration.Designer.cs">
-      <DependentUpon>FrmApplicationConfiguration.cs</DependentUpon>
+    <Compile Include="Utilities\ApplicationConfigurationUtility.Designer.cs">
+      <DependentUpon>ApplicationConfigurationUtility.cs</DependentUpon>
     </Compile>
-    <Compile Include="FrmCleanUp.cs">
+    <Compile Include="Utilities\CleanUpHelper.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FrmCleanUp.Designer.cs">
-      <DependentUpon>FrmCleanUp.cs</DependentUpon>
+    <Compile Include="Utilities\CleanUpHelper.Designer.cs">
+      <DependentUpon>CleanUpHelper.cs</DependentUpon>
     </Compile>
     <Compile Include="FrmManager.cs">
       <SubType>Form</SubType>
@@ -116,20 +117,20 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="ApplicationConfiguration\ApplicationFilesPage.resx">
+    <EmbeddedResource Include="Utilities\ApplicationConfiguration\ApplicationFilesPage.resx">
       <DependentUpon>ApplicationFilesPage.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="ApplicationConfiguration\EngineSettingsPage.resx">
+    <EmbeddedResource Include="Utilities\ApplicationConfiguration\EngineSettingsPage.resx">
       <DependentUpon>EngineSettingsPage.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="FrmApplicationConfiguration.resx">
-      <DependentUpon>FrmApplicationConfiguration.cs</DependentUpon>
+    <EmbeddedResource Include="Utilities\ApplicationConfigurationUtility.resx">
+      <DependentUpon>ApplicationConfigurationUtility.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="FrmCleanUp.resx">
-      <DependentUpon>FrmCleanUp.cs</DependentUpon>
+    <EmbeddedResource Include="Utilities\CleanUpHelper.resx">
+      <DependentUpon>CleanUpHelper.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="FrmManager.resx">
@@ -141,19 +142,19 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Wizard\AppSetup\WizardFinish.resx">
+    <EmbeddedResource Include="Packaging\PostConfiguration\WizardFinish.resx">
       <DependentUpon>WizardFinish.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Wizard\AppSetup\WizardIntroduction.resx">
+    <EmbeddedResource Include="Packaging\PostConfiguration\WizardIntroduction.resx">
       <DependentUpon>WizardIntroduction.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Wizard\AppSetup\WizardSelectExecutable.resx">
+    <EmbeddedResource Include="Packaging\PostConfiguration\WizardSelectExecutable.resx">
       <DependentUpon>WizardSelectExecutable.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Wizard\AppSetup\WizardSettings.resx">
+    <EmbeddedResource Include="Packaging\PostConfiguration\WizardSettings.resx">
       <DependentUpon>WizardSettings.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
@@ -161,15 +162,15 @@
       <DependentUpon>GenericWizard.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Wizard\NewApp\WizardFinish.resx">
+    <EmbeddedResource Include="Packaging\PreConfiguration\WizardFinish.resx">
       <DependentUpon>WizardFinish.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Wizard\NewApp\WizardIntroduction.resx">
+    <EmbeddedResource Include="Packaging\PreConfiguration\WizardIntroduction.resx">
       <DependentUpon>WizardIntroduction.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Wizard\NewApp\WizardSelectInstaller.resx">
+    <EmbeddedResource Include="Packaging\PreConfiguration\WizardSelectInstaller.resx">
       <DependentUpon>WizardSelectInstaller.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
@@ -187,32 +188,32 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Wizard\ApplicationSetup.cs">
+    <Compile Include="Packaging\PostPackagingWizard.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Wizard\ApplicationSetupState.cs" />
-    <Compile Include="Wizard\AppSetup\WizardFinish.cs">
+    <Compile Include="Packaging\PostConfigurationState.cs" />
+    <Compile Include="Packaging\PostConfiguration\WizardFinish.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Wizard\AppSetup\WizardFinish.designer.cs">
+    <Compile Include="Packaging\PostConfiguration\WizardFinish.designer.cs">
       <DependentUpon>WizardFinish.cs</DependentUpon>
     </Compile>
-    <Compile Include="Wizard\AppSetup\WizardIntroduction.cs">
+    <Compile Include="Packaging\PostConfiguration\WizardIntroduction.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Wizard\AppSetup\WizardIntroduction.designer.cs">
+    <Compile Include="Packaging\PostConfiguration\WizardIntroduction.designer.cs">
       <DependentUpon>WizardIntroduction.cs</DependentUpon>
     </Compile>
-    <Compile Include="Wizard\AppSetup\WizardSelectExecutable.cs">
+    <Compile Include="Packaging\PostConfiguration\WizardSelectExecutable.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Wizard\AppSetup\WizardSelectExecutable.designer.cs">
+    <Compile Include="Packaging\PostConfiguration\WizardSelectExecutable.designer.cs">
       <DependentUpon>WizardSelectExecutable.cs</DependentUpon>
     </Compile>
-    <Compile Include="Wizard\AppSetup\WizardSettings.cs">
+    <Compile Include="Packaging\PostConfiguration\WizardSettings.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Wizard\AppSetup\WizardSettings.designer.cs">
+    <Compile Include="Packaging\PostConfiguration\WizardSettings.designer.cs">
       <DependentUpon>WizardSettings.cs</DependentUpon>
     </Compile>
     <Compile Include="Wizard\GenericWizard.cs">
@@ -222,26 +223,26 @@
       <DependentUpon>GenericWizard.cs</DependentUpon>
     </Compile>
     <Compile Include="Wizard\IWizardItem.cs" />
-    <Compile Include="Wizard\NewApplication.cs">
+    <Compile Include="Packaging\PrePackagingWizard.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Wizard\NewApplicationState.cs" />
-    <Compile Include="Wizard\NewApp\WizardFinish.cs">
+    <Compile Include="Packaging\PreConfigurationState.cs" />
+    <Compile Include="Packaging\PreConfiguration\WizardFinish.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Wizard\NewApp\WizardFinish.designer.cs">
+    <Compile Include="Packaging\PreConfiguration\WizardFinish.designer.cs">
       <DependentUpon>WizardFinish.cs</DependentUpon>
     </Compile>
-    <Compile Include="Wizard\NewApp\WizardIntroduction.cs">
+    <Compile Include="Packaging\PreConfiguration\WizardIntroduction.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Wizard\NewApp\WizardIntroduction.designer.cs">
+    <Compile Include="Packaging\PreConfiguration\WizardIntroduction.designer.cs">
       <DependentUpon>WizardIntroduction.cs</DependentUpon>
     </Compile>
-    <Compile Include="Wizard\NewApp\WizardSelectInstaller.cs">
+    <Compile Include="Packaging\PreConfiguration\WizardSelectInstaller.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Wizard\NewApp\WizardSelectInstaller.designer.cs">
+    <Compile Include="Packaging\PreConfiguration\WizardSelectInstaller.designer.cs">
       <DependentUpon>WizardSelectInstaller.cs</DependentUpon>
     </Compile>
     <Compile Include="Wizard\WizardPage.cs" />

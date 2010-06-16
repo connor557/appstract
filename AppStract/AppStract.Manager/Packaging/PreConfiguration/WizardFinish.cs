@@ -22,53 +22,57 @@
 #endregion
 
 using System.Windows.Forms;
+using AppStract.Manager.Wizard;
 
-namespace AppStract.Manager.Wizard.AppSetup
+namespace AppStract.Manager.Packaging.PreConfiguration
 {
   /// <summary>
-  /// Lets the user change some settings.
+  /// The last step of the wizard.
   /// </summary>
-  public partial class WizardSettings : UserControl, IWizardItem<ApplicationSetupState>
+  partial class WizardFinish : UserControl, IWizardItem<PreConfigurationState>
   {
 
     #region Variables
 
-    private ApplicationSetupState _state;
+    /// <summary>
+    /// Current state of the wizard.
+    /// </summary>
+    private readonly PreConfigurationState _wizardState;
 
     #endregion
 
     #region Constructors
 
-    public WizardSettings(ApplicationSetupState state)
+    public WizardFinish(PreConfigurationState wizardState)
     {
       InitializeComponent();
-      _state = state;
+      _wizardState = wizardState;
     }
 
     #endregion
 
-    #region IWizardItem Members
+    #region IWizardItem<NewApplicationState> Members
 
-    public event WizardStateChangedEventHandler<ApplicationSetupState> StateChanged;
+    public event WizardStateChangedEventHandler<PreConfigurationState> StateChanged;
 
     public bool AcceptableContent
     {
       get { return true; }
     }
 
-    public ApplicationSetupState State
+    public PreConfigurationState State
     {
-      get { return _state; }
+      get { return _wizardState; }
     }
 
     public void SaveState()
     {
-      _state.ForceVirtualFileSystem = _checkBoxForceVirtualFileSystem.Checked;
+
     }
 
     public void UpdateContent()
     {
-      _checkBoxForceVirtualFileSystem.Checked = _state.ForceVirtualFileSystem;
+
     }
 
     #endregion

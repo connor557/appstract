@@ -21,40 +21,15 @@
 
 #endregion
 
-namespace AppStract.Manager.Wizard
+using System.Windows.Forms;
+
+namespace AppStract.Manager.Packaging.PostConfiguration
 {
-  public class ApplicationSetupState
+  public partial class WizardIntroduction : UserControl
   {
-
-    #region Variables
-
-    private bool _startOnEnd;
-    private bool _forceVirtualFileSystem;
-    private string _executable;
-
-    #endregion
-
-    #region Properties
-
-    public bool StartOnEnd
+    public WizardIntroduction()
     {
-      get { return _startOnEnd; }
-      set { _startOnEnd = value; }
+      InitializeComponent();
     }
-
-    public bool ForceVirtualFileSystem
-    {
-      get { return _forceVirtualFileSystem; }
-      set { _forceVirtualFileSystem = value; }
-    }
-
-    public string Executable
-    {
-      get { return _executable; }
-      set { _executable = value; }
-    }
-
-    #endregion
-
   }
 }

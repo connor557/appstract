@@ -23,13 +23,14 @@
 
 using System.IO;
 using System.Windows.Forms;
+using AppStract.Manager.Wizard;
 
-namespace AppStract.Manager.Wizard.NewApp
+namespace AppStract.Manager.Packaging.PreConfiguration
 {
   /// <summary>
   /// The page of the wizard where the user can select the to-be-used paths.
   /// </summary>
-  partial class WizardSelectInstaller : UserControl, IWizardItem<NewApplicationState>
+  partial class WizardSelectInstaller : UserControl, IWizardItem<PreConfigurationState>
   {
 
     #region Variables
@@ -37,13 +38,13 @@ namespace AppStract.Manager.Wizard.NewApp
     /// <summary>
     /// Current state of the wizard.
     /// </summary>
-    private readonly NewApplicationState _wizardState;
+    private readonly PreConfigurationState _wizardState;
 
     #endregion
 
     #region Constructors
 
-    public WizardSelectInstaller(NewApplicationState wizardState)
+    public WizardSelectInstaller(PreConfigurationState wizardState)
     {
       InitializeComponent();
       _wizardState = wizardState;
@@ -100,14 +101,14 @@ namespace AppStract.Manager.Wizard.NewApp
 
     #region IWizardItem Members
 
-    public event WizardStateChangedEventHandler<NewApplicationState> StateChanged;
+    public event WizardStateChangedEventHandler<PreConfigurationState> StateChanged;
 
     public bool AcceptableContent
     {
       get { return _textBoxOutputFolder.Text != "" && _textBoxInstallerLocation.Text != ""; }
     }
 
-    public NewApplicationState State
+    public PreConfigurationState State
     {
       get { return _wizardState; }
     }

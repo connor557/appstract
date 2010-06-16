@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace AppStract.Manager.ApplicationConfiguration
+namespace AppStract.Manager.Utilities.ApplicationConfiguration
 {
   partial class ApplicationFilesPage
   {

@@ -23,15 +23,16 @@
 
 using System.Collections.Generic;
 using System.Windows.Forms;
+using AppStract.Manager.Wizard;
 
-namespace AppStract.Manager.Wizard.AppSetup
+namespace AppStract.Manager.Packaging.PostConfiguration
 {
-  partial class WizardSelectExecutable : UserControl, IWizardItem<ApplicationSetupState>
+  partial class WizardSelectExecutable : UserControl, IWizardItem<PostConfigurationState>
   {
 
     #region Variables
 
-    private readonly ApplicationSetupState _state;
+    private readonly PostConfigurationState _state;
 
     #endregion
 
@@ -51,7 +52,7 @@ namespace AppStract.Manager.Wizard.AppSetup
 
     #region Constructor
 
-    public WizardSelectExecutable(IEnumerable<string> items, ApplicationSetupState state)
+    public WizardSelectExecutable(IEnumerable<string> items, PostConfigurationState state)
     {
       InitializeComponent();
       foreach (string item in items)
@@ -74,14 +75,14 @@ namespace AppStract.Manager.Wizard.AppSetup
 
     #region IWizardItem Members
 
-    public event WizardStateChangedEventHandler<ApplicationSetupState> StateChanged;
+    public event WizardStateChangedEventHandler<PostConfigurationState> StateChanged;
 
     public bool AcceptableContent
     {
       get { return _listBoxItems.SelectedIndex != -1; }
     }
 
-    public ApplicationSetupState State
+    public PostConfigurationState State
     {
       get { return _state; }
     }

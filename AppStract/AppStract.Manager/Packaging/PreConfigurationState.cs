@@ -21,57 +21,39 @@
 
 #endregion
 
-using System.Windows.Forms;
-
-namespace AppStract.Manager.Wizard.NewApp
+namespace AppStract.Manager.Packaging
 {
   /// <summary>
-  /// The last step of the wizard.
+  /// Stores the state of the current running wizard.
   /// </summary>
-  partial class WizardFinish : UserControl, IWizardItem<NewApplicationState>
+  public class PreConfigurationState
   {
 
-    #region Variables
+    #region Properties
 
     /// <summary>
-    /// Current state of the wizard.
+    /// Gets or sets the executable of the new application's installer.
     /// </summary>
-    private readonly NewApplicationState _wizardState;
+    public string InstallerExecutable { get; set; }
+
+    /// <summary>
+    /// Gets or sets the destination where the installer should output the application.
+    /// </summary>
+    public string InstallerOutputDestination { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the application must be autostarted after packaging.
+    /// </summary>
+    public bool Autostart { get; set; }
 
     #endregion
 
     #region Constructors
 
-    public WizardFinish(NewApplicationState wizardState)
+    public PreConfigurationState()
     {
-      InitializeComponent();
-      _wizardState = wizardState;
-    }
-
-    #endregion
-
-    #region IWizardItem<NewApplicationState> Members
-
-    public event WizardStateChangedEventHandler<NewApplicationState> StateChanged;
-
-    public bool AcceptableContent
-    {
-      get { return true; }
-    }
-
-    public NewApplicationState State
-    {
-      get { return _wizardState; }
-    }
-
-    public void SaveState()
-    {
-
-    }
-
-    public void UpdateContent()
-    {
-
+      InstallerExecutable = "";
+      InstallerOutputDestination = "";
     }
 
     #endregion
