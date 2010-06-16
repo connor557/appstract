@@ -107,6 +107,12 @@ namespace AppStract.Manager
       }
     }
 
+    private void _btnConfigureApplication_Click(object sender, System.EventArgs e)
+    {
+      FrmApplicationConfiguration frm = new FrmApplicationConfiguration();
+      frm.ShowDialog();
+    }
+
     private void _btnCleanSystem_Click(object sender, System.EventArgs e)
     {
       FrmCleanUp frm = new FrmCleanUp();

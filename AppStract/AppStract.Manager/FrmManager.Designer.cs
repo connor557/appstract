@@ -54,6 +54,7 @@ namespace AppStract.Manager
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmManager));
       this._btnPackageNew = new System.Windows.Forms.Button();
       this._btnCleanSystem = new System.Windows.Forms.Button();
+      this._btnConfigureApplication = new System.Windows.Forms.Button();
       this.SuspendLayout();
       // 
       // _btnPackageNew
@@ -68,7 +69,7 @@ namespace AppStract.Manager
       // 
       // _btnCleanSystem
       // 
-      this._btnCleanSystem.Location = new System.Drawing.Point(12, 61);
+      this._btnCleanSystem.Location = new System.Drawing.Point(12, 97);
       this._btnCleanSystem.Name = "_btnCleanSystem";
       this._btnCleanSystem.Size = new System.Drawing.Size(301, 30);
       this._btnCleanSystem.TabIndex = 6;
@@ -76,11 +77,22 @@ namespace AppStract.Manager
       this._btnCleanSystem.UseVisualStyleBackColor = true;
       this._btnCleanSystem.Click += new System.EventHandler(this._btnCleanSystem_Click);
       // 
+      // _btnConfigureApplication
+      // 
+      this._btnConfigureApplication.Location = new System.Drawing.Point(12, 61);
+      this._btnConfigureApplication.Name = "_btnConfigureApplication";
+      this._btnConfigureApplication.Size = new System.Drawing.Size(301, 30);
+      this._btnConfigureApplication.TabIndex = 7;
+      this._btnConfigureApplication.Text = "Configure an application";
+      this._btnConfigureApplication.UseVisualStyleBackColor = true;
+      this._btnConfigureApplication.Click += new System.EventHandler(this._btnConfigureApplication_Click);
+      // 
       // FrmManager
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(325, 103);
+      this.ClientSize = new System.Drawing.Size(325, 140);
+      this.Controls.Add(this._btnConfigureApplication);
       this.Controls.Add(this._btnCleanSystem);
       this.Controls.Add(this._btnPackageNew);
       this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -94,6 +106,7 @@ namespace AppStract.Manager
 
     private System.Windows.Forms.Button _btnPackageNew;
     private System.Windows.Forms.Button _btnCleanSystem;
+    private System.Windows.Forms.Button _btnConfigureApplication;
 
   }
 }
