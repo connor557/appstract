@@ -83,6 +83,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApplicationConfiguration\ApplicationFilesPage.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ApplicationConfiguration\ApplicationFilesPage.Designer.cs">
+      <DependentUpon>ApplicationFilesPage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ApplicationConfiguration\EngineSettingsPage.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ApplicationConfiguration\EngineSettingsPage.Designer.cs">
+      <DependentUpon>EngineSettingsPage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ApplicationConfiguration\IApplicationConfigurationPage.cs" />
+    <Compile Include="FrmApplicationConfiguration.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmApplicationConfiguration.Designer.cs">
+      <DependentUpon>FrmApplicationConfiguration.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmCleanUp.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -97,6 +116,18 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="ApplicationConfiguration\ApplicationFilesPage.resx">
+      <DependentUpon>ApplicationFilesPage.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ApplicationConfiguration\EngineSettingsPage.resx">
+      <DependentUpon>EngineSettingsPage.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmApplicationConfiguration.resx">
+      <DependentUpon>FrmApplicationConfiguration.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="FrmCleanUp.resx">
       <DependentUpon>FrmCleanUp.cs</DependentUpon>
       <SubType>Designer</SubType>
