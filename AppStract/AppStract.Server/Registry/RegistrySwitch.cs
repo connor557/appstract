@@ -127,8 +127,19 @@ namespace AppStract.Server.Registry
       if (string.IsNullOrEmpty(keyFullPath))
         return AccessMechanism.Virtual;
       AccessMechanism accessMechanism;
-      if (_engineRules.HasRule(keyFullPath, out accessMechanism))
-        return accessMechanism;
+      return _engineRules.HasRule(keyFullPath, out accessMechanism)
+               ? accessMechanism
+               : GetFallBackAccessMechanism(keyFullPath);
+    }
+
+    /// <summary>
+    /// Returns the default access mechanism to use on a key.
+    /// </summary>
+    /// <param name="keyFullPath">The key's full path.</param>
+    /// <returns>The <see cref="AccessMechanism"/>, indicating how the key should be accessed.</returns>
+    private static AccessMechanism GetFallBackAccessMechanism(string keyFullPath)
+    {
+      GuestCore.Log.Error("Falling back to default rules, no rule specified for \"" + keyFullPath + "\"");
       var hive = HiveHelper.GetHive(keyFullPath);
       if (hive == RegistryHive.Users
           || hive == RegistryHive.CurrentUser)
