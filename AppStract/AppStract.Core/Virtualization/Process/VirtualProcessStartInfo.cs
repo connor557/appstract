@@ -157,7 +157,7 @@ namespace AppStract.Core.Virtualization.Process
                  };
       _arguments = "";
       _workingDirectory = workingDirectory;
-      _registryRuleCollection = data.Settings.RegistryEngineRuleCollection ?? new RegistryRuleCollection();
+      _registryRuleCollection = data.Settings.RegistryEngineRuleCollection ?? RegistryRuleCollection.GetDefaultRuleCollection();
     }
 
     #endregion

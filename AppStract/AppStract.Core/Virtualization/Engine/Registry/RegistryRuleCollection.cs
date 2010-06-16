@@ -32,7 +32,7 @@ namespace AppStract.Core.Virtualization.Engine.Registry
 
     #region Constructors
 
-    public RegistryRuleCollection()
+    private RegistryRuleCollection()
     {
 
     }
@@ -41,6 +41,28 @@ namespace AppStract.Core.Virtualization.Engine.Registry
       : base(info, context)
     {
 
+    }
+
+    #endregion
+
+    #region Public Methods
+
+    public static RegistryRuleCollection GetEmptyRuleCollection()
+    {
+      return new RegistryRuleCollection();
+    }
+
+    public static RegistryRuleCollection GetDefaultRuleCollection()
+    {
+      var rules = new RegistryRuleCollection();
+      rules.SetRule("HKEY_USERS%",            AccessMechanism.CreateAndCopy);
+      rules.SetRule("HKEY_CURRENT_USER%",     AccessMechanism.CreateAndCopy);
+      rules.SetRule("HKEY_CURRENT_CONFIG%",   AccessMechanism.TransparentRead);
+      rules.SetRule("HKEY_LOCAL_MACHINE%",    AccessMechanism.TransparentRead);
+      rules.SetRule("HKEY_CLASSES_ROOT%",     AccessMechanism.TransparentRead);
+      rules.SetRule("HKEY_PERFORMANCE_DATA%", AccessMechanism.Transparent);
+      rules.SetRule("HKEY_DYN_DATA%",         AccessMechanism.Transparent);
+      return rules;
     }
 
     #endregion
