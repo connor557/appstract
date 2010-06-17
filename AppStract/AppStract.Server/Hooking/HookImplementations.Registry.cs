@@ -44,7 +44,7 @@ namespace AppStract.Server.Hooking
     /// <param name="sam"></param>
     /// <param name="phkResult"></param>
     /// <returns></returns>
-    public NativeResultCode RegOpenKey_Hooked(UIntPtr hKey, string subKey, RegOption options, RegSecurityDescriptor sam, out UIntPtr phkResult)
+    public NativeResultCode RegOpenKey_Hooked(UIntPtr hKey, string subKey, RegOption options, RegAccessRights sam, out UIntPtr phkResult)
     {
       if (subKey == null)
       {
@@ -92,7 +92,7 @@ namespace AppStract.Server.Hooking
     /// </param>
     /// <returns></returns>
     public NativeResultCode RegCreateKeyEx_Hooked(UIntPtr hKey, string lpSubKey, int Reserved, string lpClass, RegOption dwOptions,
-      RegSecurityDescriptor samDesired, ref int lpSecurityAttributes, out UIntPtr phkResult, out RegCreationDisposition lpdwDisposition)
+      RegAccessRights samDesired, ref int lpSecurityAttributes, out UIntPtr phkResult, out RegCreationDisposition lpdwDisposition)
     {
       if (lpSubKey == null)
       {

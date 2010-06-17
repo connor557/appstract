@@ -29,7 +29,7 @@ namespace AppStract.Core.Virtualization.Engine.Registry
   /// A mask that specifies the access rights for the key.
   /// </summary>
   [Flags]
-  public enum RegSecurityDescriptor
+  public enum RegAccessRights
   {
     /// <summary>
     /// The standard security descriptor.
