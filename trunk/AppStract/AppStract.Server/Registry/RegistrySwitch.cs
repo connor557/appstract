@@ -175,6 +175,7 @@ namespace AppStract.Server.Registry
     /// <returns></returns>
     private RegistryBase TryRecoverUnknownHandle(RegistryRequest request)
     {
+      System.Diagnostics.Debugger.Break();
       request.KeyFullPath = HostRegistry.GetKeyNameByHandle(request.Handle);
       if (request.KeyFullPath == null)
       {

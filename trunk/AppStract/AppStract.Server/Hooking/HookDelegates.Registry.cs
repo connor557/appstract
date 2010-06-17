@@ -39,12 +39,12 @@ namespace AppStract.Server.Hooking
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
     public delegate NativeResultCode DCreateKey_Unicode
-      (UIntPtr hKey, string lpSubKey, int Reserved, string lpClass, RegOption dwOptions, RegSecurityDescriptor samDesired,
+      (UIntPtr hKey, string lpSubKey, int Reserved, string lpClass, RegOption dwOptions, RegAccessRights samDesired,
        ref int lpSecurityAttributes, out UIntPtr phkResult, out RegCreationDisposition lpdwDisposition);
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
     public delegate NativeResultCode DCreateKey_Ansi
-      (UIntPtr hKey, string lpSubKey, int Reserved, string lpClass, RegOption dwOptions, RegSecurityDescriptor samDesired,
+      (UIntPtr hKey, string lpSubKey, int Reserved, string lpClass, RegOption dwOptions, RegAccessRights samDesired,
        ref int lpSecurityAttributes, out UIntPtr phkResult, out RegCreationDisposition lpdwDisposition);
 
     #endregion
@@ -53,11 +53,11 @@ namespace AppStract.Server.Hooking
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
     public delegate NativeResultCode DOpenKey_Unicode
-      (UIntPtr hKey, string subKey, RegOption options, RegSecurityDescriptor sam, out UIntPtr phkResult);
+      (UIntPtr hKey, string subKey, RegOption options, RegAccessRights sam, out UIntPtr phkResult);
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
     public delegate NativeResultCode DOpenKey_Ansi
-      (UIntPtr hKey, string subKey, RegOption options, RegSecurityDescriptor sam, out UIntPtr phkResult);
+      (UIntPtr hKey, string subKey, RegOption options, RegAccessRights sam, out UIntPtr phkResult);
 
     #endregion
 
