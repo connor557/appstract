@@ -73,7 +73,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Registry\NativeAPI.cs" />
     <Compile Include="Registry\RegistryRequest.cs" />
     <Compile Include="Registry\RegistrySwitch.cs" />
     <Compile Include="Registry\RegistryValueRequest.cs" />
