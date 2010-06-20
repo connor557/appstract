@@ -61,9 +61,17 @@ namespace AppStract.Utilities.Helpers
     public static bool TryParseEnum<EnumType>(int value, out EnumType result)
     {
       result = default(EnumType);
-      var type = typeof(EnumType);
+      var type = typeof (EnumType);
       if (!type.IsEnum) return false;
-      result = (EnumType)Enum.Parse(type, value.ToString());
+      try
+      {
+        result = (EnumType) Enum.Parse(type, value.ToString());
+      }
+      catch (OverflowException)
+      {
+        // Thrown when value is outside the range of the underlying type of EnumType.
+        return false;
+      }
       // Verify if the result is valid,
       // Enum.Parse might just return the input value, while this is not a defined value of the enum
       if (result.ToString().Contains(", ") || Enum.IsDefined(type, result))
