@@ -151,14 +151,6 @@ namespace AppStract.Inject
         string[] arguments = args.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
         GuestCore.Log.Debug("Invoking main method of targeted guest... using #{0} method parameters{1}",
                             arguments.Length, arguments.Length == 0 ? "" : ": " + args);
-        Debugger.Break();
-        System.Reflection.MethodInfo entrypoint;
-        using (Server.Hooking.HookManager.ACL.GetHookingExclusion())
-        {
-          var assembly = System.Reflection.Assembly.LoadFrom(wrappedProcessExecutable);
-          entrypoint = assembly.EntryPoint;
-        }
-        entrypoint.Invoke(null, null);
         var exitCode = AssemblyHelper.RunMainMethod(wrappedProcessExecutable, arguments.Length == 0 ? null : arguments);
         GuestCore.Log.Message("Target main method returned exitcode " + exitCode);
         // First attempt a clean shutdown, then try a forced shutdown.
