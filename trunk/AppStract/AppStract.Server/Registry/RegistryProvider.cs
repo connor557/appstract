@@ -100,7 +100,11 @@ namespace AppStract.Server.Registry
     {
       var request = new RegistryRequest {Handle = hKey};
       var registry = _switch.GetRegistryFor(request, false);
-      return registry != null ? registry.CloseKey(request) : NativeAPI.RegCloseKey(hKey);
+      if (registry != null)
+        return registry.CloseKey(request);
+      return HostRegistry.CloseKey(hKey)
+               ? NativeResultCode.Success
+               : NativeResultCode.InvalidHandle;
     }
 
     public NativeResultCode DeleteKey(uint hKey)
