@@ -1,7 +1,7 @@
 ﻿#region Copyright (C) 2009-2010 Simon Allaeys
 
 /*
-    Copyright (C) 2008-2009 Simon Allaeys
+    Copyright (C) 2009-2010 Simon Allaeys
  
     This file is part of AppStract
 
