@@ -92,30 +92,29 @@ namespace AppStract.Server.Hooking
     /// </param>
     /// <returns></returns>
     public NativeResultCode RegCreateKeyEx_Hooked(UIntPtr hKey, string lpSubKey, int Reserved, string lpClass, RegOption dwOptions,
-      RegAccessRights samDesired, ref int lpSecurityAttributes, out UIntPtr phkResult, out RegCreationDisposition lpdwDisposition)
+      RegAccessRights samDesired, ref int lpSecurityAttributes, ref UIntPtr phkResult, ref RegCreationDisposition lpdwDisposition)
     {
       if (lpSubKey == null)
       {
-        phkResult = UIntPtr.Zero;
-        // Bug: In this case, Windows doesn't set a value for phkResult! Should phkResult be a "ref" in stead of "out"?
-        lpdwDisposition = RegCreationDisposition.NoKeyCreated;
+        SafeWrite(RegCreationDisposition.NoKeyCreated, ref lpdwDisposition);
         return NativeResultCode.RegBadKey;
       }
       uint handle;
       if (!TryParse(hKey, out handle))
       {
-        phkResult = UIntPtr.Zero;
-        lpdwDisposition = RegCreationDisposition.NoKeyCreated;
+        SafeWrite(RegCreationDisposition.NoKeyCreated, ref lpdwDisposition);
         return NativeResultCode.InvalidHandle;
       }
       using (HookManager.ACL.GetHookingExclusion())
       {
         uint phkResultHandle;
-        var resultCode = _registry.CreateKey(handle, lpSubKey, out phkResultHandle, out lpdwDisposition);
+        RegCreationDisposition creationDisposition;
+        var resultCode = _registry.CreateKey(handle, lpSubKey, out phkResultHandle, out creationDisposition);
         GuestCore.Log.Debug("CreateKey(HKey={0} NewSubKey={1}) => {2}",
                             hKey, lpSubKey, resultCode == NativeResultCode.Success
-                                              ? lpdwDisposition + " HKey=" + phkResultHandle
+                                              ? creationDisposition + " HKey=" + phkResultHandle
                                               : resultCode.ToString());
+        SafeWrite(creationDisposition, ref lpdwDisposition);
         phkResult = new UIntPtr(phkResultHandle);
         return resultCode;
       }
@@ -228,22 +227,6 @@ namespace AppStract.Server.Hooking
                             handle, lpValueName, dwType, resultCode);
         return resultCode;
       }
-    }
-
-    #endregion
-
-    #region Private Methods
-
-    /// <summary>
-    /// Tries to parse the <see cref="Int64"/> value of <paramref name="pointer"/> to an <see cref="UInt32"/>
-    /// </summary>
-    /// <param name="pointer"></param>
-    /// <param name="result"></param>
-    /// <returns></returns>
-    private static bool TryParse(UIntPtr pointer, out uint result)
-    {
-      result = (uint)pointer;
-      return true;
     }
 
     #endregion

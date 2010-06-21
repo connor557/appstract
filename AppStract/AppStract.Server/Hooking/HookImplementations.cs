@@ -21,6 +21,7 @@
 
 #endregion
 
+using System;
 using AppStract.Core.Virtualization.Engine.FileSystem;
 using AppStract.Core.Virtualization.Engine.Registry;
 
@@ -45,6 +46,40 @@ namespace AppStract.Server.Hooking
     {
       _fileSystem = fileSystemProvider;
       _registry = registryProvider;
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    /// <summary>
+    /// Suppresses a possible <see cref="NullReferenceException"/> when assigning <paramref name="value"/> to <paramref name="destination"/>.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="value"></param>
+    /// <param name="destination"></param>
+    private static void SafeWrite<T>(T value, ref T destination) where T : struct
+    {
+      try
+      {
+        destination = value;
+      }
+      catch (NullReferenceException)
+      {
+        // Might happen when from native side null is provided for destination.
+      }
+    }
+
+    /// <summary>
+    /// Tries to parse the <see cref="Int64"/> value of <paramref name="pointer"/> to an <see cref="UInt32"/>
+    /// </summary>
+    /// <param name="pointer"></param>
+    /// <param name="result"></param>
+    /// <returns></returns>
+    private static bool TryParse(UIntPtr pointer, out uint result)
+    {
+      result = (uint)pointer;
+      return true;
     }
 
     #endregion

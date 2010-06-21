@@ -40,12 +40,12 @@ namespace AppStract.Server.Hooking
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
     public delegate NativeResultCode DCreateKey_Unicode
       (UIntPtr hKey, string lpSubKey, int Reserved, string lpClass, RegOption dwOptions, RegAccessRights samDesired,
-       ref int lpSecurityAttributes, out UIntPtr phkResult, out RegCreationDisposition lpdwDisposition);
+       ref int lpSecurityAttributes, ref UIntPtr phkResult, ref RegCreationDisposition lpdwDisposition);
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
     public delegate NativeResultCode DCreateKey_Ansi
       (UIntPtr hKey, string lpSubKey, int Reserved, string lpClass, RegOption dwOptions, RegAccessRights samDesired,
-       ref int lpSecurityAttributes, out UIntPtr phkResult, out RegCreationDisposition lpdwDisposition);
+       ref int lpSecurityAttributes, ref UIntPtr phkResult, ref RegCreationDisposition lpdwDisposition);
 
     #endregion
 
