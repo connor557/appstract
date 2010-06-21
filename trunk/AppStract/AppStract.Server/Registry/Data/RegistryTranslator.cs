@@ -120,9 +120,11 @@ namespace AppStract.Server.Registry.Data
       if (win32RegistryPath.StartsWith(@"user\"))
       {
         win32RegistryPath = win32RegistryPath.Substring(@"user\".Length);
-        return win32RegistryPath.StartsWith(_currentUserSid)
-                 ? @"hkey_current_user" + win32RegistryPath.Substring(_currentUserSid.Length)
-                 : @"hkey_users\" + win32RegistryPath;
+        if (!win32RegistryPath.StartsWith(_currentUserSid))
+          return @"hkey_users\" + win32RegistryPath;
+        return win32RegistryPath.StartsWith(_currentUserSid + "_classes")
+                 ? @"hkey_classes_root" + win32RegistryPath.Substring((_currentUserSid + "_classes").Length)
+                 : @"hkey_current_user" + win32RegistryPath.Substring(_currentUserSid.Length);
       }
       if (win32RegistryPath.StartsWith(@"machine\"))
         return "hkey_local_machine" + win32RegistryPath.Substring("machine".Length);
