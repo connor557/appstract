@@ -40,10 +40,9 @@ namespace AppStract.Server.FileSystem
 
     /// <summary>
     /// The file table of the current <see cref="FileSystemProvider"/>.
-    /// The keys are the paths of the real file system,
-    /// the values are the replacement paths relative to <see cref="_root"/>.
+    /// The keys are the paths used in the real file system.
     /// </summary>
-    private readonly ObservableDictionary<string, string> _fileTable;
+    private readonly ObservableDictionary<string, FileTableEntry> _fileTable;
     /// <summary>
     /// Manages the synchronization between multiple threads accessing the file table.
     /// </summary>
@@ -85,7 +84,7 @@ namespace AppStract.Server.FileSystem
     {
       if (rootDirectory == null)
         throw new ArgumentNullException("rootDirectory");
-      _fileTable = new ObservableDictionary<string, string>();
+      _fileTable = new ObservableDictionary<string, FileTableEntry>();
       dataSource.SynchronizeFileSystemTableWith(_fileTable);
       _fileTableLock = new ReaderWriterLockSlim();
       _root = !Path.IsPathRooted(rootDirectory)
@@ -101,23 +100,26 @@ namespace AppStract.Server.FileSystem
     /// <summary>
     /// Tries to get the value linked to the specified <paramref name="key"/> from the file table.
     /// </summary>
-    /// <param name="key">Key to get value for.</param>
-    /// <param name="value">The value for the key, null if the key doesn't have an entry.</param>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
     /// <returns>True if the key is found, false otherwise.</returns>
-    private bool TryGetFile(string key, out string value)
+    private bool TryGetFile(string key, out FileTableEntry value)
     {
-      value = null;
+      value = new FileTableEntry();
       _fileTableLock.EnterReadLock();
       try
       {
         if (_fileTable.ContainsKey(key))
+        {
           value = _fileTable[key];
+          return true;
+        }
       }
       finally
       {
         _fileTableLock.ExitReadLock();
       }
-      return value != null;
+      return false;
     }
 
     /// <summary>
@@ -127,10 +129,10 @@ namespace AppStract.Server.FileSystem
     /// <returns>Full path to the specified library.</returns>
     private string FindLibrary(string libraryPath)
     {
-      string result;
+      FileTableEntry result;
       // Check the file table.
       if (TryGetFile(libraryPath, out result))
-        return result;
+        return result.Value;
       // Still not found? Redirect the request and see if then the library can be found.
       string redirectedPath = FileAccessRedirector.Redirect(libraryPath);
       if (File.Exists(redirectedPath))
@@ -186,9 +188,9 @@ namespace AppStract.Server.FileSystem
       try
       {
         if (!_fileTable.ContainsKey(fileTableEntry.Key))
-          _fileTable.Add(fileTableEntry.Key, fileTableEntry.Value);
+          _fileTable.Add(fileTableEntry.Key, fileTableEntry);
         else if (mayOverwrite)
-          _fileTable[fileTableEntry.Key] = fileTableEntry.Value;
+          _fileTable[fileTableEntry.Key] = fileTableEntry;
       }
       finally
       {
@@ -210,10 +212,11 @@ namespace AppStract.Server.FileSystem
       // Are we looking for a library?
       if (fileRequest.ResourceType == ResourceType.Library)
         return new FileTableEntry(fileRequest.Name, FindLibrary(fileRequest.Name), ResourceType.File);
-      string filename;
-      if (TryGetFile(fileRequest.Name, out filename))
-        // The file is found in the virtual file table, return its full path.
-        return new FileTableEntry(fileRequest.Name, Path.Combine(_root, filename), fileRequest.ResourceType);
+
+      // Query the virtual file table.
+      FileTableEntry fileTableEntry;
+      if (TryGetFile(fileRequest.Name, out fileTableEntry))
+        return fileTableEntry;
 
       // The requested resource doesn't exist yet... How will the requester handle this?
       if (fileRequest.CreationDisposition == FileCreationDisposition.CREATE_ALWAYS
@@ -236,17 +239,17 @@ namespace AppStract.Server.FileSystem
       _fileTableLock.EnterWriteLock();
       try
       {
-        _fileTable.Remove(new KeyValuePair<string, string>(fileTableEntry.Key, fileTableEntry.Value));
+        _fileTable.Remove(fileTableEntry.Key);
         if (fileTableEntry.FileKind != ResourceType.Directory)
           return;
         // Else, delete all subdirectories and subfiles, if any.
         // NOTE: Won't Windows API handle this? Not sure...
-        var markedForRemoval = new List<KeyValuePair<string, string>>();
+        var markedForRemoval = new List<FileTableEntry>();
         foreach (var entry in _fileTable)
-            if (entry.Value.StartsWith(fileTableEntry.Value))
-              markedForRemoval.Add(entry);  /// Can't remove while enumerating
+            if (entry.Value.Value.StartsWith(fileTableEntry.Value))
+              markedForRemoval.Add(entry.Value);  // Can't remove while enumerating
         foreach (var entry in markedForRemoval)
-          _fileTable.Remove(entry);
+          _fileTable.Remove(entry.Key);
       }
       finally
       {
