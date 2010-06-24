@@ -34,7 +34,7 @@ namespace AppStract.Core.Virtualization.Engine.FileSystem
     #region Variables
 
     private readonly string _filename;
-    private readonly ResourceKind _resourceKind;
+    private readonly ResourceType _resourceType;
     private readonly FileCreationDisposition _creationDisposition;
 
     #endregion
@@ -65,12 +65,11 @@ namespace AppStract.Core.Virtualization.Engine.FileSystem
     }
 
     /// <summary>
-    /// Gets the <see cref="ResourceKind"/> of the requested resource,
-    /// which is usually set to FileOrDirectory or Library.
+    /// Gets the <see cref="ResourceType"/> of the requested resource.
     /// </summary>
-    public ResourceKind ResourceKind
+    public ResourceType ResourceType
     {
-      get { return _resourceKind; }
+      get { return _resourceType; }
     }
 
     /// <summary>
@@ -92,10 +91,10 @@ namespace AppStract.Core.Virtualization.Engine.FileSystem
     /// <param name="filename">The requested file, directory, or library.</param>
     /// <param name="resourceType">The type of the requested resource.</param>
     /// <param name="creationDisposition">The creation disposition, as specified by the guest process.</param>
-    public FileRequest(string filename, ResourceKind resourceType, FileCreationDisposition creationDisposition)
+    public FileRequest(string filename, ResourceType resourceType, FileCreationDisposition creationDisposition)
     {
       _filename = filename.ToLowerInvariant();
-      _resourceKind = resourceType;
+      _resourceType = resourceType;
       _creationDisposition = creationDisposition;
     }
 
@@ -109,7 +108,7 @@ namespace AppStract.Core.Virtualization.Engine.FileSystem
     /// <returns></returns>
     public override string ToString()
     {
-      return string.Format("{0} [{1}||{2}]", _filename, _resourceKind, _creationDisposition);
+      return string.Format("{0} [{1}||{2}]", _filename, _resourceType, _creationDisposition);
     }
 
     #endregion

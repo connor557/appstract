@@ -24,16 +24,20 @@
 namespace AppStract.Core.Virtualization.Engine.FileSystem
 {
   /// <summary>
-  /// The type of the requested resource.
+  /// Specifies types of resources.
   /// </summary>
-  public enum ResourceKind
+  public enum ResourceType
   {
     /// <summary>
-    /// Request for a file or directory.
+    /// The resource is a file.
     /// </summary>
-    FileOrDirectory,
+    File,
     /// <summary>
-    /// Request for a library.
+    /// The resource is a directory.
+    /// </summary>
+    Directory,
+    /// <summary>
+    /// The resource is a library.
     /// </summary>
     Library
   }

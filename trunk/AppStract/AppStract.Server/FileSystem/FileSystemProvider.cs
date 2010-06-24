@@ -169,34 +169,31 @@ namespace AppStract.Server.FileSystem
       //   A concurrent thread might use the same value,
       //   but the chance that this happens is almost zero
       //   and is not worth the overhead of adding a lock statement.
-      return WriteEntryToTable(fileRequest.Name, fileEntryValue, false);
+      var fileTableEntry = new FileTableEntry(fileRequest.Name, fileEntryValue, fileRequest.ResourceType);
+      WriteEntryToTable(fileTableEntry, false);
+      return fileTableEntry;
     }
 
     /// <summary>
     /// Writes a new entry to the table.
     /// The written key and value are returned as a <see cref="FileTableEntry"/>.
     /// </summary>
-    /// <param name="key">The key of the new entry.</param>
-    /// <param name="value">The value of the new entry.</param>
-    /// <param name="overwrite">True if the value linked to the existing(?) key must be overwritten.</param>
-    /// <returns></returns>
-    private FileTableEntry WriteEntryToTable(string key, string value, bool overwrite)
+    /// <param name="fileTableEntry">The <see cref="FileTableEntry"/> to add or update.</param>
+    /// <param name="mayOverwrite">True if the value linked to the existing(?) key must be overwritten.</param>
+    private void WriteEntryToTable(FileTableEntry fileTableEntry, bool mayOverwrite)
     {
       _fileTableLock.EnterWriteLock();
       try
       {
-        if (!_fileTable.ContainsKey(key))
-          _fileTable.Add(key, value);
-        else if (overwrite)
-          _fileTable[key] = value;
-        else
-          value = _fileTable[key];
+        if (!_fileTable.ContainsKey(fileTableEntry.Key))
+          _fileTable.Add(fileTableEntry.Key, fileTableEntry.Value);
+        else if (mayOverwrite)
+          _fileTable[fileTableEntry.Key] = fileTableEntry.Value;
       }
       finally
       {
         _fileTableLock.ExitWriteLock();
       }
-      return new FileTableEntry(key, value, FileKind.Unspecified);
     }
 
     #endregion
@@ -208,18 +205,15 @@ namespace AppStract.Server.FileSystem
       // Don't redirect pipes and temporary locations
       if (fileRequest.Name.StartsWith(@"\\.\")
           || FileAccessRedirector.IsTemporaryLocation(fileRequest.FullName))
-        return new FileTableEntry(fileRequest.FullName, fileRequest.FullName, FileKind.Unspecified);
+        return new FileTableEntry(fileRequest.FullName, fileRequest.FullName, fileRequest.ResourceType);
       GuestCore.Log.Debug("Guest process requested file: " + fileRequest);
       // Are we looking for a library?
-      if (fileRequest.ResourceKind == ResourceKind.Library)
-        return new FileTableEntry(fileRequest.Name, FindLibrary(fileRequest.Name), FileKind.File);
-      // Are we looking for a regular file?
-      string filename; // Variable to hold the file's location.
-      if (fileRequest.ResourceKind == ResourceKind.FileOrDirectory
-          // Can the file be found in the virtual file table?
-          && TryGetFile(fileRequest.Name, out filename))
-        // The file is found, return its full path.
-        return new FileTableEntry(fileRequest.Name, Path.Combine(_root, filename), FileKind.Unspecified);
+      if (fileRequest.ResourceType == ResourceType.Library)
+        return new FileTableEntry(fileRequest.Name, FindLibrary(fileRequest.Name), ResourceType.File);
+      string filename;
+      if (TryGetFile(fileRequest.Name, out filename))
+        // The file is found in the virtual file table, return its full path.
+        return new FileTableEntry(fileRequest.Name, Path.Combine(_root, filename), fileRequest.ResourceType);
 
       // The requested resource doesn't exist yet... How will the requester handle this?
       if (fileRequest.CreationDisposition == FileCreationDisposition.CREATE_ALWAYS
@@ -234,7 +228,7 @@ namespace AppStract.Server.FileSystem
         return entry;
       }
       // Else, the file won't be created.
-      return new FileTableEntry(fileRequest.Name, fileRequest.Name, FileKind.Unspecified);
+      return new FileTableEntry(fileRequest.Name, fileRequest.Name, ResourceType.File);
     }
 
     public void DeleteFile(FileTableEntry fileTableEntry)
@@ -243,7 +237,7 @@ namespace AppStract.Server.FileSystem
       try
       {
         _fileTable.Remove(new KeyValuePair<string, string>(fileTableEntry.Key, fileTableEntry.Value));
-        if (fileTableEntry.FileKind != FileKind.Directory)
+        if (fileTableEntry.FileKind != ResourceType.Directory)
           return;
         // Else, delete all subdirectories and subfiles, if any.
         // NOTE: Won't Windows API handle this? Not sure...

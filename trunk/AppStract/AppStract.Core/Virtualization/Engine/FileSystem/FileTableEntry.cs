@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using AppStract.Utilities.Helpers;
 
 namespace AppStract.Core.Virtualization.Engine.FileSystem
 {
@@ -39,7 +40,7 @@ namespace AppStract.Core.Virtualization.Engine.FileSystem
 
     private string _key;
     private string _value;
-    private readonly FileKind _fileKind;
+    private readonly ResourceType _fileKind;
 
     #endregion
 
@@ -66,7 +67,7 @@ namespace AppStract.Core.Virtualization.Engine.FileSystem
     /// <summary>
     /// Gets whether the current <see cref="FileTableEntry"/> is a file or a directory.
     /// </summary>
-    public FileKind FileKind
+    public ResourceType FileKind
     {
       get { return _fileKind; }
     }
@@ -81,7 +82,7 @@ namespace AppStract.Core.Virtualization.Engine.FileSystem
     /// <param name="key">The path as used by the real file system.</param>
     /// <param name="value">The path as used by the virtual file system.</param>
     /// <param name="fileKind">The <see cref="FileKind"/> associated with the new entry.</param>
-    public FileTableEntry(string key, string value, FileKind fileKind)
+    public FileTableEntry(string key, string value, ResourceType fileKind)
     {
       _key = key;
       _value = value;
@@ -97,7 +98,7 @@ namespace AppStract.Core.Virtualization.Engine.FileSystem
     /// and as value the path as used by the virtual file system.
     /// </param>
     /// <param name="fileKind">The <see cref="FileKind"/> associated with the new entry.</param>
-    public FileTableEntry(KeyValuePair<string, string> pair, FileKind fileKind)
+    public FileTableEntry(KeyValuePair<string, string> pair, ResourceType fileKind)
       : this(pair.Key, pair.Value, fileKind) { }
 
     /// <summary>
@@ -131,15 +132,13 @@ namespace AppStract.Core.Virtualization.Engine.FileSystem
       }
       try
       {
-        string fileKind = info.GetString("kind");
-        Type enumType = typeof(FileKind);
-        _fileKind = Enum.IsDefined(enumType, fileKind)
-                      ? (FileKind)Enum.Parse(enumType, fileKind)
-                      : FileKind.Unspecified;
+        object fileKind = info.GetString("kind");
+        if (!ParserHelper.TryParseEnum(fileKind, out _fileKind))
+          throw new SerializationException("Unable to parse \"" + fileKind + "\" to a value of the ResourceType enum");
       }
       catch (SerializationException)
       {
-        _fileKind = FileKind.Unspecified;
+        _fileKind = default(ResourceType);
         CoreBus.Log.Warning("Unable to deserialize the FileKind of a FileTableEntry."
                             + _key != null
                               ? "With key " + _key

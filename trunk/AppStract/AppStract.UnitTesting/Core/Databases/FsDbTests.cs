@@ -36,8 +36,8 @@ namespace AppStract.UnitTesting.Core.Databases
   public class FsDbTests
   {
 
-    FileTableEntry entry = new FileTableEntry("someKey", "someValue", FileKind.File);
-    FileTableEntry nonExistingEntry = new FileTableEntry("noKey", "noValue", FileKind.Unspecified);
+    FileTableEntry entry = new FileTableEntry("someKey", "someValue", ResourceType.File);
+    FileTableEntry nonExistingEntry = new FileTableEntry("noKey", "noValue", ResourceType.Unspecified);
 
     [SetUp]
     public void SetUp()
