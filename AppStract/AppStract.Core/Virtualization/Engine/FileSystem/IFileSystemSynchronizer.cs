@@ -37,7 +37,7 @@ namespace AppStract.Core.Virtualization.Engine.FileSystem
     /// and ensures continuous registry synchronization by attaching listeners to <paramref name="fileTable"/>.
     /// </summary>
     /// <param name="fileTable">The <see cref="ObservableDictionary{TKey,TValue}"/> to load the file table to.</param>
-    void SynchronizeFileSystemTableWith(ObservableDictionary<string, string> fileTable);
+    void SynchronizeFileSystemTableWith(ObservableDictionary<string, FileTableEntry> fileTable);
 
   }
 }
