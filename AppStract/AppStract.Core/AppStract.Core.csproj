@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{73CC3214-9CAD-4723-BBBB-79BE7482E639}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -137,11 +137,10 @@
     <Compile Include="Data\Application\ApplicationFiles.cs" />
     <Compile Include="Data\Application\ApplicationSettings.cs" />
     <Compile Include="Virtualization\Engine\FileSystem\FileCreationDisposition.cs" />
-    <Compile Include="Virtualization\Engine\FileSystem\FileKind.cs" />
+    <Compile Include="Virtualization\Engine\FileSystem\ResourceType.cs" />
     <Compile Include="Virtualization\Engine\FileSystem\FileRequest.cs" />
     <Compile Include="Virtualization\Engine\FileSystem\FileTableEntry.cs" />
     <Compile Include="Virtualization\Engine\FileSystem\IFileSystemProvider.cs" />
-    <Compile Include="Virtualization\Engine\FileSystem\ResourceType.cs" />
     <Compile Include="Data\Application\FileType.cs" />
     <Compile Include="Virtualization\Process\VirtualProcessException.cs" />
     <Compile Include="Virtualization\Process\VirtualizedProcess.cs" />

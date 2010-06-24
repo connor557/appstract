@@ -65,7 +65,7 @@ namespace AppStract.Server.Hooking
     {
       FileCreationDisposition creationDisposition;
       ParserHelper.TryParseEnum(InCreationDisposition, out creationDisposition);
-      var request = new FileRequest(InFileName, ResourceKind.FileOrDirectory, creationDisposition);
+      var request = new FileRequest(InFileName, ResourceType.File, creationDisposition);
       using (HookManager.ACL.GetHookingExclusion())
       {
         var entry = _fileSystem.GetFile(request);
@@ -84,24 +84,18 @@ namespace AppStract.Server.Hooking
     /// <returns></returns>
     public bool DoDeleteFile(String lpFileName)
     {
-      var request = new FileRequest(lpFileName, ResourceKind.FileOrDirectory, FileCreationDisposition.UNSPECIFIED);
+      var request = new FileRequest(lpFileName, ResourceType.File, FileCreationDisposition.UNSPECIFIED);
       using (HookManager.ACL.GetHookingExclusion())
       {
         var entry = _fileSystem.GetFile(request);
         try
         {
-          if ((entry.FileKind == FileKind.File || entry.FileKind == FileKind.Unspecified)
+          if (entry.FileKind == ResourceType.File
               && File.Exists(entry.Value))
             File.Delete(entry.Value);
-          else if ((entry.FileKind == FileKind.File || entry.FileKind == FileKind.Unspecified)
-                   && File.Exists(entry.Key))
-            File.Delete(entry.Key);
-          else if ((entry.FileKind == FileKind.Directory || entry.FileKind == FileKind.Unspecified)
+          else if (entry.FileKind == ResourceType.Directory
                    && Directory.Exists(entry.Value))
             Directory.Delete(entry.Value);
-          else if ((entry.FileKind == FileKind.Directory || entry.FileKind == FileKind.Unspecified)
-                   && Directory.Exists(entry.Key))
-            Directory.Delete(entry.Key);
           _fileSystem.DeleteFile(entry);
           return true;
         }
@@ -120,7 +114,7 @@ namespace AppStract.Server.Hooking
     /// <returns></returns>
     public IntPtr DoCreateDirectory(String InFileName, IntPtr InSecurityAttributes)
     {
-      var request = new FileRequest(InFileName, ResourceKind.FileOrDirectory, FileCreationDisposition.CREATE_NEW);
+      var request = new FileRequest(InFileName, ResourceType.Directory, FileCreationDisposition.CREATE_NEW);
       using (HookManager.ACL.GetHookingExclusion())
       {
         var entry = _fileSystem.GetFile(request);
@@ -140,7 +134,7 @@ namespace AppStract.Server.Hooking
     /// <returns></returns>
     public IntPtr DoLoadLibraryEx(String dllFileName, IntPtr handel, uint mozart)
     {
-      var request = new FileRequest(dllFileName, ResourceKind.Library, FileCreationDisposition.OPEN_EXISTING);
+      var request = new FileRequest(dllFileName, ResourceType.Library, FileCreationDisposition.OPEN_EXISTING);
       using (HookManager.ACL.GetHookingExclusion())
       {
         var entry = _fileSystem.GetFile(request);

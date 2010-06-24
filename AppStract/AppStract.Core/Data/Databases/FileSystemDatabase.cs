@@ -178,7 +178,7 @@ namespace AppStract.Core.Data.Databases
                                            paramKey, paramValue, paramType);
       command.Parameters.AddWithValue(paramKey, item.Key);
       command.Parameters.AddWithValue(paramValue, item.Value);
-      command.Parameters.AddWithValue(paramType, Enum.GetName(typeof(FileKind), item.FileKind));
+      command.Parameters.AddWithValue(paramType, Enum.GetName(typeof(ResourceType), item.FileKind));
     }
 
     protected override void AppendUpdateQuery(SQLiteCommand command, ParameterGenerator seed, FileTableEntry item)
@@ -193,7 +193,7 @@ namespace AppStract.Core.Data.Databases
                                            _DatabaseFileTableKey, paramKey);
       command.Parameters.AddWithValue(paramKey, item.Key);
       command.Parameters.AddWithValue(paramValue, item.Value);
-      command.Parameters.AddWithValue(paramType, Enum.GetName(typeof(FileKind), item.FileKind));
+      command.Parameters.AddWithValue(paramType, Enum.GetName(typeof(ResourceType), item.FileKind));
     }
 
     #endregion
@@ -202,7 +202,7 @@ namespace AppStract.Core.Data.Databases
 
     private static FileTableEntry BuildItemFromReadAllQuery(IDataRecord dataRecord)
     {
-      FileKind fileKind;
+      ResourceType fileKind;
       ParserHelper.TryParseEnum(dataRecord.GetString(2), out fileKind);
       return new FileTableEntry(dataRecord.GetString(0), dataRecord.GetString(1), fileKind);
     }

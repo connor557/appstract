@@ -229,7 +229,7 @@ namespace AppStract.Server
     private void FileTable_ItemAdded(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item, EventArgs args)
     {
       lock (_fileSystemSyncObject)
-        _fileSystemQueue.Enqueue(new DatabaseAction<FileTableEntry>(new FileTableEntry(item, FileKind.Unspecified), DatabaseActionType.Set));
+        _fileSystemQueue.Enqueue(new DatabaseAction<FileTableEntry>(new FileTableEntry(item, ResourceType.File), DatabaseActionType.Set));
     }
 
     /// <summary>
@@ -241,7 +241,7 @@ namespace AppStract.Server
     private void FileTable_ItemChanged(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item, EventArgs args)
     {
       lock (_fileSystemSyncObject)
-        _fileSystemQueue.Enqueue(new DatabaseAction<FileTableEntry>(new FileTableEntry(item, FileKind.Unspecified), DatabaseActionType.Set));
+        _fileSystemQueue.Enqueue(new DatabaseAction<FileTableEntry>(new FileTableEntry(item, ResourceType.File), DatabaseActionType.Set));
     }
 
     /// <summary>
@@ -253,7 +253,7 @@ namespace AppStract.Server
     private void FileTable_ItemRemoved(ICollection<KeyValuePair<string, string>> sender, KeyValuePair<string, string> item, EventArgs args)
     {
       lock (_fileSystemSyncObject)
-        _fileSystemQueue.Enqueue(new DatabaseAction<FileTableEntry>(new FileTableEntry(item, FileKind.Unspecified), DatabaseActionType.Remove));
+        _fileSystemQueue.Enqueue(new DatabaseAction<FileTableEntry>(new FileTableEntry(item, ResourceType.File), DatabaseActionType.Remove));
     }
 
     /// <summary>
