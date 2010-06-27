@@ -63,13 +63,13 @@ namespace AppStract.Server.Hooking
     #region CreateDirectory
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-    public delegate IntPtr DCreateDirectory_Unicode(
+    public delegate bool DCreateDirectory_Unicode(
         string fileName,
         NativeSecurityAttributes securityAttributes
       );
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
-    public delegate IntPtr DCreateDirectory_Ansi(
+    public delegate bool DCreateDirectory_Ansi(
         string fileName,
         NativeSecurityAttributes securityAttributes
       );
