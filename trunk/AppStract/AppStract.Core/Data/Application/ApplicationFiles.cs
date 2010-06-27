@@ -42,16 +42,10 @@ namespace AppStract.Core.Data.Application
     public ApplicationFile RootDirectory { get; set; }
 
     /// <summary>
-    /// Gets or sets the path of the file containing the SQLite database holding the file system's file table.
-    /// </summary>
-    [XmlElement]
-    public ApplicationFile DatabaseFileSystem { get; set; }
-
-    /// <summary>
     /// Gets or sets the path of the file containing the SQLite database holding the registry keys and values.
     /// </summary>
     [XmlElement]
-    public ApplicationFile DatabaseRegistry { get; set; }
+    public ApplicationFile RegistryDatabase { get; set; }
 
     /// <summary>
     /// Gets or sets the path of the executable to start the process with.

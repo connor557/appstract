@@ -61,7 +61,7 @@ namespace AppStract.UnitTesting.Core
     {
       applicationData = new ApplicationData();
       applicationData.Files.DatabaseFileSystem = new ApplicationFile("myTestDir\\testFsDatabase.db3");
-      applicationData.Files.DatabaseRegistry = new ApplicationFile("myTestDir\\testRegDatabase.db3");
+      applicationData.Files.RegistryDatabase = new ApplicationFile("myTestDir\\testRegDatabase.db3");
       applicationData.Files.RootDirectory = new ApplicationFile("myTestDir\\");
       applicationData.Files.Executable = new ApplicationFile("myTestDir\\DoesntExist.exe");
     }
@@ -78,7 +78,7 @@ namespace AppStract.UnitTesting.Core
       var appData = ApplicationData.Load(ApplicationDataXmlFile);
       Assert.IsTrue(applicationData.Files.DatabaseFileSystem.ToString() == appData.Files.DatabaseFileSystem.ToString(),
                     "DatabaseFileSystem doesn't match");
-      Assert.IsTrue(applicationData.Files.DatabaseRegistry.ToString() == appData.Files.DatabaseRegistry.ToString(),
+      Assert.IsTrue(applicationData.Files.RegistryDatabase.ToString() == appData.Files.RegistryDatabase.ToString(),
                     "DatabaseRegistry doesn't match");
       Assert.IsTrue(applicationData.Files.Executable == appData.Files.Executable
                     || applicationData.Files.Executable.ToString() == appData.Files.Executable.ToString(),
@@ -92,8 +92,8 @@ namespace AppStract.UnitTesting.Core
     {
       if (applicationData.Files.DatabaseFileSystem != null)
         Assert.IsFalse(Path.IsPathRooted(applicationData.Files.DatabaseFileSystem.FileName), "DatabaseFileSystem.FileName is not relative");
-      if (applicationData.Files.DatabaseRegistry != null)
-        Assert.IsFalse(Path.IsPathRooted(applicationData.Files.DatabaseRegistry.FileName), "DatabaseRegistry.FileName is not relative");
+      if (applicationData.Files.RegistryDatabase != null)
+        Assert.IsFalse(Path.IsPathRooted(applicationData.Files.RegistryDatabase.FileName), "DatabaseRegistry.FileName is not relative");
       if (applicationData.Files.Executable != null)
         Assert.IsFalse(Path.IsPathRooted(applicationData.Files.Executable.FileName), "Executable.FileName is not relative");
       if (applicationData.Files.RootDirectory != null)

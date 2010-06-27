@@ -24,9 +24,7 @@
 using System;
 using System.Collections.Generic;
 using AppStract.Core.Data.Application;
-using AppStract.Core.Data.Databases;
 using AppStract.Core.System.IPC;
-using AppStract.Core.Virtualization.Engine.FileSystem;
 
 namespace AppStract.Core.Virtualization.Process.Packaging
 {
@@ -69,17 +67,10 @@ namespace AppStract.Core.Virtualization.Process.Packaging
     /// </returns>
     public new static PackagingProcess Start(VirtualProcessStartInfo startInfo)
     {
-      if (startInfo.Files.DatabaseRegistry.Type != FileType.Database)
-        throw new ArgumentException("The destination file specified for the file system database is not valid.",
-                                    "startInfo");
-      if (startInfo.Files.DatabaseRegistry.Type != FileType.Database)
+      if (startInfo.Files.RegistryDatabase.Type != FileType.Database)
         throw new ArgumentException("The destination file specified for the registry database is not valid.",
                                     "startInfo");
-      var registryDatabase = RegistryDatabase.CreateDefaultDatabase(startInfo.Files.DatabaseRegistry.FileName);
-      registryDatabase.Initialize();
-      var fileSystemDatabase = WatchingFileSystemDatabase.CreateDefaultDatabase(startInfo.Files.DatabaseFileSystem.FileName);
-      fileSystemDatabase.Initialize();
-      var synchronizer = new ProcessSynchronizer(fileSystemDatabase, startInfo.WorkingDirectory, registryDatabase, startInfo.RegistryRuleCollection);
+      var synchronizer = new ProcessSynchronizer(startInfo.WorkingDirectory, startInfo.Files.RegistryDatabase, startInfo.RegistryRuleCollection);
       var process = new PackagingProcess(startInfo, synchronizer);
       process.Start();
       return process;
@@ -94,22 +85,15 @@ namespace AppStract.Core.Virtualization.Process.Packaging
       if (!HasExited)
         return new List<string>(0);
       var ps = _connection.ProcessSynchronizer as ProcessSynchronizer;
-      if (ps == null) /// Should never occur.
+      if (ps == null) // Should never occur.
         throw new InvalidCastException("An unexpected exception occured in the application workflow."
                                        + " Expected object of type "
                                        + typeof(ProcessSynchronizer)
                                        + " but received an object of type "
                                        + _connection.ProcessSynchronizer.GetType());
-      var db = ps.FileSystemDatabase as WatchingFileSystemDatabase;
-      if (db == null) /// Should never occur.
-        throw new InvalidCastException("An unexpected exception occured in the application workflow."
-                                       + " Expected object of type "
-                                       + typeof(WatchingFileSystemDatabase)
-                                       + " but received an object of type "
-                                       + ps.FileSystemDatabase.GetType());
       var executables = new List<string>();
-      foreach (FileTableEntry entry in db.Executables)
-        executables.Add(entry.Key); /// BUG? Use entry.Key or entry.Value?
+      // ToDo: Acquire a list of possible startup executables
+      CoreBus.Log.Critical("Unable to find a list of executables!");
       return executables;
     }
 

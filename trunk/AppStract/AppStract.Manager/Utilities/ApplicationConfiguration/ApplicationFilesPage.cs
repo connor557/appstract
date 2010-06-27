@@ -53,9 +53,8 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
     {
       if (_dataSourceLocked) return;
       _data.Files.Executable.FileName = _txtExecutable.Text;
-      _data.Files.DatabaseFileSystem.FileName = _txtFileSystemDatabase.Text;
       _data.Files.RootDirectory.FileName = _txtFileSystemRootDirectory.Text;
-      _data.Files.DatabaseRegistry.FileName = _txtRegistryDatabase.Text;
+      _data.Files.RegistryDatabase.FileName = _txtRegistryDatabase.Text;
     }
 
     #endregion
@@ -78,17 +77,14 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
       _data = dataSource;
       if (_data.Files.Executable == null)
         _data.Files.Executable = new ApplicationFile();
-      if (_data.Files.DatabaseFileSystem == null)
-        _data.Files.DatabaseFileSystem = new ApplicationFile();
       if (_data.Files.RootDirectory == null)
         _data.Files.RootDirectory = new ApplicationFile();
-      if (_data.Files.DatabaseRegistry == null)
-        _data.Files.DatabaseRegistry = new ApplicationFile();
+      if (_data.Files.RegistryDatabase == null)
+        _data.Files.RegistryDatabase = new ApplicationFile();
       _dataSourceLocked = true;
       _txtExecutable.Text = _data.Files.Executable.FileName;
-      _txtFileSystemDatabase.Text = _data.Files.DatabaseFileSystem.FileName;
       _txtFileSystemRootDirectory.Text = _data.Files.RootDirectory.FileName;
-      _txtRegistryDatabase.Text = _data.Files.DatabaseRegistry.FileName;
+      _txtRegistryDatabase.Text = _data.Files.RegistryDatabase.FileName;
       _dataSourceLocked = false;
       Enabled = true;
     }
