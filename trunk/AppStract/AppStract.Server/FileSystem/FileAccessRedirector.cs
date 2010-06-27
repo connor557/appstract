@@ -29,8 +29,7 @@ using AppStract.Utilities.Extensions;
 namespace AppStract.Server.FileSystem
 {
   /// <summary>
-  /// Redirects calls to the host's file system
-  /// to locations as used in the virtual file system.
+  /// Redirects calls to the host's file system to locations as used in the virtual file system.
   /// </summary>
   public static class FileAccessRedirector
   {
@@ -116,94 +115,82 @@ namespace AppStract.Server.FileSystem
       IDictionary<string, string> systemVariables = new Dictionary<string, string>();
       string tmp; // Will contain the temporary values used in this method.
 
-      /// Always check if the dictionary doesn't already contain the same key.
-      /// The users might have configured the specialfolders to use the same folder.
-      /// BUG: Such configurations might lead to inconsistencies between different host systems.
+      // Always check if the dictionary doesn't already contain the same key.
+      // The users might have configured the specialfolders to use the same folder.
+      // BUG: Such configurations might lead to inconsistencies between different host systems.
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
       {
-        systemVariables.Add(tmp.ToLowerInvariant(),
-          VirtualEnvironment.GetFolderPath(VirtualFolder.UserDocuments));
+        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.UserDocuments.ToPath());
       }
 
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
       {
-        systemVariables.Add(tmp.ToLowerInvariant(),
-          VirtualEnvironment.GetFolderPath(VirtualFolder.UserPictures));
+        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.UserPictures.ToPath());
       }
 
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
       {
-        systemVariables.Add(tmp.ToLowerInvariant(),
-          VirtualEnvironment.GetFolderPath(VirtualFolder.UserMusic));
+        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.UserMusic.ToPath());
       }
 
-      /// UserData
+      // UserData
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
       {
-        systemVariables.Add(tmp.ToLowerInvariant(),
-                            VirtualEnvironment.GetFolderPath(VirtualFolder.UserData));
+        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.UserData.ToPath());
       }
 
-      /// Application Data
+      // Application Data
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
       {
-        systemVariables.Add(tmp.ToLowerInvariant(),
-          VirtualEnvironment.GetFolderPath(VirtualFolder.ApplicationData));
+        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.ApplicationData.ToPath());
       }
 
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData).ToLowerInvariant();
       if (!systemVariables.ContainsKey(tmp))
       {
-        systemVariables.Add(tmp,
-          VirtualEnvironment.GetFolderPath(VirtualFolder.ApplicationData));
+        systemVariables.Add(tmp, VirtualFolder.ApplicationData.ToPath());
       }
 
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
       {
-        systemVariables.Add(tmp.ToLowerInvariant(),
-          VirtualEnvironment.GetFolderPath(VirtualFolder.ApplicationData));
+        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.ApplicationData.ToPath());
       }
 
-      /// Program Files
+      // Program Files
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles).ToLowerInvariant();
       if (!systemVariables.ContainsKey(tmp))
       {
-        systemVariables.Add(tmp,
-          VirtualEnvironment.GetFolderPath(VirtualFolder.ProgramFiles));
+        systemVariables.Add(tmp, VirtualFolder.ProgramFiles.ToPath());
       }
 
-      /// System
+      // System
       tmp = Environment.GetEnvironmentVariable("systemroot");
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
       {
-        systemVariables.Add(tmp.ToLowerInvariant(),
-          VirtualEnvironment.GetFolderPath(VirtualFolder.System));
+        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.System.ToPath());
       }
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.System).ToLowerInvariant();
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp))
       {
-        systemVariables.Add(tmp,
-          VirtualEnvironment.GetFolderPath(VirtualFolder.System32));
+        systemVariables.Add(tmp, VirtualFolder.System32.ToPath());
       }
       /// Start Menu
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.StartMenu);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
       {
-        systemVariables.Add(tmp.ToLowerInvariant(),
-          VirtualEnvironment.GetFolderPath(VirtualFolder.StartMenu));
+        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.StartMenu.ToPath());
       }
 
       tmp = GetCommonMenuFolder();
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
       {
-        systemVariables.Add(tmp.ToLowerInvariant(),
-          VirtualEnvironment.GetFolderPath(VirtualFolder.StartMenu));
+        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.StartMenu.ToPath());
       }
 
       return systemVariables;
@@ -211,14 +198,13 @@ namespace AppStract.Server.FileSystem
 
     /// <summary>
     /// Returns the replacement path to the default folder, for the specified <paramref name="path"/>.
-    /// The default path is the value for <see cref="VirtualFolder.Other"/>,
-    /// retrieved with <see cref="VirtualEnvironment.GetFolderPath"/>.
+    /// The default path is the value for <see cref="VirtualFolder.Other"/>.
     /// </summary>
     /// <param name="path">Path to redirect to the default folder.</param>
     /// <returns>Redirected path.</returns>
     private static string RedirectToDefaultFolder(string path)
     {
-      string otherFolder = VirtualEnvironment.GetFolderPath(VirtualFolder.Other);
+      string otherFolder = VirtualFolder.Other.ToPath();
       string fileExtension = Path.GetExtension(path);
       int cnt = 0; // Used as a counter 'till a unique filename is constructed.
       string uniqueValue = ""; // The value to be added at the end of the filename, in order to get a unique path.

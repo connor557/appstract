@@ -22,8 +22,6 @@
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
-using AppStract.Core.Virtualization.Engine;
 using AppStract.Core.Virtualization.Engine.FileSystem;
 using AppStract.Server.FileSystem;
 
@@ -49,15 +47,11 @@ namespace AppStract.Server.Hooking
                                NativeSecurityAttributes securityAttributes, FileCreationDisposition creationDisposition,
                                FileFlagsAndAttributes flagsAndAttributes, IntPtr templateFile)
     {
-      var request = new FileRequest(fileName, ResourceType.File, creationDisposition);
       using (HookManager.ACL.GetHookingExclusion())
       {
-        var entry = _fileSystem.GetFile(request);
-        var result = NativeAPI.CreateFile(entry.Value, desiredAccess, shareMode, securityAttributes, creationDisposition,
-                                       flagsAndAttributes, templateFile);
-        if (result == IntPtr.Zero)
-          HandleFailedCreation(entry);
-        return result;
+        var virtualPath = _fileSystem.GetVirtualPath(fileName, ResourceType.File);
+        return NativeAPI.CreateFile(virtualPath, desiredAccess, shareMode, securityAttributes,
+                                    creationDisposition, flagsAndAttributes, templateFile);
       }
     }
 
@@ -68,16 +62,10 @@ namespace AppStract.Server.Hooking
     /// <returns></returns>
     public bool DoDeleteFile(string fileName)
     {
-      var request = new FileRequest(fileName, ResourceType.File, FileCreationDisposition.OPEN_EXISTING);
       using (HookManager.ACL.GetHookingExclusion())
       {
-        var entry = _fileSystem.GetFile(request);
-        if (NativeAPI.DeleteFile(entry.Value))
-        {
-          _fileSystem.DeleteFile(entry);
-          return true;
-        }
-        return false;
+        var virtualPath = _fileSystem.GetVirtualPath(fileName, ResourceType.File);
+        return NativeAPI.DeleteFile(virtualPath);
       }
     }
 
@@ -89,14 +77,10 @@ namespace AppStract.Server.Hooking
     /// <returns></returns>
     public bool DoCreateDirectory(string fileName, NativeSecurityAttributes securityAttributes)
     {
-      var request = new FileRequest(fileName, ResourceType.Directory, FileCreationDisposition.CREATE_NEW);
       using (HookManager.ACL.GetHookingExclusion())
       {
-        var entry = _fileSystem.GetFile(request);
-        if (NativeAPI.CreateDirectory(entry.Value, securityAttributes))
-          return true;
-        HandleFailedCreation(entry);
-        return false;
+        var virtualPath = _fileSystem.GetVirtualPath(fileName, ResourceType.File);
+        return NativeAPI.CreateDirectory(virtualPath, securityAttributes);
       }
     }
 
@@ -109,28 +93,11 @@ namespace AppStract.Server.Hooking
     /// <returns></returns>
     public IntPtr DoLoadLibraryEx(string fileName, IntPtr file, ModuleLoadFlags flags)
     {
-      var request = new FileRequest(fileName, ResourceType.Library, FileCreationDisposition.OPEN_EXISTING);
       using (HookManager.ACL.GetHookingExclusion())
       {
-        var entry = _fileSystem.GetFile(request);
-        return NativeAPI.LoadLibraryEx(entry.Value, file, flags);
+        var virtualPath = _fileSystem.GetVirtualPath(fileName, ResourceType.File);
+        return NativeAPI.LoadLibraryEx(virtualPath, file, flags);
       }
-    }
-
-    #endregion
-
-    #region Private Methods
-
-    /// <summary>
-    /// Must be called if the creation of a file or directory failed.
-    /// This method checks the last Win32 error and performs the required action.
-    /// </summary>
-    /// <param name="fileTableEntry"></param>
-    private void HandleFailedCreation(FileTableEntry fileTableEntry)
-    {
-      var error = (NativeResultCode)Marshal.GetLastWin32Error();
-      if (error != NativeResultCode.FileAlreadyExists)
-        _fileSystem.DeleteFile(fileTableEntry);
     }
 
     #endregion

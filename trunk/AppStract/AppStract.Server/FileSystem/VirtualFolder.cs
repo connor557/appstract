@@ -40,4 +40,46 @@ namespace AppStract.Server.FileSystem
     StartMenu,
     Temporary
   }
+
+  public static class VirtualFolderExtensions
+  {
+    /// <summary>
+    /// Gets the path to the virtual folder identified by the <see cref="VirtualFolder"/> specified.
+    /// The returned path is relative to the file system's root directory.
+    /// </summary>
+    /// <remarks> The returned path is not guaranteed to exist.</remarks>
+    /// <param name="virtualFolder">An enumerated constant that identifies a system virtual folder.</param>
+    /// <returns>The path to the specified <see cref="VirtualFolder"/>.</returns>
+    public static string ToPath(this VirtualFolder virtualFolder)
+    {
+      switch (virtualFolder)
+      {
+        case VirtualFolder.ProgramFiles:
+          return @"ProgramFiles\";
+        case VirtualFolder.UserData:
+          return @"UserData\";
+        case VirtualFolder.UserDocuments:
+          return @"UserData\Documents\";
+        case VirtualFolder.UserMusic:
+          return @"UserData\Music\";
+        case VirtualFolder.UserPictures:
+          return @"UserData\Pictures\";
+        case VirtualFolder.Temporary:
+          return @"Temporary\";
+        case VirtualFolder.Other:
+          return @"Other\";
+        case VirtualFolder.System:
+          return @"System\";
+        case VirtualFolder.System32:
+          return @"System\System32\";
+        case VirtualFolder.StartMenu:
+          return @"StartMenu\";
+        case VirtualFolder.ApplicationData:
+          return @"ApplicationData\";
+      }
+      GuestCore.Log.Critical("Unknown virtual folder: " + virtualFolder);
+      return null;
+    }
+  }
+
 }
