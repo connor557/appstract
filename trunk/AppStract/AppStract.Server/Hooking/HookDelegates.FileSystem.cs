@@ -23,6 +23,8 @@
 
 using System;
 using System.Runtime.InteropServices;
+using AppStract.Core.Virtualization.Engine.FileSystem;
+using AppStract.Server.FileSystem;
 
 namespace AppStract.Server.Hooking
 {
@@ -36,24 +38,24 @@ namespace AppStract.Server.Hooking
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
     public delegate IntPtr DCreateFile_Unicode(
-        String InFileName,
-        UInt32 InDesiredAccess,
-        UInt32 InShareMode,
-        IntPtr InSecurityAttributes,
-        UInt32 InCreationDisposition,
-        UInt32 InFlagsAndAttributes,
-        IntPtr InTemplateFile
+        string fileName,
+        FileAccessRightFlags desiredAccess,
+        FileShareModeFlags shareMode,
+        NativeSecurityAttributes securityAttributes,
+        FileCreationDisposition creationDisposition,
+        FileFlagsAndAttributes flagsAndAttributes,
+        IntPtr templateFile
        );
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
     public delegate IntPtr DCreateFile_Ansi(
-        String InFileName,
-        UInt32 InDesiredAccess,
-        UInt32 InShareMode,
-        IntPtr InSecurityAttributes,
-        UInt32 InCreationDisposition,
-        UInt32 InFlagsAndAttributes,
-        IntPtr InTemplateFile
+        string fileName,
+        FileAccessRightFlags desiredAccess,
+        FileShareModeFlags shareMode,
+        NativeSecurityAttributes securityAttributes,
+        FileCreationDisposition creationDisposition,
+        FileFlagsAndAttributes flagsAndAttributes,
+        IntPtr templateFile
        );
 
     #endregion
@@ -62,14 +64,14 @@ namespace AppStract.Server.Hooking
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
     public delegate IntPtr DCreateDirectory_Unicode(
-        String InFileName,
-        IntPtr InSecurityAttributes
+        string fileName,
+        NativeSecurityAttributes securityAttributes
       );
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
     public delegate IntPtr DCreateDirectory_Ansi(
-        String InFileName,
-        IntPtr InSecurityAttributes
+        string fileName,
+        NativeSecurityAttributes securityAttributes
       );
 
     #endregion
@@ -78,12 +80,12 @@ namespace AppStract.Server.Hooking
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
     public delegate bool DDeleteFile_Unicode(
-        String InFileName
+        string fileName
       );
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
     public delegate bool DDeleteFile_Ansi(
-        String InFileName
+        string fileName
       );
 
     #endregion
@@ -92,16 +94,16 @@ namespace AppStract.Server.Hooking
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
     public delegate IntPtr DLoadLibraryEx_Unicode(
-        String dllFileName,
-        IntPtr handel,
-        uint mozart
+        string fileName,
+        IntPtr file,
+        ModuleLoadFlags flags
       );
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
     public delegate IntPtr DLoadLibraryEx_Ansi(
-        String dllFileName,
-        IntPtr handel,
-        uint mozart
+        string fileName,
+        IntPtr file,
+        ModuleLoadFlags flags
       );
 
     #endregion

@@ -22,123 +22,98 @@
 #endregion
 
 using System;
-using System.IO;
 using System.Runtime.InteropServices;
 using AppStract.Core.Virtualization.Engine;
 using AppStract.Core.Virtualization.Engine.FileSystem;
-using AppStract.Utilities.Helpers;
+using AppStract.Server.FileSystem;
 
 namespace AppStract.Server.Hooking
 {
   public partial class HookImplementations
   {
 
-    #region Constants
-
-    /// <summary>
-    /// If a file management function fails, the return value is INVALID_HANDLE_VALUE
-    /// </summary>
-    /// Bug? Isn't 6 the correct value?
-    private const int INVALID_HANDLE_VALUE = -1;
-    /// <summary>
-    /// If the <see cref="CreateDirectory"/> function, the return value is zero.
-    /// </summary>
-    private const int CREATE_DIRECTORY_FAILED = 0;
-
-    #endregion
-
     #region Public Methods - FileSystem
 
     /// <summary>
     /// Handles intercepted file access.
     /// </summary>
-    /// <param name="InFileName"></param>
-    /// <param name="InDesiredAccess"></param>
-    /// <param name="InShareMode"></param>
-    /// <param name="InSecurityAttributes"></param>
-    /// <param name="InCreationDisposition"></param>
-    /// <param name="InFlagsAndAttributes"></param>
-    /// <param name="InTemplateFile"></param>
+    /// <param name="fileName"></param>
+    /// <param name="desiredAccess"></param>
+    /// <param name="shareMode"></param>
+    /// <param name="securityAttributes"></param>
+    /// <param name="creationDisposition"></param>
+    /// <param name="flagsAndAttributes"></param>
+    /// <param name="templateFile"></param>
     /// <returns></returns>
-    public IntPtr DoCreateFile(String InFileName, UInt32 InDesiredAccess, UInt32 InShareMode,
-      IntPtr InSecurityAttributes, UInt32 InCreationDisposition, UInt32 InFlagsAndAttributes, IntPtr InTemplateFile)
+    public IntPtr DoCreateFile(string fileName, FileAccessRightFlags desiredAccess, FileShareModeFlags shareMode,
+                               NativeSecurityAttributes securityAttributes, FileCreationDisposition creationDisposition,
+                               FileFlagsAndAttributes flagsAndAttributes, IntPtr templateFile)
     {
-      FileCreationDisposition creationDisposition;
-      ParserHelper.TryParseEnum(InCreationDisposition, out creationDisposition);
-      var request = new FileRequest(InFileName, ResourceType.File, creationDisposition);
+      var request = new FileRequest(fileName, ResourceType.File, creationDisposition);
       using (HookManager.ACL.GetHookingExclusion())
       {
         var entry = _fileSystem.GetFile(request);
-        var ptr = CreateFile(entry.Value, InDesiredAccess, InShareMode, InSecurityAttributes, InCreationDisposition,
-                             InFlagsAndAttributes, InTemplateFile);
-        if (ptr.ToInt32() == INVALID_HANDLE_VALUE)
+        var result = NativeAPI.CreateFile(entry.Value, desiredAccess, shareMode, securityAttributes, creationDisposition,
+                                       flagsAndAttributes, templateFile);
+        if (result == IntPtr.Zero)
           HandleFailedCreation(entry);
-        return ptr;
+        return result;
       }
     }
 
     /// <summary>
     /// Handles intercepted requests to delete a file.
     /// </summary>
-    /// <param name="lpFileName"></param>
+    /// <param name="fileName"></param>
     /// <returns></returns>
-    public bool DoDeleteFile(String lpFileName)
+    public bool DoDeleteFile(string fileName)
     {
-      var request = new FileRequest(lpFileName, ResourceType.File, FileCreationDisposition.UNSPECIFIED);
+      var request = new FileRequest(fileName, ResourceType.File, FileCreationDisposition.OPEN_EXISTING);
       using (HookManager.ACL.GetHookingExclusion())
       {
         var entry = _fileSystem.GetFile(request);
-        try
+        if (NativeAPI.DeleteFile(entry.Value))
         {
-          if (entry.FileKind == ResourceType.File
-              && File.Exists(entry.Value))
-            File.Delete(entry.Value);
-          else if (entry.FileKind == ResourceType.Directory
-                   && Directory.Exists(entry.Value))
-            Directory.Delete(entry.Value);
           _fileSystem.DeleteFile(entry);
           return true;
         }
-        catch
-        {
-          return false;
-        }
+        return false;
       }
     }
 
     /// <summary>
     /// Handles intercepted directory access.
     /// </summary>
-    /// <param name="InFileName"></param>
-    /// <param name="InSecurityAttributes"></param>
+    /// <param name="fileName"></param>
+    /// <param name="securityAttributes"></param>
     /// <returns></returns>
-    public IntPtr DoCreateDirectory(String InFileName, IntPtr InSecurityAttributes)
+    public bool DoCreateDirectory(string fileName, NativeSecurityAttributes securityAttributes)
     {
-      var request = new FileRequest(InFileName, ResourceType.Directory, FileCreationDisposition.CREATE_NEW);
+      var request = new FileRequest(fileName, ResourceType.Directory, FileCreationDisposition.CREATE_NEW);
       using (HookManager.ACL.GetHookingExclusion())
       {
         var entry = _fileSystem.GetFile(request);
-        var resultPtr = CreateDirectory(entry.Value, InSecurityAttributes);
-        if (resultPtr.ToInt32() == CREATE_DIRECTORY_FAILED)
-          HandleFailedCreation(entry);
-        return resultPtr;
+        if (NativeAPI.CreateDirectory(entry.Value, securityAttributes))
+          return true;
+        HandleFailedCreation(entry);
+        return false;
       }
     }
 
     /// <summary>
     /// Handles intercepted library access.
     /// </summary>
-    /// <param name="dllFileName"></param>
-    /// <param name="handel"></param>
-    /// <param name="mozart"></param>
+    /// <param name="fileName"></param>
+    /// <param name="file"></param>
+    /// <param name="flags"></param>
     /// <returns></returns>
-    public IntPtr DoLoadLibraryEx(String dllFileName, IntPtr handel, uint mozart)
+    public IntPtr DoLoadLibraryEx(string fileName, IntPtr file, ModuleLoadFlags flags)
     {
-      var request = new FileRequest(dllFileName, ResourceType.Library, FileCreationDisposition.OPEN_EXISTING);
+      var request = new FileRequest(fileName, ResourceType.Library, FileCreationDisposition.OPEN_EXISTING);
       using (HookManager.ACL.GetHookingExclusion())
       {
         var entry = _fileSystem.GetFile(request);
-        return LoadLibraryEx(entry.Value, handel, mozart);
+        return NativeAPI.LoadLibraryEx(entry.Value, file, flags);
       }
     }
 
@@ -153,32 +128,10 @@ namespace AppStract.Server.Hooking
     /// <param name="fileTableEntry"></param>
     private void HandleFailedCreation(FileTableEntry fileTableEntry)
     {
-      var error = (NativeResultCode) Marshal.GetLastWin32Error();
+      var error = (NativeResultCode)Marshal.GetLastWin32Error();
       if (error != NativeResultCode.FileAlreadyExists)
         _fileSystem.DeleteFile(fileTableEntry);
     }
-
-    #endregion
-
-    #region Imports - FileSystem
-
-    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true, CallingConvention = CallingConvention.StdCall)]
-    private static extern IntPtr CreateFile(
-        String InFileName,
-        UInt32 InDesiredAccess,
-        UInt32 InShareMode,
-        IntPtr InSecurityAttributes,
-        UInt32 InCreationDisposition,
-        UInt32 InFlagsAndAttributes,
-        IntPtr InTemplateFile);
-
-    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true, CallingConvention = CallingConvention.StdCall)]
-    private static extern IntPtr CreateDirectory(
-        String InFileName,
-        IntPtr InSecurityAttributes);
-
-    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true, CallingConvention = CallingConvention.StdCall)]
-    static extern IntPtr LoadLibraryEx(String dllFileName, IntPtr handel, uint mozart);
 
     #endregion
 
