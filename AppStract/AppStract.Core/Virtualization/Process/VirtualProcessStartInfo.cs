@@ -122,8 +122,7 @@ namespace AppStract.Core.Virtualization.Process
     public VirtualProcessStartInfo(ApplicationData data, ApplicationFile workingDirectory)
     {
       if (data == null
-          || data.Files.DatabaseFileSystem == null
-          || data.Files.DatabaseRegistry == null
+          || data.Files.RegistryDatabase == null
           || data.Files.Executable == null
           || data.Files.RootDirectory == null)
         throw new ArgumentNullException("data", "The data argument or one of its properties is null.");
@@ -133,11 +132,7 @@ namespace AppStract.Core.Virtualization.Process
           && data.Files.Executable.Type != FileType.Assembly_Native)
         throw new ArgumentException("The ApplicationData specified contains an illegal value for the main executable.",
                                     "data");
-      if (data.Files.DatabaseFileSystem.Type != FileType.Database)
-        throw new ArgumentException(
-          "The ApplicationData specified contains an illegal value for the file system database.",
-          "data");
-      if (data.Files.DatabaseRegistry.Type != FileType.Database)
+      if (data.Files.RegistryDatabase.Type != FileType.Database)
         throw new ArgumentException(
           "The ApplicationData specified contains an illegal value for the registry database.",
           "data");
@@ -146,10 +141,8 @@ namespace AppStract.Core.Virtualization.Process
                                     "workingDirectory");
       _files = new ApplicationFiles
                  {
-                   DatabaseFileSystem
-                     = new ApplicationFile(Path.Combine(workingDirectory.FileName, data.Files.DatabaseFileSystem.FileName)),
-                   DatabaseRegistry
-                     = new ApplicationFile(Path.Combine(workingDirectory.FileName, data.Files.DatabaseRegistry.FileName)),
+                   RegistryDatabase
+                     = new ApplicationFile(Path.Combine(workingDirectory.FileName, data.Files.RegistryDatabase.FileName)),
                    Executable
                      = new ApplicationFile(Path.Combine(workingDirectory.FileName, data.Files.Executable.FileName)),
                    RootDirectory

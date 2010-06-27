@@ -109,8 +109,8 @@ namespace AppStract.Core.Virtualization.Process
     /// The <see cref="VirtualProcessStartInfo"/> containing the information used to start the process with.
     /// </param>
     protected VirtualizedProcess(VirtualProcessStartInfo startInfo)
-      : this(startInfo, new ProcessSynchronizer(startInfo.Files.DatabaseFileSystem, startInfo.Files.RootDirectory,
-             startInfo.Files.DatabaseRegistry, startInfo.RegistryRuleCollection))
+      : this(startInfo, new ProcessSynchronizer(startInfo.Files.RootDirectory,
+             startInfo.Files.RegistryDatabase, startInfo.RegistryRuleCollection))
     {
     }
 

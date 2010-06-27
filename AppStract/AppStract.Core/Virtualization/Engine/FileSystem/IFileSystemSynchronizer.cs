@@ -21,23 +21,10 @@
 
 #endregion
 
-using AppStract.Utilities.Observables;
-
 namespace AppStract.Core.Virtualization.Engine.FileSystem
 {
-  /// <summary>
-  /// Defines a method to activate the synchronization of the file table used by the virtual file system,
-  /// with an <see cref="ObservableDictionary{TKey,TValue}"/>.
-  /// </summary>
   public interface IFileSystemSynchronizer
   {
-
-    /// <summary>
-    /// Loads all known file table entries to the given <see cref="ObservableDictionary{TKey,TValue}"/>,
-    /// and ensures continuous registry synchronization by attaching listeners to <paramref name="fileTable"/>.
-    /// </summary>
-    /// <param name="fileTable">The <see cref="ObservableDictionary{TKey,TValue}"/> to load the file table to.</param>
-    void SynchronizeFileSystemTableWith(ObservableDictionary<string, FileTableEntry> fileTable);
 
   }
 }

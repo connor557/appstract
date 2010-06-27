@@ -58,18 +58,9 @@ namespace AppStract.Server
     private readonly ISynchronizer _synchronizer;
     /// <summary>
     /// The <see cref="Queue{T}"/> containing all waiting <see cref="DatabaseAction{T}"/>s
-    /// to send  to the file system database.
-    /// </summary>
-    private readonly Queue<DatabaseAction<FileTableEntry>> _fileSystemQueue;
-    /// <summary>
-    /// The <see cref="Queue{T}"/> containing all waiting <see cref="DatabaseAction{T}"/>s
     /// to send  to the registry database.
     /// </summary>
     private readonly Queue<DatabaseAction<VirtualRegistryKey>> _registryQueue;
-    /// <summary>
-    /// The object to lock when performing actions on <see cref="_fileSystemQueue"/>.
-    /// </summary>
-    private readonly object _fileSystemSyncObject;
     /// <summary>
     /// The object to lock when performing actions on <see cref="_registryQueue"/>.
     /// </summary>
@@ -85,8 +76,7 @@ namespace AppStract.Server
     /// </summary>
     private int _flushInterval;
     /// <summary>
-    /// Whether <see cref="_fileSystemQueue"/> and <see cref="_registryQueue"/>
-    /// must be automatically flushed.
+    /// Whether the enqueued data must be automatically flushed.
     /// </summary>
     private bool _autoFlush;
 
@@ -154,11 +144,9 @@ namespace AppStract.Server
     {
       _synchronizer = resourceSynchronizer;
       _loader = resourceLoader;
-      _fileSystemQueue = new Queue<DatabaseAction<FileTableEntry>>();
       _registryQueue = new Queue<DatabaseAction<VirtualRegistryKey>>();
       _autoFlush = false;
       _flushInterval = 500;
-      _fileSystemSyncObject = new object();
       _registrySyncObject = new object();
       _flushSyncObject = new object();
     }
@@ -173,13 +161,7 @@ namespace AppStract.Server
     /// </summary>
     public void Flush()
     {
-      DatabaseAction<FileTableEntry>[] fsActions;
       DatabaseAction<VirtualRegistryKey>[] regActions;
-      lock (_fileSystemSyncObject)
-      {
-        fsActions = _fileSystemQueue.ToArray();
-        _fileSystemQueue.Clear();
-      }
       lock (_registrySyncObject)
       {
         regActions = _registryQueue.ToArray();
@@ -187,8 +169,6 @@ namespace AppStract.Server
       }
       using (Hooking.HookManager.ACL.GetHookingExclusion())
       {
-        if (fsActions.Length > 0)
-          _synchronizer.SyncFileSystemActions(fsActions);
         if (regActions.Length > 0)
           _synchronizer.SyncRegistryActions(regActions);
       }
@@ -218,42 +198,6 @@ namespace AppStract.Server
         }
         Thread.Sleep(flushInterval);
       }
-    }
-
-    /// <summary>
-    /// Eventhandler for the ItemAdded event of the file table.
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="item"></param>
-    /// <param name="args"></param>
-    private void FileTable_ItemAdded(ICollection<KeyValuePair<string, FileTableEntry>> sender, KeyValuePair<string, FileTableEntry> item, EventArgs args)
-    {
-      lock (_fileSystemSyncObject)
-        _fileSystemQueue.Enqueue(new DatabaseAction<FileTableEntry>(item.Value, DatabaseActionType.Set));
-    }
-
-    /// <summary>
-    /// Eventhandler for the ItemChanged event of the file table.
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="item"></param>
-    /// <param name="args"></param>
-    private void FileTable_ItemChanged(ICollection<KeyValuePair<string, FileTableEntry>> sender, KeyValuePair<string, FileTableEntry> item, EventArgs args)
-    {
-      lock (_fileSystemSyncObject)
-        _fileSystemQueue.Enqueue(new DatabaseAction<FileTableEntry>(item.Value, DatabaseActionType.Set));
-    }
-
-    /// <summary>
-    /// Eventhandler for the ItemRemoved event of the file table.
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="item"></param>
-    /// <param name="args"></param>
-    private void FileTable_ItemRemoved(ICollection<KeyValuePair<string, FileTableEntry>> sender, KeyValuePair<string, FileTableEntry> item, EventArgs args)
-    {
-      lock (_fileSystemSyncObject)
-        _fileSystemQueue.Enqueue(new DatabaseAction<FileTableEntry>(item.Value, DatabaseActionType.Remove));
     }
 
     /// <summary>
@@ -295,21 +239,6 @@ namespace AppStract.Server
     #endregion
 
     #region IFileSystemSynchronizer Members
-
-    public void SynchronizeFileSystemTableWith(ObservableDictionary<string, FileTableEntry> fileTable)
-    {
-      if (fileTable == null)
-        throw new ArgumentNullException("fileTable");
-      fileTable.Clear();
-      IEnumerable<FileTableEntry> files;
-      using (Hooking.HookManager.ACL.GetHookingExclusion())
-        files = _loader.LoadFileSystemTable();
-      foreach (var file in files)
-        fileTable.Add(file.Key, file);
-      fileTable.ItemAdded += FileTable_ItemAdded;
-      fileTable.ItemChanged += FileTable_ItemChanged;
-      fileTable.ItemRemoved += FileTable_ItemRemoved;
-    }
 
     #endregion
 

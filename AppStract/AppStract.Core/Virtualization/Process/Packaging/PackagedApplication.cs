@@ -36,7 +36,6 @@ namespace AppStract.Core.Virtualization.Process.Packaging
 
     private readonly List<string> _executables;
     private readonly string _outputLocation;
-    private readonly string _relDbFileSystem;
     private readonly string _relDbRegistry;
 
     #endregion
@@ -60,15 +59,6 @@ namespace AppStract.Core.Virtualization.Process.Packaging
     }
 
     /// <summary>
-    /// Gets the location of the database containing the file table;
-    /// Relative to <see cref="OutputLocation"/>.
-    /// </summary>
-    public string FileSystemDatabase
-    {
-      get { return _relDbFileSystem; }
-    }
-
-    /// <summary>
     /// Gets the location of the database containing the registry keys and values;
     /// Relative to <see cref="OutputLocation"/>.
     /// </summary>
@@ -86,14 +76,12 @@ namespace AppStract.Core.Virtualization.Process.Packaging
     /// </summary>
     /// <param name="outputLocation">The location of the packaged application.</param>
     /// <param name="executables">All executables that were detected during packaging.</param>
-    /// <param name="dbFileSystem">The location of the database containing the file table.</param>
     /// <param name="dbRegistry">he location of the database containing the registry keys and values.</param>
-    public PackagedApplication(string outputLocation, IEnumerable<string> executables, string dbFileSystem, string dbRegistry)
+    public PackagedApplication(string outputLocation, IEnumerable<string> executables, string dbRegistry)
     {
       _outputLocation = outputLocation;
       _executables = new List<string>(executables);
-      /// BUG: Verify that these paths are relative to outputLocation!
-      _relDbFileSystem = dbFileSystem;
+      // BUG: Verify that these paths are relative to outputLocation!
       _relDbRegistry = dbRegistry;
     }
 

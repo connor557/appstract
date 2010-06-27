@@ -71,8 +71,7 @@ namespace AppStract.Manager.Packaging
         var data = new ApplicationData();
         data.Files.Executable = new ApplicationFile(_state.Executable);
         data.Files.RootDirectory = new ApplicationFile("");
-        data.Files.DatabaseFileSystem = new ApplicationFile(_installerResult.FileSystemDatabase);
-        data.Files.DatabaseRegistry = new ApplicationFile(_installerResult.RegistryDatabase);
+        data.Files.RegistryDatabase = new ApplicationFile(_installerResult.RegistryDatabase);
         return data;
       }
     }

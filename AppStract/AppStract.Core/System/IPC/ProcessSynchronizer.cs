@@ -26,7 +26,6 @@ using System.Collections.Generic;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Data.Databases;
 using AppStract.Core.System.Logging;
-using AppStract.Core.Virtualization.Engine.FileSystem;
 using AppStract.Core.Virtualization.Engine.Registry;
 
 namespace AppStract.Core.System.IPC
@@ -44,10 +43,6 @@ namespace AppStract.Core.System.IPC
     /// </summary>
     private readonly string _fileSystemRoot;
     /// <summary>
-    /// The <see cref="FileSystemDatabase"/> used by the current instance.
-    /// </summary>
-    private readonly FileSystemDatabase _fileSystemDatabase;
-    /// <summary>
     /// The <see cref="RegistryDatabase"/> used by the current instance.
     /// </summary>
     private readonly RegistryDatabase _registryDatabase;
@@ -59,14 +54,6 @@ namespace AppStract.Core.System.IPC
     #endregion
 
     #region Properties
-
-    /// <summary>
-    /// Gets the <see cref="FileSystemDatabase"/> used by the current instance.
-    /// </summary>
-    public FileSystemDatabase FileSystemDatabase
-    {
-      get { return _fileSystemDatabase; }
-    }
 
     /// <summary>
     /// Gets the <see cref="RegistryDatabase"/> used by the current instance.
@@ -84,41 +71,18 @@ namespace AppStract.Core.System.IPC
     /// Initializes a new instance of <see cref="ProcessSynchronizer"/>.
     /// The constructor will create default databases from the specified files.
     /// </summary>
-    /// <param name="fileSystemDatabaseFile">The file to use with a default <see cref="FileSystemDatabase"/>.</param>
     /// <param name="fileSystemRoot">The directory to use as root of the file system.</param>
     /// <param name="registryDatabaseFile">The file to use with a default <see cref="RegistryDatabase"/>.</param>
     /// <param name="registryRuleCollection">The collection of engine rules to apply on the virtual registry engine.</param>
-    public ProcessSynchronizer(ApplicationFile fileSystemDatabaseFile, ApplicationFile fileSystemRoot, ApplicationFile registryDatabaseFile,
+    public ProcessSynchronizer(ApplicationFile fileSystemRoot, ApplicationFile registryDatabaseFile,
       RegistryRuleCollection registryRuleCollection)
     {
-      if (fileSystemDatabaseFile.Type != FileType.Database)
-        throw new ArgumentException("The filename specified for the file system database is not valid.", "fileSystemDatabaseFile");
       if (fileSystemRoot.Type != FileType.Directory)
         throw new ArgumentException("The root location specified for the file system is not valid.", "fileSystemRoot");
       if (registryDatabaseFile.Type != FileType.Database)
         throw new ArgumentException("The filename specified for the registry database is not valid.", "registryDatabaseFile");
-      _fileSystemDatabase = FileSystemDatabase.CreateDefaultDatabase(fileSystemDatabaseFile.FileName);
       _registryDatabase = RegistryDatabase.CreateDefaultDatabase(registryDatabaseFile.FileName);
-      _fileSystemDatabase.Initialize();
       _registryDatabase.Initialize();
-      _fileSystemRoot = fileSystemRoot.FileName;
-      _regRuleCollection = registryRuleCollection;
-    }
-
-    /// <summary>
-    /// Initializes a new instance of <see cref="ProcessSynchronizer"/>.
-    /// </summary>
-    /// <param name="fileSystemDatabase">The <see cref="FileSystemDatabase"/> to send the incomming <see cref="DatabaseAction{T}"/>s to.</param>
-    /// <param name="fileSystemRoot">The directory to use as root of the file system.</param>
-    /// <param name="registryDatabase">The <see cref="RegistryDatabase"/> to send the incomming <see cref="DatabaseAction{T}"/>s to.</param>
-    /// <param name="registryRuleCollection">The collection of engine rules to apply on the virtual registry engine.</param>
-    public ProcessSynchronizer(FileSystemDatabase fileSystemDatabase, ApplicationFile fileSystemRoot, RegistryDatabase registryDatabase,
-      RegistryRuleCollection registryRuleCollection)
-    {
-      if (fileSystemRoot.Type != FileType.Directory)
-        throw new ArgumentException("The root location specified for the file system is not valid.", "fileSystemRoot");
-      _fileSystemDatabase = fileSystemDatabase;
-      _registryDatabase = registryDatabase;
       _fileSystemRoot = fileSystemRoot.FileName;
       _regRuleCollection = registryRuleCollection;
     }
@@ -152,11 +116,6 @@ namespace AppStract.Core.System.IPC
 
     #region ISynchronizer Members
 
-    public void SyncFileSystemActions(IEnumerable<DatabaseAction<FileTableEntry>> actions)
-    {
-      _fileSystemDatabase.EnqueueAction(actions);
-    }
-
     public void SyncRegistryActions(IEnumerable<DatabaseAction<VirtualRegistryKey>> actions)
     {
       _registryDatabase.EnqueueAction(actions);
@@ -174,12 +133,6 @@ namespace AppStract.Core.System.IPC
     public RegistryRuleCollection GetRegistryEngineRules()
     {
       return _regRuleCollection;
-    }
-
-    public IEnumerable<FileTableEntry> LoadFileSystemTable()
-    {
-      var entries = _fileSystemDatabase.ReadAll();
-      return entries;
     }
 
     public IEnumerable<VirtualRegistryKey> LoadRegistry()

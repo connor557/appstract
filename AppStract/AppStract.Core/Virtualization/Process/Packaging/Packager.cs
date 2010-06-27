@@ -40,11 +40,7 @@ namespace AppStract.Core.Virtualization.Process.Packaging
     #region Constants
 
     /// <summary>
-    /// The filename of the database containing the filesystem data.
-    /// </summary>
-    private const string _dbFileSystem = "AppStract.FileSystem.db3";
-    /// <summary>
-    /// The filename of the database containing the registry data.
+    /// The default filename of the database containing the registry data.
     /// </summary>
     private const string _dbRegistry = "AppStract.Registry.db3";
 
@@ -141,8 +137,7 @@ namespace AppStract.Core.Virtualization.Process.Packaging
       if (data.Files.Executable.Type != FileType.Assembly_Managed
           && data.Files.Executable.Type != FileType.Assembly_Native)
         throw new ArgumentException("The value specified for the executable is invalid.", "executable");
-      data.Files.DatabaseFileSystem = new ApplicationFile(_dbFileSystem);
-      data.Files.DatabaseRegistry = new ApplicationFile(_dbRegistry);
+      data.Files.RegistryDatabase = new ApplicationFile(_dbRegistry);
       return data;
     }
 
@@ -166,8 +161,7 @@ namespace AppStract.Core.Virtualization.Process.Packaging
                   ? null
                   : new PackagedApplication(_startInfo.WorkingDirectory.FileName,
                                             _process.GetExecutables(),
-                                            _startInfo.Files.DatabaseFileSystem.FileName,
-                                            _startInfo.Files.DatabaseRegistry.FileName);
+                                            _startInfo.Files.RegistryDatabase.FileName);
       _waitHandle.Set();
       sender.Dispose();
     }

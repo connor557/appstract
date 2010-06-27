@@ -22,7 +22,6 @@
 #endregion
 
 using System.Collections.Generic;
-using AppStract.Core.Virtualization.Engine.FileSystem;
 using AppStract.Core.Virtualization.Engine.Registry;
 
 namespace AppStract.Core.System.IPC
@@ -50,12 +49,6 @@ namespace AppStract.Core.System.IPC
     /// </summary>
     /// <returns></returns>
     RegistryRuleCollection GetRegistryEngineRules();
-
-    /// <summary>
-    /// Returns all known <see cref="FileTableEntry"/> as an <see cref="IEnumerable{T}"/>.
-    /// </summary>
-    /// <returns></returns>
-    IEnumerable<FileTableEntry> LoadFileSystemTable();
 
     /// <summary>
     /// Returns all known <see cref="VirtualRegistryKey"/> as an <see cref="IEnumerable{T}"/>.

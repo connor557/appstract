@@ -23,7 +23,6 @@
 
 using System.Collections.Generic;
 using AppStract.Core.Data.Databases;
-using AppStract.Core.Virtualization.Engine.FileSystem;
 using AppStract.Core.Virtualization.Engine.Registry;
 
 namespace AppStract.Core.System.IPC
@@ -33,12 +32,6 @@ namespace AppStract.Core.System.IPC
   /// </summary>
   public interface ISynchronizer
   {
-
-    /// <summary>
-    /// Commits the specified <see cref="DatabaseAction{T}"/>s to the file system database.
-    /// </summary>
-    /// <param name="actions">Actions to commit.</param>
-    void SyncFileSystemActions(IEnumerable<DatabaseAction<FileTableEntry>> actions);
 
     /// <summary>
     /// Commits the specified <see cref="DatabaseAction{T}"/>s to the registry database.

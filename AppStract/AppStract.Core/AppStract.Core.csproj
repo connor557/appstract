@@ -107,7 +107,6 @@
     <Compile Include="CoreBus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CoreException.cs" />
-    <Compile Include="Data\Databases\FileSystemDatabase.cs" />
     <Compile Include="Data\Settings\AppConfig.cs" />
     <Compile Include="Data\Settings\Configuration.cs" />
     <Compile Include="Data\Settings\UserConfig.cs" />
@@ -121,7 +120,6 @@
     <Compile Include="Virtualization\Process\Packaging\PackageException.cs" />
     <Compile Include="Virtualization\Process\Packaging\Packager.cs" />
     <Compile Include="Virtualization\Process\Packaging\PackagedApplication.cs" />
-    <Compile Include="Virtualization\Process\Packaging\WatchingFileSystemDatabase.cs" />
     <Compile Include="Virtualization\Process\Packaging\PackagingProcess.cs" />
     <Compile Include="Virtualization\Process\ProcessExitEventHandler.cs" />
     <Compile Include="Virtualization\Process\VirtualProcessStartInfo.cs" />
@@ -136,10 +134,7 @@
     <Compile Include="Data\Application\ApplicationFile.cs" />
     <Compile Include="Data\Application\ApplicationFiles.cs" />
     <Compile Include="Data\Application\ApplicationSettings.cs" />
-    <Compile Include="Virtualization\Engine\FileSystem\FileCreationDisposition.cs" />
     <Compile Include="Virtualization\Engine\FileSystem\ResourceType.cs" />
-    <Compile Include="Virtualization\Engine\FileSystem\FileRequest.cs" />
-    <Compile Include="Virtualization\Engine\FileSystem\FileTableEntry.cs" />
     <Compile Include="Virtualization\Engine\FileSystem\IFileSystemProvider.cs" />
     <Compile Include="Data\Application\FileType.cs" />
     <Compile Include="Virtualization\Process\VirtualProcessException.cs" />
