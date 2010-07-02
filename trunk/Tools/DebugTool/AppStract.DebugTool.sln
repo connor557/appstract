@@ -1,12 +1,12 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.DebugTool", "AppStract.DebugTool\AppStract.DebugTool.csproj", "{604EEDB2-3232-4B7A-8B3A-8D4A981A0D38}"
-EndProject
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FD622199-F895-49E1-9583-B9D54F49E56A}"
 	ProjectSection(SolutionItems) = preProject
 		Assets\Features.txt = Assets\Features.txt
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.DebugTool", "AppStract.DebugTool\AppStract.DebugTool.csproj", "{604EEDB2-3232-4B7A-8B3A-8D4A981A0D38}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
