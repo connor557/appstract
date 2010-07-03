@@ -139,6 +139,7 @@
     <Compile Include="Virtualization\Engine\EngineException.cs" />
     <Compile Include="Virtualization\Engine\EngineRule.cs" />
     <Compile Include="Virtualization\Engine\EngineRuleCollection.cs" />
+    <Compile Include="Virtualization\Engine\FileSystem\FileSystemRuleCollection.cs" />
     <Compile Include="Virtualization\Engine\NativeResultCode.cs" />
     <Compile Include="Virtualization\Engine\VirtualizationType.cs" />
     <Compile Include="Virtualization\Engine\Registry\RegistryRuleCollection.cs" />
