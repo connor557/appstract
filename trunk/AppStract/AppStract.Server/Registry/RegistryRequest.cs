@@ -34,7 +34,7 @@ namespace AppStract.Server.Registry
 
     #region Variables
 
-    private AccessMechanism _accessMechanism;
+    private VirtualizationType _accessMechanism;
     private uint _handle;
     private RegistryHive _hive;
     private string _keyFullName;
@@ -45,9 +45,9 @@ namespace AppStract.Server.Registry
     #region Public Properties
 
     /// <summary>
-    /// Gets or sets the <see cref="AccessMechanism"/> to use for the current request.
+    /// Gets or sets the <see cref="VirtualizationType"/> to use for the current request.
     /// </summary>
-    public AccessMechanism AccessMechanism
+    public VirtualizationType VirtualizationType
     {
       get { return _accessMechanism; }
       set { _accessMechanism = value; }
@@ -103,12 +103,12 @@ namespace AppStract.Server.Registry
     {
       _handle = 0;
       _keyFullPath = string.Empty;
-      _accessMechanism = AccessMechanism.Virtual;
+      _accessMechanism = VirtualizationType.Virtual;
     }
 
     public RegistryRequest(RegistryRequest request)
     {
-      _accessMechanism = request.AccessMechanism;
+      _accessMechanism = request.VirtualizationType;
       _handle = request.Handle;
       _hive = request.Hive;
       _keyFullName = request.KeyFullName;

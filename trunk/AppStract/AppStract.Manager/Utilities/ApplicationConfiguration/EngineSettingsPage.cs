@@ -25,7 +25,7 @@ using System;
 using System.Windows.Forms;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Virtualization.Engine.Registry;
-using RegistryRule = AppStract.Core.Virtualization.Engine.EngineRule<string, AppStract.Core.Virtualization.Engine.Registry.AccessMechanism>;
+using RegistryRule = AppStract.Core.Virtualization.Engine.EngineRule<string, AppStract.Core.Virtualization.Engine.Registry.VirtualizationType>;
 
 namespace AppStract.Manager.Utilities.ApplicationConfiguration
 {
@@ -44,7 +44,7 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
     public EngineSettingsPage()
     {
       InitializeComponent();
-      _cmbRegistryRuleVirtualizationType.Items.AddRange(Enum.GetNames(typeof(AccessMechanism)));
+      _cmbRegistryRuleVirtualizationType.Items.AddRange(Enum.GetNames(typeof(VirtualizationType)));
       _gbRegistryEngineRuleConfiguration.Enabled = false;
       _txtRegistryRuleValueName.Enabled = false;
       Enabled = false;
@@ -66,7 +66,7 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
 
     private static RegistryRule GetNewDefaultRegistryRule()
     {
-      return new RegistryRule("New Item", AccessMechanism.Virtual);
+      return new RegistryRule("New Item", VirtualizationType.Virtual);
     }
 
     #endregion
@@ -148,7 +148,7 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
       rule.Identifier = _txtRegistryRuleKeyName.Text;
       if (_cmbRegistryRuleVirtualizationType.SelectedIndex == -1)
         _cmbRegistryRuleVirtualizationType.SelectedIndex = 0;
-      rule.Rule = (AccessMechanism) Enum.Parse(typeof (AccessMechanism), _cmbRegistryRuleVirtualizationType.SelectedItem.ToString());
+      rule.Rule = (VirtualizationType) Enum.Parse(typeof (VirtualizationType), _cmbRegistryRuleVirtualizationType.SelectedItem.ToString());
       var index = _listEngineSettingsRegistry.SelectedIndex;
       _listEngineSettingsRegistry.Items.RemoveAt(index);
       _listEngineSettingsRegistry.Items.Insert(index, rule);

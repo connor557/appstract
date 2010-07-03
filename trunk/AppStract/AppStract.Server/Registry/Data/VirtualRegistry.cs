@@ -56,7 +56,7 @@ namespace AppStract.Server.Registry.Data
         request.Handle = virtReq.Handle;
         return NativeResultCode.Success;
       }
-      if (request.AccessMechanism == AccessMechanism.Virtual
+      if (request.VirtualizationType == VirtualizationType.Virtual
           || !HostRegistry.KeyExists(request.KeyFullPath))
         return NativeResultCode.FileNotFound;
       var virtualRegistryKey = ConstructRegistryKey(virtualKeyPath);
@@ -81,7 +81,7 @@ namespace AppStract.Server.Registry.Data
         return resultCode;                      // Base knows the value
       if (!IsKnownKey(request))
         return NativeResultCode.InvalidHandle;  // Base does not know the handle
-      if (request.AccessMechanism == AccessMechanism.Virtual)
+      if (request.VirtualizationType == VirtualizationType.Virtual)
         return NativeResultCode.FileNotFound;   // Not allowed to retrieve value from host registry
       // Query the value from the real registry.
       try
@@ -98,7 +98,7 @@ namespace AppStract.Server.Registry.Data
         return NativeResultCode.AccessDenied;
       }
       // Determine whether the newly acquired value needs to be written to the base.
-      if (request.AccessMechanism == AccessMechanism.CreateAndCopy)
+      if (request.VirtualizationType == VirtualizationType.CreateAndCopy)
       {
         var key = new VirtualRegistryKey(request.Handle, request.KeyFullPath);
         key.Values.Add(request.Value.Name, request.Value);

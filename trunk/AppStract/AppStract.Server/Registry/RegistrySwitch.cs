@@ -109,7 +109,7 @@ namespace AppStract.Server.Registry
         result = TryRecoverUnknownHandle(request);
       else
         GuestCore.Log.Error("Unknown registry key handle => {0}", request.Handle);
-      request.AccessMechanism = GetAccessMechanism(request.KeyFullPath);
+      request.VirtualizationType = GetVirtualizationType(request.KeyFullPath);
       return result;
     }
 
@@ -118,39 +118,39 @@ namespace AppStract.Server.Registry
     #region Private Methods
 
     /// <summary>
-    /// Returns the required access mechanism to use on a key.
+    /// Returns the required virtualization type to use on a key.
     /// </summary>
     /// <param name="keyFullPath">The key's full path.</param>
-    /// <returns>The <see cref="AccessMechanism"/>, indicating how the key should be accessed.</returns>
-    private AccessMechanism GetAccessMechanism(string keyFullPath)
+    /// <returns>The <see cref="VirtualizationType"/>, indicating how the key should be accessed.</returns>
+    private VirtualizationType GetVirtualizationType(string keyFullPath)
     {
       if (string.IsNullOrEmpty(keyFullPath))
-        return AccessMechanism.Virtual;
-      AccessMechanism accessMechanism;
+        return VirtualizationType.Virtual;
+      VirtualizationType accessMechanism;
       return _engineRules.HasRule(keyFullPath, out accessMechanism)
                ? accessMechanism
-               : GetFallBackAccessMechanism(keyFullPath);
+               : GetFallBackVirtualizationType(keyFullPath);
     }
 
     /// <summary>
-    /// Returns the default access mechanism to use on a key.
+    /// Returns the default virtualization type to use on a key.
     /// </summary>
     /// <param name="keyFullPath">The key's full path.</param>
-    /// <returns>The <see cref="AccessMechanism"/>, indicating how the key should be accessed.</returns>
-    private static AccessMechanism GetFallBackAccessMechanism(string keyFullPath)
+    /// <returns>The <see cref="VirtualizationType"/>, indicating how the key should be accessed.</returns>
+    private static VirtualizationType GetFallBackVirtualizationType(string keyFullPath)
     {
       GuestCore.Log.Error("Falling back to default rules, no rule specified for \"" + keyFullPath + "\"");
       var hive = HiveHelper.GetHive(keyFullPath);
       if (hive == RegistryHive.Users
           || hive == RegistryHive.CurrentUser)
-        return AccessMechanism.CreateAndCopy;
+        return VirtualizationType.CreateAndCopy;
       if (hive == RegistryHive.CurrentConfig
           || hive == RegistryHive.LocalMachine
           || hive == RegistryHive.ClassesRoot)
-        return AccessMechanism.TransparentRead;
+        return VirtualizationType.TransparentRead;
       if (hive == RegistryHive.PerformanceData
           || hive == RegistryHive.DynData)
-        return AccessMechanism.Transparent;
+        return VirtualizationType.Transparent;
       throw new ApplicationException("Can't determine required action for unknown subkeys of  \"" + hive + "\"");
     }
 
@@ -161,8 +161,8 @@ namespace AppStract.Server.Registry
     /// <returns></returns>
     private RegistryBase GetDefaultRegistryFor(RegistryRequest request)
     {
-      request.AccessMechanism = GetAccessMechanism(request.KeyFullPath);
-      return request.AccessMechanism == AccessMechanism.Transparent
+      request.VirtualizationType = GetVirtualizationType(request.KeyFullPath);
+      return request.VirtualizationType == VirtualizationType.Transparent
                ? _transparentRegistry
                : _virtualRegistry;
     }
@@ -171,7 +171,6 @@ namespace AppStract.Server.Registry
     /// Tries to recover from an unknown handle.
     /// </summary>
     /// <param name="request">The request for the unknown key handle to try to virtualize.</param>
-    /// </param>
     /// <returns></returns>
     private RegistryBase TryRecoverUnknownHandle(RegistryRequest request)
     {
