@@ -26,5 +26,11 @@ namespace AppStract.Core.Virtualization.Engine.FileSystem
   public interface IFileSystemSynchronizer
   {
 
+    /// <summary>
+    /// Gets the collection of file system engine rules.
+    /// </summary>
+    /// <returns></returns>
+    FileSystemRuleCollection GetFileSystemEngineRules();
+
   }
 }

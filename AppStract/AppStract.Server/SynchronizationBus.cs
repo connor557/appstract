@@ -240,11 +240,17 @@ namespace AppStract.Server
 
     #region IFileSystemSynchronizer Members
 
+    public FileSystemRuleCollection GetFileSystemEngineRules()
+    {
+      using (Hooking.HookManager.ACL.GetHookingExclusion())
+        return _loader.GetFileSystemEngineRules();
+    }
+
     #endregion
 
     #region IRegistrySynchronizer Members
 
-    public RegistryRuleCollection GetEngineRules()
+    public RegistryRuleCollection GetRegistryEngineRules()
     {
       using (Hooking.HookManager.ACL.GetHookingExclusion())
         return _loader.GetRegistryEngineRules();

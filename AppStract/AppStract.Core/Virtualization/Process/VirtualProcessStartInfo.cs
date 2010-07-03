@@ -24,6 +24,7 @@
 using System;
 using System.IO;
 using AppStract.Core.Data.Application;
+using AppStract.Core.Virtualization.Engine.FileSystem;
 using AppStract.Core.Virtualization.Engine.Registry;
 
 namespace AppStract.Core.Virtualization.Process
@@ -40,6 +41,7 @@ namespace AppStract.Core.Virtualization.Process
     private ApplicationFile _workingDirectory;
     private string _arguments;
     private RegistryRuleCollection _registryRuleCollection;
+    private FileSystemRuleCollection _fileSystemRuleCollection;
 
     #endregion
 
@@ -103,6 +105,21 @@ namespace AppStract.Core.Virtualization.Process
       }
     }
 
+    /// <summary>
+    /// Gets the collection of engine rules to apply on the virtual file system of any <see cref="VirtualizedProcess"/>
+    /// started with the current <see cref="VirtualProcessStartInfo"/>.
+    /// </summary>
+    public FileSystemRuleCollection FileSystemRuleCollection
+    {
+      get { return _fileSystemRuleCollection; }
+      set
+      {
+        if (_fileSystemRuleCollection == null)
+          throw new ArgumentNullException();
+        _fileSystemRuleCollection = value;
+      }
+    }
+
     #endregion
 
     #region Constructors
@@ -150,6 +167,7 @@ namespace AppStract.Core.Virtualization.Process
                  };
       _arguments = "";
       _workingDirectory = workingDirectory;
+      _fileSystemRuleCollection = data.Settings.FileSystemEngineRuleCollection ?? FileSystemRuleCollection.GetDefaultRuleCollection();
       _registryRuleCollection = data.Settings.RegistryEngineRuleCollection ?? RegistryRuleCollection.GetDefaultRuleCollection();
     }
 

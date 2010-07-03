@@ -70,7 +70,8 @@ namespace AppStract.Core.Virtualization.Process.Packaging
       if (startInfo.Files.RegistryDatabase.Type != FileType.Database)
         throw new ArgumentException("The destination file specified for the registry database is not valid.",
                                     "startInfo");
-      var synchronizer = new ProcessSynchronizer(startInfo.WorkingDirectory, startInfo.Files.RegistryDatabase, startInfo.RegistryRuleCollection);
+      var synchronizer = new ProcessSynchronizer(startInfo.WorkingDirectory, startInfo.FileSystemRuleCollection,
+                                                 startInfo.Files.RegistryDatabase, startInfo.RegistryRuleCollection);
       var process = new PackagingProcess(startInfo, synchronizer);
       process.Start();
       return process;

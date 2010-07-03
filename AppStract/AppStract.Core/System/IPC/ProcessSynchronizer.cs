@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Data.Databases;
 using AppStract.Core.System.Logging;
+using AppStract.Core.Virtualization.Engine.FileSystem;
 using AppStract.Core.Virtualization.Engine.Registry;
 
 namespace AppStract.Core.System.IPC
@@ -43,11 +44,15 @@ namespace AppStract.Core.System.IPC
     /// </summary>
     private readonly string _fileSystemRoot;
     /// <summary>
+    /// The collection of engine rules to apply on the file system virtualization engine.
+    /// </summary>
+    private readonly FileSystemRuleCollection _fsRuleCollection;
+    /// <summary>
     /// The <see cref="RegistryDatabase"/> used by the current instance.
     /// </summary>
     private readonly RegistryDatabase _registryDatabase;
     /// <summary>
-    /// The collection of engine rules to apply on the virtual registry engine.
+    /// The collection of engine rules to apply on the registry virtualization engine.
     /// </summary>
     private readonly RegistryRuleCollection _regRuleCollection;
 
@@ -72,10 +77,11 @@ namespace AppStract.Core.System.IPC
     /// The constructor will create default databases from the specified files.
     /// </summary>
     /// <param name="fileSystemRoot">The directory to use as root of the file system.</param>
+    /// <param name="fileSystemRuleCollection">The collection of engine rules to apply on the file system virtualization engine.</param>
     /// <param name="registryDatabaseFile">The file to use with a default <see cref="RegistryDatabase"/>.</param>
-    /// <param name="registryRuleCollection">The collection of engine rules to apply on the virtual registry engine.</param>
-    public ProcessSynchronizer(ApplicationFile fileSystemRoot, ApplicationFile registryDatabaseFile,
-      RegistryRuleCollection registryRuleCollection)
+    /// <param name="registryRuleCollection">The collection of engine rules to apply on the registry virtualization engine.</param>
+    public ProcessSynchronizer(ApplicationFile fileSystemRoot, FileSystemRuleCollection fileSystemRuleCollection,
+      ApplicationFile registryDatabaseFile, RegistryRuleCollection registryRuleCollection)
     {
       if (fileSystemRoot.Type != FileType.Directory)
         throw new ArgumentException("The root location specified for the file system is not valid.", "fileSystemRoot");
@@ -84,6 +90,7 @@ namespace AppStract.Core.System.IPC
       _registryDatabase = RegistryDatabase.CreateDefaultDatabase(registryDatabaseFile.FileName);
       _registryDatabase.Initialize();
       _fileSystemRoot = fileSystemRoot.FileName;
+      _fsRuleCollection = fileSystemRuleCollection;
       _regRuleCollection = registryRuleCollection;
     }
 
@@ -93,7 +100,7 @@ namespace AppStract.Core.System.IPC
 
     public void Ping()
     {
-      /// No action required.
+      // No action required.
     }
 
     public void ReportMessage(LogMessage message)
@@ -128,6 +135,11 @@ namespace AppStract.Core.System.IPC
     public string FileSystemRoot
     {
       get { return _fileSystemRoot; }
+    }
+
+    public FileSystemRuleCollection GetFileSystemEngineRules()
+    {
+      return _fsRuleCollection;
     }
 
     public RegistryRuleCollection GetRegistryEngineRules()

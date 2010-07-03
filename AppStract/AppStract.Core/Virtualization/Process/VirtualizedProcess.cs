@@ -109,8 +109,8 @@ namespace AppStract.Core.Virtualization.Process
     /// The <see cref="VirtualProcessStartInfo"/> containing the information used to start the process with.
     /// </param>
     protected VirtualizedProcess(VirtualProcessStartInfo startInfo)
-      : this(startInfo, new ProcessSynchronizer(startInfo.Files.RootDirectory,
-             startInfo.Files.RegistryDatabase, startInfo.RegistryRuleCollection))
+      : this(startInfo, new ProcessSynchronizer(startInfo.Files.RootDirectory, startInfo.FileSystemRuleCollection,
+                                                startInfo.Files.RegistryDatabase, startInfo.RegistryRuleCollection))
     {
     }
 
@@ -204,23 +204,23 @@ namespace AppStract.Core.Virtualization.Process
     private void CreateAndInject()
     {
       int processId;
-      /// Get the location of the library to inject
+      // Get the location of the library to inject
       string libraryLocation = CoreBus.Configuration.Application.LibtoInject;
       if (!File.Exists(libraryLocation))
         throw new FileNotFoundException("Unable to locate the library to inject.", libraryLocation);
       RemoteHooking.CreateAndInject(
         Path.Combine(_startInfo.WorkingDirectory.FileName, _startInfo.Files.Executable.FileName),
-        /// Optional command line parameters for process creation
+        // Optional command line parameters for process creation
         _startInfo.Arguments,
-        /// ProcessCreationFlags, no conditions are set on the created process.
+        // ProcessCreationFlags, no conditions are set on the created process.
         0,
-        /// Absolute paths of the libraries to inject, we use the same one for 32bit and 64bit
+        // Absolute paths of the libraries to inject, we use the same one for 32bit and 64bit
         libraryLocation, libraryLocation,
-        /// The process ID of the newly created process
+        // The process ID of the newly created process
         out processId,
-        /// Extra parameters being passed to the injected library entry points Run() and Initialize()
+        // Extra parameters being passed to the injected library entry points Run() and Initialize()
         _connection.ChannelName);
-      /// The process has been created, set the _process variable.
+      // The process has been created, set the _process variable.
       _process = SystemProcess.GetProcessById(processId, CoreBus.Runtime.CurrentProcess.MachineName);
       _process.EnableRaisingEvents = true;
       _process.Exited += Process_Exited;
