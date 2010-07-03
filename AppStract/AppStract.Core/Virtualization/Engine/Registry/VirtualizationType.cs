@@ -24,11 +24,11 @@
 namespace AppStract.Core.Virtualization.Engine.Registry
 {
   /// <summary>
-  /// The required access mechanism on a key,
+  /// The required virtualization type on a key,
   /// which decides the kind of registry virtualization to be used when
   /// executing operations associated to the key.
   /// </summary>
-  public enum AccessMechanism
+  public enum VirtualizationType
   {
     /// <summary>
     /// All read and write actions are passed to the virtual registry.
