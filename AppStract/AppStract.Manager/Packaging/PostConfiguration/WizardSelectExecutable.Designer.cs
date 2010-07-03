@@ -54,15 +54,16 @@ namespace AppStract.Manager.Packaging.PostConfiguration
       this._listBoxItems = new System.Windows.Forms.ListBox();
       this._labelHeaderHelp = new System.Windows.Forms.Label();
       this._labelHeader = new System.Windows.Forms.Label();
+      this._lnkBrowseExecutable = new System.Windows.Forms.LinkLabel();
       this.SuspendLayout();
       // 
       // _listBoxItems
       // 
       this._listBoxItems.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this._listBoxItems.FormattingEnabled = true;
-      this._listBoxItems.Location = new System.Drawing.Point(38, 89);
+      this._listBoxItems.Location = new System.Drawing.Point(38, 102);
       this._listBoxItems.Name = "_listBoxItems";
-      this._listBoxItems.Size = new System.Drawing.Size(378, 299);
+      this._listBoxItems.Size = new System.Drawing.Size(378, 286);
       this._listBoxItems.Sorted = true;
       this._listBoxItems.TabIndex = 2;
       this._listBoxItems.SelectedIndexChanged += new System.EventHandler(this._listBoxItems_SelectedIndexChanged);
@@ -72,9 +73,11 @@ namespace AppStract.Manager.Packaging.PostConfiguration
       this._labelHeaderHelp.AutoSize = true;
       this._labelHeaderHelp.Location = new System.Drawing.Point(35, 54);
       this._labelHeaderHelp.Name = "_labelHeaderHelp";
-      this._labelHeaderHelp.Size = new System.Drawing.Size(371, 13);
+      this._labelHeaderHelp.Size = new System.Drawing.Size(336, 39);
       this._labelHeaderHelp.TabIndex = 10;
-      this._labelHeaderHelp.Text = "You can select the executable to start the new portable application with here.";
+      this._labelHeaderHelp.Text = "Please select an executable to start the new portable application with.\r\nYou can " +
+          "either select one on the list of suggested executables,\r\nor you can browse to an" +
+          "y executable of your choice.";
       // 
       // _labelHeader
       // 
@@ -86,11 +89,23 @@ namespace AppStract.Manager.Packaging.PostConfiguration
       this._labelHeader.TabIndex = 9;
       this._labelHeader.Text = "Select an executable";
       // 
+      // _lnkBrowseExecutable
+      // 
+      this._lnkBrowseExecutable.AutoSize = true;
+      this._lnkBrowseExecutable.Location = new System.Drawing.Point(87, 80);
+      this._lnkBrowseExecutable.Name = "_lnkBrowseExecutable";
+      this._lnkBrowseExecutable.Size = new System.Drawing.Size(41, 13);
+      this._lnkBrowseExecutable.TabIndex = 12;
+      this._lnkBrowseExecutable.TabStop = true;
+      this._lnkBrowseExecutable.Text = "browse";
+      this._lnkBrowseExecutable.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this._lnkBrowseExecutable_LinkClicked);
+      // 
       // WizardSelectExecutable
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.Color.Transparent;
+      this.Controls.Add(this._lnkBrowseExecutable);
       this.Controls.Add(this._labelHeaderHelp);
       this.Controls.Add(this._labelHeader);
       this.Controls.Add(this._listBoxItems);
@@ -106,5 +121,6 @@ namespace AppStract.Manager.Packaging.PostConfiguration
     private System.Windows.Forms.ListBox _listBoxItems;
     private System.Windows.Forms.Label _labelHeaderHelp;
     private System.Windows.Forms.Label _labelHeader;
+    private System.Windows.Forms.LinkLabel _lnkBrowseExecutable;
   }
 }

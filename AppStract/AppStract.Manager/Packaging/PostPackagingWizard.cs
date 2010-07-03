@@ -109,7 +109,7 @@ namespace AppStract.Manager.Packaging
     {
       List<WizardPage> pages = new List<WizardPage>(5);
       pages.Add(new WizardPage("Introduction", new WizardIntroduction()));
-      pages.Add(new WizardPage("Executable", new WizardSelectExecutable(_installerResult.Executables, _state)));
+      pages.Add(new WizardPage("Executable", new WizardSelectExecutable(_installerResult.OutputLocation, _installerResult.Executables, _state)));
       //pages.Add(new WizardPage("Settings", new WizardSettings(_state)));
       pages.Add(new WizardPage("Finish", new WizardFinish(_state)));
       return pages;
