@@ -22,31 +22,28 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 
 namespace AppStract.Core.Virtualization.Engine
 {
   /// <summary>
   /// Represents a rule in the virtualization engine.
   /// </summary>
-  /// <typeparam name="TIdentifier">The type of object identifying the <see cref="EngineRule{TIdentifier,TRule}"/>.</typeparam>
-  /// <typeparam name="TRule">The type of object representing an engine rule.</typeparam>
   [Serializable]
-  public class EngineRule<TIdentifier, TRule> : IEquatable<EngineRule<TIdentifier, TRule>>
+  public sealed class EngineRule : IEquatable<EngineRule>
   {
 
     #region Public Properties
 
     /// <summary>
-    /// Gets or sets the identifier of the current <see cref="EngineRule{TIdentifier,TRule}"/>.
+    /// Gets or sets the identifier of the current <see cref="EngineRule"/>.
     /// </summary>
-    public TIdentifier Identifier
+    public string Identifier
     { get; set; }
 
     /// <summary>
-    /// Gets or sets the object representing the engine rule.
+    /// Gets or sets the <see cref="VirtualizationType"/> representing the engine rule.
     /// </summary>
-    public TRule Rule
+    public VirtualizationType VirtualizationType
     { get; set; }
 
     #endregion
@@ -54,7 +51,7 @@ namespace AppStract.Core.Virtualization.Engine
     #region Constructors
 
     /// <summary>
-    /// Initializes an empty instance of <see cref="EngineRule{TIdentifier,TRule}"/>.
+    /// Initializes an empty instance of <see cref="EngineRule"/>.
     /// </summary>
     public EngineRule()
     {
@@ -62,14 +59,14 @@ namespace AppStract.Core.Virtualization.Engine
     }
 
     /// <summary>
-    /// Initializes a new instance of <see cref="EngineRule{TIdentifier,TRule}"/>.
+    /// Initializes a new instance of <see cref="EngineRule"/>.
     /// </summary>
-    /// <param name="identifier">The identifier of the new <see cref="EngineRule{TIdentifier,TRule}"/>.</param>
-    /// <param name="rule">The object representing the engine rule.</param>
-    public EngineRule(TIdentifier identifier, TRule rule)
+    /// <param name="identifier">The identifier of the new <see cref="EngineRule"/>.</param>
+    /// <param name="virtualizationType">The <see cref="VirtualizationType"/> representing the engine rule.</param>
+    public EngineRule(string identifier, VirtualizationType virtualizationType)
     {
       Identifier = identifier;
-      Rule = rule;
+      VirtualizationType = virtualizationType;
     }
 
     #endregion
@@ -77,29 +74,27 @@ namespace AppStract.Core.Virtualization.Engine
     #region Public Methods
 
     /// <summary>
-    /// Returns a string representation of the current <see cref="EngineRule{TIdentifier,TRule}"/>.
+    /// Returns a string representation of the current <see cref="EngineRule"/>.
     /// </summary>
     /// <returns></returns>
     public override string ToString()
     {
-      return "EngineRule: {" + Identifier + " || " + Rule + "}";
+      return "EngineRule: {" + Identifier + " || " + VirtualizationType + "}";
     }
 
     #endregion
 
-    #region IEquatable<EngineRule<TIdentifier,TRule>> Members
+    #region IEquatable<EngineRule> Members
 
     /// <summary>
-    /// Indicates whether the current <see cref="EngineRule{TIdentifier,TRule}"/> is equal to another <see cref="EngineRule{TIdentifier,TRule}"/>.
+    /// Indicates whether the current <see cref="EngineRule"/> is equal to another <see cref="EngineRule"/>.
     /// </summary>
     /// <param name="other"></param>
     /// <returns></returns>
-    public bool Equals(EngineRule<TIdentifier, TRule> other)
+    public bool Equals(EngineRule other)
     {
-      var idComparer = EqualityComparer<TIdentifier>.Default;
-      var ruleComparer = EqualityComparer<TRule>.Default;
-      return idComparer.Equals(Identifier, other.Identifier)
-             && ruleComparer.Equals(Rule, other.Rule);
+      return Identifier == other.Identifier
+             && VirtualizationType == other.VirtualizationType;
     }
 
     #endregion
