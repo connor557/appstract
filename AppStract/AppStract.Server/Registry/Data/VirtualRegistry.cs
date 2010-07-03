@@ -98,7 +98,7 @@ namespace AppStract.Server.Registry.Data
         return NativeResultCode.AccessDenied;
       }
       // Determine whether the newly acquired value needs to be written to the base.
-      if (request.VirtualizationType == VirtualizationType.CreateAndCopy)
+      if (request.VirtualizationType < VirtualizationType.TransparentRead)
       {
         var key = new VirtualRegistryKey(request.Handle, request.KeyFullPath);
         key.Values.Add(request.Value.Name, request.Value);

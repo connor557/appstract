@@ -55,8 +55,8 @@ namespace AppStract.Core.Virtualization.Engine.Registry
     public static RegistryRuleCollection GetDefaultRuleCollection()
     {
       var rules = new RegistryRuleCollection();
-      rules.SetRule("HKEY_USERS%",            VirtualizationType.CreateAndCopy);
-      rules.SetRule("HKEY_CURRENT_USER%",     VirtualizationType.CreateAndCopy);
+      rules.SetRule("HKEY_USERS%",            VirtualizationType.VirtualWithFallback);
+      rules.SetRule("HKEY_CURRENT_USER%",     VirtualizationType.VirtualWithFallback);
       rules.SetRule("HKEY_CURRENT_CONFIG%",   VirtualizationType.TransparentRead);
       rules.SetRule("HKEY_LOCAL_MACHINE%",    VirtualizationType.TransparentRead);
       rules.SetRule("HKEY_CLASSES_ROOT%",     VirtualizationType.TransparentRead);

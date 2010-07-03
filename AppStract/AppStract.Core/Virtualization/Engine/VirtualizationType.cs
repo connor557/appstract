@@ -21,32 +21,31 @@
 
 #endregion
 
-namespace AppStract.Core.Virtualization.Engine.Registry
+namespace AppStract.Core.Virtualization.Engine
 {
   /// <summary>
-  /// The required virtualization type on a key,
-  /// which decides the kind of registry virtualization to be used when
-  /// executing operations associated to the key.
+  /// The type of virtualization to apply when executing operations on an associated resource.
   /// </summary>
   public enum VirtualizationType
   {
     /// <summary>
-    /// All read and write actions are passed to the virtual registry.
+    /// All read and write actions are passed to the virtualization engine.
     /// </summary>
     Virtual,
     /// <summary>
-    /// All read actions on unknown keys copy the requested key and/or values from the host's registry.
-    /// Write actions are always performed on the virtual registry.
+    /// All read and write actions are passed to the virtualization engine,
+    /// with the addition that read actions on resources unknown by the engine
+    /// cause the resource to be copied from the host environment to the virtual environment.
     /// </summary>
-    CreateAndCopy,
+    VirtualWithFallback,
     /// <summary>
-    /// Read actions are transparent on unknown keys,
-    /// write actions are always performed on the virtual registry.
+    /// Read actions on unknown resources are performed on the host environment,
+    /// while write actions are always performed on the virtual environment.
     /// </summary>
     TransparentRead,
     /// <summary>
-    /// All read and write actions are passed to the host's registry.
+    /// All read and write actions are passed to the host environment.
     /// </summary>
-    Transparent,
+    Transparent
   }
 }
