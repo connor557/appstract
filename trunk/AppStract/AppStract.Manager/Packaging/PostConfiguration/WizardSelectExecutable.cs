@@ -21,6 +21,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using AppStract.Manager.Wizard;
@@ -32,6 +33,7 @@ namespace AppStract.Manager.Packaging.PostConfiguration
 
     #region Variables
 
+    private readonly string _rootDirectory;
     private readonly PostConfigurationState _state;
 
     #endregion
@@ -52,19 +54,43 @@ namespace AppStract.Manager.Packaging.PostConfiguration
 
     #region Constructor
 
-    public WizardSelectExecutable(IEnumerable<string> items, PostConfigurationState state)
+    public WizardSelectExecutable(string rootDirectory, IEnumerable<string> suggestedExecutables, PostConfigurationState state)
     {
       InitializeComponent();
-      foreach (string item in items)
-        _listBoxItems.Items.Add(item);
+      _rootDirectory = rootDirectory;
       _state = state;
+      foreach (string item in suggestedExecutables)
+        _listBoxItems.Items.Add(item);
     }
 
     #endregion
 
     #region Private EventHandlers
 
-    private void _listBoxItems_SelectedIndexChanged(object sender, System.EventArgs e)
+    private void _lnkBrowseExecutable_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+    {
+      do
+      {
+        OpenFileDialog fileDialog = new OpenFileDialog();
+        fileDialog.InitialDirectory = _rootDirectory;
+        if (fileDialog.ShowDialog() != DialogResult.OK)
+          return;
+        if (fileDialog.FileName.StartsWith(_rootDirectory, StringComparison.InvariantCultureIgnoreCase))
+        {
+          _listBoxItems.Items.Add(fileDialog.FileName.Substring(_rootDirectory.Length));
+          _listBoxItems.SelectedIndex = _listBoxItems.Items.Count - 1;
+          return;
+        }
+        // File is outside of the virtual file system, ask user to retry.
+        if (MessageBox.Show("The selected executable is invalid. The executable must be a file located under the \""
+                            + _rootDirectory + "\" folder.", "Invalid executable", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error)
+            == DialogResult.Retry)
+          continue;
+        return;
+      } while (true); 
+    }
+
+    private void _listBoxItems_SelectedIndexChanged(object sender, EventArgs e)
     {
       SaveState();
       if (StateChanged != null)
