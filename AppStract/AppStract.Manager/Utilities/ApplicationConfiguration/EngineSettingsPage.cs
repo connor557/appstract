@@ -24,8 +24,8 @@
 using System;
 using System.Windows.Forms;
 using AppStract.Core.Data.Application;
+using AppStract.Core.Virtualization.Engine;
 using AppStract.Core.Virtualization.Engine.Registry;
-using RegistryRule = AppStract.Core.Virtualization.Engine.EngineRule<string, AppStract.Core.Virtualization.Engine.Registry.VirtualizationType>;
 
 namespace AppStract.Manager.Utilities.ApplicationConfiguration
 {
@@ -34,7 +34,7 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
 
     #region Variables
 
-    private RegistryRule _defaultRegistryRule = GetNewDefaultRegistryRule();
+    private EngineRule _defaultRegistryRule = GetNewDefaultRegistryRule();
     private ApplicationData _data;
 
     #endregion
@@ -58,15 +58,15 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
     {
       if (_data == null) return;
       var collection = RegistryRuleCollection.GetEmptyRuleCollection();
-      foreach (RegistryRule rule in _listEngineSettingsRegistry.Items)
+      foreach (EngineRule rule in _listEngineSettingsRegistry.Items)
         if (rule != _defaultRegistryRule)
-          collection.SetRule(rule.Identifier, rule.Rule);
+          collection.SetRule(rule.Identifier, rule.VirtualizationType);
       _data.Settings.RegistryEngineRuleCollection = collection;
     }
 
-    private static RegistryRule GetNewDefaultRegistryRule()
+    private static EngineRule GetNewDefaultRegistryRule()
     {
-      return new RegistryRule("New Item", VirtualizationType.Virtual);
+      return new EngineRule("New Item", VirtualizationType.Virtual);
     }
 
     #endregion
@@ -82,10 +82,10 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
       _btnEngineSettingsRegistryDown.Enabled = enable;
       _btnEngineSettingsRegistryUp.Enabled = enable;
       if (!enable) return;
-      var rule = _listEngineSettingsRegistry.SelectedItem as RegistryRule;
+      var rule = _listEngineSettingsRegistry.SelectedItem as EngineRule;
       if (rule == null) return;
       _txtRegistryRuleKeyName.Text = rule.Identifier;
-      _cmbRegistryRuleVirtualizationType.SelectedItem = rule.Rule.ToString();
+      _cmbRegistryRuleVirtualizationType.SelectedItem = rule.VirtualizationType.ToString();
     }
 
     private void _btnEngineSettingsRegistryUp_Click(object sender, EventArgs e)
@@ -135,7 +135,7 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
 
     private void _btnRegistryEngineRuleConfigurationApply_Click(object sender, EventArgs e)
     {
-      var rule = _listEngineSettingsRegistry.SelectedItem as RegistryRule;
+      var rule = _listEngineSettingsRegistry.SelectedItem as EngineRule;
       if (rule == null)
       {
         _gbRegistryEngineRuleConfiguration.Enabled = false;
@@ -148,7 +148,9 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
       rule.Identifier = _txtRegistryRuleKeyName.Text;
       if (_cmbRegistryRuleVirtualizationType.SelectedIndex == -1)
         _cmbRegistryRuleVirtualizationType.SelectedIndex = 0;
-      rule.Rule = (VirtualizationType) Enum.Parse(typeof (VirtualizationType), _cmbRegistryRuleVirtualizationType.SelectedItem.ToString());
+      rule.VirtualizationType
+        = (VirtualizationType) Enum.Parse(typeof (VirtualizationType),
+                                          _cmbRegistryRuleVirtualizationType.SelectedItem.ToString());
       var index = _listEngineSettingsRegistry.SelectedIndex;
       _listEngineSettingsRegistry.Items.RemoveAt(index);
       _listEngineSettingsRegistry.Items.Insert(index, rule);
