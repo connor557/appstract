@@ -143,7 +143,7 @@ namespace AppStract.Server.Registry
       var hive = HiveHelper.GetHive(keyFullPath);
       if (hive == RegistryHive.Users
           || hive == RegistryHive.CurrentUser)
-        return VirtualizationType.CreateAndCopy;
+        return VirtualizationType.VirtualWithFallback;
       if (hive == RegistryHive.CurrentConfig
           || hive == RegistryHive.LocalMachine
           || hive == RegistryHive.ClassesRoot)
