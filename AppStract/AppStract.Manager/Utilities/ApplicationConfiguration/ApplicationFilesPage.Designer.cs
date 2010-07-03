@@ -52,9 +52,7 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
     private void InitializeComponent()
     {
       this._lblFileSystemRoot = new System.Windows.Forms.Label();
-      this._lblFileSystemDatabase = new System.Windows.Forms.Label();
       this._txtFileSystemRootDirectory = new System.Windows.Forms.TextBox();
-      this._txtFileSystemDatabase = new System.Windows.Forms.TextBox();
       this._txtRegistryDatabase = new System.Windows.Forms.TextBox();
       this._lblRegistryDatabase = new System.Windows.Forms.Label();
       this._txtExecutable = new System.Windows.Forms.TextBox();
@@ -70,15 +68,6 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
       this._lblFileSystemRoot.TabIndex = 0;
       this._lblFileSystemRoot.Text = "FileSystem Root Directory";
       // 
-      // _lblFileSystemDatabase
-      // 
-      this._lblFileSystemDatabase.AutoSize = true;
-      this._lblFileSystemDatabase.Location = new System.Drawing.Point(17, 47);
-      this._lblFileSystemDatabase.Name = "_lblFileSystemDatabase";
-      this._lblFileSystemDatabase.Size = new System.Drawing.Size(106, 13);
-      this._lblFileSystemDatabase.TabIndex = 1;
-      this._lblFileSystemDatabase.Text = "FileSystem Database";
-      // 
       // _txtFileSystemRootDirectory
       // 
       this._txtFileSystemRootDirectory.Location = new System.Drawing.Point(151, 18);
@@ -87,17 +76,9 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
       this._txtFileSystemRootDirectory.TabIndex = 2;
       this._txtFileSystemRootDirectory.TextChanged += new System.EventHandler(this._txt_TextChanged);
       // 
-      // _txtFileSystemDatabase
-      // 
-      this._txtFileSystemDatabase.Location = new System.Drawing.Point(151, 44);
-      this._txtFileSystemDatabase.Name = "_txtFileSystemDatabase";
-      this._txtFileSystemDatabase.Size = new System.Drawing.Size(340, 20);
-      this._txtFileSystemDatabase.TabIndex = 3;
-      this._txtFileSystemDatabase.TextChanged += new System.EventHandler(this._txt_TextChanged);
-      // 
       // _txtRegistryDatabase
       // 
-      this._txtRegistryDatabase.Location = new System.Drawing.Point(151, 70);
+      this._txtRegistryDatabase.Location = new System.Drawing.Point(151, 44);
       this._txtRegistryDatabase.Name = "_txtRegistryDatabase";
       this._txtRegistryDatabase.Size = new System.Drawing.Size(340, 20);
       this._txtRegistryDatabase.TabIndex = 5;
@@ -106,7 +87,7 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
       // _lblRegistryDatabase
       // 
       this._lblRegistryDatabase.AutoSize = true;
-      this._lblRegistryDatabase.Location = new System.Drawing.Point(17, 73);
+      this._lblRegistryDatabase.Location = new System.Drawing.Point(17, 47);
       this._lblRegistryDatabase.Name = "_lblRegistryDatabase";
       this._lblRegistryDatabase.Size = new System.Drawing.Size(94, 13);
       this._lblRegistryDatabase.TabIndex = 4;
@@ -114,7 +95,7 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
       // 
       // _txtExecutable
       // 
-      this._txtExecutable.Location = new System.Drawing.Point(151, 96);
+      this._txtExecutable.Location = new System.Drawing.Point(151, 70);
       this._txtExecutable.Name = "_txtExecutable";
       this._txtExecutable.Size = new System.Drawing.Size(340, 20);
       this._txtExecutable.TabIndex = 7;
@@ -123,7 +104,7 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
       // label1
       // 
       this.label1.AutoSize = true;
-      this.label1.Location = new System.Drawing.Point(17, 99);
+      this.label1.Location = new System.Drawing.Point(17, 73);
       this.label1.Name = "label1";
       this.label1.Size = new System.Drawing.Size(101, 13);
       this.label1.TabIndex = 6;
@@ -137,9 +118,7 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
       this.Controls.Add(this.label1);
       this.Controls.Add(this._txtRegistryDatabase);
       this.Controls.Add(this._lblRegistryDatabase);
-      this.Controls.Add(this._txtFileSystemDatabase);
       this.Controls.Add(this._txtFileSystemRootDirectory);
-      this.Controls.Add(this._lblFileSystemDatabase);
       this.Controls.Add(this._lblFileSystemRoot);
       this.Name = "ApplicationFilesPage";
       this.Size = new System.Drawing.Size(661, 355);
@@ -151,9 +130,7 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
     #endregion
 
     private System.Windows.Forms.Label _lblFileSystemRoot;
-    private System.Windows.Forms.Label _lblFileSystemDatabase;
     private System.Windows.Forms.TextBox _txtFileSystemRootDirectory;
-    private System.Windows.Forms.TextBox _txtFileSystemDatabase;
     private System.Windows.Forms.TextBox _txtRegistryDatabase;
     private System.Windows.Forms.Label _lblRegistryDatabase;
     private System.Windows.Forms.TextBox _txtExecutable;
