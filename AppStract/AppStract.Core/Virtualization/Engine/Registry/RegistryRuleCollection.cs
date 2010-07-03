@@ -22,12 +22,16 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace AppStract.Core.Virtualization.Engine.Registry
 {
+  /// <summary>
+  /// Represents a collection of <see cref="EngineRule"/> objects specifying rules on the registry virtualization engine.
+  /// </summary>
   [Serializable]
-  public sealed class RegistryRuleCollection : EngineRuleCollectionBase<string, VirtualizationType>
+  public sealed class RegistryRuleCollection : EngineRuleCollection
   {
 
     #region Constructors
@@ -45,46 +49,44 @@ namespace AppStract.Core.Virtualization.Engine.Registry
 
     #endregion
 
-    #region Public Methods
+    #region Protected Methods
 
+    protected override IEnumerable<EngineRule> GetDefaultRules()
+    {
+      return new[]
+               {
+                 new EngineRule("HKEY_USERS%", VirtualizationType.VirtualWithFallback),
+                 new EngineRule("HKEY_CURRENT_USER%", VirtualizationType.VirtualWithFallback),
+                 new EngineRule("HKEY_CURRENT_CONFIG%", VirtualizationType.TransparentRead),
+                 new EngineRule("HKEY_LOCAL_MACHINE%", VirtualizationType.TransparentRead),
+                 new EngineRule("HKEY_CLASSES_ROOT%", VirtualizationType.TransparentRead),
+                 new EngineRule("HKEY_PERFORMANCE_DATA%", VirtualizationType.Transparent),
+                 new EngineRule("HKEY_DYN_DATA%", VirtualizationType.Transparent)
+               };
+    }
+
+    #endregion
+
+    #region Public Static Methods
+
+    /// <summary>
+    /// Returns an empty collection of registry rules.
+    /// </summary>
+    /// <returns></returns>
     public static RegistryRuleCollection GetEmptyRuleCollection()
     {
       return new RegistryRuleCollection();
     }
 
+    /// <summary>
+    /// Returns the default collection of registry rules.
+    /// </summary>
+    /// <returns></returns>
     public static RegistryRuleCollection GetDefaultRuleCollection()
     {
       var rules = new RegistryRuleCollection();
-      rules.SetRule("HKEY_USERS%",            VirtualizationType.VirtualWithFallback);
-      rules.SetRule("HKEY_CURRENT_USER%",     VirtualizationType.VirtualWithFallback);
-      rules.SetRule("HKEY_CURRENT_CONFIG%",   VirtualizationType.TransparentRead);
-      rules.SetRule("HKEY_LOCAL_MACHINE%",    VirtualizationType.TransparentRead);
-      rules.SetRule("HKEY_CLASSES_ROOT%",     VirtualizationType.TransparentRead);
-      rules.SetRule("HKEY_PERFORMANCE_DATA%", VirtualizationType.Transparent);
-      rules.SetRule("HKEY_DYN_DATA%",         VirtualizationType.Transparent);
+      rules.PopulateWithDefaultRules();
       return rules;
-    }
-
-    #endregion
-
-    #region Protected Methods
-
-    protected override bool Matches(string value, string otherValue)
-    {
-      if (string.IsNullOrEmpty(value))
-        return string.IsNullOrEmpty(otherValue);
-      if (string.IsNullOrEmpty(otherValue))
-        return string.IsNullOrEmpty(value);
-      const char wildcard = '%';
-      value = value.ToLowerInvariant();
-      otherValue = otherValue.ToLowerInvariant();
-      if (value[0] == wildcard)
-        return value[value.Length - 1] == wildcard
-                 ? otherValue.Contains(value.Substring(1, value.Length - 2))
-                 : otherValue.EndsWith(value.Substring(1));
-      if (value[value.Length - 1] == wildcard)
-        return otherValue.StartsWith(value.Substring(0, value.Length - 1));
-      return value == otherValue;
     }
 
     #endregion
