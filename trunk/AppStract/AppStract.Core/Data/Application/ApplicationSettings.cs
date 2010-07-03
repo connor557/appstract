@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using AppStract.Core.Virtualization.Engine.FileSystem;
 using AppStract.Core.Virtualization.Engine.Registry;
 
 namespace AppStract.Core.Data.Application
@@ -29,6 +30,15 @@ namespace AppStract.Core.Data.Application
   [Serializable]
   public sealed class ApplicationSettings
   {
+
+    /// <summary>
+    /// Gets or sets the collection of engine rules to apply on the virtual file system.
+    /// </summary>
+    public FileSystemRuleCollection FileSystemEngineRuleCollection
+    {
+      get;
+      set;
+    }
 
     /// <summary>
     /// Gets or sets the collection of engine rules to apply on the virtual registry.

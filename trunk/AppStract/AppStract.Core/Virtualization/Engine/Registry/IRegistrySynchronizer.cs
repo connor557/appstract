@@ -35,7 +35,7 @@ namespace AppStract.Core.Virtualization.Engine.Registry
     /// Gets the collection of registry engine rules.
     /// </summary>
     /// <returns></returns>
-    RegistryRuleCollection GetEngineRules();
+    RegistryRuleCollection GetRegistryEngineRules();
 
     /// <summary>
     /// Loads all known registry keys and their associated values to the given <see cref="ObservableDictionary{TKey,TValue}"/>,

@@ -61,7 +61,7 @@ namespace AppStract.Core.Virtualization.Engine.FileSystem
     #region Public Static Methods
 
     /// <summary>
-    /// Returns an empty collection of registry rules.
+    /// Returns an empty collection of file system rules.
     /// </summary>
     /// <returns></returns>
     public static FileSystemRuleCollection GetEmptyRuleCollection()
@@ -70,7 +70,7 @@ namespace AppStract.Core.Virtualization.Engine.FileSystem
     }
 
     /// <summary>
-    /// Returns the default collection of registry rules.
+    /// Returns the default collection of file system rules.
     /// </summary>
     /// <returns></returns>
     public static FileSystemRuleCollection GetDefaultRuleCollection()

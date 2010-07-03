@@ -22,6 +22,7 @@
 #endregion
 
 using System.Collections.Generic;
+using AppStract.Core.Virtualization.Engine.FileSystem;
 using AppStract.Core.Virtualization.Engine.Registry;
 
 namespace AppStract.Core.System.IPC
@@ -43,6 +44,12 @@ namespace AppStract.Core.System.IPC
     {
       get;
     }
+
+    /// <summary>
+    /// Gets the engine rules to apply on the file system virtualization engine.
+    /// </summary>
+    /// <returns></returns>
+    FileSystemRuleCollection GetFileSystemEngineRules();
 
     /// <summary>
     /// Gets the engine rules to apply on the registry virtualization engine.
