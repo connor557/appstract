@@ -115,6 +115,15 @@
     <Compile Include="Utilities\ApplicationConfiguration\ApplicationFilesPage.Designer.cs">
       <DependentUpon>ApplicationFilesPage.cs</DependentUpon>
     </Compile>
+    <Compile Include="Utilities\ApplicationConfiguration\FileSystemEngineSettingsPageContent.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Utilities\ApplicationConfiguration\EngineSettingsPageContent.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Utilities\ApplicationConfiguration\EngineSettingsPageContent.Designer.cs">
+      <DependentUpon>EngineSettingsPageContent.cs</DependentUpon>
+    </Compile>
     <Compile Include="Utilities\ApplicationConfiguration\EngineSettingsPage.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -127,6 +136,9 @@
     </Compile>
     <Compile Include="Utilities\ApplicationConfigurationUtility.Designer.cs">
       <DependentUpon>ApplicationConfigurationUtility.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Utilities\ApplicationConfiguration\RegistryEngineSettingsPageContent.cs">
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Utilities\CleanUpHelper.cs">
       <SubType>Form</SubType>
@@ -145,6 +157,9 @@
     <EmbeddedResource Include="Utilities\ApplicationConfiguration\ApplicationFilesPage.resx">
       <DependentUpon>ApplicationFilesPage.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Utilities\ApplicationConfiguration\EngineSettingsPageContent.resx">
+      <DependentUpon>EngineSettingsPageContent.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Utilities\ApplicationConfiguration\EngineSettingsPage.resx">
       <DependentUpon>EngineSettingsPage.cs</DependentUpon>

@@ -25,6 +25,7 @@ using System;
 using System.Windows.Forms;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Virtualization.Engine;
+using AppStract.Core.Virtualization.Engine.FileSystem;
 using AppStract.Core.Virtualization.Engine.Registry;
 
 namespace AppStract.Manager.Utilities.ApplicationConfiguration
@@ -34,7 +35,6 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
 
     #region Variables
 
-    private EngineRule _defaultRegistryRule = GetNewDefaultRegistryRule();
     private ApplicationData _data;
 
     #endregion
@@ -44,9 +44,6 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
     public EngineSettingsPage()
     {
       InitializeComponent();
-      _cmbRegistryRuleVirtualizationType.Items.AddRange(Enum.GetNames(typeof(VirtualizationType)));
-      _gbRegistryEngineRuleConfiguration.Enabled = false;
-      _txtRegistryRuleValueName.Enabled = false;
       Enabled = false;
     }
 
@@ -54,108 +51,14 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
 
     #region Private Methods
 
-    private void UpdateDataSource()
+    private void FileSystemRuleCollectionUpdateEventHandler(EngineRuleCollection ruleCollection)
     {
-      if (_data == null) return;
-      var collection = RegistryRuleCollection.GetEmptyRuleCollection();
-      foreach (EngineRule rule in _listEngineSettingsRegistry.Items)
-        if (rule != _defaultRegistryRule)
-          collection.SetRule(rule.Identifier, rule.VirtualizationType);
-      _data.Settings.RegistryEngineRuleCollection = collection;
+      _data.Settings.FileSystemEngineRuleCollection = (FileSystemRuleCollection) ruleCollection;
     }
 
-    private static EngineRule GetNewDefaultRegistryRule()
+    private void RegistryRuleCollectionUpdateEventHandler(EngineRuleCollection ruleCollection)
     {
-      return new EngineRule("New Item", VirtualizationType.Virtual);
-    }
-
-    #endregion
-
-    #region Form EventHandlers
-
-    private void _listEngineSettingsRegistry_SelectedIndexChanged(object sender, EventArgs e)
-    {
-      _txtRegistryRuleValueName.Enabled = false;
-      bool enable = _listEngineSettingsRegistry.SelectedIndex != -1;
-      _gbRegistryEngineRuleConfiguration.Enabled = enable;
-      _btnEngineSettingsRegistryDelete.Enabled = enable;
-      _btnEngineSettingsRegistryDown.Enabled = enable;
-      _btnEngineSettingsRegistryUp.Enabled = enable;
-      if (!enable) return;
-      var rule = _listEngineSettingsRegistry.SelectedItem as EngineRule;
-      if (rule == null) return;
-      _txtRegistryRuleKeyName.Text = rule.Identifier;
-      _cmbRegistryRuleVirtualizationType.SelectedItem = rule.VirtualizationType.ToString();
-    }
-
-    private void _btnEngineSettingsRegistryUp_Click(object sender, EventArgs e)
-    {
-      var index = _listEngineSettingsRegistry.SelectedIndex;
-      if (index <= 0)
-        return;
-      var item = _listEngineSettingsRegistry.SelectedItem;
-      _listEngineSettingsRegistry.Items.RemoveAt(index);
-      _listEngineSettingsRegistry.Items.Insert(--index, item);
-      _listEngineSettingsRegistry.SelectedIndex = index;
-      UpdateDataSource();
-    }
-
-    private void _btnEngineSettingsRegistryDown_Click(object sender, EventArgs e)
-    {
-      var index = _listEngineSettingsRegistry.SelectedIndex;
-      if (index == -1
-          || index >= _listEngineSettingsRegistry.Items.Count - 1)
-        return;
-      var item = _listEngineSettingsRegistry.SelectedItem;
-      _listEngineSettingsRegistry.Items.RemoveAt(index);
-      _listEngineSettingsRegistry.Items.Insert(++index, item);
-      _listEngineSettingsRegistry.SelectedIndex = index;
-      UpdateDataSource();
-    }
-
-    private void _btnEngineSettingsRegistryNew_Click(object sender, EventArgs e)
-    {
-      if (!_listEngineSettingsRegistry.Items.Contains(_defaultRegistryRule))
-      {
-        if (_listEngineSettingsRegistry.SelectedIndex != -1)
-          _listEngineSettingsRegistry.Items.Insert(_listEngineSettingsRegistry.SelectedIndex, _defaultRegistryRule);
-        else
-          _listEngineSettingsRegistry.Items.Insert(0, _defaultRegistryRule);
-      }
-      _listEngineSettingsRegistry.SelectedItem = _defaultRegistryRule;
-    }
-
-    private void _btnEngineSettingsRegistryDelete_Click(object sender, EventArgs e)
-    {
-      if (_listEngineSettingsRegistry.SelectedItem == null)
-        return;
-      _listEngineSettingsRegistry.Items.Remove(_listEngineSettingsRegistry.SelectedItem);
-      UpdateDataSource();
-    }
-
-    private void _btnRegistryEngineRuleConfigurationApply_Click(object sender, EventArgs e)
-    {
-      var rule = _listEngineSettingsRegistry.SelectedItem as EngineRule;
-      if (rule == null)
-      {
-        _gbRegistryEngineRuleConfiguration.Enabled = false;
-        return;
-      }
-      if (_defaultRegistryRule.Identifier == _txtRegistryRuleKeyName.Text)
-        return;
-      if (rule == _defaultRegistryRule)
-        _defaultRegistryRule = GetNewDefaultRegistryRule();
-      rule.Identifier = _txtRegistryRuleKeyName.Text;
-      if (_cmbRegistryRuleVirtualizationType.SelectedIndex == -1)
-        _cmbRegistryRuleVirtualizationType.SelectedIndex = 0;
-      rule.VirtualizationType
-        = (VirtualizationType) Enum.Parse(typeof (VirtualizationType),
-                                          _cmbRegistryRuleVirtualizationType.SelectedItem.ToString());
-      var index = _listEngineSettingsRegistry.SelectedIndex;
-      _listEngineSettingsRegistry.Items.RemoveAt(index);
-      _listEngineSettingsRegistry.Items.Insert(index, rule);
-      _listEngineSettingsRegistry.SelectedIndex = index;
-      UpdateDataSource();
+      _data.Settings.RegistryEngineRuleCollection = (RegistryRuleCollection)ruleCollection;
     }
 
     #endregion
@@ -167,13 +70,12 @@ namespace AppStract.Manager.Utilities.ApplicationConfiguration
       if (dataSource == null)
         throw new ArgumentNullException("dataSource");
       _data = dataSource;
+      if (_data.Settings.FileSystemEngineRuleCollection == null)
+        _data.Settings.FileSystemEngineRuleCollection = FileSystemRuleCollection.GetDefaultRuleCollection();
       if (_data.Settings.RegistryEngineRuleCollection == null)
         _data.Settings.RegistryEngineRuleCollection = RegistryRuleCollection.GetDefaultRuleCollection();
-      _listEngineSettingsRegistry.BeginUpdate();
-      _listEngineSettingsRegistry.Items.Clear();
-      foreach (var rule in dataSource.Settings.RegistryEngineRuleCollection)
-        _listEngineSettingsRegistry.Items.Add(rule);
-      _listEngineSettingsRegistry.EndUpdate();
+      _fileSystemEngineSettingsPageContent.BindRuleCollection(_data.Settings.FileSystemEngineRuleCollection, FileSystemRuleCollectionUpdateEventHandler);
+      _registryEngineSettingsPageContent.BindRuleCollection(_data.Settings.RegistryEngineRuleCollection, RegistryRuleCollectionUpdateEventHandler);
       Enabled = true;
     }
 
