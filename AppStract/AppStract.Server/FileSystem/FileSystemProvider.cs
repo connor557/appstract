@@ -23,6 +23,7 @@
 
 using System;
 using System.IO;
+using AppStract.Core.Virtualization.Engine;
 using AppStract.Core.Virtualization.Engine.FileSystem;
 
 namespace AppStract.Server.FileSystem
@@ -40,6 +41,10 @@ namespace AppStract.Server.FileSystem
     /// which is a path to a directory in the real file system.
     /// </summary>
     private readonly string _root;
+    /// <summary>
+    /// The collection of engine rules to apply during the virtualization process.
+    /// </summary>
+    private readonly FileSystemRuleCollection _engineRules;
 
     #endregion
 
@@ -75,6 +80,7 @@ namespace AppStract.Server.FileSystem
       _root = !Path.IsPathRooted(rootDirectory)
                 ? Path.GetFullPath(rootDirectory)
                 : rootDirectory;
+      _engineRules = dataSource.GetFileSystemEngineRules();
       VirtualEnvironment.CreateVirtualFolders(_root);
     }
 
@@ -88,8 +94,14 @@ namespace AppStract.Server.FileSystem
           || IsPipe(path)
           || FileAccessRedirector.IsTemporaryLocation(path))
         return path;
-      GuestCore.Log.Debug("Redirecting \"" + path + "\"");
-      return FileAccessRedirector.Redirect(path);
+      VirtualizationType virtualizationType;
+      if (!_engineRules.HasRule(path, out virtualizationType))
+        GuestCore.Log.Warning("No known engine rule for \"{0}\"", path);
+      if (virtualizationType == VirtualizationType.Transparent)
+        return path;
+      var redirectedPath = FileAccessRedirector.Redirect(path);
+      GuestCore.Log.Debug("FileSystem Redirection: \"{0}\" => \"{1}\"", path, redirectedPath);
+      return redirectedPath;
     }
 
     #endregion
