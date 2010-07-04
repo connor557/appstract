@@ -53,7 +53,7 @@ namespace AppStract.Core.Virtualization.Engine.FileSystem
 
     protected override IEnumerable<EngineRule> GetDefaultRules()
     {
-      return new EngineRule[0];
+      return new[] { new EngineRule("%", VirtualizationType.TransparentRead) };
     }
 
     #endregion
