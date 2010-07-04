@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using System.IO;
 using AppStract.Core.Virtualization.Engine;
 using AppStract.Core.Virtualization.Engine.FileSystem;
 
@@ -35,11 +36,10 @@ namespace AppStract.Server.FileSystem
 
     #region Variables
 
-    private readonly VirtualEnvironment _virtualEnvironment;
     /// <summary>
-    /// Provides the virtual counterparts of paths used by the host file system.
+    /// The object representing the virtual environment to redirect requests to.
     /// </summary>
-    private readonly FileSystemRedirector _redirector;
+    private readonly VirtualEnvironment _virtualEnvironment;
     /// <summary>
     /// The collection of engine rules to apply during the virtualization process.
     /// </summary>
@@ -65,7 +65,6 @@ namespace AppStract.Server.FileSystem
       if (rootDirectory == null)
         throw new ArgumentNullException("rootDirectory");
       _engineRules = dataSource.GetFileSystemEngineRules();
-      _redirector = new FileSystemRedirector();
       _virtualEnvironment = new VirtualEnvironment(rootDirectory);
       _virtualEnvironment.CreateSystemFolders();
     }
@@ -76,17 +75,23 @@ namespace AppStract.Server.FileSystem
 
     public string GetVirtualPath(FileRequest request)
     {
-      if (string.IsNullOrEmpty(request.Path)
-          || !_virtualEnvironment.IsVirtualizable(request.Path)
-          || FileSystemRedirector.IsTemporaryLocation(request.Path))
-        return request.Path;
+      if (string.IsNullOrEmpty(request.Path))
+        return request.Path;  // No path to virtualize.
+      if (!_virtualEnvironment.IsVirtualizable(request.Path))
+        return request.Path;  // The path is not virtualizable.
+      // Make sure to have a full path AND the path's long file name.
+      // BUT only if the requested resource is NOT a library!
+      if (request.ResourceType != ResourceType.Library
+          && (!Path.IsPathRooted(request.Path) || request.Path.Contains("~1")))
+        request.Path = Path.GetFullPath(request.Path);
+      // Get the type of virtualization that needs to be applied.
       VirtualizationType virtualizationType;
       if (!_engineRules.HasRule(request.Path, out virtualizationType))
         GuestCore.Log.Warning("No known engine rule for \"{0}\"", request.Path);
       if (virtualizationType == VirtualizationType.Transparent)
         return request.Path;
-      var redirectedPath = _redirector.Redirect(request.Path);
-      redirectedPath = _virtualEnvironment.GetFullPath(redirectedPath);
+      // Redirect the call.
+      var redirectedPath = _virtualEnvironment.RedirectRequest(request);
       GuestCore.Log.Debug("FileSystem Redirection: \"{0}\" => \"{1}\"", request.Path, redirectedPath);
       return redirectedPath;
     }

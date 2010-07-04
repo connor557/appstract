@@ -23,6 +23,7 @@
 
 using System;
 using System.IO;
+using AppStract.Core.Virtualization.Engine.FileSystem;
 
 namespace AppStract.Server.FileSystem
 {
@@ -35,7 +36,14 @@ namespace AppStract.Server.FileSystem
 
     #region Variables
 
+    /// <summary>
+    /// The root of the virtual file system.
+    /// </summary>
     private readonly string _root;
+    /// <summary>
+    /// Provides the virtual counterparts of paths used by the host file system.
+    /// </summary>
+    private readonly FileSystemRedirector _redirector;
 
     #endregion
 
@@ -53,6 +61,10 @@ namespace AppStract.Server.FileSystem
 
     #region Constructors
 
+    /// <summary>
+    /// Initializes a new <see cref="VirtualEnvironment"/> which can be used to redirect <see cref="FileRequest"/>s to.
+    /// </summary>
+    /// <param name="rootDirectory"></param>
     public VirtualEnvironment(string rootDirectory)
     {
       if (rootDirectory == null)
@@ -60,7 +72,8 @@ namespace AppStract.Server.FileSystem
       rootDirectory = !Path.IsPathRooted(rootDirectory)
                         ? Path.GetFullPath(rootDirectory)
                         : rootDirectory;
-      _root = rootDirectory;
+      _root = rootDirectory.ToLowerInvariant();
+      _redirector = new FileSystemRedirector();
     }
 
     #endregion
@@ -115,8 +128,35 @@ namespace AppStract.Server.FileSystem
           || path.Equals("CONOUT$", StringComparison.InvariantCultureIgnoreCase))
         // Console In or Console Out
         return false;
+      // The path already points to the virtual environment.
+      if (path.ToLowerInvariant().StartsWith(_root))
+        return false;
       // None of the above, save to virtualize the specified path
       return true;
+    }
+
+    /// <summary>
+    /// Redirects the given <see cref="FileRequest"/> to the virtual environment.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public string RedirectRequest(FileRequest request)
+    {
+      // Redirect the path to the virtual environment.
+      var redirectedPath = _redirector.Redirect(request.Path);
+      // Make path absolute, as member of the virtual environment.
+      redirectedPath = GetFullPath(redirectedPath);
+      // Verify the result.
+      if (!File.Exists(redirectedPath))
+      {
+        // Path doesn't exist, determine whether it should be used anyway.
+        if (request.ResourceType == ResourceType.Library)
+          return request.Path; // Target is a library unknown to the virtual environment.
+        if (request.CreationDisposition == FileCreationDisposition.OpenExisting
+            || request.CreationDisposition == FileCreationDisposition.Unspecified)  // BUG: is this safe?
+          return request.Path; // The target won't be created, save to return original path.
+      }
+      return redirectedPath;
     }
 
     #endregion
