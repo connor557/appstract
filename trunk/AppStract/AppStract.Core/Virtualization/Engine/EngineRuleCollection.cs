@@ -216,6 +216,8 @@ namespace AppStract.Core.Virtualization.Engine
         return string.IsNullOrEmpty(otherValue);
       if (string.IsNullOrEmpty(otherValue))
         return string.IsNullOrEmpty(value);
+      if (value == "%")
+        return true;
       value = value.ToLowerInvariant();
       otherValue = otherValue.ToLowerInvariant();
       if (value[0] == _WildCard)
