@@ -30,27 +30,93 @@ namespace AppStract.Server.FileSystem
   /// Provides information about, and means to manipulate,
   /// the current virtual environment and platform.
   /// </summary>
-  public static class VirtualEnvironment
+  public class VirtualEnvironment
   {
+
+    #region Variables
+
+    private readonly string _root;
+
+    #endregion
+
+    #region Public Properties
+
+    /// <summary>
+    /// Gets the root folder of the virtual environment.
+    /// </summary>
+    public string FileSystemRoot
+    {
+      get { return _root; }
+    }
+
+    #endregion
+
+    #region Constructors
+
+    public VirtualEnvironment(string rootDirectory)
+    {
+      if (rootDirectory == null)
+        throw new ArgumentNullException("rootDirectory");
+      rootDirectory = !Path.IsPathRooted(rootDirectory)
+                        ? Path.GetFullPath(rootDirectory)
+                        : rootDirectory;
+      _root = rootDirectory;
+    }
+
+    #endregion
 
     #region Public Methods
 
     /// <summary>
     /// Tries to create all system-folders, as defined in <see cref="VirtualFolder"/>.
     /// </summary>
-    /// <param name="rootFolder">Rootfolder for the virtual folders.</param>
     /// <returns>True if all folders are created; False if the creation of one or more folders failed.</returns>
-    public static bool CreateVirtualFolders(string rootFolder)
+    public bool CreateSystemFolders()
     {
-      GuestCore.Log.Message("Creating system folders for a virtual environment with root \"{0}\"", rootFolder);
+      GuestCore.Log.Message("Creating system folders for a virtual environment with root \"{0}\"", FileSystemRoot);
       bool succeeded = true;
       foreach (VirtualFolder virtualFolder in Enum.GetValues(typeof(VirtualFolder)))
-        if (!TryCreateDirectory(Path.Combine(rootFolder, virtualFolder.ToPath())))
+        if (!TryCreateDirectory(Path.Combine(FileSystemRoot, virtualFolder.ToPath())))
         {
           GuestCore.Log.Critical("Failed to create virtual system folder: " + virtualFolder);
           succeeded = false;
         }
       return succeeded;
+    }
+
+    /// <summary>
+    /// Returns the absolute path as used in the virtual environment for the specified path string.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public string GetFullPath(string path)
+    {
+      return Path.Combine(FileSystemRoot, path);
+    }
+
+    /// <summary>
+    /// Returns whether or nor the specified <paramref name="path"/> is virtualizable;
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public bool IsVirtualizable(string path)
+    {
+      if (path.StartsWith(@"\\.\"))
+      {
+        // Physical Disks and Volumes or Changer Device or Tape Drive or Communications Resource or Named Pipe
+        // EXCEPT FOR paths like: @"\\.\C:\" -> opens the file system of the C: volume.
+        if (!(path.Length >= 7 && path[5] == ':' && path[6] == '\\'))
+          return false;
+      }
+      if (path.StartsWith(@"\\\\.\\"))
+        // Changer Device or Tape Drive from C or C++
+        return false;
+      if (path.Equals("CONIN$", StringComparison.InvariantCultureIgnoreCase)
+          || path.Equals("CONOUT$", StringComparison.InvariantCultureIgnoreCase))
+        // Console In or Console Out
+        return false;
+      // None of the above, save to virtualize the specified path
+      return true;
     }
 
     #endregion
