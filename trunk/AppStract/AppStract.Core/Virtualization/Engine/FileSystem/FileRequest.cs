@@ -28,6 +28,9 @@ namespace AppStract.Core.Virtualization.Engine.FileSystem
   /// </summary>
   public struct FileRequest
   {
+
+    #region Properties
+
     /// <summary>
     /// Gets or sets the requested path.
     /// </summary>
@@ -40,6 +43,17 @@ namespace AppStract.Core.Virtualization.Engine.FileSystem
     /// Gets or sets the <see cref="FileCreationDisposition"/> to be applied on <see cref="Path"/>.
     /// </summary>
     public FileCreationDisposition CreationDisposition { get; set; }
+
+    #endregion
+
+    #region Public Methods
+
+    public override string ToString()
+    {
+      return Path;
+    }
+
+    #endregion
 
   }
 }
