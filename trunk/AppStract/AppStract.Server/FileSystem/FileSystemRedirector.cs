@@ -105,78 +105,62 @@ namespace AppStract.Server.FileSystem
       // BUG: Such configurations might lead to inconsistencies between different host systems.
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
-      {
         systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.UserDocuments.ToPath());
-      }
 
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
-      {
         systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.UserPictures.ToPath());
-      }
 
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
-      {
         systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.UserMusic.ToPath());
-      }
 
       // UserData
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
-      {
         systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.UserData.ToPath());
-      }
 
       // Application Data
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
-      {
         systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.ApplicationData.ToPath());
-      }
 
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData).ToLowerInvariant();
       if (!systemVariables.ContainsKey(tmp))
-      {
         systemVariables.Add(tmp, VirtualFolder.ApplicationData.ToPath());
-      }
 
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
-      {
         systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.ApplicationData.ToPath());
-      }
+
+      // Temporary Folder
+      tmp = Path.GetTempPath();
+      if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
+        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.Temporary.ToPath());
+
 
       // Program Files
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles).ToLowerInvariant();
       if (!systemVariables.ContainsKey(tmp))
-      {
         systemVariables.Add(tmp, VirtualFolder.ProgramFiles.ToPath());
-      }
 
       // System
       tmp = Environment.GetEnvironmentVariable("systemroot");
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
-      {
         systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.System.ToPath());
-      }
+
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.System).ToLowerInvariant();
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp))
-      {
         systemVariables.Add(tmp, VirtualFolder.System32.ToPath());
-      }
+
       // Start Menu
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.StartMenu);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
-      {
         systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.StartMenu.ToPath());
-      }
 
       tmp = GetCommonMenuFolder();
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
-      {
         systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.StartMenu.ToPath());
-      }
 
       return systemVariables;
     }
