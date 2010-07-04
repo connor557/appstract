@@ -106,7 +106,7 @@
     <Compile Include="SynchronizationBus.cs" />
     <Compile Include="ExitMethod.cs" />
     <Compile Include="ExitRequestEventHandler.cs" />
-    <Compile Include="FileSystem\FileAccessRedirector.cs" />
+    <Compile Include="FileSystem\FileSystemRedirector.cs" />
     <Compile Include="FileSystem\VirtualEnvironment.cs" />
     <Compile Include="FileSystem\VirtualFolder.cs" />
     <Compile Include="FileSystem\FileSystemProvider.cs" />
