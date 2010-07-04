@@ -22,7 +22,6 @@
 #endregion
 
 using System;
-using System.IO;
 using AppStract.Core.Virtualization.Engine;
 using AppStract.Core.Virtualization.Engine.FileSystem;
 
@@ -36,27 +35,11 @@ namespace AppStract.Server.FileSystem
 
     #region Variables
 
-    /// <summary>
-    /// The root of the filesystem,
-    /// which is a path to a directory in the real file system.
-    /// </summary>
-    private readonly string _root;
+    private readonly VirtualEnvironment _virtualEnvironment;
     /// <summary>
     /// The collection of engine rules to apply during the virtualization process.
     /// </summary>
     private readonly FileSystemRuleCollection _engineRules;
-
-    #endregion
-
-    #region Properties
-
-    /// <summary>
-    /// Gets the fully qualified path of the working directory.
-    /// </summary>
-    public string CurrentDirectory
-    {
-      get { return _root; }
-    }
 
     #endregion
 
@@ -77,11 +60,9 @@ namespace AppStract.Server.FileSystem
     {
       if (rootDirectory == null)
         throw new ArgumentNullException("rootDirectory");
-      _root = !Path.IsPathRooted(rootDirectory)
-                ? Path.GetFullPath(rootDirectory)
-                : rootDirectory;
       _engineRules = dataSource.GetFileSystemEngineRules();
-      VirtualEnvironment.CreateVirtualFolders(_root);
+      _virtualEnvironment = new VirtualEnvironment(rootDirectory);
+      _virtualEnvironment.CreateSystemFolders();
     }
 
     #endregion
@@ -91,7 +72,7 @@ namespace AppStract.Server.FileSystem
     public string GetVirtualPath(FileRequest request)
     {
       if (string.IsNullOrEmpty(request.Path)
-          || IsPipe(request.Path)
+          || !_virtualEnvironment.IsVirtualizable(request.Path)
           || FileAccessRedirector.IsTemporaryLocation(request.Path))
         return request.Path;
       VirtualizationType virtualizationType;
@@ -100,17 +81,9 @@ namespace AppStract.Server.FileSystem
       if (virtualizationType == VirtualizationType.Transparent)
         return request.Path;
       var redirectedPath = FileAccessRedirector.Redirect(request.Path);
+      redirectedPath = _virtualEnvironment.GetFullPath(redirectedPath);
       GuestCore.Log.Debug("FileSystem Redirection: \"{0}\" => \"{1}\"", request.Path, redirectedPath);
       return redirectedPath;
-    }
-
-    #endregion
-
-    #region Private Static Methods
-
-    private static bool IsPipe(string path)
-    {
-      return path.StartsWith(@"\\.\");
     }
 
     #endregion
