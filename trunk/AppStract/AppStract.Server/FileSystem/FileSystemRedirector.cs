@@ -42,10 +42,6 @@ namespace AppStract.Server.FileSystem
     /// while the associated values are the variables used by the virtual file system.
     /// </summary>
     private readonly IDictionary<string, string> _systemVariables;
-    /// <summary>
-    /// Path to the temporary folder used by the current system.
-    /// </summary>
-    private static readonly string _tempPath;
 
     #endregion
 
@@ -56,24 +52,9 @@ namespace AppStract.Server.FileSystem
       _systemVariables = InitializeSystemVariables();
     }
 
-    static FileSystemRedirector()
-    {
-      _tempPath = Path.GetTempPath().ToLowerInvariant();
-    }
-
     #endregion
 
     #region Public Methods
-
-    /// <summary>
-    /// Returns whether the specified path refers to a temporary location.
-    /// </summary>
-    /// <param name="path"></param>
-    /// <returns></returns>
-    public static bool IsTemporaryLocation(string path)
-    {
-      return path.ToLowerInvariant().StartsWith(_tempPath);
-    }
 
     /// <summary>
     /// Returns the replacement path for the specified <paramref name="path"/>.
