@@ -60,7 +60,6 @@ namespace AppStract.UnitTesting.Core
     public void ApplicationDataCreateInitial()
     {
       applicationData = new ApplicationData();
-      applicationData.Files.DatabaseFileSystem = new ApplicationFile("myTestDir\\testFsDatabase.db3");
       applicationData.Files.RegistryDatabase = new ApplicationFile("myTestDir\\testRegDatabase.db3");
       applicationData.Files.RootDirectory = new ApplicationFile("myTestDir\\");
       applicationData.Files.Executable = new ApplicationFile("myTestDir\\DoesntExist.exe");
@@ -76,8 +75,6 @@ namespace AppStract.UnitTesting.Core
     public void ApplicationDataDeserialize()
     {
       var appData = ApplicationData.Load(ApplicationDataXmlFile);
-      Assert.IsTrue(applicationData.Files.DatabaseFileSystem.ToString() == appData.Files.DatabaseFileSystem.ToString(),
-                    "DatabaseFileSystem doesn't match");
       Assert.IsTrue(applicationData.Files.RegistryDatabase.ToString() == appData.Files.RegistryDatabase.ToString(),
                     "DatabaseRegistry doesn't match");
       Assert.IsTrue(applicationData.Files.Executable == appData.Files.Executable
@@ -90,8 +87,6 @@ namespace AppStract.UnitTesting.Core
     [Test]
     public void ArePathsRelative()
     {
-      if (applicationData.Files.DatabaseFileSystem != null)
-        Assert.IsFalse(Path.IsPathRooted(applicationData.Files.DatabaseFileSystem.FileName), "DatabaseFileSystem.FileName is not relative");
       if (applicationData.Files.RegistryDatabase != null)
         Assert.IsFalse(Path.IsPathRooted(applicationData.Files.RegistryDatabase.FileName), "DatabaseRegistry.FileName is not relative");
       if (applicationData.Files.Executable != null)
