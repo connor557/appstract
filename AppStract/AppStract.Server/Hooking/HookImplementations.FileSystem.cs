@@ -79,7 +79,7 @@ namespace AppStract.Server.Hooking
     {
       using (HookManager.ACL.GetHookingExclusion())
       {
-        var virtualPath = _fileSystem.GetVirtualPath(fileName, ResourceType.File);
+        var virtualPath = _fileSystem.GetVirtualPath(fileName, ResourceType.Directory);
         return NativeAPI.CreateDirectory(virtualPath, securityAttributes);
       }
     }
@@ -95,7 +95,7 @@ namespace AppStract.Server.Hooking
     {
       using (HookManager.ACL.GetHookingExclusion())
       {
-        var virtualPath = _fileSystem.GetVirtualPath(fileName, ResourceType.File);
+        var virtualPath = _fileSystem.GetVirtualPath(fileName, ResourceType.Library);
         return NativeAPI.LoadLibraryEx(virtualPath, file, flags);
       }
     }
