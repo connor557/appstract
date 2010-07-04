@@ -58,14 +58,7 @@ namespace AppStract.UnitTesting.Core.Databases
     [ExpectedException(typeof(ArgumentException))]
     public void FaultyConnectionString()
     {
-      new FileSystemDatabase("RandomConnectionString");
-    }
-
-    [Test]
-    [ExpectedException(typeof(DatabaseException))]
-    public void ReadAllFileBeforeInitialization()
-    {
-      FileSystemDatabase.CreateDefaultDatabase(DbConstants.DatabaseFile).ReadAll();
+      new RegistryDatabase("RandomConnectionString");
     }
 
     [Test]
@@ -73,16 +66,6 @@ namespace AppStract.UnitTesting.Core.Databases
     public void ReadAllRegBeforeInitialization()
     {
       RegistryDatabase.CreateDefaultDatabase(DbConstants.DatabaseFile).ReadAll();
-    }
-
-    [Test]
-    public void ReadAllFileOnEmptyDatabase()
-    {
-      // Don't expect exceptions and expect the database to be empty
-      var fsDb = FileSystemDatabase.CreateDefaultDatabase(DbConstants.DatabaseFile);
-      fsDb.Initialize();
-      var fsCnt = fsDb.ReadAll().Count();
-      Assert.IsTrue(fsCnt == 0, "FsDb counted: " + fsCnt);
     }
 
     [Test]
