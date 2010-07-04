@@ -47,9 +47,15 @@ namespace AppStract.Server.Hooking
                                NativeSecurityAttributes securityAttributes, FileCreationDisposition creationDisposition,
                                FileFlagsAndAttributes flagsAndAttributes, IntPtr templateFile)
     {
+      var request = new FileRequest
+      {
+        CreationDisposition = creationDisposition,
+        Path = fileName,
+        ResourceType = ResourceType.File
+      };
       using (HookManager.ACL.GetHookingExclusion())
       {
-        var virtualPath = _fileSystem.GetVirtualPath(fileName, ResourceType.File);
+        var virtualPath = _fileSystem.GetVirtualPath(request);
         return NativeAPI.CreateFile(virtualPath, desiredAccess, shareMode, securityAttributes,
                                     creationDisposition, flagsAndAttributes, templateFile);
       }
@@ -62,9 +68,15 @@ namespace AppStract.Server.Hooking
     /// <returns></returns>
     public bool DoDeleteFile(string fileName)
     {
+      var request = new FileRequest
+      {
+        CreationDisposition = FileCreationDisposition.OpenExisting,
+        Path = fileName,
+        ResourceType = ResourceType.File
+      };
       using (HookManager.ACL.GetHookingExclusion())
       {
-        var virtualPath = _fileSystem.GetVirtualPath(fileName, ResourceType.File);
+        var virtualPath = _fileSystem.GetVirtualPath(request);
         return NativeAPI.DeleteFile(virtualPath);
       }
     }
@@ -77,9 +89,15 @@ namespace AppStract.Server.Hooking
     /// <returns></returns>
     public bool DoCreateDirectory(string fileName, NativeSecurityAttributes securityAttributes)
     {
+      var request = new FileRequest
+      {
+        CreationDisposition = FileCreationDisposition.OpenAlways,
+        Path = fileName,
+        ResourceType = ResourceType.Directory
+      };
       using (HookManager.ACL.GetHookingExclusion())
       {
-        var virtualPath = _fileSystem.GetVirtualPath(fileName, ResourceType.Directory);
+        var virtualPath = _fileSystem.GetVirtualPath(request);
         return NativeAPI.CreateDirectory(virtualPath, securityAttributes);
       }
     }
@@ -93,9 +111,15 @@ namespace AppStract.Server.Hooking
     /// <returns></returns>
     public IntPtr DoLoadLibraryEx(string fileName, IntPtr file, ModuleLoadFlags flags)
     {
+      var request = new FileRequest
+      {
+        CreationDisposition = FileCreationDisposition.OpenExisting,
+        Path = fileName,
+        ResourceType = ResourceType.Library
+      };
       using (HookManager.ACL.GetHookingExclusion())
       {
-        var virtualPath = _fileSystem.GetVirtualPath(fileName, ResourceType.Library);
+        var virtualPath = _fileSystem.GetVirtualPath(request);
         return NativeAPI.LoadLibraryEx(virtualPath, file, flags);
       }
     }

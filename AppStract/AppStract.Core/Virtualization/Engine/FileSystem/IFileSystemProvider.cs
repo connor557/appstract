@@ -29,7 +29,7 @@ namespace AppStract.Core.Virtualization.Engine.FileSystem
   public interface IFileSystemProvider
   {
 
-    string GetVirtualPath(string path, ResourceType resourceType);
+    string GetVirtualPath(FileRequest request);
 
   }
 }

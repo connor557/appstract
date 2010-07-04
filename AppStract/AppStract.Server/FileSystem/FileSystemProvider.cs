@@ -88,19 +88,19 @@ namespace AppStract.Server.FileSystem
 
     #region IFileSystemProvider Members
 
-    public string GetVirtualPath(string path, ResourceType resourceType)
+    public string GetVirtualPath(FileRequest request)
     {
-      if (string.IsNullOrEmpty(path)
-          || IsPipe(path)
-          || FileAccessRedirector.IsTemporaryLocation(path))
-        return path;
+      if (string.IsNullOrEmpty(request.Path)
+          || IsPipe(request.Path)
+          || FileAccessRedirector.IsTemporaryLocation(request.Path))
+        return request.Path;
       VirtualizationType virtualizationType;
-      if (!_engineRules.HasRule(path, out virtualizationType))
-        GuestCore.Log.Warning("No known engine rule for \"{0}\"", path);
+      if (!_engineRules.HasRule(request.Path, out virtualizationType))
+        GuestCore.Log.Warning("No known engine rule for \"{0}\"", request.Path);
       if (virtualizationType == VirtualizationType.Transparent)
-        return path;
-      var redirectedPath = FileAccessRedirector.Redirect(path);
-      GuestCore.Log.Debug("FileSystem Redirection: \"{0}\" => \"{1}\"", path, redirectedPath);
+        return request.Path;
+      var redirectedPath = FileAccessRedirector.Redirect(request.Path);
+      GuestCore.Log.Debug("FileSystem Redirection: \"{0}\" => \"{1}\"", request.Path, redirectedPath);
       return redirectedPath;
     }
 
