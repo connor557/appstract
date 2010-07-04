@@ -31,7 +31,7 @@ namespace AppStract.Server.FileSystem
   /// <summary>
   /// Redirects calls to the host's file system to locations as used in the virtual file system.
   /// </summary>
-  public static class FileAccessRedirector
+  public class FileSystemRedirector
   {
 
     #region Variables
@@ -41,7 +41,7 @@ namespace AppStract.Server.FileSystem
     /// The keys are the variables used in the real file system,
     /// while the associated values are the variables used by the virtual file system.
     /// </summary>
-    private static readonly IDictionary<string, string> _systemVariables;
+    private readonly IDictionary<string, string> _systemVariables;
     /// <summary>
     /// Path to the temporary folder used by the current system.
     /// </summary>
@@ -51,10 +51,14 @@ namespace AppStract.Server.FileSystem
 
     #region Constructors
 
-    static FileAccessRedirector()
+    public FileSystemRedirector()
+    {
+      _systemVariables = InitializeSystemVariables();
+    }
+
+    static FileSystemRedirector()
     {
       _tempPath = Path.GetTempPath().ToLowerInvariant();
-      _systemVariables = InitializeSystemVariables();
     }
 
     #endregion
@@ -77,7 +81,7 @@ namespace AppStract.Server.FileSystem
     /// </summary>
     /// <param name="path">The path to redirect.</param>
     /// <returns>The replacement path, used for redirection.</returns>
-    public static string Redirect(string path)
+    public string Redirect(string path)
     {
       string startsWith;
       return path.StartsWithAny(_systemVariables.Keys, out startsWith, true)
@@ -87,13 +91,13 @@ namespace AppStract.Server.FileSystem
     }
 
     /// <summary>
-    /// Returns a string representation of the current static instance of <see cref="FileAccessRedirector"/>.
+    /// Returns a string representation of the current static instance of <see cref="FileSystemRedirector"/>.
     /// </summary>
     /// <remarks>
     /// Intended for debug use only.
     /// </remarks>
     /// <returns></returns>
-    public new static string ToString()
+    public override string ToString()
     {
       string result = "#Entries: " + _systemVariables.Count;
       foreach (var pair in _systemVariables)
@@ -180,7 +184,7 @@ namespace AppStract.Server.FileSystem
       {
         systemVariables.Add(tmp, VirtualFolder.System32.ToPath());
       }
-      /// Start Menu
+      // Start Menu
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.StartMenu);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
       {
@@ -208,7 +212,7 @@ namespace AppStract.Server.FileSystem
       string fileExtension = Path.GetExtension(path);
       int cnt = 0; // Used as a counter 'till a unique filename is constructed.
       string uniqueValue = ""; // The value to be added at the end of the filename, in order to get a unique path.
-      /// Is the path a directory?
+      // Is the path a directory?
       if (fileExtension == null)
       {
         int index = path.LastIndexOfAny(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
@@ -220,7 +224,7 @@ namespace AppStract.Server.FileSystem
           uniqueValue = cnt++.ToString();
         return otherFolder + directory + uniqueValue;
       }
-      /// Else, the path is a file.
+      // Else, the path is a file.
       string filename = Path.GetFileNameWithoutExtension(path);
       while (File.Exists(otherFolder + filename + uniqueValue + fileExtension))
         uniqueValue = cnt++.ToString();

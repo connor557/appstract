@@ -37,6 +37,10 @@ namespace AppStract.Server.FileSystem
 
     private readonly VirtualEnvironment _virtualEnvironment;
     /// <summary>
+    /// Provides the virtual counterparts of paths used by the host file system.
+    /// </summary>
+    private readonly FileSystemRedirector _redirector;
+    /// <summary>
     /// The collection of engine rules to apply during the virtualization process.
     /// </summary>
     private readonly FileSystemRuleCollection _engineRules;
@@ -61,6 +65,7 @@ namespace AppStract.Server.FileSystem
       if (rootDirectory == null)
         throw new ArgumentNullException("rootDirectory");
       _engineRules = dataSource.GetFileSystemEngineRules();
+      _redirector = new FileSystemRedirector();
       _virtualEnvironment = new VirtualEnvironment(rootDirectory);
       _virtualEnvironment.CreateSystemFolders();
     }
@@ -73,14 +78,14 @@ namespace AppStract.Server.FileSystem
     {
       if (string.IsNullOrEmpty(request.Path)
           || !_virtualEnvironment.IsVirtualizable(request.Path)
-          || FileAccessRedirector.IsTemporaryLocation(request.Path))
+          || FileSystemRedirector.IsTemporaryLocation(request.Path))
         return request.Path;
       VirtualizationType virtualizationType;
       if (!_engineRules.HasRule(request.Path, out virtualizationType))
         GuestCore.Log.Warning("No known engine rule for \"{0}\"", request.Path);
       if (virtualizationType == VirtualizationType.Transparent)
         return request.Path;
-      var redirectedPath = FileAccessRedirector.Redirect(request.Path);
+      var redirectedPath = _redirector.Redirect(request.Path);
       redirectedPath = _virtualEnvironment.GetFullPath(redirectedPath);
       GuestCore.Log.Debug("FileSystem Redirection: \"{0}\" => \"{1}\"", request.Path, redirectedPath);
       return redirectedPath;
