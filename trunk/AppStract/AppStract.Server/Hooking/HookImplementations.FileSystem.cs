@@ -103,6 +103,26 @@ namespace AppStract.Server.Hooking
     }
 
     /// <summary>
+    /// Handles intercepted requests to remove a directory.
+    /// </summary>
+    /// <param name="pathName"></param>
+    /// <returns></returns>
+    public bool DoRemoveDirectory(string pathName)
+    {
+      var request = new FileRequest
+      {
+        CreationDisposition = FileCreationDisposition.OpenExisting,
+        Path = pathName,
+        ResourceType = ResourceType.Directory
+      };
+      using (HookManager.ACL.GetHookingExclusion())
+      {
+        var virtualPath = _fileSystem.GetVirtualPath(request);
+        return NativeAPI.RemoveDirectory(virtualPath);
+      }
+    }
+
+    /// <summary>
     /// Handles intercepted library access.
     /// </summary>
     /// <param name="fileName"></param>
