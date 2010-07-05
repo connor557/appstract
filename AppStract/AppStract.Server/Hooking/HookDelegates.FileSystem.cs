@@ -90,6 +90,20 @@ namespace AppStract.Server.Hooking
 
     #endregion
 
+    #region RemoveDirectory
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+    public delegate bool DRemoveDirectory_Unicode(
+        string pathName
+      );
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
+    public delegate bool DRemoveDirectory_Ansi(
+        string pathName
+      );
+
+    #endregion
+
     #region LoadLibrary
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]

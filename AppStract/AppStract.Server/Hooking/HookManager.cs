@@ -236,6 +236,14 @@ namespace AppStract.Server.Hooking
                                "kernel32.dll", "DeleteFileA",
                                new HookDelegates.DDeleteFile_Ansi(hookHandler.DoDeleteFile),
                                inCallback));
+        hooks.Add(new HookData("Remove Directory [Unicode]",
+                               "kernel32.dll", "RemoveDirectoryW",
+                               new HookDelegates.DRemoveDirectory_Unicode(hookHandler.DoRemoveDirectory),
+                               inCallback));
+        hooks.Add(new HookData("Remove Directory [Ansi]",
+                               "kernel32.dll", "RemoveDirectoryA",
+                               new HookDelegates.DRemoveDirectory_Ansi(hookHandler.DoRemoveDirectory),
+                               inCallback));
         hooks.Add(new HookData("Load Library [Unicode]",
                                "kernel32.dll", "LoadLibraryExW",
                                new HookDelegates.DLoadLibraryEx_Unicode(hookHandler.DoLoadLibraryEx),

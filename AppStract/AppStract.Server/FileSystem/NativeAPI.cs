@@ -95,5 +95,14 @@ namespace AppStract.Server.FileSystem
     public static extern bool DeleteFile(
         string fileName);
 
+    /// <summary>
+    /// Deletes an existing empty directory.
+    /// </summary>
+    /// <param name="pathName">The path of the directory to be removed.</param>
+    /// <returns>If the function succeeds, the return value is nonzero.</returns>
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true, CallingConvention = CallingConvention.StdCall)]
+    public static extern bool RemoveDirectory(
+        string pathName);
+
   }
 }
