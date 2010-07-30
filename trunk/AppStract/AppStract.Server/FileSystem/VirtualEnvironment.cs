@@ -143,7 +143,7 @@ namespace AppStract.Server.FileSystem
     {
       GuestCore.Log.Message("Creating system folders for a virtual environment with root \"{0}\"", rootDirectory);
       foreach (VirtualFolder virtualFolder in Enum.GetValues(typeof(VirtualFolder)))
-        if (!TryCreateDirectory(Path.Combine(rootDirectory, virtualFolder.ToPath())))
+        if (!HostFileSystem.TryCreateDirectory(Path.Combine(rootDirectory, virtualFolder.ToPath())))
           GuestCore.Log.Critical("Failed to create virtual system folder: " + virtualFolder);
     }
 
@@ -175,25 +175,6 @@ namespace AppStract.Server.FileSystem
         // Else: the path leads to a temporary resource, which should always reside in the virtual environment.
       }
       return fileRequestResult;
-    }
-
-    /// <summary>
-    /// Tries to create the directory, specified by <paramref name="path"/>.
-    /// </summary>
-    /// <param name="path">Directory to create.</param>
-    /// <returns>True if the directory is created; False, otherwise.</returns>
-    private static bool TryCreateDirectory(string path)
-    {
-      try
-      {
-        if (!Directory.Exists(path))
-          Directory.CreateDirectory(path);
-        return true;
-      }
-      catch (IOException)
-      {
-        return false;
-      }
     }
 
     #endregion

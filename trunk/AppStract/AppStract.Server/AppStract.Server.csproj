@@ -99,8 +99,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FileSystem\FileRequestResult.cs" />
-    <Compile Include="FileSystem\NativeAPI.cs" />
-    <Compile Include="FileSystem\NativeAPI.Types.cs" />
+    <Compile Include="FileSystem\HostFileSystem.cs" />
+    <Compile Include="FileSystem\NativeTypes.cs" />
     <Compile Include="Registry\RegistryRequest.cs" />
     <Compile Include="Registry\RegistrySwitch.cs" />
     <Compile Include="Registry\RegistryValueRequest.cs" />

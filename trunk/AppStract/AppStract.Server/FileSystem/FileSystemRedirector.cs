@@ -172,7 +172,7 @@ namespace AppStract.Server.FileSystem
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
         systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.StartMenu);
 
-      tmp = GetCommonMenuFolder();
+      tmp = HostFileSystem.GetCommonMenuFolder();
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
         systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.StartMenu);
 
@@ -208,20 +208,6 @@ namespace AppStract.Server.FileSystem
       while (File.Exists(otherFolder + filename + uniqueValue + fileExtension))
         uniqueValue = cnt++.ToString();
       return otherFolder + filename + uniqueValue + fileExtension;
-    }
-
-    /// <summary>
-    /// Returns the location of the common menu folder.
-    /// </summary>
-    /// <returns></returns>
-    private static string GetCommonMenuFolder()
-    {
-      var value
-        = Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\explorer\Shell Folders",
-        "Common Start Menu", null);
-      if (value != null)
-        return value.ToString();
-      return null;
     }
 
     #endregion
