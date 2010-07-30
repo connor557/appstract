@@ -98,6 +98,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileSystem\FileRequestResult.cs" />
     <Compile Include="FileSystem\NativeAPI.cs" />
     <Compile Include="FileSystem\NativeAPI.Types.cs" />
     <Compile Include="Registry\RegistryRequest.cs" />

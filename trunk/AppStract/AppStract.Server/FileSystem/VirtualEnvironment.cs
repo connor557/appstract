@@ -81,30 +81,11 @@ namespace AppStract.Server.FileSystem
     #region Public Methods
 
     /// <summary>
-    /// Tries to create all system-folders, as defined in <see cref="VirtualFolder"/>.
+    /// Initializes the current virtual environment so it can be used to redirect calls to.
     /// </summary>
-    /// <returns>True if all folders are created; False if the creation of one or more folders failed.</returns>
-    public bool CreateSystemFolders()
+    public void Initialize()
     {
-      GuestCore.Log.Message("Creating system folders for a virtual environment with root \"{0}\"", FileSystemRoot);
-      bool succeeded = true;
-      foreach (VirtualFolder virtualFolder in Enum.GetValues(typeof(VirtualFolder)))
-        if (!TryCreateDirectory(Path.Combine(FileSystemRoot, virtualFolder.ToPath())))
-        {
-          GuestCore.Log.Critical("Failed to create virtual system folder: " + virtualFolder);
-          succeeded = false;
-        }
-      return succeeded;
-    }
-
-    /// <summary>
-    /// Returns the absolute path as used in the virtual environment for the specified path string.
-    /// </summary>
-    /// <param name="path"></param>
-    /// <returns></returns>
-    public string GetFullPath(string path)
-    {
-      return Path.Combine(FileSystemRoot, path);
+      CreateSystemFolders(FileSystemRoot);
     }
 
     /// <summary>
@@ -128,10 +109,10 @@ namespace AppStract.Server.FileSystem
           || path.Equals("CONOUT$", StringComparison.InvariantCultureIgnoreCase))
         // Console In or Console Out
         return false;
-      // The path already points to the virtual environment.
       if (path.ToLowerInvariant().StartsWith(_root))
+        // The path already points to the virtual environment.
         return false;
-      // None of the above, save to virtualize the specified path
+      // None of the above, save to virtualize the specified path.
       return true;
     }
 
@@ -143,25 +124,58 @@ namespace AppStract.Server.FileSystem
     public string RedirectRequest(FileRequest request)
     {
       // Redirect the path to the virtual environment.
-      var redirectedPath = _redirector.Redirect(request.Path);
-      // Make path absolute, as member of the virtual environment.
-      redirectedPath = GetFullPath(redirectedPath);
+      var result = _redirector.Redirect(request, _root);
       // Verify the result.
-      if (!File.Exists(redirectedPath))
-      {
-        // Path doesn't exist, determine whether it should be used anyway.
-        if (request.ResourceType == ResourceType.Library)
-          return request.Path; // Target is a library unknown to the virtual environment.
-        if (request.CreationDisposition == FileCreationDisposition.OpenExisting
-            || request.CreationDisposition == FileCreationDisposition.Unspecified)  // BUG: is this safe?
-          return request.Path; // The target won't be created, save to return original path.
-      }
-      return redirectedPath;
+      result = GetVerifiedRequestResult(result);
+      return result.Path;
     }
 
     #endregion
 
-    #region Private Methods
+    #region Private Static Methods
+
+    /// <summary>
+    /// Tries to create all system-folders, as defined in <see cref="VirtualFolder"/>.
+    /// </summary>
+    /// <param name="rootDirectory">The folder under which all system folders must be created.</param>
+    /// <returns>True if all folders are created; False if the creation of one or more folders failed.</returns>
+    private static void CreateSystemFolders(string rootDirectory)
+    {
+      GuestCore.Log.Message("Creating system folders for a virtual environment with root \"{0}\"", rootDirectory);
+      foreach (VirtualFolder virtualFolder in Enum.GetValues(typeof(VirtualFolder)))
+        if (!TryCreateDirectory(Path.Combine(rootDirectory, virtualFolder.ToPath())))
+          GuestCore.Log.Critical("Failed to create virtual system folder: " + virtualFolder);
+    }
+
+    /// <summary>
+    /// Verifies that the specified <see cref="FileRequestResult"/> can be used in the current virtual environment.
+    /// </summary>
+    /// <param name="fileRequestResult"></param>
+    /// <returns></returns>
+    private static FileRequestResult GetVerifiedRequestResult(FileRequestResult fileRequestResult)
+    {
+      if (File.Exists(fileRequestResult.Path))
+        // File exists, request is suposed to be valid.
+        return fileRequestResult;
+      // Path doesn't exist, determine whether it should be used anyway.
+      if (fileRequestResult.Request.ResourceType == ResourceType.Library)
+        // The target is a library unknown to the virtual environment.
+        fileRequestResult.Path = fileRequestResult.Request.Path;
+      if (fileRequestResult.Request.CreationDisposition == FileCreationDisposition.OpenExisting)
+        // The target won't be created, it's save to return original path.
+        fileRequestResult.Path = fileRequestResult.Request.Path;
+      if (fileRequestResult.Request.CreationDisposition == FileCreationDisposition.Unspecified)
+      {
+        // Note: The following lines need to be reviewed!
+        // In some cases the API hook handler receives this value for FileCreationDisposition,
+        // which is (according to the documentation) invalid for any of the file management API functions.
+        // The source and meaning of this value is unknown, the following is more or less a work-around.
+        if (fileRequestResult.SystemFolder != VirtualFolder.Temporary)
+          fileRequestResult.Path = fileRequestResult.Request.Path;
+        // Else: the path leads to a temporary resource, which should always reside in the virtual environment.
+      }
+      return fileRequestResult;
+    }
 
     /// <summary>
     /// Tries to create the directory, specified by <paramref name="path"/>.

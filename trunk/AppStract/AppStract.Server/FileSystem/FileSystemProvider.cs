@@ -66,7 +66,7 @@ namespace AppStract.Server.FileSystem
         throw new ArgumentNullException("rootDirectory");
       _engineRules = dataSource.GetFileSystemEngineRules();
       _virtualEnvironment = new VirtualEnvironment(rootDirectory);
-      _virtualEnvironment.CreateSystemFolders();
+      _virtualEnvironment.Initialize();
     }
 
     #endregion

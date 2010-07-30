@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using AppStract.Core.Virtualization.Engine.FileSystem;
 using AppStract.Utilities.Extensions;
 
 namespace AppStract.Server.FileSystem
@@ -41,7 +42,7 @@ namespace AppStract.Server.FileSystem
     /// The keys are the variables used in the real file system,
     /// while the associated values are the variables used by the virtual file system.
     /// </summary>
-    private readonly IDictionary<string, string> _systemVariables;
+    private readonly IDictionary<string, VirtualFolder> _systemVariables;
 
     #endregion
 
@@ -57,18 +58,31 @@ namespace AppStract.Server.FileSystem
     #region Public Methods
 
     /// <summary>
-    /// Returns the replacement path for the specified <paramref name="path"/>.
+    /// Returns the replacement path for the specified <paramref name="request"/>.
     /// The result is relative to the virtual file system's root directory.
     /// </summary>
-    /// <param name="path">The path to redirect.</param>
+    /// <param name="request">The <see cref="FileRequest"/> to redirect.</param>
+    /// <param name="root"></param>
     /// <returns>The replacement path, used for redirection.</returns>
-    public string Redirect(string path)
+    public FileRequestResult Redirect(FileRequest request, string root)
     {
-      string startsWith;
-      return path.StartsWithAny(_systemVariables.Keys, out startsWith, true)
-               ? _systemVariables[startsWith] +
-                 (path.Length <= startsWith.Length ? "" : path.Substring(startsWith.Length + 1).ToLowerInvariant())
-               : RedirectToDefaultFolder(path).ToLowerInvariant();
+      var result = new FileRequestResult {Request = request};
+      string systemFolder;
+      if (request.Path.StartsWithAny(_systemVariables.Keys, out systemFolder, true))
+      {
+        result.SystemFolder = _systemVariables[systemFolder];
+        result.Path = _systemVariables[systemFolder].ToPath() +
+                                (request.Path.Length > systemFolder.Length
+                                   ? request.Path.Substring(systemFolder.Length + 1).ToLowerInvariant()
+                                   : "");
+      }
+      else
+      {
+        result.SystemFolder = VirtualFolder.Other;
+        result.Path = RedirectToDefaultFolder(request.Path);
+      }
+      result.Path = Path.Combine(root, result.Path);
+      return result;
     }
 
     /// <summary>
@@ -95,9 +109,9 @@ namespace AppStract.Server.FileSystem
     /// filled with all known system variables.
     /// </summary>
     /// <returns></returns>
-    private static IDictionary<string, string> InitializeSystemVariables()
+    private static IDictionary<string, VirtualFolder> InitializeSystemVariables()
     {
-      IDictionary<string, string> systemVariables = new Dictionary<string, string>();
+      IDictionary<string, VirtualFolder> systemVariables = new Dictionary<string, VirtualFolder>();
       string tmp; // Will contain the temporary values used in this method.
 
       // Always check if the dictionary doesn't already contain the same key.
@@ -105,62 +119,62 @@ namespace AppStract.Server.FileSystem
       // BUG: Such configurations might lead to inconsistencies between different host systems.
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
-        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.UserDocuments.ToPath());
+        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.UserDocuments);
 
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
-        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.UserPictures.ToPath());
+        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.UserPictures);
 
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
-        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.UserMusic.ToPath());
+        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.UserMusic);
 
       // UserData
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
-        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.UserData.ToPath());
+        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.UserData);
 
       // Application Data
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
-        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.ApplicationData.ToPath());
+        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.ApplicationData);
 
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData).ToLowerInvariant();
       if (!systemVariables.ContainsKey(tmp))
-        systemVariables.Add(tmp, VirtualFolder.ApplicationData.ToPath());
+        systemVariables.Add(tmp, VirtualFolder.ApplicationData);
 
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
-        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.ApplicationData.ToPath());
+        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.ApplicationData);
 
       // Temporary Folder
       tmp = Path.GetTempPath();
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
-        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.Temporary.ToPath());
+        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.Temporary);
 
 
       // Program Files
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles).ToLowerInvariant();
       if (!systemVariables.ContainsKey(tmp))
-        systemVariables.Add(tmp, VirtualFolder.ProgramFiles.ToPath());
+        systemVariables.Add(tmp, VirtualFolder.ProgramFiles);
 
       // System
       tmp = Environment.GetEnvironmentVariable("systemroot");
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
-        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.System.ToPath());
+        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.System);
 
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.System).ToLowerInvariant();
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp))
-        systemVariables.Add(tmp, VirtualFolder.System32.ToPath());
+        systemVariables.Add(tmp, VirtualFolder.System32);
 
       // Start Menu
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.StartMenu);
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
-        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.StartMenu.ToPath());
+        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.StartMenu);
 
       tmp = GetCommonMenuFolder();
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
-        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.StartMenu.ToPath());
+        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.StartMenu);
 
       return systemVariables;
     }
