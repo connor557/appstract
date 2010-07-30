@@ -56,7 +56,7 @@ namespace AppStract.Server.Hooking
       using (HookManager.ACL.GetHookingExclusion())
       {
         var virtualPath = _fileSystem.GetVirtualPath(request);
-        return NativeAPI.CreateFile(virtualPath, desiredAccess, shareMode, securityAttributes,
+        return HostFileSystem.NativeAPI.CreateFile(virtualPath, desiredAccess, shareMode, securityAttributes,
                                     creationDisposition, flagsAndAttributes, templateFile);
       }
     }
@@ -77,7 +77,7 @@ namespace AppStract.Server.Hooking
       using (HookManager.ACL.GetHookingExclusion())
       {
         var virtualPath = _fileSystem.GetVirtualPath(request);
-        return NativeAPI.DeleteFile(virtualPath);
+        return HostFileSystem.NativeAPI.DeleteFile(virtualPath);
       }
     }
 
@@ -98,7 +98,7 @@ namespace AppStract.Server.Hooking
       using (HookManager.ACL.GetHookingExclusion())
       {
         var virtualPath = _fileSystem.GetVirtualPath(request);
-        return NativeAPI.CreateDirectory(virtualPath, securityAttributes);
+        return HostFileSystem.NativeAPI.CreateDirectory(virtualPath, securityAttributes);
       }
     }
 
@@ -118,7 +118,7 @@ namespace AppStract.Server.Hooking
       using (HookManager.ACL.GetHookingExclusion())
       {
         var virtualPath = _fileSystem.GetVirtualPath(request);
-        return NativeAPI.RemoveDirectory(virtualPath);
+        return HostFileSystem.NativeAPI.RemoveDirectory(virtualPath);
       }
     }
 
@@ -140,7 +140,7 @@ namespace AppStract.Server.Hooking
       using (HookManager.ACL.GetHookingExclusion())
       {
         var virtualPath = _fileSystem.GetVirtualPath(request);
-        return NativeAPI.LoadLibraryEx(virtualPath, file, flags);
+        return HostFileSystem.NativeAPI.LoadLibraryEx(virtualPath, file, flags);
       }
     }
 
