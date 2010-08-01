@@ -161,17 +161,19 @@ namespace AppStract.Server
     /// </summary>
     public void Flush()
     {
+      // In the current system, only registry-changes are flushed.
+      // First, a copy is made of the queue before clearing it.
       DatabaseAction<VirtualRegistryKey>[] regActions;
       lock (_registrySyncObject)
       {
+        if (_registryQueue.Count == 0)
+          return;
         regActions = _registryQueue.ToArray();
         _registryQueue.Clear();
       }
+      // Then the copy is synchronized to the server.
       using (Hooking.HookManager.ACL.GetHookingExclusion())
-      {
-        if (regActions.Length > 0)
-          _synchronizer.SyncRegistryActions(regActions);
-      }
+        _synchronizer.SyncRegistryActions(regActions);
     }
 
     #endregion
