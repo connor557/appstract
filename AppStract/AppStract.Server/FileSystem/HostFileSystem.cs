@@ -128,12 +128,10 @@ namespace AppStract.Server.FileSystem
     /// <returns>The full path to the common menu folder, or null in case the path can't be retrieved.</returns>
     public static string GetCommonMenuFolder()
     {
-      var value
-        = Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\explorer\Shell Folders",
+      var value = Microsoft.Win32.Registry.GetValue(
+        @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\explorer\Shell Folders",
         "Common Start Menu", null);
-      if (value != null)
-        return value.ToString();
-      return null;
+      return value as string;
     }
 
     /// <summary>
