@@ -126,6 +126,22 @@ namespace AppStract.Server
       }
     }
 
+    /// <summary>
+    /// Gets the <see cref="IResourceLoader"/> used by the current <see cref="SynchronizationBus"/>.
+    /// </summary>
+    public IResourceLoader ResourceLoader
+    {
+      get { return _loader; }
+    }
+
+    /// <summary>
+    /// Gets the <see cref="ISynchronizer"/> used by the current <see cref="SynchronizationBus"/>.
+    /// </summary>
+    public ISynchronizer Synchronizer
+    {
+      get { return _synchronizer; }
+    }
+
     #endregion
 
     #region Constructor
@@ -172,7 +188,7 @@ namespace AppStract.Server
         _registryQueue.Clear();
       }
       // Then the copy is synchronized to the server.
-      using (Hooking.HookManager.ACL.GetHookingExclusion())
+      using (GuestCore.HookManager.ACL.GetHookingExclusion())
         _synchronizer.SyncRegistryActions(regActions);
     }
 
@@ -244,7 +260,7 @@ namespace AppStract.Server
 
     public FileSystemRuleCollection GetFileSystemEngineRules()
     {
-      using (Hooking.HookManager.ACL.GetHookingExclusion())
+      using (GuestCore.HookManager.ACL.GetHookingExclusion())
         return _loader.GetFileSystemEngineRules();
     }
 
@@ -254,7 +270,7 @@ namespace AppStract.Server
 
     public RegistryRuleCollection GetRegistryEngineRules()
     {
-      using (Hooking.HookManager.ACL.GetHookingExclusion())
+      using (GuestCore.HookManager.ACL.GetHookingExclusion())
         return _loader.GetRegistryEngineRules();
     }
 
@@ -264,7 +280,7 @@ namespace AppStract.Server
         throw new ArgumentNullException("keyList");
       keyList.Clear();
       IEnumerable<VirtualRegistryKey> keys;
-      using (Hooking.HookManager.ACL.GetHookingExclusion())
+      using (GuestCore.HookManager.ACL.GetHookingExclusion())
         keys = _loader.LoadRegistry();
       foreach (var key in keys)
         keyList.Add(key.Handle, key);

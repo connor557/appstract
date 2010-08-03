@@ -62,9 +62,9 @@ namespace AppStract.Server
     /// </summary>
     private static LogBus _logBus;
     /// <summary>
-    /// Contains all handlers for the installed API hooks.
+    /// Manages the API hooks.
     /// </summary>
-    private static HookImplementations _hookImplementations;
+    private static HookManager _hookManager;
     /// <summary>
     /// Collection of eventhandlers to call when requesting a process exit.
     /// </summary>
@@ -80,7 +80,7 @@ namespace AppStract.Server
 
     #endregion
 
-    #region Properties
+    #region Public Properties
 
     /// <summary>
     /// The current instance's log service.
@@ -125,6 +125,14 @@ namespace AppStract.Server
       }
     }
 
+    /// <summary>
+    /// Gets the <see cref="HookManager"/> managing the API hooks of the current process.
+    /// </summary>
+    public static HookManager HookManager
+    {
+      get { return _hookManager; }
+    }
+
     #endregion
 
     #region Events
@@ -160,14 +168,10 @@ namespace AppStract.Server
         _logBus = new LogBus(processSynchronizer) {Enabled = true};
         // Attach ProcessExit event handler.
         AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
-        // Load resources.
-        Log.Message("Loading file system and registry data");
-        var fileSystem = new FileSystemProvider(_syncBus, processSynchronizer.FileSystemRoot);
-        var registry = new RegistryProvider(_syncBus);
-        _hookImplementations = new HookImplementations(fileSystem, registry);
+        // Complete initialization.
         _syncBus.AutoFlush = true;
         _initialized = true;
-        Log.Message("Initialized core");
+        Log.Message("Successfully initialized core components.");
       }
     }
 
@@ -178,24 +182,30 @@ namespace AppStract.Server
     /// A <see cref="GuestException"/> is thrown if <see cref="Initialize"/> hasn't been called
     /// before installing the hooks.
     /// </exception>
-    /// <param name="inCallBack">The callback object for the hooks.</param>
-    public static void InstallHooks(object inCallBack)
+    public static void StartVirtualizationEngine()
     {
       lock (_initializationLock)
         if (!_initialized)
           throw new GuestException("The GuestCore must be initialized before hook installation can start.");
-      HookManager.Initialize(inCallBack, _hookImplementations);
       try
       {
-        HookManager.InstallHooks();
+        // Initialize virtualization engine.
+        var fileSystem = new FileSystemProvider(_syncBus, _syncBus.ResourceLoader.FileSystemRoot);
+        var registry = new RegistryProvider(_syncBus);
+        // Register required API hooks to the manager.
+        _hookManager = new HookManager();
+        _hookManager.RegisterHookProvider(new FileSystemHookProvider(fileSystem));
+        _hookManager.RegisterHookProvider(new RegistryHookProvider(registry));
+        // Install the API hooks.
+        _hookManager.InstallHooks();
       }
-      catch (HookingException e)
+      catch (Exception e)
       {
-        Log.Critical("Failed to install API Hooks in target process", e);
+        Log.Critical("Failed to start the virtualization engine.", e);
         TerminateProcess(-1, ExitMethod.Kill);
         throw; // In case TerminateProcess didn't do it's job
       }
-      Log.Message("Process [PID{0}] is initialized and ready to wake up.", _currentProcessId);
+      Log.Message("Successfully started the virtualization engine.");
     }
 
     /// <summary>

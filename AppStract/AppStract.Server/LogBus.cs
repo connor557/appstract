@@ -114,7 +114,7 @@ namespace AppStract.Server
 #else
       try
       {
-        using (Hooking.HookManager.ACL.GetHookingExclusion())
+        using (GuestCore.HookManager.ACL.GetHookingExclusion())
           _serverReporter.ReportMessage(message);
       }
       catch

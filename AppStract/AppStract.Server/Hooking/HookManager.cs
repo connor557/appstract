@@ -32,27 +32,31 @@ namespace AppStract.Server.Hooking
   /// Manages the API hooks which are available and/or installed for the current process.
   /// </summary>
   /// <remarks>
-  /// <see cref="Initialize"/> must be called before <see cref="HookManager"/> can provide any data or install any hook.
+  /// <see cref="HookManager"/> comes with the following limitations:
+  /// - It is not possible to instantiate more than one instance of <see cref="HookManager"/>.
+  /// - It is not possible to safely dispose nor disable an instance of the <see cref="HookManager"/> class.
   /// </remarks>
-  public static class HookManager
+  public class HookManager
   {
 
     #region Public Classes
 
     /// <summary>
-    /// The list of threads that are ensured to not be intercepted by any of the installed API Hooks.
+    /// The list of threads that are ensured to not be intercepted by any of the installed API hooks.
     /// </summary>
     /// <remarks>
     /// Registering a thread for exclusion should always be done as following:
     /// <code>
-    /// using (HookManager.ACL.GetHookingExclusion())
+    /// HookAccessControlList myAcl;
+    /// ...
+    /// using (myAcl.GetHookingExclusion())
     /// {
     ///   // Perform all actions that must NOT be intercepted by any of the hook handlers.
-    /// } // The exclusion is disposed and the excluded thread will be intercepted again.
+    /// } // The exclusion is disposed and the current thread will be intercepted again.
     /// </code>
     /// The exclusion is also disposed when the finalizer of the object returned by <see cref="GetHookingExclusion"/> is called.
     /// </remarks>
-    public static class ACL
+    public class HookAccessControlList
     {
 
       #region Private Classes
@@ -113,7 +117,16 @@ namespace AppStract.Server.Hooking
 
       #endregion
 
-      #region Static Methods
+      #region Constructors
+
+      internal HookAccessControlList()
+      {
+        
+      }
+
+      #endregion
+
+      #region Public Methods
 
       /// <summary>
       /// Ensures that the current thread will not be intercepted by any of the installed API hooks.
@@ -125,7 +138,7 @@ namespace AppStract.Server.Hooking
       /// A thread can call this method recursively. The hook exclusion is undone when all of the returned objects are disposed.
       /// </remarks>
       /// <returns>An object that when disposed, will exit the hooking exclusion of the current thread.</returns>
-      public static IDisposable GetHookingExclusion()
+      public IDisposable GetHookingExclusion()
       {
         var currentThreadId = AppDomain.GetCurrentThreadId();
         lock (_aclLock)
@@ -142,6 +155,10 @@ namespace AppStract.Server.Hooking
         }
         return new HookingExclusion(currentThreadId);
       }
+
+      #endregion
+
+      #region Private Methods
 
       private static void EndHookingExclusion(int threadId)
       {
@@ -166,28 +183,52 @@ namespace AppStract.Server.Hooking
     #region Variables
 
     /// <summary>
-    /// Whether <see cref="HookManager"/> is initialized.
+    /// Indicates whether or not an instance of <see cref="HookManager"/> exists in the current process.
     /// </summary>
-    private static bool _initialized;
+    private static bool _isInstantiated;
+    /// <summary>
+    /// The list of threads that are ensured to not be intercepted by any of the installed API hooks.
+    /// </summary>
+    private readonly HookAccessControlList _acl;
     /// <summary>
     /// All hooks that must be installed in the guest process.
     /// </summary>
-    private static IList<HookData> _hooks;
-    /// <summary>
-    /// The hooks that are currently installed in the guest process.
-    /// </summary>
-    private static IList<LocalHook> _installedHooks;
+    private readonly ICollection<HookProvider> _hookProviders;
     /// <summary>
     /// The object to lock when executing actions on any of the global variables.
     /// </summary>
-    private static readonly object _syncRoot;
+    private readonly object _syncRoot;
+
+    #endregion
+
+    #region Properties
+
+    /// <summary>
+    /// Gets the list of threads that are ensured to not be intercepted by any of the installed API hooks.
+    /// </summary>
+    public HookAccessControlList ACL
+    {
+      get { return _acl; }
+    }
 
     #endregion
 
     #region Constructors
 
-    static HookManager()
+    /// <summary>
+    /// Initializes a new instance of <see cref="HookManager"/>.
+    /// </summary>
+    /// <exception cref="ApplicationException">
+    /// An <see cref="ApplicationException"/> is thrown if another instance of <see cref="HookManager"/> already exists in the current process.
+    /// Instantiating another instance of <see cref="HookManager"/> would result in unexpected behavior and will corrupt <see cref="ACL"/>.
+    /// </exception>
+    public HookManager()
     {
+      if (_isInstantiated)
+        throw new ApplicationException("There is already a running HookManager for the current process.");
+      _isInstantiated = true;
+      _acl = new HookAccessControlList();
+      _hookProviders = new List<HookProvider>();
       _syncRoot = new object();
     }
 
@@ -196,141 +237,42 @@ namespace AppStract.Server.Hooking
     #region Public Methods
 
     /// <summary>
-    /// Initializes the manager.
+    /// Registers a <see cref="HookProvider"/> to the current <see cref="HookManager"/>.
+    /// The registered provider will be able to provide API hooks when <see cref="InstallHooks"/> is called.
     /// </summary>
-    /// <exception cref="ApplicationException">
-    /// An <see cref="ApplicationException"/> is thrown if <see cref="HookManager"/> is already initialized.
-    /// </exception>
-    /// <param name="inCallback">An uninterpreted callback that will later be available through <see cref="HookRuntimeInfo.Callback"/>.</param>
-    /// <param name="hookHandler">The object containing the methods to associate with hooked functions.</param>
-    internal static void Initialize(object inCallback, HookImplementations hookHandler)
+    /// <param name="hookProvider"></param>
+    public void RegisterHookProvider(HookProvider hookProvider)
     {
       lock (_syncRoot)
-      {
-        if (_initialized)
-          throw new ApplicationException("HookManager is already initialized.");
-        GuestCore.Log.Debug("HookManager starts initialization procedure.");
-        var hooks = new List<HookData>(17);
-        // Hooks regarding the filesystem
-        hooks.Add(new HookData("Create Directory [Unicode]",
-                               "kernel32.dll", "CreateDirectoryW",
-                               new HookDelegates.DCreateDirectory_Unicode(hookHandler.DoCreateDirectory),
-                               inCallback));
-        hooks.Add(new HookData("Create Directory [Ansi]",
-                               "kernel32.dll", "CreateDirectoryA",
-                               new HookDelegates.DCreateDirectory_Ansi(hookHandler.DoCreateDirectory),
-                               inCallback));
-        hooks.Add(new HookData("Create File [Unicode]",
-                               "kernel32.dll", "CreateFileW",
-                               new HookDelegates.DCreateFile_Unicode(hookHandler.DoCreateFile),
-                               inCallback));
-        hooks.Add(new HookData("Create File [Ansi]",
-                               "kernel32.dll", "CreateFileA",
-                               new HookDelegates.DCreateFile_Ansi(hookHandler.DoCreateFile),
-                               inCallback));
-        hooks.Add(new HookData("Delete File [Unicode]",
-                               "kernel32.dll", "DeleteFileW",
-                               new HookDelegates.DDeleteFile_Unicode(hookHandler.DoDeleteFile),
-                               inCallback));
-        hooks.Add(new HookData("Delete File [Ansi]",
-                               "kernel32.dll", "DeleteFileA",
-                               new HookDelegates.DDeleteFile_Ansi(hookHandler.DoDeleteFile),
-                               inCallback));
-        hooks.Add(new HookData("Remove Directory [Unicode]",
-                               "kernel32.dll", "RemoveDirectoryW",
-                               new HookDelegates.DRemoveDirectory_Unicode(hookHandler.DoRemoveDirectory),
-                               inCallback));
-        hooks.Add(new HookData("Remove Directory [Ansi]",
-                               "kernel32.dll", "RemoveDirectoryA",
-                               new HookDelegates.DRemoveDirectory_Ansi(hookHandler.DoRemoveDirectory),
-                               inCallback));
-        hooks.Add(new HookData("Load Library [Unicode]",
-                               "kernel32.dll", "LoadLibraryExW",
-                               new HookDelegates.DLoadLibraryEx_Unicode(hookHandler.DoLoadLibraryEx),
-                               inCallback));
-        hooks.Add(new HookData("Load Library [Ansi]",
-                               "kernel32.dll", "LoadLibraryExA",
-                               new HookDelegates.DLoadLibraryEx_Ansi(hookHandler.DoLoadLibraryEx),
-                               inCallback));
-        // Hooks regarding the registry
-        hooks.Add(new HookData("Open Registry Key [Unicode]",
-                               "advapi32.dll", "RegOpenKeyExW",
-                               new HookDelegates.DOpenKey_Unicode(hookHandler.RegOpenKey_Hooked),
-                               inCallback));
-        hooks.Add(new HookData("Open Registry Key [Ansi]",
-                               "advapi32.dll", "RegOpenKeyExA",
-                               new HookDelegates.DOpenKey_Ansi(hookHandler.RegOpenKey_Hooked),
-                               inCallback));
-        hooks.Add(new HookData("Create Registry Key [Unicode]",
-                               "advapi32.dll", "RegCreateKeyExW",
-                               new HookDelegates.DCreateKey_Unicode(hookHandler.RegCreateKeyEx_Hooked),
-                               inCallback));
-        hooks.Add(new HookData("Create Registry Key [Ansi]",
-                               "advapi32.dll", "RegCreateKeyExA",
-                               new HookDelegates.DCreateKey_Ansi(hookHandler.RegCreateKeyEx_Hooked),
-                               inCallback));
-        hooks.Add(new HookData("Close Registry Key",
-                               "advapi32.dll", "RegCloseKey",
-                               new HookDelegates.DCloseKey(hookHandler.RegCloseKey_Hooked),
-                               inCallback));
-        hooks.Add(new HookData("Set Registry Value [Unicode]",
-                               "advapi32.dll", "RegSetValueExW",
-                               new HookDelegates.DSetValue_Unicode(hookHandler.RegSetValueEx),
-                               inCallback));
-        hooks.Add(new HookData("Set Registry Value [Ansi]",
-                               "advapi32.dll", "RegSetValueExA",
-                               new HookDelegates.DSetValue_Ansi(hookHandler.RegSetValueEx),
-                               inCallback));
-        hooks.Add(new HookData("Query Registry Value [Unicode]",
-                               "advapi32.dll", "RegQueryValueExW",
-                               new HookDelegates.DQueryValue_Unicode(hookHandler.RegQueryValue_Hooked),
-                               inCallback));
-        hooks.Add(new HookData("Query Registry Value [Ansi]",
-                               "advapi32.dll", "RegQueryValueExA",
-                               new HookDelegates.DQueryValue_Ansi(hookHandler.RegQueryValue_Hooked),
-                               inCallback));
-        _hooks = hooks;
-        _initialized = true;
-        GuestCore.Log.Debug("HookManager is initialized.");
-      }
+        if (!_hookProviders.Contains(hookProvider))
+          _hookProviders.Add(hookProvider);
     }
 
     /// <summary>
-    /// Installs all available hooks in the local process.
+    /// Installs all known API hooks in the local process.
     /// </summary>
-    /// <exception cref="ApplicationException">
-    /// An <see cref="ApplicationException"/> is thrown if <see cref="Initialize"/> hasn't been called before the current call.
-    /// </exception>
     /// <exception cref="HookingException">
     /// A <see cref="HookingException"/> is thrown if the installation of any of the API hooks fails.
     /// </exception>
-    internal static void InstallHooks()
+    public void InstallHooks()
     {
       GuestCore.Log.Debug("HookManager starts installing the API hooks.");
       lock (_syncRoot)
-      {
-        if (!_initialized)
-          throw new ApplicationException("The current instance has not yet been initialized.");
-        _installedHooks = new List<LocalHook>();
-        foreach (var hook in _hooks)
-        {
-          try
-          {
-            var localHook = LocalHook.Create(hook.GetTargetEntryPoint(), hook.Handler, hook.Callback);
-            // Set an empty list for the excluded threads; All threads need to be intercepted.
-            // Ideally we would set this list so some core threads would not be intercepted, but this is impossible to implement
-            // since there is no way to fix a managed thread on a native os thread.
-            localHook.ThreadACL.SetExclusiveACL(new int[0]);
-            _installedHooks.Add(localHook);
-            GuestCore.Log.Debug("HookManager installed API hook: " + hook);
-          }
-          catch (Exception e)
-          {
-            GuestCore.Log.Error("HookManager failed to install API hook: " + hook, e);
-            throw new HookingException("HookManager failed to install API hook.", hook, e);
-          }
-        }
-      }
+        foreach (var hookProvider in _hookProviders)
+          hookProvider.InstallHooks(InstallHook);
+      GuestCore.Log.Debug("HookManager finished installing the API hooks.");
+    }
+
+    /// <summary>
+    /// Installs an API hook based on the specified data.
+    /// </summary>
+    /// <param name="targetEntryPoint">The target entry point that should be hooked.</param>
+    /// <param name="hookHandler">A handler with the same signature as the original entry point.</param>
+    /// <param name="callback">An uninterpreted callback.</param>
+    private static void InstallHook(IntPtr targetEntryPoint, Delegate hookHandler, object callback)
+    {
+      var localHook = LocalHook.Create(targetEntryPoint, hookHandler, callback);
+      localHook.ThreadACL.SetExclusiveACL(new int[0]);
     }
 
     #endregion

@@ -101,6 +101,10 @@
     <Compile Include="FileSystem\FileRequestResult.cs" />
     <Compile Include="FileSystem\HostFileSystem.cs" />
     <Compile Include="FileSystem\NativeTypes.cs" />
+    <Compile Include="Hooking\FileSystemHookProvider.cs" />
+    <Compile Include="Hooking\HookHandler.cs" />
+    <Compile Include="Hooking\HookProvider.cs" />
+    <Compile Include="Hooking\RegistryHookProvider.cs" />
     <Compile Include="Registry\RegistryRequest.cs" />
     <Compile Include="Registry\RegistrySwitch.cs" />
     <Compile Include="Registry\RegistryValueRequest.cs" />
@@ -114,11 +118,6 @@
     <Compile Include="GuestCore.cs" />
     <Compile Include="GuestException.cs" />
     <Compile Include="Hooking\HookData.cs" />
-    <Compile Include="Hooking\HookDelegates.FileSystem.cs" />
-    <Compile Include="Hooking\HookDelegates.Registry.cs" />
-    <Compile Include="Hooking\HookImplementations.cs" />
-    <Compile Include="Hooking\HookImplementations.FileSystem.cs" />
-    <Compile Include="Hooking\HookImplementations.Registry.cs" />
     <Compile Include="Hooking\HookingException.cs" />
     <Compile Include="Hooking\HookManager.cs" />
     <Compile Include="LogBus.cs" />
