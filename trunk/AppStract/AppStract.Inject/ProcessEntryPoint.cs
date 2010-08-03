@@ -178,7 +178,7 @@ namespace AppStract.Inject
     /// Contains the actions that both <see cref="Run"/> methods must execute
     /// before executing any of the more specific code.
     /// </summary>
-    private void InitializeForRun()
+    private static void InitializeForRun()
     {
 #if DEBUG
       if (MessageBox.Show("Do you want to attach a debugger to the current process?", "Attach Debugger?",
@@ -193,7 +193,7 @@ namespace AppStract.Inject
       if (!GuestCore.Connected)
         return; // Return silently, can't log
       // Install all hooks.
-      GuestCore.InstallHooks(this);
+      GuestCore.StartVirtualizationEngine();
     }
 
     /// <summary>
