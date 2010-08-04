@@ -192,7 +192,7 @@ namespace AppStract.Inject
       // Validate the connection.
       if (!GuestCore.Connected)
         return; // Return silently, can't log
-      // Install all hooks.
+      // Start the virtualization engine.
       GuestCore.StartVirtualizationEngine();
     }
 

@@ -135,6 +135,9 @@ namespace AppStract.Server
     /// Occurs before <see cref="GuestCore"/> tries to kill the current process,
     /// and/or when <see cref="GuestCore"/> detects that the current process is terminating.
     /// </summary>
+    /// <remarks>
+    /// It's possible that this event is raised multiple times during process shutdown.
+    /// </remarks>
     public static event EventHandler OnProcessExit
     {
       add { lock (_syncRoot) _onProcessExit += value; }
@@ -185,6 +188,11 @@ namespace AppStract.Server
     /// <summary>
     /// Installs all hooks, <see cref="Initialize"/> must be called before.
     /// </summary>
+    /// <exception cref="EngineException">
+    /// In case it's not possible to start the virtualization engine the following actions are taken:
+    /// - <see cref="GuestCore"/> signals the termination of the current process, using <see cref="TerminateProcess"/>.
+    /// - An <see cref="EngineException"/> is thrown if the process can't be terminated.
+    /// </exception>
     /// <exception cref="GuestException">
     /// A <see cref="GuestException"/> is thrown if <see cref="Initialize"/> hasn't been called
     /// before installing the hooks.
@@ -194,15 +202,28 @@ namespace AppStract.Server
       lock (_syncRoot)
         if (!_initialized)
           throw new GuestException("GuestCore must be initialized before the virtualization engine can be started.");
-      if (_engine.StartEngine())
-        Log.Message("Virtualization Engine is started and running.");
-      else // Unable to start the engine, no use to keep the process running.
+      try
+      {
+        _engine.StartEngine();
+      }
+      catch (EngineException e)
+      {
+        Log.Critical("Failed to start the virtualization engine.", e);
         TerminateProcess(-1, ExitMethod.Kill);
+        throw;
+      }
+      Log.Message("Virtualization Engine is started and running.");
     }
 
     /// <summary>
-    /// Terminates the current process.
+    /// Terminates the current process while reducing the risk of loosing any cached data.
     /// </summary>
+    /// <remarks>
+    /// Terminating the current process involves taking the following steps:
+    /// - <see cref="OnProcessExit"/> is raised.
+    /// - In case <see cref="ExitMethod.Request"/> is specified, <see cref="ExitRequestRaised"/> is raised.
+    /// - In case <see cref="ExitMethod.Kill"/> is specified, the process is killed.
+    /// </remarks>
     /// <param name="exitCode">The exit code to return to the operating system.</param>
     /// <param name="exitMethod">The method(s) to use for termination.</param>
     /// <returns>True if the current process' termination code is invoked, false otherwise.</returns>
@@ -214,7 +235,7 @@ namespace AppStract.Server
       if ((exitMethod & ExitMethod.Request) == ExitMethod.Request
           && RaiseExitRequest(exitCode))
         return true;
-      return (exitMethod & ExitMethod.Kill) == ExitMethod.Kill && KillGuestProcess();
+      return (exitMethod & ExitMethod.Kill) == ExitMethod.Kill && KillProcess();
     }
 
     #endregion
@@ -250,10 +271,10 @@ namespace AppStract.Server
     }
 
     /// <summary>
-    /// Attempts to immediately stop the guest process with reduced risk of loosing cached data.
+    /// Attempts to immediately stop the current proces.
     /// </summary>
     /// <returns></returns>
-    private static bool KillGuestProcess()
+    private static bool KillProcess()
     {
       Log.Debug("Sending kill signal to process...");
       try
@@ -268,6 +289,11 @@ namespace AppStract.Server
       }
     }
 
+    /// <summary>
+    /// Eventhandler for the <see cref="AppDomain.ProcessExit"/> event.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
     {
       lock (_syncRoot)

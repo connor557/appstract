@@ -87,8 +87,11 @@ namespace AppStract.Server.Engine
     /// An <see cref="ApplicationException"/> is thrown if the virtualization engine is already running,
     /// which can be checked with the <see cref="IsRunning"/> property.
     /// </exception>
+    /// <exception cref="EngineException">
+    /// An <see cref="EngineException"/> is thrown when it's not possible to start the virtualization engine.
+    /// </exception>
     /// <returns>Whether or not the virtualization engine is running.</returns>
-    public bool StartEngine()
+    public void StartEngine()
     {
       if (_isRunning)
         throw new ApplicationException("The virtualization engine is already running.");
@@ -100,10 +103,8 @@ namespace AppStract.Server.Engine
       }
       catch (HookingException e)
       {
-        GuestCore.Log.Critical("Failed to start the virtualization engine.", e);
-        return false;
+        throw new EngineException("Failed to start the virtualization engine.", e);
       }
-      return true;
     }
 
     /// <summary>

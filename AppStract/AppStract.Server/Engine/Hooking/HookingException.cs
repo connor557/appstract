@@ -32,7 +32,7 @@ namespace AppStract.Server.Engine.Hooking
   /// Represents errors that occur during actions related to API hooking.
   /// </summary>
   [Serializable]
-  public class HookingException : GuestException
+  public class HookingException : EngineException
   {
 
     #region Variables
