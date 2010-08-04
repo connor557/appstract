@@ -26,9 +26,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using AppStract.Core.System.Logging;
 using AppStract.Core.System.IPC;
-using AppStract.Server.FileSystem;
-using AppStract.Server.Hooking;
-using AppStract.Server.Registry;
+using AppStract.Server.Engine;
 using EasyHook;
 
 namespace AppStract.Server
@@ -54,33 +52,37 @@ namespace AppStract.Server
     /// </summary>
     private static IServerReporter _serverReporter;
     /// <summary>
-    /// Communicates synchronization queries to the server.
-    /// </summary>
-    private static SynchronizationBus _syncBus;
-    /// <summary>
     /// Communicates log queries to the server.
     /// </summary>
     private static LogBus _logBus;
     /// <summary>
-    /// Manages the API hooks.
+    /// The virtualization engine supporting the current process.
     /// </summary>
-    private static HookManager _hookManager;
+    private static VirtualizationEngine _engine;
     /// <summary>
-    /// Collection of eventhandlers to call when requesting a process exit.
+    /// Eventhandlers to call when a process exit is detected.
+    /// </summary>
+    private static EventHandler _onProcessExit;
+    /// <summary>
+    /// Eventhandlers to call when requesting a process exit.
     /// </summary>
     private static readonly List<ExitRequestEventHandler> _exitRequestEventHandlersCollection = new List<ExitRequestEventHandler>(1);
     /// <summary>
-    /// The object to lock when initializing the <see cref="GuestCore"/>.
+    /// The object to lock when initializing the <see cref="GuestCore"/> and/or changing any of the class events.
     /// </summary>
-    private static readonly object _initializationLock = new object();
-    /// <summary>
-    /// The object to lock when performing actions on <see cref="_exitRequestEventHandlersCollection"/>.
-    /// </summary>
-    private static readonly object _exitRequestEventLock = new object();
+    private static readonly object _syncRoot = new object();
 
     #endregion
 
     #region Public Properties
+
+    /// <summary>
+    /// Gets the virtualization engine supporting the current process.
+    /// </summary>
+    public static VirtualizationEngine Engine
+    {
+      get { return _engine; }
+    }
 
     /// <summary>
     /// The current instance's log service.
@@ -125,25 +127,28 @@ namespace AppStract.Server
       }
     }
 
-    /// <summary>
-    /// Gets the <see cref="HookManager"/> managing the API hooks of the current process.
-    /// </summary>
-    public static HookManager HookManager
-    {
-      get { return _hookManager; }
-    }
-
     #endregion
 
     #region Events
 
     /// <summary>
+    /// Occurs before <see cref="GuestCore"/> tries to kill the current process,
+    /// and/or when <see cref="GuestCore"/> detects that the current process is terminating.
+    /// </summary>
+    public static event EventHandler OnProcessExit
+    {
+      add { lock (_syncRoot) _onProcessExit += value; }
+      remove { lock (_syncRoot) _onProcessExit -= value; }
+    }
+
+    /// <summary>
     /// Occurs when a module requests the current process to exit.
+    /// This event should be subscribed by all classes able to close the process in a clean manner.
     /// </summary>
     public static event ExitRequestEventHandler ExitRequestRaised
     {
-      add { lock (_exitRequestEventLock) _exitRequestEventHandlersCollection.Add(value); }
-      remove { lock (_exitRequestEventLock) _exitRequestEventHandlersCollection.Remove(value); }
+      add { lock (_syncRoot) _exitRequestEventHandlersCollection.Add(value); }
+      remove { lock (_syncRoot) _exitRequestEventHandlersCollection.Remove(value); }
     }
 
     #endregion
@@ -158,18 +163,20 @@ namespace AppStract.Server
     /// </param>
     public static void Initialize(IProcessSynchronizer processSynchronizer)
     {
-      lock (_initializationLock)
+      lock (_syncRoot)
       {
         if (_initialized) return;
         // Initialize variables.
         _currentProcessId = RemoteHooking.GetCurrentProcessId();
         _serverReporter = processSynchronizer;
-        _syncBus = new SynchronizationBus(processSynchronizer, processSynchronizer);
-        _logBus = new LogBus(processSynchronizer) {Enabled = true};
+        _logBus = new LogBus(processSynchronizer);
+#if !SYNCLOG
+        _logBus.Enabled = true;
+#endif
+        _engine = VirtualizationEngine.InitializeEngine(processSynchronizer, processSynchronizer);
         // Attach ProcessExit event handler.
         AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
-        // Complete initialization.
-        _syncBus.AutoFlush = true;
+        // Mark instance as initialized.
         _initialized = true;
         Log.Message("Successfully initialized core components.");
       }
@@ -184,28 +191,13 @@ namespace AppStract.Server
     /// </exception>
     public static void StartVirtualizationEngine()
     {
-      lock (_initializationLock)
+      lock (_syncRoot)
         if (!_initialized)
-          throw new GuestException("The GuestCore must be initialized before hook installation can start.");
-      try
-      {
-        // Initialize virtualization engine.
-        var fileSystem = new FileSystemProvider(_syncBus, _syncBus.ResourceLoader.FileSystemRoot);
-        var registry = new RegistryProvider(_syncBus);
-        // Register required API hooks to the manager.
-        _hookManager = new HookManager();
-        _hookManager.RegisterHookProvider(new FileSystemHookProvider(fileSystem));
-        _hookManager.RegisterHookProvider(new RegistryHookProvider(registry));
-        // Install the API hooks.
-        _hookManager.InstallHooks();
-      }
-      catch (Exception e)
-      {
-        Log.Critical("Failed to start the virtualization engine.", e);
+          throw new GuestException("GuestCore must be initialized before the virtualization engine can be started.");
+      if (_engine.StartEngine())
+        Log.Message("Virtualization Engine is started and running.");
+      else // Unable to start the engine, no use to keep the process running.
         TerminateProcess(-1, ExitMethod.Kill);
-        throw; // In case TerminateProcess didn't do it's job
-      }
-      Log.Message("Successfully started the virtualization engine.");
     }
 
     /// <summary>
@@ -217,7 +209,8 @@ namespace AppStract.Server
     public static bool TerminateProcess(int exitCode, ExitMethod exitMethod)
     {
       Log.Message("Terminating process with exit code " + exitCode + ".");
-      _syncBus.Flush();
+      lock (_syncRoot)
+        _onProcessExit(null, new EventArgs());
       if ((exitMethod & ExitMethod.Request) == ExitMethod.Request
           && RaiseExitRequest(exitCode))
         return true;
@@ -238,7 +231,7 @@ namespace AppStract.Server
     {
       // Make a copy of the eventhandlers before raising them.
       IEnumerable<ExitRequestEventHandler> eventHandlers;
-      lock (_exitRequestEventLock)
+      lock (_syncRoot)
       {
         eventHandlers = _exitRequestEventHandlersCollection == null
                           ? new ExitRequestEventHandler[0]
@@ -277,7 +270,8 @@ namespace AppStract.Server
 
     private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
     {
-      _syncBus.Flush();
+      lock (_syncRoot)
+        _onProcessExit(null, new EventArgs());
     }
 
     #endregion

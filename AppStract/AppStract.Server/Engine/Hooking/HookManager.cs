@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EasyHook;
 
-namespace AppStract.Server.Hooking
+namespace AppStract.Server.Engine.Hooking
 {
   /// <summary>
   /// Manages the API hooks which are available and/or installed for the current process.
@@ -34,7 +34,9 @@ namespace AppStract.Server.Hooking
   /// <remarks>
   /// <see cref="HookManager"/> comes with the following limitations:
   /// - It is not possible to instantiate more than one instance of <see cref="HookManager"/>.
-  /// - It is not possible to safely dispose nor disable an instance of the <see cref="HookManager"/> class.
+  ///   -> API hooks are process wide.
+  /// - It is not possible to safely dispose an instance of the <see cref="HookManager"/> class.
+  ///   -> The hook handlers will anyway still stay in memory.
   /// </remarks>
   public class HookManager
   {
@@ -137,7 +139,7 @@ namespace AppStract.Server.Hooking
       /// <remarks>
       /// A thread can call this method recursively. The hook exclusion is undone when all of the returned objects are disposed.
       /// </remarks>
-      /// <returns>An object that when disposed, will exit the hooking exclusion of the current thread.</returns>
+      /// <returns>An object that, when disposed, will exit the hooking exclusion of the current thread.</returns>
       public IDisposable GetHookingExclusion()
       {
         var currentThreadId = AppDomain.GetCurrentThreadId();
@@ -195,6 +197,14 @@ namespace AppStract.Server.Hooking
     /// </summary>
     private readonly ICollection<HookProvider> _hookProviders;
     /// <summary>
+    /// The hooks that are currently installed in the guest process.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="_installedHooks"/> makes sure that the installed API hooks stay referenced,
+    /// keeping them from being garbage collected.
+    /// </remarks>
+    private readonly ICollection<LocalHook> _installedHooks;
+    /// <summary>
     /// The object to lock when executing actions on any of the global variables.
     /// </summary>
     private readonly object _syncRoot;
@@ -206,7 +216,7 @@ namespace AppStract.Server.Hooking
     /// <summary>
     /// Gets the list of threads that are ensured to not be intercepted by any of the installed API hooks.
     /// </summary>
-    public HookAccessControlList ACL
+    public HookAccessControlList ThreadACL
     {
       get { return _acl; }
     }
@@ -220,7 +230,7 @@ namespace AppStract.Server.Hooking
     /// </summary>
     /// <exception cref="ApplicationException">
     /// An <see cref="ApplicationException"/> is thrown if another instance of <see cref="HookManager"/> already exists in the current process.
-    /// Instantiating another instance of <see cref="HookManager"/> would result in unexpected behavior and will corrupt <see cref="ACL"/>.
+    /// Instantiating another instance of <see cref="HookManager"/> would result in unexpected behavior and will corrupt <see cref="ThreadACL"/>.
     /// </exception>
     public HookManager()
     {
@@ -229,12 +239,28 @@ namespace AppStract.Server.Hooking
       _isInstantiated = true;
       _acl = new HookAccessControlList();
       _hookProviders = new List<HookProvider>();
+      _installedHooks = new List<LocalHook>();
       _syncRoot = new object();
     }
 
     #endregion
 
     #region Public Methods
+
+    /// <summary>
+    /// Installs all known API hooks in the local process.
+    /// </summary>
+    /// <exception cref="HookingException">
+    /// A <see cref="HookingException"/> is thrown if the installation of any of the API hooks fails.
+    /// </exception>
+    public void InstallHooks()
+    {
+      GuestCore.Log.Debug("Invoking API hook installation procedure.");
+      lock (_syncRoot)
+        foreach (var hookProvider in _hookProviders)
+          hookProvider.InstallHooks(InstallHook);
+      GuestCore.Log.Debug("Finished API hook installation.");
+    }
 
     /// <summary>
     /// Registers a <see cref="HookProvider"/> to the current <see cref="HookManager"/>.
@@ -248,20 +274,9 @@ namespace AppStract.Server.Hooking
           _hookProviders.Add(hookProvider);
     }
 
-    /// <summary>
-    /// Installs all known API hooks in the local process.
-    /// </summary>
-    /// <exception cref="HookingException">
-    /// A <see cref="HookingException"/> is thrown if the installation of any of the API hooks fails.
-    /// </exception>
-    public void InstallHooks()
-    {
-      GuestCore.Log.Debug("HookManager starts installing the API hooks.");
-      lock (_syncRoot)
-        foreach (var hookProvider in _hookProviders)
-          hookProvider.InstallHooks(InstallHook);
-      GuestCore.Log.Debug("HookManager finished installing the API hooks.");
-    }
+    #endregion
+
+    #region Private Methods
 
     /// <summary>
     /// Installs an API hook based on the specified data.
@@ -269,10 +284,11 @@ namespace AppStract.Server.Hooking
     /// <param name="targetEntryPoint">The target entry point that should be hooked.</param>
     /// <param name="hookHandler">A handler with the same signature as the original entry point.</param>
     /// <param name="callback">An uninterpreted callback.</param>
-    private static void InstallHook(IntPtr targetEntryPoint, Delegate hookHandler, object callback)
+    private void InstallHook(IntPtr targetEntryPoint, Delegate hookHandler, object callback)
     {
       var localHook = LocalHook.Create(targetEntryPoint, hookHandler, callback);
       localHook.ThreadACL.SetExclusiveACL(new int[0]);
+      _installedHooks.Add(localHook);
     }
 
     #endregion

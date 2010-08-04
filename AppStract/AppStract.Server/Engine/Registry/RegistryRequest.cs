@@ -24,7 +24,7 @@
 using AppStract.Core.Virtualization.Engine;
 using Microsoft.Win32;
 
-namespace AppStract.Server.Registry
+namespace AppStract.Server.Engine.Registry
 {
   /// <summary>
   /// Represents a request to the virtual registry.

@@ -30,7 +30,7 @@ using AppStract.Core.Virtualization.Engine.Registry;
 using AppStract.Core.System.IPC;
 using AppStract.Utilities.Observables;
 
-namespace AppStract.Server
+namespace AppStract.Server.Engine
 {
   /// <summary>
   /// Synchronizes queuries with the host process.
@@ -42,7 +42,7 @@ namespace AppStract.Server
   /// If the <see cref="SynchronizationBus"/> detects that the process is queried to shut down,
   /// the queues are automatically flushed to the <see cref="ProcessSynchronizer"/> of the host process.
   /// </remarks>
-  internal sealed class SynchronizationBus : IFileSystemSynchronizer, IRegistrySynchronizer
+  internal sealed class SynchronizationBus : IDisposable, IFileSystemSynchronizer, IRegistrySynchronizer
   {
 
     #region Variables
@@ -100,7 +100,7 @@ namespace AppStract.Server
             return;
           _autoFlush = value;
           if (_autoFlush)
-            new Thread(StartFlushing) { IsBackground = true, Name = "CommBus" }.Start();
+            new Thread(StartFlushing) {IsBackground = true, Name = "CommBus"}.Start();
         }
       }
     }
@@ -126,25 +126,9 @@ namespace AppStract.Server
       }
     }
 
-    /// <summary>
-    /// Gets the <see cref="IResourceLoader"/> used by the current <see cref="SynchronizationBus"/>.
-    /// </summary>
-    public IResourceLoader ResourceLoader
-    {
-      get { return _loader; }
-    }
-
-    /// <summary>
-    /// Gets the <see cref="ISynchronizer"/> used by the current <see cref="SynchronizationBus"/>.
-    /// </summary>
-    public ISynchronizer Synchronizer
-    {
-      get { return _synchronizer; }
-    }
-
     #endregion
 
-    #region Constructor
+    #region Constructors
 
     /// <summary>
     /// Initializes a new instance of <see cref="SynchronizationBus"/>.
@@ -165,6 +149,7 @@ namespace AppStract.Server
       _flushInterval = 500;
       _registrySyncObject = new object();
       _flushSyncObject = new object();
+      GuestCore.OnProcessExit += GuestCore_OnProcessExit;
     }
 
     #endregion
@@ -188,7 +173,7 @@ namespace AppStract.Server
         _registryQueue.Clear();
       }
       // Then the copy is synchronized to the server.
-      using (GuestCore.HookManager.ACL.GetHookingExclusion())
+      using (GuestCore.Engine.GetEngineProcessingSpace())
         _synchronizer.SyncRegistryActions(regActions);
     }
 
@@ -216,6 +201,17 @@ namespace AppStract.Server
         }
         Thread.Sleep(flushInterval);
       }
+    }
+
+    /// <summary>
+    /// Eventhandler for <see cref="GuestCore.OnProcessExit"/>.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void GuestCore_OnProcessExit(object sender, EventArgs e)
+    {
+      if (_autoFlush)
+        Flush();
     }
 
     /// <summary>
@@ -256,11 +252,20 @@ namespace AppStract.Server
 
     #endregion
 
+    #region IDisposable Members
+
+    public void Dispose()
+    {
+      GuestCore.OnProcessExit -= GuestCore_OnProcessExit;
+    }
+
+    #endregion
+
     #region IFileSystemSynchronizer Members
 
     public FileSystemRuleCollection GetFileSystemEngineRules()
     {
-      using (GuestCore.HookManager.ACL.GetHookingExclusion())
+      //using (GuestCore.Engine.GetEngineProcessingSpace())
         return _loader.GetFileSystemEngineRules();
     }
 
@@ -270,7 +275,7 @@ namespace AppStract.Server
 
     public RegistryRuleCollection GetRegistryEngineRules()
     {
-      using (GuestCore.HookManager.ACL.GetHookingExclusion())
+      //using (GuestCore.Engine.GetEngineProcessingSpace())
         return _loader.GetRegistryEngineRules();
     }
 
@@ -280,7 +285,7 @@ namespace AppStract.Server
         throw new ArgumentNullException("keyList");
       keyList.Clear();
       IEnumerable<VirtualRegistryKey> keys;
-      using (GuestCore.HookManager.ACL.GetHookingExclusion())
+      //using (GuestCore.Engine.GetEngineProcessingSpace())
         keys = _loader.LoadRegistry();
       foreach (var key in keys)
         keyList.Add(key.Handle, key);

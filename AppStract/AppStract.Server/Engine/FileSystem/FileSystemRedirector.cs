@@ -27,7 +27,7 @@ using System.IO;
 using AppStract.Core.Virtualization.Engine.FileSystem;
 using AppStract.Utilities.Extensions;
 
-namespace AppStract.Server.FileSystem
+namespace AppStract.Server.Engine.FileSystem
 {
   /// <summary>
   /// Redirects calls to the host's file system to locations as used in the virtual file system.

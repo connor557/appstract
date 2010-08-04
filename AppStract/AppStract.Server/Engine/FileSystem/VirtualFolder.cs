@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace AppStract.Server.FileSystem
+namespace AppStract.Server.Engine.FileSystem
 {
   /// <summary>
   /// Represents a system-folder of the virtual file system.

@@ -21,8 +21,10 @@
 
 #endregion
 
+#if !SYNCLOG
 using System.Collections.Generic;
 using System.Timers;
+#endif
 using AppStract.Core.System.IPC;
 using AppStract.Core.System.Logging;
 
@@ -52,6 +54,8 @@ namespace AppStract.Server
     #endregion
 
     #region Properties
+    
+#if !SYNCLOG
 
     /// <summary>
     /// Gets or sets a value indicating whether the <see cref="LogBus"/> should synchronize the messages to the host process.
@@ -59,20 +63,17 @@ namespace AppStract.Server
     public bool Enabled
     {
       get {
-#if !SYNCLOG
         return _timer.Enabled;
-#else
         return true;
-#endif
       }
       set
       {
-#if !SYNCLOG
         if (_timer.Enabled != value)
           _timer.Enabled = value;
-#endif
       }
     }
+
+#endif
 
     #endregion
 
@@ -114,7 +115,7 @@ namespace AppStract.Server
 #else
       try
       {
-        using (GuestCore.HookManager.ACL.GetHookingExclusion())
+        using (GuestCore.Engine.GetEngineProcessingSpace())
           _serverReporter.ReportMessage(message);
       }
       catch
@@ -144,7 +145,7 @@ namespace AppStract.Server
       }
       try
       {
-        using (Hooking.HookManager.ACL.GetHookingExclusion())
+        using (Hooking.Engine.GetEngineProcessingSpace())
           _serverReporter.ReportMessage(msgs);
       }
       catch

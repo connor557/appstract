@@ -98,37 +98,38 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FileSystem\FileRequestResult.cs" />
-    <Compile Include="FileSystem\HostFileSystem.cs" />
-    <Compile Include="FileSystem\NativeTypes.cs" />
-    <Compile Include="Hooking\FileSystemHookProvider.cs" />
-    <Compile Include="Hooking\HookHandler.cs" />
-    <Compile Include="Hooking\HookProvider.cs" />
-    <Compile Include="Hooking\RegistryHookProvider.cs" />
-    <Compile Include="Registry\RegistryRequest.cs" />
-    <Compile Include="Registry\RegistrySwitch.cs" />
-    <Compile Include="Registry\RegistryValueRequest.cs" />
-    <Compile Include="SynchronizationBus.cs" />
+    <Compile Include="Engine\VirtualizationEngine.cs" />
+    <Compile Include="Engine\FileSystem\FileRequestResult.cs" />
+    <Compile Include="Engine\FileSystem\HostFileSystem.cs" />
+    <Compile Include="Engine\FileSystem\NativeTypes.cs" />
+    <Compile Include="Engine\Hooking\FileSystemHookProvider.cs" />
+    <Compile Include="Engine\Hooking\HookHandler.cs" />
+    <Compile Include="Engine\Hooking\HookProvider.cs" />
+    <Compile Include="Engine\Hooking\RegistryHookProvider.cs" />
+    <Compile Include="Engine\Registry\RegistryRequest.cs" />
+    <Compile Include="Engine\Registry\RegistrySwitch.cs" />
+    <Compile Include="Engine\Registry\RegistryValueRequest.cs" />
+    <Compile Include="Engine\SynchronizationBus.cs" />
     <Compile Include="ExitMethod.cs" />
     <Compile Include="ExitRequestEventHandler.cs" />
-    <Compile Include="FileSystem\FileSystemRedirector.cs" />
-    <Compile Include="FileSystem\VirtualEnvironment.cs" />
-    <Compile Include="FileSystem\VirtualFolder.cs" />
-    <Compile Include="FileSystem\FileSystemProvider.cs" />
+    <Compile Include="Engine\FileSystem\FileSystemRedirector.cs" />
+    <Compile Include="Engine\FileSystem\VirtualEnvironment.cs" />
+    <Compile Include="Engine\FileSystem\VirtualFolder.cs" />
+    <Compile Include="Engine\FileSystem\FileSystemProvider.cs" />
     <Compile Include="GuestCore.cs" />
     <Compile Include="GuestException.cs" />
-    <Compile Include="Hooking\HookData.cs" />
-    <Compile Include="Hooking\HookingException.cs" />
-    <Compile Include="Hooking\HookManager.cs" />
+    <Compile Include="Engine\Hooking\HookData.cs" />
+    <Compile Include="Engine\Hooking\HookingException.cs" />
+    <Compile Include="Engine\Hooking\HookManager.cs" />
     <Compile Include="LogBus.cs" />
-    <Compile Include="Registry\Data\TransparentRegistry.cs" />
-    <Compile Include="Registry\Data\RegistryBase.cs" />
-    <Compile Include="Registry\Data\RegistryTranslator.cs" />
-    <Compile Include="Registry\Data\VirtualRegistry.cs" />
-    <Compile Include="Registry\HiveHelper.cs" />
-    <Compile Include="Registry\HostRegistry.cs" />
+    <Compile Include="Engine\Registry\Data\TransparentRegistry.cs" />
+    <Compile Include="Engine\Registry\Data\RegistryBase.cs" />
+    <Compile Include="Engine\Registry\Data\RegistryTranslator.cs" />
+    <Compile Include="Engine\Registry\Data\VirtualRegistry.cs" />
+    <Compile Include="Engine\Registry\HiveHelper.cs" />
+    <Compile Include="Engine\Registry\HostRegistry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Registry\RegistryProvider.cs" />
+    <Compile Include="Engine\Registry\RegistryProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppStract.Core\AppStract.Core.csproj">
@@ -146,7 +147,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="AppStract.Server.Signature.snk" />
-    <Compile Include="Hooking\NativeSecurityAttributes.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

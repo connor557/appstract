@@ -29,7 +29,7 @@ using AppStract.Utilities.Extensions;
 using Microsoft.Win32;
 using ValueType = AppStract.Core.Virtualization.Engine.Registry.ValueType;
 
-namespace AppStract.Server.Registry
+namespace AppStract.Server.Engine.Registry
 {
   /// <summary>
   /// Provides helper methods for manipulating the host's registry.
