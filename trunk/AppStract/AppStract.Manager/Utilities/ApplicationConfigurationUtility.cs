@@ -112,7 +112,7 @@ namespace AppStract.Manager.Utilities
       if (dialogResult == DialogResult.Cancel)
         return false;
       if (dialogResult == DialogResult.Yes)
-        saveToolStripMenuItem_Click(_saveToolStripMenuItem, new System.EventArgs());
+        SaveToolStripMenuItem_Click(_saveToolStripMenuItem, new System.EventArgs());
       return true;
     }
 
@@ -125,14 +125,14 @@ namespace AppStract.Manager.Utilities
       e.Cancel = !VerifyClosingFile();
     }
 
-    private void newToolStripMenuItem_Click(object sender, System.EventArgs e)
+    private void NewToolStripMenuItem_Click(object sender, System.EventArgs e)
     {
       if (!VerifyClosingFile()) return;
       _dataFile = null;
       LoadApplicationData(new ApplicationData());
     }
 
-    private void openToolStripMenuItem_Click(object sender, System.EventArgs e)
+    private void OpenToolStripMenuItem_Click(object sender, System.EventArgs e)
     {
       if (!VerifyClosingFile()) return;
       var dialog = new OpenFileDialog();
@@ -151,18 +151,18 @@ namespace AppStract.Manager.Utilities
       LoadApplicationData(data);
     }
 
-    private void saveToolStripMenuItem_Click(object sender, System.EventArgs e)
+    private void SaveToolStripMenuItem_Click(object sender, System.EventArgs e)
     {
       if (string.IsNullOrEmpty(_dataFile))
       {
-        saveAsToolStripMenuItem_Click(sender, e);
+        SaveAsToolStripMenuItem_Click(sender, e);
         return;
       }
       if (!ApplicationData.Save(_data, _dataFile))
         MessageBox.Show("Failed to save the data.\r\nCheck logs for more information.", "Error", MessageBoxButtons.OK);
     }
 
-    private void saveAsToolStripMenuItem_Click(object sender, System.EventArgs e)
+    private void SaveAsToolStripMenuItem_Click(object sender, System.EventArgs e)
     {
       var dialog = new SaveFileDialog();
       if (_dataFile != null)
@@ -170,10 +170,10 @@ namespace AppStract.Manager.Utilities
       if (dialog.ShowDialog() != DialogResult.OK)
         return;
       _dataFile = dialog.FileName;
-      saveToolStripMenuItem_Click(sender, e);
+      SaveToolStripMenuItem_Click(sender, e);
     }
 
-    private void closeToolStripMenuItem_Click(object sender, System.EventArgs e)
+    private void CloseToolStripMenuItem_Click(object sender, System.EventArgs e)
     {
       Close();
     }
