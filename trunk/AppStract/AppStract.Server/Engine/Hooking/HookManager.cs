@@ -288,7 +288,8 @@ namespace AppStract.Server.Engine.Hooking
     {
       var localHook = LocalHook.Create(targetEntryPoint, hookHandler, callback);
       localHook.ThreadACL.SetExclusiveACL(new int[0]);
-      _installedHooks.Add(localHook);
+      lock (_syncRoot)
+        _installedHooks.Add(localHook);
     }
 
     #endregion
