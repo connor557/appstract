@@ -136,7 +136,6 @@
     <Compile Include="Data\Settings\Configuration.cs" />
     <Compile Include="Data\Settings\UserConfig.cs" />
     <Compile Include="System\IPC\ConnectionManager.cs" />
-    <Compile Include="Virtualization\Engine\EngineException.cs" />
     <Compile Include="Virtualization\Engine\EngineRule.cs" />
     <Compile Include="Virtualization\Engine\EngineRuleCollection.cs" />
     <Compile Include="Virtualization\Engine\FileSystem\FileCreationDisposition.cs" />

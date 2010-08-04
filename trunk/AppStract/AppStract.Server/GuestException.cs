@@ -28,7 +28,7 @@ using AppStract.Core;
 namespace AppStract.Server
 {
   /// <summary>
-  /// Represents errors that occur during code execution in the guest's core.
+  /// Represents errors that occur during code execution in the guest process.
   /// </summary>
   [Serializable]
   public class GuestException : CoreException

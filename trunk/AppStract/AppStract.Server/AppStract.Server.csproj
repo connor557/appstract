@@ -98,6 +98,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Engine\EngineException.cs" />
     <Compile Include="Engine\VirtualizationEngine.cs" />
     <Compile Include="Engine\FileSystem\FileRequestResult.cs" />
     <Compile Include="Engine\FileSystem\HostFileSystem.cs" />

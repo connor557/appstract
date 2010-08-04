@@ -94,8 +94,8 @@ namespace AppStract.Core.Virtualization.Engine
     /// <summary>
     /// Gets the first <see cref="VirtualizationType"/> associated to the given value.
     /// </summary>
-    /// <exception cref="EngineException">
-    /// An <see cref="EngineException"/> is thrown if no rule is associated to <paramref name="identifier"/>.
+    /// <exception cref="Exception">
+    /// An <see cref="Exception"/> is thrown if no rule is associated to <paramref name="identifier"/>.
     /// </exception>
     /// <param name="identifier">
     /// The value to return the first defined <see cref="VirtualizationType"/> for.
@@ -105,7 +105,7 @@ namespace AppStract.Core.Virtualization.Engine
     {
       VirtualizationType result;
       if (!HasRule(identifier, out result))
-        throw new EngineException("No rule specified for identifier \"" + identifier + "\"");
+        throw new Exception("No rule specified for identifier \"" + identifier + "\"");
       return result;
     }
 
