@@ -95,7 +95,7 @@ namespace AppStract.Manager.Utilities
       this._newToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
       this._newToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
       this._newToolStripMenuItem.Text = "New";
-      this._newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
+      this._newToolStripMenuItem.Click += new System.EventHandler(this.NewToolStripMenuItem_Click);
       // 
       // _openToolStripMenuItem
       // 
@@ -103,7 +103,7 @@ namespace AppStract.Manager.Utilities
       this._openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
       this._openToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
       this._openToolStripMenuItem.Text = "Open...";
-      this._openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
+      this._openToolStripMenuItem.Click += new System.EventHandler(this.OpenToolStripMenuItem_Click);
       // 
       // _saveToolStripMenuItem
       // 
@@ -112,7 +112,7 @@ namespace AppStract.Manager.Utilities
       this._saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
       this._saveToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
       this._saveToolStripMenuItem.Text = "Save";
-      this._saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
+      this._saveToolStripMenuItem.Click += new System.EventHandler(this.SaveToolStripMenuItem_Click);
       // 
       // _saveAsToolStripMenuItem
       // 
@@ -120,7 +120,7 @@ namespace AppStract.Manager.Utilities
       this._saveAsToolStripMenuItem.Name = "_saveAsToolStripMenuItem";
       this._saveAsToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
       this._saveAsToolStripMenuItem.Text = "Save As...";
-      this._saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
+      this._saveAsToolStripMenuItem.Click += new System.EventHandler(this.SaveAsToolStripMenuItem_Click);
       // 
       // _toolStripSeparator1
       // 
@@ -133,7 +133,7 @@ namespace AppStract.Manager.Utilities
       this._closeToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
       this._closeToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
       this._closeToolStripMenuItem.Text = "Close";
-      this._closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
+      this._closeToolStripMenuItem.Click += new System.EventHandler(this.CloseToolStripMenuItem_Click);
       // 
       // _tabMain
       // 

@@ -42,6 +42,11 @@ namespace AppStract.Manager.Packaging
     public string InstallerOutputDestination { get; set; }
 
     /// <summary>
+    /// Gets or sets whether the engine configuration utility must be shown before launching the installer.
+    /// </summary>
+    public bool ShowEngineConfigurationUtility { get; set; }
+
+    /// <summary>
     /// Gets or sets whether the application must be autostarted after packaging.
     /// </summary>
     public bool Autostart { get; set; }
@@ -54,6 +59,7 @@ namespace AppStract.Manager.Packaging
     {
       InstallerExecutable = "";
       InstallerOutputDestination = "";
+      ShowEngineConfigurationUtility = true;
     }
 
     #endregion

@@ -58,10 +58,11 @@ namespace AppStract.Manager.Packaging.PreConfiguration
       this._textBoxOutputFolder = new System.Windows.Forms.TextBox();
       this._textBoxInstallerLocation = new System.Windows.Forms.TextBox();
       this._labelLocation = new System.Windows.Forms.Label();
-      this._labelLocationHelp = new System.Windows.Forms.Label();
+      this._labelInstallerLocationHelp = new System.Windows.Forms.Label();
       this._buttonBrowseInstaller = new System.Windows.Forms.Button();
       this._buttonBrowseOutput = new System.Windows.Forms.Button();
       this._labelHeaderHelp = new System.Windows.Forms.Label();
+      this._chkShowConfigUtil = new System.Windows.Forms.CheckBox();
       this.SuspendLayout();
       // 
       // _labelOutputFolderHelp
@@ -118,15 +119,15 @@ namespace AppStract.Manager.Packaging.PreConfiguration
       this._labelLocation.TabIndex = 8;
       this._labelLocation.Text = "Installer Location:";
       // 
-      // _labelLocationHelp
+      // _labelInstallerLocationHelp
       // 
-      this._labelLocationHelp.AutoSize = true;
-      this._labelLocationHelp.ForeColor = System.Drawing.SystemColors.ControlDark;
-      this._labelLocationHelp.Location = new System.Drawing.Point(38, 167);
-      this._labelLocationHelp.Name = "_labelLocationHelp";
-      this._labelLocationHelp.Size = new System.Drawing.Size(344, 26);
-      this._labelLocationHelp.TabIndex = 7;
-      this._labelLocationHelp.Text = "The selected file is expected to be an installer. At the end of this wizard,\r\nit " +
+      this._labelInstallerLocationHelp.AutoSize = true;
+      this._labelInstallerLocationHelp.ForeColor = System.Drawing.SystemColors.ControlDark;
+      this._labelInstallerLocationHelp.Location = new System.Drawing.Point(38, 167);
+      this._labelInstallerLocationHelp.Name = "_labelInstallerLocationHelp";
+      this._labelInstallerLocationHelp.Size = new System.Drawing.Size(344, 26);
+      this._labelInstallerLocationHelp.TabIndex = 7;
+      this._labelInstallerLocationHelp.Text = "The selected file is expected to be an installer. At the end of this wizard,\r\nit " +
           "will be started and used to create your new portable application from.";
       // 
       // _buttonBrowseInstaller
@@ -137,7 +138,7 @@ namespace AppStract.Manager.Packaging.PreConfiguration
       this._buttonBrowseInstaller.TabIndex = 10;
       this._buttonBrowseInstaller.Text = "Browse...";
       this._buttonBrowseInstaller.UseVisualStyleBackColor = true;
-      this._buttonBrowseInstaller.Click += new System.EventHandler(this._buttonLocationBrowse_Click);
+      this._buttonBrowseInstaller.Click += new System.EventHandler(this.BtnLocationBrowse_Click);
       // 
       // _buttonBrowseOutput
       // 
@@ -147,28 +148,39 @@ namespace AppStract.Manager.Packaging.PreConfiguration
       this._buttonBrowseOutput.TabIndex = 11;
       this._buttonBrowseOutput.Text = "Browse...";
       this._buttonBrowseOutput.UseVisualStyleBackColor = true;
-      this._buttonBrowseOutput.Click += new System.EventHandler(this._buttonBrowseOutput_Click);
+      this._buttonBrowseOutput.Click += new System.EventHandler(this.BtnBrowseOutput_Click);
       // 
       // _labelHeaderHelp
       // 
       this._labelHeaderHelp.AutoSize = true;
       this._labelHeaderHelp.Location = new System.Drawing.Point(35, 54);
       this._labelHeaderHelp.Name = "_labelHeaderHelp";
-      this._labelHeaderHelp.Size = new System.Drawing.Size(330, 13);
+      this._labelHeaderHelp.Size = new System.Drawing.Size(312, 13);
       this._labelHeaderHelp.TabIndex = 12;
-      this._labelHeaderHelp.Text = "You can select your the intaller for the new portable application here.";
+      this._labelHeaderHelp.Text = "You can select the installer for the new portable application here.";
+      // 
+      // _chkShowConfigUtil
+      // 
+      this._chkShowConfigUtil.AutoSize = true;
+      this._chkShowConfigUtil.Location = new System.Drawing.Point(23, 365);
+      this._chkShowConfigUtil.Name = "_chkShowConfigUtil";
+      this._chkShowConfigUtil.Size = new System.Drawing.Size(341, 17);
+      this._chkShowConfigUtil.TabIndex = 13;
+      this._chkShowConfigUtil.Text = "Show the Engine Configuration Utility before launching the installer.";
+      this._chkShowConfigUtil.UseVisualStyleBackColor = true;
       // 
       // WizardSelectInstaller
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.Color.Transparent;
+      this.Controls.Add(this._chkShowConfigUtil);
       this.Controls.Add(this._labelHeaderHelp);
       this.Controls.Add(this._buttonBrowseOutput);
       this.Controls.Add(this._buttonBrowseInstaller);
       this.Controls.Add(this._textBoxInstallerLocation);
       this.Controls.Add(this._labelLocation);
-      this.Controls.Add(this._labelLocationHelp);
+      this.Controls.Add(this._labelInstallerLocationHelp);
       this.Controls.Add(this._textBoxOutputFolder);
       this.Controls.Add(this._labelDestination);
       this.Controls.Add(this._labelOutputFolderHelp);
@@ -188,9 +200,10 @@ namespace AppStract.Manager.Packaging.PreConfiguration
     private System.Windows.Forms.TextBox _textBoxOutputFolder;
     private System.Windows.Forms.TextBox _textBoxInstallerLocation;
     private System.Windows.Forms.Label _labelLocation;
-    private System.Windows.Forms.Label _labelLocationHelp;
+    private System.Windows.Forms.Label _labelInstallerLocationHelp;
     private System.Windows.Forms.Button _buttonBrowseInstaller;
     private System.Windows.Forms.Button _buttonBrowseOutput;
     private System.Windows.Forms.Label _labelHeaderHelp;
+    private System.Windows.Forms.CheckBox _chkShowConfigUtil;
   }
 }

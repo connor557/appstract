@@ -50,6 +50,7 @@ namespace AppStract.Manager.Packaging.PreConfiguration
       _wizardState = wizardState;
       _textBoxOutputFolder.Text = wizardState.InstallerOutputDestination;
       _textBoxInstallerLocation.Text = _wizardState.InstallerExecutable;
+      _chkShowConfigUtil.Checked = _wizardState.ShowEngineConfigurationUtility;
     }
 
     #endregion
@@ -75,7 +76,7 @@ namespace AppStract.Manager.Packaging.PreConfiguration
       CallStateChangedEvent();
     }
 
-    private void _buttonLocationBrowse_Click(object sender, System.EventArgs e)
+    private void BtnLocationBrowse_Click(object sender, System.EventArgs e)
     {
       OpenFileDialog openFileDialog = new OpenFileDialog();
       openFileDialog.RestoreDirectory = true;
@@ -87,7 +88,7 @@ namespace AppStract.Manager.Packaging.PreConfiguration
         _textBoxInstallerLocation.Text = openFileDialog.FileName;
     }
 
-    private void _buttonBrowseOutput_Click(object sender, System.EventArgs e)
+    private void BtnBrowseOutput_Click(object sender, System.EventArgs e)
     {
       FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
       if (!string.IsNullOrEmpty(_textBoxOutputFolder.Text)
@@ -117,6 +118,7 @@ namespace AppStract.Manager.Packaging.PreConfiguration
     {
       _wizardState.InstallerExecutable = _textBoxInstallerLocation.Text;
       _wizardState.InstallerOutputDestination = _textBoxOutputFolder.Text;
+      _wizardState.ShowEngineConfigurationUtility = _chkShowConfigUtil.Checked;
     }
 
     public void UpdateContent()
@@ -125,6 +127,7 @@ namespace AppStract.Manager.Packaging.PreConfiguration
         _textBoxInstallerLocation.Text = _wizardState.InstallerExecutable;
       if (!string.IsNullOrEmpty(_wizardState.InstallerOutputDestination))
         _textBoxOutputFolder.Text = _wizardState.InstallerOutputDestination;
+      _chkShowConfigUtil.Checked = _wizardState.ShowEngineConfigurationUtility;
     }
 
     #endregion

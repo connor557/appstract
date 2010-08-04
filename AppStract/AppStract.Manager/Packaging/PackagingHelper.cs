@@ -97,10 +97,7 @@ namespace AppStract.Manager.Packaging
         applicationData = null;
         return false;
       }
-      if (MessageBox.Show(
-            "Do you want to start the Application Configuration Utility before invoking the packaging process?",
-            "Start Application Configuration Utility?", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
-          == DialogResult.Yes)
+      if (preConfigurationState.ShowEngineConfigurationUtility)
       {
         var utility = new ApplicationConfigurationUtility(true);
         utility.LoadApplicationData(applicationData);
