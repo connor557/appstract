@@ -29,7 +29,7 @@ using AppStract.Core.Virtualization.Engine.Registry;
 using AppStract.Utilities.Extensions;
 using ValueType = AppStract.Core.Virtualization.Engine.Registry.ValueType;
 
-namespace AppStract.Server.Hooking
+namespace AppStract.Server.Engine.Hooking
 {
   /// <summary>
   /// Provides all API hooks regarding the registry.
@@ -157,7 +157,7 @@ namespace AppStract.Server.Hooking
           phkResult = UIntPtr.Zero;
           return NativeResultCode.InvalidHandle;
         }
-        using (GuestCore.HookManager.ACL.GetHookingExclusion())
+        using (GuestCore.Engine.GetEngineProcessingSpace())
         {
           uint hSubKey;
           var resultCode = _registry.OpenKey(handle, subKey, out hSubKey);
@@ -205,7 +205,7 @@ namespace AppStract.Server.Hooking
           SafeWrite(RegCreationDisposition.NoKeyCreated, ref lpdwDisposition);
           return NativeResultCode.InvalidHandle;
         }
-        using (GuestCore.HookManager.ACL.GetHookingExclusion())
+        using (GuestCore.Engine.GetEngineProcessingSpace())
         {
           uint phkResultHandle;
           RegCreationDisposition creationDisposition;
@@ -230,7 +230,7 @@ namespace AppStract.Server.Hooking
         uint handle;
         if (!TryParse(hKey, out handle))
           return NativeResultCode.InvalidHandle;
-        using (GuestCore.HookManager.ACL.GetHookingExclusion())
+        using (GuestCore.Engine.GetEngineProcessingSpace())
         {
           var resultCode = _registry.CloseKey(handle);
           GuestCore.Log.Debug("CloseKey(HKey={0}) => {1}", handle, resultCode);
@@ -274,7 +274,7 @@ namespace AppStract.Server.Hooking
         uint handle;
         if (!TryParse(hKey, out handle))
           return NativeResultCode.InvalidHandle;
-        using (GuestCore.HookManager.ACL.GetHookingExclusion())
+        using (GuestCore.Engine.GetEngineProcessingSpace())
         {
           VirtualRegistryValue virtualRegistryValue;
           var resultCode = _registry.QueryValue(handle, lpValueName, out virtualRegistryValue);
@@ -318,7 +318,7 @@ namespace AppStract.Server.Hooking
         uint handle;
         if (!TryParse(hKey, out handle))
           return NativeResultCode.InvalidHandle;
-        using (GuestCore.HookManager.ACL.GetHookingExclusion())
+        using (GuestCore.Engine.GetEngineProcessingSpace())
         {
           var data = lpData.Read<byte[]>(cbData);
           var registryValue = new VirtualRegistryValue(lpValueName, data, dwType);

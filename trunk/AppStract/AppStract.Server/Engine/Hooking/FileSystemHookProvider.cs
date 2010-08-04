@@ -25,9 +25,9 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AppStract.Core.Virtualization.Engine.FileSystem;
-using AppStract.Server.FileSystem;
+using AppStract.Server.Engine.FileSystem;
 
-namespace AppStract.Server.Hooking
+namespace AppStract.Server.Engine.Hooking
 {
   /// <summary>
   /// Provides all API hooks regarding the file system.
@@ -184,7 +184,7 @@ namespace AppStract.Server.Hooking
           Path = fileName,
           ResourceType = ResourceType.File
         };
-        using (GuestCore.HookManager.ACL.GetHookingExclusion())
+        using (GuestCore.Engine.GetEngineProcessingSpace())
         {
           var virtualPath = _fileSystem.GetVirtualPath(request);
           return HostFileSystem.NativeAPI.CreateFile(virtualPath, desiredAccess, shareMode, securityAttributes,
@@ -205,7 +205,7 @@ namespace AppStract.Server.Hooking
           Path = fileName,
           ResourceType = ResourceType.File
         };
-        using (GuestCore.HookManager.ACL.GetHookingExclusion())
+        using (GuestCore.Engine.GetEngineProcessingSpace())
         {
           var virtualPath = _fileSystem.GetVirtualPath(request);
           return HostFileSystem.NativeAPI.DeleteFile(virtualPath);
@@ -226,7 +226,7 @@ namespace AppStract.Server.Hooking
           Path = fileName,
           ResourceType = ResourceType.Directory
         };
-        using (GuestCore.HookManager.ACL.GetHookingExclusion())
+        using (GuestCore.Engine.GetEngineProcessingSpace())
         {
           var virtualPath = _fileSystem.GetVirtualPath(request);
           return HostFileSystem.NativeAPI.CreateDirectory(virtualPath, securityAttributes);
@@ -246,7 +246,7 @@ namespace AppStract.Server.Hooking
           Path = pathName,
           ResourceType = ResourceType.Directory
         };
-        using (GuestCore.HookManager.ACL.GetHookingExclusion())
+        using (GuestCore.Engine.GetEngineProcessingSpace())
         {
           var virtualPath = _fileSystem.GetVirtualPath(request);
           return HostFileSystem.NativeAPI.RemoveDirectory(virtualPath);
@@ -268,7 +268,7 @@ namespace AppStract.Server.Hooking
           Path = fileName,
           ResourceType = ResourceType.Library
         };
-        using (GuestCore.HookManager.ACL.GetHookingExclusion())
+        using (GuestCore.Engine.GetEngineProcessingSpace())
         {
           var virtualPath = _fileSystem.GetVirtualPath(request);
           return HostFileSystem.NativeAPI.LoadLibraryEx(virtualPath, file, flags);

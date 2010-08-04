@@ -26,7 +26,7 @@ using System.IO;
 using AppStract.Core.Virtualization.Engine;
 using AppStract.Core.Virtualization.Engine.FileSystem;
 
-namespace AppStract.Server.FileSystem
+namespace AppStract.Server.Engine.FileSystem
 {
   /// <summary>
   /// The default implementation of <see cref="IFileSystemProvider"/>.

@@ -25,9 +25,8 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using AppStract.Core.Virtualization.Engine.FileSystem;
-using AppStract.Server.Hooking;
 
-namespace AppStract.Server.FileSystem
+namespace AppStract.Server.Engine.FileSystem
 {
   /// <summary>
   /// Provides helper methods for manipulating the host's file system.
