@@ -46,7 +46,7 @@ namespace AppStract.Server
 
     private readonly IServerReporter _serverReporter;
 #if !SYNCLOG
-    private const double _flushInterval = 100.0;
+    private const double _FlushInterval = 100.0;
     private readonly Queue<LogMessage> _queue;
     private readonly Timer _timer;
 #endif
@@ -62,14 +62,13 @@ namespace AppStract.Server
     /// </summary>
     public bool Enabled
     {
-      get {
+      get
+      {
         return _timer.Enabled;
-        return true;
       }
       set
       {
-        if (_timer.Enabled != value)
-          _timer.Enabled = value;
+        _timer.Enabled = value;
       }
     }
 
@@ -93,7 +92,7 @@ namespace AppStract.Server
       _syncRoot = new object();
 #if !SYNCLOG
       _queue = new Queue<LogMessage>();
-      _timer = new Timer(_flushInterval);
+      _timer = new Timer(_FlushInterval);
       _timer.Elapsed += SendMessages;
 #endif
     }
@@ -145,7 +144,7 @@ namespace AppStract.Server
       }
       try
       {
-        using (Hooking.Engine.GetEngineProcessingSpace())
+        using (GuestCore.Engine.GetEngineProcessingSpace())
           _serverReporter.ReportMessage(msgs);
       }
       catch
