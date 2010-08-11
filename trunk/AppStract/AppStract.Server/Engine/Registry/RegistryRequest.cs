@@ -117,5 +117,14 @@ namespace AppStract.Server.Engine.Registry
 
     #endregion
 
+    #region Public Methods
+
+    public override string ToString()
+    {
+      return string.Format("[{0}] {1}\\{2}", VirtualizationType, Handle, KeyFullPath);
+    }
+
+    #endregion
+
   }
 }
