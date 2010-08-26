@@ -33,7 +33,7 @@ using AppStract.Utilities.Extensions;
 namespace AppStract.Server.Engine.Registry.Data
 {
   /// <summary>
-  /// Base class for all classes functioning as data providers in the virtual registry.
+  /// Abstract class providing a base for all data providers in the registry's virtualization engine.
   /// </summary>
   public abstract class RegistryBase : IIndexUser
   {
@@ -63,16 +63,16 @@ namespace AppStract.Server.Engine.Registry.Data
     #region Constructors
 
     /// <summary>
-    /// Initializes <see cref="_indexGenerator"/>, <see cref="_keys"/>, and <see cref="_keysSynchronizationLock"/>.
+    /// Initializes the <see cref="RegistryBase"/>.
     /// </summary>
     /// <param name="indexGenerator">The <see cref="IndexGenerator"/> to use for the new instance.</param>
     protected RegistryBase(IndexGenerator indexGenerator)
       : this(indexGenerator, new Dictionary<uint, VirtualRegistryKey>())
     {
     }
-
+    
     /// <summary>
-    /// Initializes <see cref="_indexGenerator"/>, <see cref="_keys"/>, and <see cref="_keysSynchronizationLock"/>.
+    /// Initializes the <see cref="RegistryBase"/>.
     /// </summary>
     /// <param name="indexGenerator">The <see cref="IndexGenerator"/> to use for the new instance.</param>
     /// <param name="keys">The <see cref="IDictionary{TKey,TValue}"/> to use for the new instance.</param>
