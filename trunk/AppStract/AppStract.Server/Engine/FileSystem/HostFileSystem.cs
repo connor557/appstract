@@ -22,14 +22,16 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using AppStract.Core.Virtualization.Engine.FileSystem;
+using HostRegistry = Microsoft.Win32.Registry;
 
 namespace AppStract.Server.Engine.FileSystem
 {
   /// <summary>
-  /// Provides helper methods for manipulating the host's file system.
+  /// Provides helper methods for querying and manipulating the host's file system.
   /// </summary>
   public static class HostFileSystem
   {
@@ -117,7 +119,28 @@ namespace AppStract.Server.Engine.FileSystem
     #endregion
 
     #region Public Methods
-    
+
+    /// <summary>
+    /// Returns all folders that are used as temporary folders in the current system.
+    /// </summary>
+    /// <returns></returns>
+    public static IEnumerable<string> GetTemporaryFolders()
+    {
+      var folders = new List<string>(3);
+      // Get user specific temporary folders.
+      folders.Add(Path.GetTempPath());
+      // Get system temporary folders.
+      const string regSystemEnvironmentPath =
+        @"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment\";
+      var value = HostRegistry.GetValue(regSystemEnvironmentPath, "TEMP", null);
+      if (value != null)
+        folders.Add(Path.GetFullPath(value.ToString()));
+      value = HostRegistry.GetValue(regSystemEnvironmentPath, "TMP", null);
+      if (value != null)
+        folders.Add(Path.GetFullPath(value.ToString()));
+      return folders;
+    }
+
     /// <summary>
     /// Returns the location of the common menu folder.
     /// </summary>
@@ -127,7 +150,7 @@ namespace AppStract.Server.Engine.FileSystem
     /// <returns>The full path to the common menu folder, or null in case the path can't be retrieved.</returns>
     public static string GetCommonMenuFolder()
     {
-      var value = Microsoft.Win32.Registry.GetValue(
+      var value = HostRegistry.GetValue(
         @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\explorer\Shell Folders",
         "Common Start Menu", null);
       return value as string;
