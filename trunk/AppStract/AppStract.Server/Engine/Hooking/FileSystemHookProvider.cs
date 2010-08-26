@@ -329,7 +329,7 @@ namespace AppStract.Server.Engine.Hooking
             return 0;
           }
         }
-        return path.Length + 1;
+        return path.Length;
       }
 
       #endregion
