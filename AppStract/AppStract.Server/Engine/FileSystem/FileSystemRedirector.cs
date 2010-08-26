@@ -147,11 +147,14 @@ namespace AppStract.Server.Engine.FileSystem
       if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
         systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.ApplicationData);
 
-      // Temporary Folder
-      tmp = Path.GetTempPath();
-      if (!string.IsNullOrEmpty(tmp) && !systemVariables.ContainsKey(tmp.ToLowerInvariant()))
-        systemVariables.Add(tmp.ToLowerInvariant(), VirtualFolder.Temporary);
-
+      // Temporary Folders
+      var folders = HostFileSystem.GetTemporaryFolders();
+      foreach (var folder in folders)
+      {
+        tmp = folder.ToLowerInvariant();
+        if (!systemVariables.ContainsKey(tmp))
+          systemVariables.Add(tmp, VirtualFolder.Temporary);
+      }
 
       // Program Files
       tmp = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles).ToLowerInvariant();
