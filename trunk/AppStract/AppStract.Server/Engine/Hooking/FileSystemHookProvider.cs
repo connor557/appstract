@@ -131,6 +131,23 @@ namespace AppStract.Server.Engine.Hooking
 
       #endregion
 
+      #region GetTempPath
+
+      [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+      public delegate int GetTempPathW(
+          int bufferLength,
+          ref string tempPath
+        );
+
+      [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
+      public delegate int GetTempPathA(
+          int bufferLength,
+          ref string tempPath
+        );
+
+
+      #endregion
+
     }
 
     /// <summary>
@@ -275,6 +292,46 @@ namespace AppStract.Server.Engine.Hooking
         }
       }
 
+      /// <summary>
+      /// Retrieves the path of the directory designated for temporary files.
+      /// </summary>
+      /// <param name="bufferSize">The size of the string buffer identified by lpBuffer, in TCHARs.</param>
+      /// <param name="tempPath">
+      /// A pointer to a string buffer that receives the null-terminated string specifying the temporary file path.
+      /// The returned string ends with a backslash, for example, C:\TEMP\.
+      /// </param>
+      /// <returns>
+      /// If the function succeeds, the return value is the length, in TCHARs, of the string copied to lpBuffer,
+      /// not including the terminating null character. If the return value is greater than nBufferLength,
+      /// the return value is the length, in TCHARs, of the buffer required to hold the path.
+      /// If the function fails, the return value is zero. To get extended error information, call GetLastError.
+      /// </returns>
+      public int GetTempPath(int bufferSize, ref string tempPath)
+      {
+        if (tempPath == null)
+          return 0;
+        string path;
+        using (GuestCore.Engine.GetEngineProcessingSpace())
+        {
+          var request = new FileRequest {Path = System.IO.Path.GetTempPath()};
+          path = _fileSystem.GetVirtualPath(request);
+        }
+        if (!path.EndsWith(@"\"))
+          path = path + @"\";
+        if (bufferSize >= path.Length + 1) // + terminating null character
+        {
+          try
+          {
+            tempPath = path;
+          }
+          catch (AccessViolationException)
+          {
+            return 0;
+          }
+        }
+        return path.Length + 1;
+      }
+
       #endregion
       
     }
@@ -352,6 +409,14 @@ namespace AppStract.Server.Engine.Hooking
       hooks.Add(new HookData("Load Library [Ansi]",
                              "kernel32.dll", "LoadLibraryExA",
                              new Delegates.LoadLibraryExA(_hookHandler.LoadLibraryEx),
+                             _callback));
+      hooks.Add(new HookData("Get Temp Path [Unicode]",
+                             "kernel32.dll", "GetTempPathW",
+                             new Delegates.GetTempPathW(_hookHandler.GetTempPath),
+                             _callback));
+      hooks.Add(new HookData("Get Temp Path [Ansi]",
+                             "kernel32.dll", "GetTempPathA",
+                             new Delegates.GetTempPathA(_hookHandler.GetTempPath),
                              _callback));
       return hooks;
     }
