@@ -85,38 +85,43 @@ namespace AppStract.Utilities.GUI
 
     #region Public Static Methods
 
-    public static DialogResult Show(string message, string title)
+    public static DialogResult Show(string message, string caption)
     {
-      return Show(message, title, string.Empty);
+      return Show(message, caption, string.Empty);
     }
 
-    public static DialogResult Show(string message, string title, string messageDetails)
+    public static DialogResult Show(string message, string caption, Exception exception)
     {
-      return Show(message, title, messageDetails, null);
+      return Show(message, caption, string.Empty, exception);
     }
 
-    public static DialogResult Show(string message, string title, string messageDetails, MessageBoxButtons messageBoxButtons, MessageBoxIcon messageBoxIcon)
+    public static DialogResult Show(string message, string caption, Exception exception, MessageBoxButtons messageBoxButtons, MessageBoxIcon messageBoxIcon)
     {
-      return Show(message, title, messageDetails, null, MessageBoxButtons.OK, MessageBoxIcon.None);
+      return Show(message, caption, string.Empty, exception, messageBoxButtons, messageBoxIcon);
     }
 
-    public static DialogResult Show(string message, string title, Exception exception)
+    public static DialogResult Show(string message, string caption, string messageDetails)
     {
-      return Show(message, title, string.Empty, exception);
+      return Show(message, caption, messageDetails, null);
     }
 
-    public static DialogResult Show(string message, string title, string messageDetails, Exception exception)
+    public static DialogResult Show(string message, string caption, string messageDetails, Exception exception)
     {
-      return Show(message, title, messageDetails, exception, MessageBoxButtons.OK, MessageBoxIcon.None);
+      return Show(message, caption, messageDetails, exception, MessageBoxButtons.OK, MessageBoxIcon.None);
     }
 
-    public static DialogResult Show(string message, string title, string messageDetails, Exception exception, MessageBoxButtons messageBoxButtons, MessageBoxIcon messageBoxIcon)
+    public static DialogResult Show(string message, string caption, string messageDetails, MessageBoxButtons messageBoxButtons, MessageBoxIcon messageBoxIcon)
+    {
+      return Show(message, caption, messageDetails, null, MessageBoxButtons.OK, MessageBoxIcon.None);
+    }
+
+    public static DialogResult Show(string message, string caption, string messageDetails, Exception exception, MessageBoxButtons messageBoxButtons, MessageBoxIcon messageBoxIcon)
     {
       var reporter = new MessageReporter();
       var logLevel = GetBoxIconAsLogLevel(messageBoxIcon);
       reporter.ApplyButtonConfiguration(messageBoxButtons);
       reporter.ApplyIconConfiguration(messageBoxIcon);
-      reporter.Text = title;
+      reporter.Text = caption;
       reporter._txtMessageDetail.Text = messageDetails ?? "";
       reporter._formatter.Log(new LogMessage(logLevel, message, exception));
       reporter.ShowDialog();
