@@ -119,7 +119,7 @@ namespace AppStract.Manager.Packaging
       {
         CoreBus.Log.Error("Packaging failed", ex);
         MessageReporter.Show(FormatMessageFor(ex) + "\r\nCheck the log files or the extended information for troubleshooting.",
-                             "Packaging failed!", null, ex, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                             "Packaging failed!", ex, MessageBoxButtons.OK, MessageBoxIcon.Error);
         // ToDo: Clean up first!
         packagedApplication = null;
         return false;
