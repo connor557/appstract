@@ -27,6 +27,7 @@ using AppStract.Core;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Virtualization.Process.Packaging;
 using AppStract.Manager.Utilities;
+using AppStract.Utilities.GUI;
 
 namespace AppStract.Manager.Packaging
 {
@@ -48,10 +49,10 @@ namespace AppStract.Manager.Packaging
           break;  // Successfully extracted ApplicationData from the data specified in the wizard
         if (
           MessageBox.Show("Failed to start a packaging process from the data specified. Please retry.",
-                          "Packaging Initialization Failed", MessageBoxButtons.OKCancel, MessageBoxIcon.Error)
-          != DialogResult.OK)
+                          "Packaging Initialization Failed", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error)
+          != DialogResult.Retry)
           return;
-      } while (true); 
+      } while (true);
       PackagedApplication packagedApplication;
       if (!RunPackagingSequence(preConfigurationState, applicationData, out packagedApplication))
         return;
@@ -117,8 +118,8 @@ namespace AppStract.Manager.Packaging
       catch (Exception ex)
       {
         CoreBus.Log.Error("Packaging failed", ex);
-        MessageBox.Show("Failed to package the application.\r\nPlease check the log files for more information.",
-                        "Packaging failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        MessageReporter.Show(FormatMessageFor(ex) + "\r\nCheck the log files or the extended information for troubleshooting.",
+                             "Packaging failed!", null, ex, MessageBoxButtons.OK, MessageBoxIcon.Error);
         // ToDo: Clean up first!
         packagedApplication = null;
         return false;
@@ -133,6 +134,30 @@ namespace AppStract.Manager.Packaging
         return false; // ToDo: Clean up first?
       // Save the resulting data.
       return ApplicationData.Save(postWizard.Result, applicationDataFile);
+    }
+
+    private static string FormatMessageFor(Exception e)
+    {
+      var message = "";
+      if (e != null)
+      {
+        if (e is System.Security.SecurityException
+            || e is UnauthorizedAccessException)
+          message = "Insufficient rights for required actions.";
+        else if (e is System.IO.FileNotFoundException)
+        {
+          var ex = ((System.IO.FileNotFoundException)e);
+          message = "Unable to find file: \r" + ex.FileName;
+          if (ex.FileName.ToLowerInvariant().Contains("appstract"))
+            message += "\rThis file is part of the AppStract installation environment." +
+#if DEBUG
+                       "Verify your build settings.";
+#else
+                       "\rAttempt a reinstall of AppStract in case this message shows frequently.";
+#endif
+        }
+      }
+      return message;
     }
 
     #endregion
