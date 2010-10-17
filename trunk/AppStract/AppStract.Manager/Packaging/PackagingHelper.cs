@@ -157,7 +157,7 @@ namespace AppStract.Manager.Packaging
 #endif
         }
       }
-      else
+      if (string.IsNullOrEmpty(message))
         message = "Failed to package the application.";
       return message;
     }
