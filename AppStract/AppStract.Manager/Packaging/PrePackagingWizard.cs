@@ -24,7 +24,7 @@
 using System;
 using System.Collections.Generic;
 using AppStract.Manager.Packaging.PreConfiguration;
-using AppStract.Manager.Wizard;
+using AppStract.Utilities.GUI.Wizard;
 
 namespace AppStract.Manager.Packaging
 {

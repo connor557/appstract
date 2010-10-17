@@ -21,46 +21,14 @@
 
 #endregion
 
-using System;
-using System.Windows.Forms;
-
-namespace AppStract.Manager.Wizard
+namespace AppStract.Utilities.GUI.Wizard
 {
-  public class WizardPage
-  {
 
-    #region Variables
+  /// <summary>
+  /// EventHandler for a change in a wizard's state.
+  /// </summary>
+  /// <param name="wizardMayContinue">True if the wizard is allowed to continue to the next page, otherwise false.</param>
+  /// <param name="currentState">Current state of the wizard.</param>
+  public delegate void WizardStateChangedEventHandler<in TState>(bool wizardMayContinue, TState currentState);
 
-    private UserControl _userControl;
-    private string _labelText;
-
-    #endregion
-
-    #region Properties
-
-    public UserControl UserControl
-    {
-      get { return _userControl; }
-    }
-
-    public string Text
-    {
-      get { return _labelText; }
-    }
-
-    #endregion
-
-    #region Constructors
-
-    public WizardPage(string text, UserControl userControl)
-    {
-      if (text == null || userControl == null)
-        throw new ArgumentNullException();
-      _userControl = userControl;
-      _labelText = text;
-    }
-
-    #endregion
-
-  }
 }

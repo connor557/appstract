@@ -38,6 +38,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Watcher", "AppStr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.UnitTesting", "AppStract.UnitTesting\AppStract.UnitTesting.csproj", "{915639C5-BB43-474F-97CB-B29033BFE922}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Utilities.GUI", "AppStract.Utilities.GUI\AppStract.Utilities.GUI.csproj", "{3421E153-CCA5-4819-9907-02340B8EB11B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -162,6 +164,16 @@ Global
 		{915639C5-BB43-474F-97CB-B29033BFE922}.UnitTesting|Any CPU.ActiveCfg = UnitTesting|Any CPU
 		{915639C5-BB43-474F-97CB-B29033BFE922}.UnitTesting|x86.ActiveCfg = UnitTesting|x86
 		{915639C5-BB43-474F-97CB-B29033BFE922}.UnitTesting|x86.Build.0 = UnitTesting|x86
+		{3421E153-CCA5-4819-9907-02340B8EB11B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3421E153-CCA5-4819-9907-02340B8EB11B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3421E153-CCA5-4819-9907-02340B8EB11B}.Debug|x86.ActiveCfg = Debug|x86
+		{3421E153-CCA5-4819-9907-02340B8EB11B}.Debug|x86.Build.0 = Debug|x86
+		{3421E153-CCA5-4819-9907-02340B8EB11B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3421E153-CCA5-4819-9907-02340B8EB11B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3421E153-CCA5-4819-9907-02340B8EB11B}.Release|x86.ActiveCfg = Release|Any CPU
+		{3421E153-CCA5-4819-9907-02340B8EB11B}.UnitTesting|Any CPU.ActiveCfg = Release|Any CPU
+		{3421E153-CCA5-4819-9907-02340B8EB11B}.UnitTesting|Any CPU.Build.0 = Release|Any CPU
+		{3421E153-CCA5-4819-9907-02340B8EB11B}.UnitTesting|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
