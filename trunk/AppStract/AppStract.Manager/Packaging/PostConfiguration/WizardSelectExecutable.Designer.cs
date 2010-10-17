@@ -66,7 +66,7 @@ namespace AppStract.Manager.Packaging.PostConfiguration
       this._listBoxItems.Size = new System.Drawing.Size(378, 286);
       this._listBoxItems.Sorted = true;
       this._listBoxItems.TabIndex = 2;
-      this._listBoxItems.SelectedIndexChanged += new System.EventHandler(this._listBoxItems_SelectedIndexChanged);
+      this._listBoxItems.SelectedIndexChanged += new System.EventHandler(this.SelectedItemChanged);
       // 
       // _labelHeaderHelp
       // 
@@ -98,7 +98,7 @@ namespace AppStract.Manager.Packaging.PostConfiguration
       this._lnkBrowseExecutable.TabIndex = 12;
       this._lnkBrowseExecutable.TabStop = true;
       this._lnkBrowseExecutable.Text = "browse";
-      this._lnkBrowseExecutable.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this._lnkBrowseExecutable_LinkClicked);
+      this._lnkBrowseExecutable.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.BrowseExecutable_LinkClicked);
       // 
       // WizardSelectExecutable
       // 

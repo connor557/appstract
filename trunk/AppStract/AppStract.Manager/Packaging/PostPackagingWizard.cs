@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using AppStract.Core.Data.Application;
 using AppStract.Core.Virtualization.Process.Packaging;
 using AppStract.Manager.Packaging.PostConfiguration;
-using AppStract.Manager.Wizard;
+using AppStract.Utilities.GUI.Wizard;
 
 namespace AppStract.Manager.Packaging
 {

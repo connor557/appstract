@@ -98,11 +98,6 @@
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -198,10 +193,6 @@
       <DependentUpon>WizardSettings.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Wizard\GenericWizard.resx">
-      <DependentUpon>GenericWizard.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="Packaging\PreConfiguration\WizardFinish.resx">
       <DependentUpon>WizardFinish.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -256,13 +247,6 @@
     <Compile Include="Packaging\PostConfiguration\WizardSettings.designer.cs">
       <DependentUpon>WizardSettings.cs</DependentUpon>
     </Compile>
-    <Compile Include="Wizard\GenericWizard.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Wizard\GenericWizard.designer.cs">
-      <DependentUpon>GenericWizard.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Wizard\IWizardItem.cs" />
     <Compile Include="Packaging\PrePackagingWizard.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -285,13 +269,15 @@
     <Compile Include="Packaging\PreConfiguration\WizardSelectInstaller.designer.cs">
       <DependentUpon>WizardSelectInstaller.cs</DependentUpon>
     </Compile>
-    <Compile Include="Wizard\WizardPage.cs" />
-    <Compile Include="Wizard\WizardStateChangedEventHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppStract.Core\AppStract.Core.csproj">
       <Project>{73CC3214-9CAD-4723-BBBB-79BE7482E639}</Project>
       <Name>AppStract.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AppStract.Utilities.GUI\AppStract.Utilities.GUI.csproj">
+      <Project>{3421E153-CCA5-4819-9907-02340B8EB11B}</Project>
+      <Name>AppStract.Utilities.GUI</Name>
     </ProjectReference>
     <ProjectReference Include="..\AppStract.Utilities\AppStract.Utilities.csproj">
       <Project>{29578947-FFF4-4A0A-9C75-AE3C5E03F746}</Project>
@@ -333,10 +319,11 @@
   <PropertyGroup>
     <PostBuildEvent>xcopy "$(SolutionDir)External Libraries\EasyHook" "$(TargetDir)" /i /r /y
 xcopy "$(SolutionDir)External Libraries\sqlite3.dll" "$(TargetDir)" /i /r /y
-xcopy "$(SolutionDir)AppStract.Inject\$(OutDir)AppStract.Inject.dll" "$(TargetDir)" /i /r /y
-xcopy "$(SolutionDir)AppStract.Utilities\$(OutDir)AppStract.Utilities.dll" "$(TargetDir)" /i /r /y
-xcopy "$(SolutionDir)AppStract.Server\$(OutDir)AppStract.Server.dll" "$(TargetDir)" /i /r /y
 xcopy "$(SolutionDir)AppStract.Host\$(OutDir)AppStract.Host.exe" "$(TargetDir)" /i /r /y
+xcopy "$(SolutionDir)AppStract.Inject\$(OutDir)AppStract.Inject.dll" "$(TargetDir)" /i /r /y
+xcopy "$(SolutionDir)AppStract.Server\$(OutDir)AppStract.Server.dll" "$(TargetDir)" /i /r /y
+xcopy "$(SolutionDir)AppStract.Utilities\$(OutDir)AppStract.Utilities.dll" "$(TargetDir)" /i /r /y
+xcopy "$(SolutionDir)AppStract.Utilities.GUI\$(OutDir)AppStract.Utilities.GUI.dll" "$(TargetDir)" /i /r /y
 xcopy "$(SolutionDir)AppStract.Watcher\$(OutDir)AppStract.Watcher.exe" "$(TargetDir)" /i /r /y
 xcopy "$(SolutionDir)AppStract.Wrapper\$(OutDir)AppStract.Wrapper.exe" "$(TargetDir)" /i /r /y
 xcopy "$(SolutionDir)EasyHook\bin\x86\Debug" "$(TargetDir)" /i /r /y</PostBuildEvent>

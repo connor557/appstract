@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace AppStract.Manager.Wizard
+namespace AppStract.Utilities.GUI.Wizard
 {
 
   /// <summary>
@@ -78,7 +78,7 @@ namespace AppStract.Manager.Wizard
     /// </summary>
     protected virtual void FinishWizard()
     {
-      DialogResult = System.Windows.Forms.DialogResult.OK;
+      DialogResult = DialogResult.OK;
       Close();
     }
 
@@ -139,17 +139,17 @@ namespace AppStract.Manager.Wizard
       int yPos = 30;
       for (int i = 0; i < _steps.Count; i++)
       {
-        /// Try to attach to the StateChanged event.
+        // Try to attach to the StateChanged event.
         if (_steps[i].UserControl is IWizardItem<T>)
           ((IWizardItem<T>)_steps[i].UserControl).StateChanged += Wizard_StateChangedEventHandler;
-        /// Create a label for the new step step.
+        // Create a label for the new step step.
         Label label = new Label();
         label.Text = _steps[i].Text;
         label.Tag = i;
         label.Location = new Point(19, yPos);
         label.ForeColor = SystemColors.ButtonShadow;
         _panelSteps.Controls.Add(label);
-        /// Increment yPos, so the next step is correctly placed.
+        // Increment yPos, so the next step is correctly placed.
         yPos += 35;
       }
     }
@@ -163,13 +163,13 @@ namespace AppStract.Manager.Wizard
       if (index == _currentStep || index < 0 || index >= _steps.Count)
         return;
       _currentStep = index;
-      /// Set the back/next buttons.
+      // Set the back/next buttons.
       _buttonBack.Enabled = index != 0;
       _buttonNext.Enabled = true;
       _buttonNext.Text = index == _steps.Count - 1 ? "Finish" : "Next >";
-      /// Select the current step's label.
+      // Select the current step's label.
       SelectStepLabelByIndex(index);
-      /// Add the current step's UserControl to the panel.
+      // Add the current step's UserControl to the panel.
       if (_steps[index].UserControl is IWizardItem<T>)
       {
         ((IWizardItem<T>)_steps[index].UserControl).UpdateContent();

@@ -24,7 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using AppStract.Manager.Wizard;
+using AppStract.Utilities.GUI.Wizard;
 
 namespace AppStract.Manager.Packaging.PostConfiguration
 {
@@ -67,7 +67,7 @@ namespace AppStract.Manager.Packaging.PostConfiguration
 
     #region Private EventHandlers
 
-    private void _lnkBrowseExecutable_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+    private void BrowseExecutable_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
     {
       do
       {
@@ -90,7 +90,7 @@ namespace AppStract.Manager.Packaging.PostConfiguration
       } while (true); 
     }
 
-    private void _listBoxItems_SelectedIndexChanged(object sender, EventArgs e)
+    private void SelectedItemChanged(object sender, EventArgs e)
     {
       SaveState();
       if (StateChanged != null)
