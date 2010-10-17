@@ -151,12 +151,14 @@ namespace AppStract.Manager.Packaging
           if (ex.FileName.ToLowerInvariant().Contains("appstract"))
             message += "\rThis file is part of the AppStract installation environment." +
 #if DEBUG
-                       "Verify your build settings.";
+ "Verify your build settings.";
 #else
                        "\rAttempt a reinstall of AppStract in case this message shows frequently.";
 #endif
         }
       }
+      else
+        message = "Failed to package the application.";
       return message;
     }
 
