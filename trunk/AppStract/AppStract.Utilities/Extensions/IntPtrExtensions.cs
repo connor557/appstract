@@ -115,6 +115,7 @@ namespace AppStract.Utilities.Extensions
     /// Returns a pointer for the current <see cref="object"/>.
     /// Always call <see cref="Marshal.FreeHGlobal"/> after usage, to free the allocated memory.
     /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     /// <param name="o"></param>
     /// <returns></returns>
     public static IntPtr ToPointer(this object o)
@@ -127,6 +128,7 @@ namespace AppStract.Utilities.Extensions
     /// Returns a pointer for the current <see cref="object"/>.
     /// Always call <see cref="Marshal.FreeHGlobal"/> after usage, to free the allocated memory.
     /// </summary>
+    /// <exception cref="NotSupportedException"></exception>
     /// <param name="o"></param>
     /// <param name="allocatedBytes"></param>
     /// <returns></returns>
@@ -146,12 +148,18 @@ namespace AppStract.Utilities.Extensions
         return ((char) o).ToPointer(out allocatedBytes);
       if (oType == typeof (byte) || oType == typeof (sbyte))
         return ((byte) o).ToPointer(out allocatedBytes);
-      if (oType == typeof (Int16) || oType == typeof (UInt16))
+      if (oType == typeof (Int16))
         return ((Int16) o).ToPointer(out allocatedBytes);
-      if (oType == typeof (Int32) || oType == typeof (UInt32))
+      if (oType == typeof (UInt16))
+        return new Union16 {UnsignedInteger = (UInt16) o}.Integer.ToPointer(out allocatedBytes);
+      if (oType == typeof (Int32))
         return ((Int32) o).ToPointer(out allocatedBytes);
-      if (oType == typeof (Int64) || oType == typeof (UInt64))
+      if (oType == typeof (UInt32))
+        return new Union32 {UnsignedInteger = (UInt32) o}.Integer.ToPointer(out allocatedBytes);
+      if (oType == typeof (Int64))
         return ((Int64) o).ToPointer(out allocatedBytes);
+      if (oType == typeof (UInt64))
+        return new Union64 {UnsignedInteger = (UInt64) o}.Integer.ToPointer(out allocatedBytes);
       if (oType == typeof (float))
         return ((float) o).ToPointer(out allocatedBytes);
       if (oType == typeof (double))
@@ -543,10 +551,23 @@ namespace AppStract.Utilities.Extensions
     #region Private Types
 
     /// <summary>
+    /// Represents an union for 16-bit types.
+    /// All fields in this union have the exact same binary value assigned to them.
+    /// </summary>
+    [StructLayout(LayoutKind.Explicit, Size = sizeof(Int16))]
+    private struct Union16
+    {
+      [FieldOffset(0)]
+      public Int16 Integer;
+      [FieldOffset(0)]
+      public UInt16 UnsignedInteger;
+    }
+
+    /// <summary>
     /// Represents an union for 32-bit types.
     /// All fields in this union have the exact same binary value assigned to them.
     /// </summary>
-    [StructLayout(LayoutKind.Explicit, Size=4)]
+    [StructLayout(LayoutKind.Explicit, Size=sizeof(Int32))]
     private struct Union32
     {
       [FieldOffset(0)]
@@ -561,7 +582,7 @@ namespace AppStract.Utilities.Extensions
     /// Represents an union for 64-bit types.
     /// All fields in this union have the exact same binary value assigned to them.
     /// </summary>
-    [StructLayout(LayoutKind.Explicit, Size = 8)]
+    [StructLayout(LayoutKind.Explicit, Size=sizeof(Int64))]
     private struct Union64
     {
       [FieldOffset(0)]
