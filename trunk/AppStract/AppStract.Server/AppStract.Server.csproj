@@ -104,9 +104,13 @@
     <Compile Include="Engine\FileSystem\HostFileSystem.cs" />
     <Compile Include="Engine\FileSystem\NativeTypes.cs" />
     <Compile Include="Engine\Hooking\FileSystemHookProvider.cs" />
+    <Compile Include="Engine\Hooking\FileSystemHookProvider.Delegates.cs" />
+    <Compile Include="Engine\Hooking\FileSystemHookProvider.Handler.cs" />
     <Compile Include="Engine\Hooking\HookHandler.cs" />
     <Compile Include="Engine\Hooking\HookProvider.cs" />
     <Compile Include="Engine\Hooking\RegistryHookProvider.cs" />
+    <Compile Include="Engine\Hooking\RegistryHookProvider.Delegates.cs" />
+    <Compile Include="Engine\Hooking\RegistryHookProvider.Handler.cs" />
     <Compile Include="Engine\Registry\RegistryRequest.cs" />
     <Compile Include="Engine\Registry\RegistrySwitch.cs" />
     <Compile Include="Engine\Registry\RegistryValueRequest.cs" />
