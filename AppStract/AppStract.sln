@@ -173,7 +173,8 @@ Global
 		{3421E153-CCA5-4819-9907-02340B8EB11B}.Release|x86.ActiveCfg = Release|Any CPU
 		{3421E153-CCA5-4819-9907-02340B8EB11B}.UnitTesting|Any CPU.ActiveCfg = Release|Any CPU
 		{3421E153-CCA5-4819-9907-02340B8EB11B}.UnitTesting|Any CPU.Build.0 = Release|Any CPU
-		{3421E153-CCA5-4819-9907-02340B8EB11B}.UnitTesting|x86.ActiveCfg = Release|Any CPU
+		{3421E153-CCA5-4819-9907-02340B8EB11B}.UnitTesting|x86.ActiveCfg = UnitTesting|x86
+		{3421E153-CCA5-4819-9907-02340B8EB11B}.UnitTesting|x86.Build.0 = UnitTesting|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
