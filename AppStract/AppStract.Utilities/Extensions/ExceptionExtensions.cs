@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Text;
 
 namespace AppStract.Utilities.Extensions
@@ -40,25 +41,36 @@ namespace AppStract.Utilities.Extensions
     public static string ToFormattedString(this Exception ex, bool includeStackTrace)
     {
       var exceptionFormatter = new StringBuilder();
-      exceptionFormatter.AppendLine("Exception: " + ex);
+      exceptionFormatter.AppendLine("Exception: " + ex.GetType());
       exceptionFormatter.AppendLine("  Message: " + ex.Message);
-      exceptionFormatter.AppendLine("  Site   : " + ex.TargetSite);
-      exceptionFormatter.AppendLine("  Source : " + ex.Source);
-      var inEx = ex.InnerException;
-      while (inEx != null)
-      {
-        exceptionFormatter.AppendLine("Inner Exception:");
-        exceptionFormatter.AppendLine("\t" + inEx);
-        exceptionFormatter.AppendLine("\t Message: " + inEx.Message);
-        inEx = inEx.InnerException;
-      }
+      exceptionFormatter.AppendLine("  Source : " + ex.GetTargetSite("AppStract"));
+      if (ex.InnerException != null)
+        exceptionFormatter.AppendLine("Inner " + ex.InnerException.ToFormattedString(false));
       if (includeStackTrace)
       {
-        exceptionFormatter.AppendLine("Stack Trace:");
+        exceptionFormatter.AppendLine("\r\nStack Trace:");
         exceptionFormatter.AppendLine(ex.StackTrace);
       }
       return exceptionFormatter.ToString();
     }
 
+    private static string GetTargetSite(this Exception ex, string typeRootNamespace)
+    {
+      if (ex == null)
+        throw new NullReferenceException();
+      if (string.IsNullOrEmpty(typeRootNamespace))
+        throw new ArgumentNullException("typeRootNamespace");
+      typeRootNamespace = " " + typeRootNamespace + ".";
+      var stack = ex.StackTrace.Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
+      var targetSite = stack.FirstOrDefault(stackItem => stackItem.Contains(typeRootNamespace));
+      if (string.IsNullOrEmpty(targetSite))
+        return ex.Source;
+      targetSite = targetSite.Substring(targetSite.IndexOf(typeRootNamespace) + 1);
+      var closingCharIndex = targetSite.IndexOf(')');
+      targetSite = closingCharIndex != -1
+                     ? targetSite.Substring(0, closingCharIndex + 1)
+                     : targetSite;
+      return targetSite;
+    }
   }
 }
