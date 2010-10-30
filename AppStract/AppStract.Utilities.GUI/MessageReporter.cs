@@ -24,51 +24,23 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using AppStract.Core.System.Logging;
+using AppStract.Utilities.Extensions;
 
 namespace AppStract.Utilities.GUI
 {
   public partial class MessageReporter : Form
   {
 
-    #region Types
-
-    /// <summary>
-    /// Callback method for the output of <see cref="MessageFormatter"/>.
-    /// </summary>
-    /// <param name="message"></param>
-    /// <param name="messageDetails"></param>
-    private delegate void ReportMessageEventHandler(string message, string messageDetails);
-
-    /// <summary>
-    /// Formats messages to be displayed by <see cref="MessageReporter"/>.
-    /// The output is formatted the same as in the log files.
-    /// </summary>
-    private class MessageFormatter : NullLogger
-    {
-
-      private readonly ReportMessageEventHandler _reportMessage;
-
-      public MessageFormatter(ReportMessageEventHandler reportMessageEventHandler)
-      {
-        LogLevel = LogLevel.All;
-        _reportMessage = reportMessageEventHandler;
-      }
-
-      protected override void Write(LogMessage message)
-      {
-        _reportMessage(message.Message, FormatException(message.Exception, LogLevel));
-      }
-
-    }
-
-    #endregion
-
     #region Variables
 
+    private const bool _DebugMode = 
+#if DEBUG
+      true;
+#else
+      false;
+#endif
     private const int _DefaultFullHeightAddition = 200;
     private readonly int _defaultCollapsedHeight;
-    private readonly MessageFormatter _formatter;
 
     #endregion
 
@@ -77,7 +49,6 @@ namespace AppStract.Utilities.GUI
     private MessageReporter()
     {
       InitializeComponent();
-      _formatter = new MessageFormatter(ReportMessage);
       _defaultCollapsedHeight = Size.Height;
     }
 
@@ -118,12 +89,10 @@ namespace AppStract.Utilities.GUI
     public static DialogResult Show(string message, string caption, string messageDetails, Exception exception, MessageBoxButtons messageBoxButtons, MessageBoxIcon messageBoxIcon)
     {
       var reporter = new MessageReporter();
-      var logLevel = GetBoxIconAsLogLevel(messageBoxIcon);
       reporter.ApplyButtonConfiguration(messageBoxButtons);
       reporter.ApplyIconConfiguration(messageBoxIcon);
       reporter.Text = caption;
-      reporter._txtMessageDetail.Text = messageDetails ?? "";
-      reporter._formatter.Log(new LogMessage(logLevel, message, exception));
+      reporter.SetMessage(message, messageDetails, exception == null ? null : exception.ToFormattedString(_DebugMode));
       reporter.ShowDialog();
       return reporter.DialogResult;
     }
@@ -200,10 +169,11 @@ namespace AppStract.Utilities.GUI
       // Available for future use.
     }
 
-    private void ReportMessage(string message, string formattedException)
+    private void SetMessage(string message, string messageDetails, string formattedException)
     {
-      _btnExpand.Enabled = !string.IsNullOrEmpty(_txtMessageDetail.Text) || !string.IsNullOrEmpty(formattedException);
+      _btnExpand.Enabled = !string.IsNullOrEmpty(messageDetails) || !string.IsNullOrEmpty(formattedException);
       _lblMessage.Text = message ?? "";
+      _txtMessageDetail.Text = messageDetails ?? "";
       if (formattedException != null)
       {
         if (!string.IsNullOrEmpty(_txtMessageDetail.Text))
@@ -244,21 +214,6 @@ namespace AppStract.Utilities.GUI
       if (sender is Button)
         DialogResult = (DialogResult)(sender as Control).Tag;
       Close();
-    }
-
-    #endregion
-
-    #region Private Static Methods
-
-    private static LogLevel GetBoxIconAsLogLevel(MessageBoxIcon boxIcon)
-    {
-      if (boxIcon == MessageBoxIcon.Exclamation)
-        return LogLevel.Warning;
-      if (boxIcon == MessageBoxIcon.Error)
-        return LogLevel.Error;
-      if (boxIcon == MessageBoxIcon.Stop)
-        return LogLevel.Critical;
-      return LogLevel.Information;
     }
 
     #endregion
