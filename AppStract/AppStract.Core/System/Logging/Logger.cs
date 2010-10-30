@@ -23,8 +23,8 @@
 
 using System;
 using System.IO;
-using System.Text;
 using System.Threading;
+using AppStract.Utilities.Extensions;
 
 namespace AppStract.Core.System.Logging
 {
@@ -183,46 +183,17 @@ namespace AppStract.Core.System.Logging
     /// <returns></returns>
     protected virtual string FormatLogMessage(LogMessage message)
     {
-      string formattedMessage
+      var formattedMessage
         = string.Format("{0} [{1}]{2} [{3}] {4}",
                         message.DateTime.ToString("yyyy-MM-dd HH:mm:ss.ffffff"),
                         message.Level,
                         message.Prefix != null ? " [" + message.Prefix + "]" : "",
                         message.SendingThread,
                         message.Message)
-          + (message.Exception != null ? "\r\n" + FormatException(message.Exception, message.Level) : "");
+          + (message.Exception != null
+               ? "\r\n" + message.Exception.ToFormattedString(MustIncludeStackTrace(message.Level))
+               : "");
       return formattedMessage;
-    }
-
-    /// <summary>
-    /// Formats the given <see cref="Exception"/> to a string.
-    /// </summary>
-    /// <param name="ex">The <see cref="Exception"/> to format.</param>
-    /// <param name="logLevel">
-    /// Specifies the amount of details which have to be formatted into the resulting string.
-    /// </param>
-    /// <returns></returns>
-    protected static string FormatException(Exception ex, LogLevel logLevel)
-    {
-      var exceptionFormatter = new StringBuilder();
-      exceptionFormatter.AppendLine("Exception: " + ex);
-      exceptionFormatter.AppendLine("  Message: " + ex.Message);
-      exceptionFormatter.AppendLine("  Site   : " + ex.TargetSite);
-      exceptionFormatter.AppendLine("  Source : " + ex.Source);
-      var inEx = ex.InnerException;
-      while (inEx != null)
-      {
-        exceptionFormatter.AppendLine("Inner Exception:");
-        exceptionFormatter.AppendLine("\t" + inEx);
-        exceptionFormatter.AppendLine("\t Message: " + inEx.Message);
-        inEx = inEx.InnerException;
-      }
-      if (logLevel == Logging.LogLevel.Debug)
-      {
-        exceptionFormatter.AppendLine("Stack Trace:");
-        exceptionFormatter.AppendLine(ex.StackTrace);
-      }
-      return exceptionFormatter.ToString();
     }
 
     #endregion
@@ -237,6 +208,17 @@ namespace AppStract.Core.System.Logging
     private void CallWriteForString(object message)
     {
       Write(message.ToString());
+    }
+
+    /// <summary>
+    /// Returns whether or not the stacktrace should be included when formatting
+    /// an <see cref="Exception"/> for the given <see cref="LogLevel"/>.
+    /// </summary>
+    /// <param name="logLevel"></param>
+    /// <returns></returns>
+    private static bool MustIncludeStackTrace(LogLevel logLevel)
+    {
+      return logLevel == LogLevel.Debug;
     }
 
     #endregion
