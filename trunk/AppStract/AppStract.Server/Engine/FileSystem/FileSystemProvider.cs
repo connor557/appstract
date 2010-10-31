@@ -75,10 +75,10 @@ namespace AppStract.Server.Engine.FileSystem
 
     public string GetVirtualPath(FileRequest request)
     {
-      if (string.IsNullOrEmpty(request.Path))
-        return request.Path;  // No path to virtualize.
-      if (!_virtualEnvironment.IsVirtualizable(request.Path))
-        return request.Path;  // The path is not virtualizable.
+      if (string.IsNullOrEmpty(request.Path)
+          || _virtualEnvironment.IsLocatedInVirtualFileSystem(request.Path)
+          || !_virtualEnvironment.IsVirtualizable(request.Path))
+        return request.Path;
       // Make sure to have a full path AND the path's long file name.
       // BUT only if the requested resource is NOT a library!
       if (request.ResourceType != ResourceType.Library
