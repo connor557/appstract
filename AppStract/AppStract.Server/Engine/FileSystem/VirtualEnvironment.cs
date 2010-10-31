@@ -89,7 +89,7 @@ namespace AppStract.Server.Engine.FileSystem
     }
 
     /// <summary>
-    /// Returns whether or nor the specified <paramref name="path"/> is virtualizable;
+    /// Returns whether or nor the specified <paramref name="path"/> is virtualizable.
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
@@ -114,6 +114,16 @@ namespace AppStract.Server.Engine.FileSystem
         return false;
       // None of the above, save to virtualize the specified path.
       return true;
+    }
+
+    /// <summary>
+    /// Returns whether or nor the specified <paramref name="path"/> is located in the virtual file system.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public bool IsLocatedInVirtualFileSystem(string path)
+    {
+      return path.StartsWith(_root, StringComparison.InvariantCultureIgnoreCase);
     }
 
     /// <summary>
@@ -159,10 +169,10 @@ namespace AppStract.Server.Engine.FileSystem
         return fileRequestResult;
       // Path doesn't exist, determine whether it should be used anyway.
       if (fileRequestResult.Request.ResourceType == ResourceType.Library)
-        // The target is a library unknown to the virtual environment.
+        // Don't use: The target is a library unknown to the virtual environment.
         fileRequestResult.Path = fileRequestResult.Request.Path;
       if (fileRequestResult.Request.CreationDisposition == FileCreationDisposition.OpenExisting)
-        // The target won't be created, it's save to return original path.
+        // Don't use: The target won't be created, it's save to return original path.
         fileRequestResult.Path = fileRequestResult.Request.Path;
       if (fileRequestResult.Request.CreationDisposition == FileCreationDisposition.Unspecified)
       {
