@@ -89,7 +89,23 @@ namespace AppStract.Server.Engine.Hooking
 
         ~HookingExclusion()
         {
-          Dispose();
+          Dispose(false);
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private void Dispose(bool disposing)
+        {
+          lock (_disposeLock)
+          {
+            if (_isDisposed) return;
+            _isDisposed = true;
+          }
+          EndHookingExclusion(_threadId);
+          if (disposing)
+            GC.SuppressFinalize(this);
         }
 
         #endregion
@@ -98,12 +114,7 @@ namespace AppStract.Server.Engine.Hooking
 
         public void Dispose()
         {
-          lock (_disposeLock)
-          {
-            if (_isDisposed) return;
-            _isDisposed = true;
-          }
-          EndHookingExclusion(_threadId);
+          Dispose(true);
         }
 
         #endregion
