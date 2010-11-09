@@ -122,10 +122,6 @@
       <Project>{73CC3214-9CAD-4723-BBBB-79BE7482E639}</Project>
       <Name>AppStract.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\AppStract.Host\AppStract.Host.csproj">
-      <Project>{735A66C3-D42E-4C07-9125-5304D1F1C542}</Project>
-      <Name>AppStract.Host</Name>
-    </ProjectReference>
     <ProjectReference Include="..\AppStract.Inject\AppStract.Inject.csproj">
       <Project>{35F16113-D3A5-4D1A-AFCB-F778D5197D4E}</Project>
       <Name>AppStract.Inject</Name>
