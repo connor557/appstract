@@ -28,8 +28,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Server", "AppStra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Inject", "AppStract.Inject\AppStract.Inject.csproj", "{35F16113-D3A5-4D1A-AFCB-F778D5197D4E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Host", "AppStract.Host\AppStract.Host.csproj", "{735A66C3-D42E-4C07-9125-5304D1F1C542}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyHook", "EasyHook\EasyHook.csproj", "{AB53862B-3B5C-4EFC-9787-1F01199EBFBF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Wrapper", "AppStract.Wrapper\AppStract.Wrapper.csproj", "{0D55D71A-B787-4550-B450-E245BB6BCEE1}"
@@ -110,18 +108,6 @@ Global
 		{35F16113-D3A5-4D1A-AFCB-F778D5197D4E}.UnitTesting|Any CPU.Build.0 = UnitTesting|Any CPU
 		{35F16113-D3A5-4D1A-AFCB-F778D5197D4E}.UnitTesting|x86.ActiveCfg = UnitTesting|x86
 		{35F16113-D3A5-4D1A-AFCB-F778D5197D4E}.UnitTesting|x86.Build.0 = UnitTesting|x86
-		{735A66C3-D42E-4C07-9125-5304D1F1C542}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{735A66C3-D42E-4C07-9125-5304D1F1C542}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{735A66C3-D42E-4C07-9125-5304D1F1C542}.Debug|x86.ActiveCfg = Debug|x86
-		{735A66C3-D42E-4C07-9125-5304D1F1C542}.Debug|x86.Build.0 = Debug|x86
-		{735A66C3-D42E-4C07-9125-5304D1F1C542}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{735A66C3-D42E-4C07-9125-5304D1F1C542}.Release|Any CPU.Build.0 = Release|Any CPU
-		{735A66C3-D42E-4C07-9125-5304D1F1C542}.Release|x86.ActiveCfg = Release|x86
-		{735A66C3-D42E-4C07-9125-5304D1F1C542}.Release|x86.Build.0 = Release|x86
-		{735A66C3-D42E-4C07-9125-5304D1F1C542}.UnitTesting|Any CPU.ActiveCfg = UnitTesting|Any CPU
-		{735A66C3-D42E-4C07-9125-5304D1F1C542}.UnitTesting|Any CPU.Build.0 = UnitTesting|Any CPU
-		{735A66C3-D42E-4C07-9125-5304D1F1C542}.UnitTesting|x86.ActiveCfg = UnitTesting|x86
-		{735A66C3-D42E-4C07-9125-5304D1F1C542}.UnitTesting|x86.Build.0 = UnitTesting|x86
 		{AB53862B-3B5C-4EFC-9787-1F01199EBFBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AB53862B-3B5C-4EFC-9787-1F01199EBFBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB53862B-3B5C-4EFC-9787-1F01199EBFBF}.Debug|x86.ActiveCfg = Debug|x86
