@@ -24,6 +24,8 @@
 using System;
 using System.Windows.Forms;
 using AppStract.Core;
+using AppStract.Core.System.Logging;
+using AppStract.Utilities.Helpers;
 
 namespace AppStract.Manager
 {
@@ -34,16 +36,88 @@ namespace AppStract.Manager
   /// </summary>
   static class Program
   {
+
     /// <summary>
-    /// The main entry point for the application.
+    /// The main entry point for the host.
     /// </summary>
+    /// <param name="args"></param>
     [STAThread]
-    static void Main()
+    static void Main(string[] args)
     {
+      System.Threading.Thread.CurrentThread.Name = "Main";
+      var parser = new CommandlineParser(args);
       CoreManager.InitializeCore();
-      Application.EnableVisualStyles();
-      Application.SetCompatibleTextRenderingDefault(false);
-      Application.Run(new FrmManager());
+#if !DEBUG
+      try
+      {
+#endif
+      if (parser.HasDefinitions)
+      {
+        ConfigureFromArgs(parser);
+        CoreManager.StartProcess(parser.IsDefined(CommandlineOption.ApplicationDataFile)
+                                   ? parser.GetOption(CommandlineOption.ApplicationDataFile)
+                                   : CoreBus.Configuration.Application.DefaultApplicationDataFile);
+      }
+      else
+      {
+        Application.EnableVisualStyles();
+        Application.SetCompatibleTextRenderingDefault(false);
+        Application.Run(new FrmManager());
+      }
+#if !DEBUG
+      }
+      catch(Exception ex)
+      {
+      // ToDo: Refactor following code to use WinForm in stead of console window
+        CoreBus.Log.Critical("A fatal exception occured.", ex);
+        ProcessHelper.SetWindowState(WindowShowStyle.ShowNormal);
+        Console.WriteLine("\r\n\r\n\r\n\r\n\r\n\r\n");
+        Console.WriteLine("############################################################\r\n");
+        Console.WriteLine(" A fatal exception occured, see below for more information.\r\n");
+        Console.WriteLine("############################################################\r\n");
+        Console.WriteLine(ex.GetType());
+        Console.WriteLine(" -> " + ex.Message);
+      }
+#endif
+      Console.WriteLine("\r\n\r\nPress any key to exit.\r\n");
+      Console.ReadLine();
     }
+
+    /// <summary>
+    /// Configures the application with settings extracted from <paramref name="argParser"/>.
+    /// </summary>
+    /// <param name="argParser"></param>
+    private static void ConfigureFromArgs(CommandlineParser argParser)
+    {
+      if (argParser.IsDefined(CommandlineOption.LogOutput))
+      {
+        LogType type;
+        if (ParserHelper.TryParseEnum(argParser.GetOption(CommandlineOption.LogOutput), out type))
+        {
+          if (argParser.IsDefined(CommandlineOption.LogFile))
+            CoreBus.Configuration.SetLogOutput(type, argParser.GetOption(CommandlineOption.LogFile));
+          else
+            CoreBus.Configuration.SetLogOutput(type);
+        }
+      }
+      else if (argParser.IsDefined(CommandlineOption.LogFile)
+               && CoreBus.Log.Type == LogType.File)
+      {
+        CoreBus.Configuration.SetLogOutput(LogType.File, argParser.GetOption(CommandlineOption.LogFile));
+      }
+      if (argParser.IsDefined(CommandlineOption.LogLevel))
+      {
+        LogLevel logLevel;
+        if (ParserHelper.TryParseEnum(argParser.GetOption(CommandlineOption.LogLevel), out logLevel))
+          CoreBus.Configuration.SetLogLevel(logLevel);
+      }
+      if (argParser.IsDefined(CommandlineOption.ShowWindow))
+      {
+        var showWindow = argParser.GetOption(CommandlineOption.ShowWindow);
+        if (showWindow != "1" && showWindow.ToUpperInvariant() != "TRUE")
+          ProcessHelper.SetWindowState(WindowShowStyle.Hide);
+      }
+    }
+
   }
 }

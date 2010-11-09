@@ -103,6 +103,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandlineOption.cs" />
+    <Compile Include="CommandlineParser.cs" />
     <Compile Include="Packaging\PackagingHelper.cs" />
     <Compile Include="Utilities\ApplicationConfiguration\ApplicationFilesPage.cs">
       <SubType>UserControl</SubType>
