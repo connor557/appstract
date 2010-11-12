@@ -23,7 +23,7 @@
 
 using System;
 using System.Collections.Generic;
-using AppStract.Core.System.Logging;
+using AppStract.Utilities.Logging;
 
 namespace AppStract.Core.System.IPC
 {

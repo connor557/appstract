@@ -26,7 +26,7 @@ using System.IO;
 using System.Threading;
 using AppStract.Utilities.Extensions;
 
-namespace AppStract.Core.System.Logging
+namespace AppStract.Utilities.Logging
 {
   /// <summary>
   /// Provides the common implementation of a log service.
