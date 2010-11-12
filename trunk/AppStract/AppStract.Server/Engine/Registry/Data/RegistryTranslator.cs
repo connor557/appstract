@@ -25,7 +25,7 @@ using System;
 using System.Security.Principal;
 using Microsoft.Win32;
 
-namespace AppStract.Server.Engine.Registry.Data
+namespace AppStract.Engine.Engine.Registry.Data
 {
   /// <summary>
   /// <see cref="RegistryTranslator"/> provides two-way translations between virtual

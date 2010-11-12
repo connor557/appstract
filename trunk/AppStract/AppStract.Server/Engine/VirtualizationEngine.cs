@@ -23,11 +23,11 @@
 
 using System;
 using AppStract.Core.System.IPC;
-using AppStract.Server.Engine.FileSystem;
-using AppStract.Server.Engine.Hooking;
-using AppStract.Server.Engine.Registry;
+using AppStract.Engine.Engine.FileSystem;
+using AppStract.Engine.Engine.Hooking;
+using AppStract.Engine.Engine.Registry;
 
-namespace AppStract.Server.Engine
+namespace AppStract.Engine.Engine
 {
   /// <summary>
   /// Manages the complete virtual environment.

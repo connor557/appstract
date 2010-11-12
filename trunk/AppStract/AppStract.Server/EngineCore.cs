@@ -25,11 +25,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using AppStract.Core.System.IPC;
-using AppStract.Server.Engine;
+using AppStract.Engine.Engine;
 using AppStract.Utilities.Logging;
 using EasyHook;
 
-namespace AppStract.Server
+namespace AppStract.Engine
 {
   /// <summary>
   /// The static core class of the guest's process.

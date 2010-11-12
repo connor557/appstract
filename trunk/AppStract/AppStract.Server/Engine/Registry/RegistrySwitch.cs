@@ -26,10 +26,10 @@ using System.Collections.Generic;
 using AppStract.Core.Data.Databases;
 using AppStract.Core.Virtualization.Engine;
 using AppStract.Core.Virtualization.Engine.Registry;
-using AppStract.Server.Engine.Registry.Data;
+using AppStract.Engine.Engine.Registry.Data;
 using Microsoft.Win32;
 
-namespace AppStract.Server.Engine.Registry
+namespace AppStract.Engine.Engine.Registry
 {
   /// <summary>
   /// This class functions as a switch for <see cref="VirtualRegistry"/> and <see cref="TransparentRegistry"/>.

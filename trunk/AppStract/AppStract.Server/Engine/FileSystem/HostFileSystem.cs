@@ -28,7 +28,7 @@ using System.Runtime.InteropServices;
 using AppStract.Core.Virtualization.Engine.FileSystem;
 using HostRegistry = Microsoft.Win32.Registry;
 
-namespace AppStract.Server.Engine.FileSystem
+namespace AppStract.Engine.Engine.FileSystem
 {
   /// <summary>
   /// Provides helper methods for querying and manipulating the host's file system.

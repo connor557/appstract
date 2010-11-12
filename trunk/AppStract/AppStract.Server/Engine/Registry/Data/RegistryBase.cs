@@ -30,7 +30,7 @@ using AppStract.Core.Virtualization.Engine;
 using AppStract.Core.Virtualization.Engine.Registry;
 using AppStract.Utilities.Extensions;
 
-namespace AppStract.Server.Engine.Registry.Data
+namespace AppStract.Engine.Engine.Registry.Data
 {
   /// <summary>
   /// Abstract class providing a base for all data providers in the registry's virtualization engine.

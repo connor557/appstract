@@ -23,7 +23,7 @@
 
 using AppStract.Core.Virtualization.Engine.Registry;
 
-namespace AppStract.Server.Engine.Registry
+namespace AppStract.Engine.Engine.Registry
 {
   /// <summary>
   /// Represents a request for a value in the virtual registry.

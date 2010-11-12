@@ -25,7 +25,7 @@ using System;
 using System.IO;
 using AppStract.Core.Virtualization.Engine.FileSystem;
 
-namespace AppStract.Server.Engine.FileSystem
+namespace AppStract.Engine.Engine.FileSystem
 {
   /// <summary>
   /// Provides information about, and means to manipulate,

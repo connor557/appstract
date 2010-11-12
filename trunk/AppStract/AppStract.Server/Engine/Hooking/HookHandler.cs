@@ -23,7 +23,7 @@
 
 using System;
 
-namespace AppStract.Server.Engine.Hooking
+namespace AppStract.Engine.Engine.Hooking
 {
   /// <summary>
   /// Abstract class representing a type able to handle intercepted API hooks.

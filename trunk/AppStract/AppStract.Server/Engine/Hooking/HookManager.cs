@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EasyHook;
 
-namespace AppStract.Server.Engine.Hooking
+namespace AppStract.Engine.Engine.Hooking
 {
   /// <summary>
   /// Manages the API hooks which are available and/or installed for the current process.

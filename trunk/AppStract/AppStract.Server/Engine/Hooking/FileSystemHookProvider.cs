@@ -24,7 +24,7 @@
 using System.Collections.Generic;
 using AppStract.Core.Virtualization.Engine.FileSystem;
 
-namespace AppStract.Server.Engine.Hooking
+namespace AppStract.Engine.Engine.Hooking
 {
   /// <summary>
   /// Provides all API hooks regarding the file system.

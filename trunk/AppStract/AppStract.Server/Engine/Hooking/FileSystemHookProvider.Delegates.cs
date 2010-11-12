@@ -24,9 +24,9 @@
 using System;
 using System.Runtime.InteropServices;
 using AppStract.Core.Virtualization.Engine.FileSystem;
-using AppStract.Server.Engine.FileSystem;
+using AppStract.Engine.Engine.FileSystem;
 
-namespace AppStract.Server.Engine.Hooking
+namespace AppStract.Engine.Engine.Hooking
 {
   public partial class FileSystemHookProvider
   {
