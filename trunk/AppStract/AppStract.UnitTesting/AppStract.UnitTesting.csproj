@@ -130,9 +130,9 @@
       <Project>{9497B6D7-48A2-4B3F-B0A3-880A2A8724C3}</Project>
       <Name>AppStract.Manager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\AppStract.Server\AppStract.Server.csproj">
+    <ProjectReference Include="..\AppStract.Server\AppStract.Engine.csproj">
       <Project>{4944058E-49BF-4CF8-968D-D905731EC728}</Project>
-      <Name>AppStract.Server</Name>
+      <Name>AppStract.Engine</Name>
     </ProjectReference>
     <ProjectReference Include="..\AppStract.Utilities\AppStract.Utilities.csproj">
       <Project>{29578947-FFF4-4A0A-9C75-AE3C5E03F746}</Project>

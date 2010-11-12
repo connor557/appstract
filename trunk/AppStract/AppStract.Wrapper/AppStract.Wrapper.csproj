@@ -101,9 +101,9 @@
       <Project>{73CC3214-9CAD-4723-BBBB-79BE7482E639}</Project>
       <Name>AppStract.Host</Name>
     </ProjectReference>
-    <ProjectReference Include="..\AppStract.Server\AppStract.Server.csproj">
+    <ProjectReference Include="..\AppStract.Server\AppStract.Engine.csproj">
       <Project>{4944058E-49BF-4CF8-968D-D905731EC728}</Project>
-      <Name>AppStract.Server</Name>
+      <Name>AppStract.Engine</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
