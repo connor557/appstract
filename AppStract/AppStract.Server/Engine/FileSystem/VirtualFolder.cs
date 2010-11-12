@@ -77,7 +77,7 @@ namespace AppStract.Server.Engine.FileSystem
         case VirtualFolder.ApplicationData:
           return @"ApplicationData\";
       }
-      GuestCore.Log.Critical("Unknown virtual folder: " + virtualFolder);
+      EngineCore.Log.Critical("Unknown virtual folder: " + virtualFolder);
       return null;
     }
   }

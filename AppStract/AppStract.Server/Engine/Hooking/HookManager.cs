@@ -266,11 +266,11 @@ namespace AppStract.Server.Engine.Hooking
     /// </exception>
     public void InstallHooks()
     {
-      GuestCore.Log.Debug("Invoking API hook installation procedure.");
+      EngineCore.Log.Debug("Invoking API hook installation procedure.");
       lock (_syncRoot)
         foreach (var hookProvider in _hookProviders)
           hookProvider.InstallHooks(InstallHook);
-      GuestCore.Log.Debug("Finished API hook installation.");
+      EngineCore.Log.Debug("Finished API hook installation.");
     }
 
     /// <summary>

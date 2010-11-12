@@ -108,7 +108,7 @@ namespace AppStract.Server.Engine.Registry
         // Unknown handle, and allowed to be recovered and virtualized.
         result = TryRecoverUnknownHandle(request);
       else
-        GuestCore.Log.Error("Unknown registry key handle => {0}", request.Handle);
+        EngineCore.Log.Error("Unknown registry key handle => {0}", request.Handle);
       request.VirtualizationType = GetVirtualizationType(request.KeyFullPath);
       return result;
     }
@@ -139,7 +139,7 @@ namespace AppStract.Server.Engine.Registry
     /// <returns>The <see cref="VirtualizationType"/>, indicating how the key should be accessed.</returns>
     private static VirtualizationType GetFallBackVirtualizationType(string keyFullPath)
     {
-      GuestCore.Log.Error("Falling back to default rules, no rule specified for \"" + keyFullPath + "\"");
+      EngineCore.Log.Error("Falling back to default rules, no rule specified for \"" + keyFullPath + "\"");
       var hive = HiveHelper.GetHive(keyFullPath);
       if (hive == RegistryHive.Users
           || hive == RegistryHive.CurrentUser)
@@ -177,10 +177,10 @@ namespace AppStract.Server.Engine.Registry
       request.KeyFullPath = HostRegistry.GetKeyNameByHandle(request.Handle);
       if (request.KeyFullPath == null)
       {
-        GuestCore.Log.Error("Unknown registry key handle => {0}", request.Handle);
+        EngineCore.Log.Error("Unknown registry key handle => {0}", request.Handle);
         return null;
       }
-      GuestCore.Log.Warning("Recovering from unknown registry key handle => {0} => {1}", request.Handle,
+      EngineCore.Log.Warning("Recovering from unknown registry key handle => {0} => {1}", request.Handle,
                             request.KeyFullPath);
       // Teach target about the recovered key handle.
       var recoveredHandle = request.Handle;
@@ -199,7 +199,7 @@ namespace AppStract.Server.Engine.Registry
           error = e;
         }
       }
-      GuestCore.Log.Error("Unable to recover from unknown registry key handle => {0}",
+      EngineCore.Log.Error("Unable to recover from unknown registry key handle => {0}",
                           error, request.Handle, request.KeyFullPath);
       return null;
     }

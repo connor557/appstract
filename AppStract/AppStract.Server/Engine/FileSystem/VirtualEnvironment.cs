@@ -151,10 +151,10 @@ namespace AppStract.Server.Engine.FileSystem
     /// <returns>True if all folders are created; False if the creation of one or more folders failed.</returns>
     private static void CreateSystemFolders(string rootDirectory)
     {
-      GuestCore.Log.Message("Creating system folders for a virtual environment with root \"{0}\"", rootDirectory);
+      EngineCore.Log.Message("Creating system folders for a virtual environment with root \"{0}\"", rootDirectory);
       foreach (VirtualFolder virtualFolder in Enum.GetValues(typeof(VirtualFolder)))
         if (!HostFileSystem.TryCreateDirectory(Path.Combine(rootDirectory, virtualFolder.ToPath())))
-          GuestCore.Log.Critical("Failed to create virtual system folder: " + virtualFolder);
+          EngineCore.Log.Critical("Failed to create virtual system folder: " + virtualFolder);
     }
 
     /// <summary>

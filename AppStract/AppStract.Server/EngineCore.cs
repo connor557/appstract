@@ -34,13 +34,13 @@ namespace AppStract.Server
   /// <summary>
   /// The static core class of the guest's process.
   /// </summary>
-  public static class GuestCore
+  public static class EngineCore
   {
 
     #region Variables
 
     /// <summary>
-    /// Indicates whether the <see cref="GuestCore"/> is initialized.
+    /// Indicates whether the <see cref="EngineCore"/> is initialized.
     /// </summary>
     private static bool _initialized;
     /// <summary>
@@ -68,7 +68,7 @@ namespace AppStract.Server
     /// </summary>
     private static readonly List<ExitRequestEventHandler> _exitRequestEventHandlersCollection = new List<ExitRequestEventHandler>(1);
     /// <summary>
-    /// The object to lock when initializing the <see cref="GuestCore"/> and/or changing any of the class events.
+    /// The object to lock when initializing the <see cref="EngineCore"/> and/or changing any of the class events.
     /// </summary>
     private static readonly object _syncRoot = new object();
 
@@ -132,8 +132,8 @@ namespace AppStract.Server
     #region Events
 
     /// <summary>
-    /// Occurs before <see cref="GuestCore"/> tries to kill the current process,
-    /// and/or when <see cref="GuestCore"/> detects that the current process is terminating.
+    /// Occurs before <see cref="EngineCore"/> tries to kill the current process,
+    /// and/or when <see cref="EngineCore"/> detects that the current process is terminating.
     /// </summary>
     /// <remarks>
     /// It's possible that this event is raised multiple times during process shutdown.
@@ -159,7 +159,7 @@ namespace AppStract.Server
     #region Public Methods
 
     /// <summary>
-    /// Initializes the <see cref="GuestCore"/>.
+    /// Initializes the <see cref="EngineCore"/>.
     /// </summary>
     /// <param name="processSynchronizer">
     /// The <see cref="IProcessSynchronizer"/> to use for communication with the host.
@@ -190,7 +190,7 @@ namespace AppStract.Server
     /// </summary>
     /// <exception cref="EngineException">
     /// In case it's not possible to start the virtualization engine the following actions are taken:
-    /// - <see cref="GuestCore"/> signals the termination of the current process, using <see cref="TerminateProcess"/>.
+    /// - <see cref="EngineCore"/> signals the termination of the current process, using <see cref="TerminateProcess"/>.
     /// - An <see cref="EngineException"/> is thrown if the process can't be terminated.
     /// </exception>
     /// <exception cref="GuestException">
@@ -201,7 +201,7 @@ namespace AppStract.Server
     {
       lock (_syncRoot)
         if (!_initialized)
-          throw new EngineException("GuestCore must be initialized before the virtualization engine can be started.");
+          throw new EngineException("EngineCore must be initialized before the virtualization engine can be started.");
       try
       {
         _engine.StartEngine();
