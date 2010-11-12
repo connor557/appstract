@@ -30,7 +30,7 @@ using AppStract.Core.Virtualization.Engine.Registry;
 using AppStract.Core.System.IPC;
 using AppStract.Utilities.Observables;
 
-namespace AppStract.Server.Engine
+namespace AppStract.Engine.Engine
 {
   /// <summary>
   /// Synchronizes queuries with the host process.

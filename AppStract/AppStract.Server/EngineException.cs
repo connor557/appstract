@@ -24,7 +24,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace AppStract.Server
+namespace AppStract.Engine
 {
   /// <summary>
   /// Represents errors that occur in the virtualization engine.

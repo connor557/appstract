@@ -24,7 +24,7 @@
 using System;
 using EasyHook;
 
-namespace AppStract.Server.Engine.Hooking
+namespace AppStract.Engine.Engine.Hooking
 {
   /// <summary>
   /// The data needed for creating a managed hook.

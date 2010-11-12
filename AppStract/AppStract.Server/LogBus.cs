@@ -28,7 +28,7 @@ using System.Timers;
 using AppStract.Core.System.IPC;
 using AppStract.Utilities.Logging;
 
-namespace AppStract.Server
+namespace AppStract.Engine
 {
   /// <summary>
   /// A <see cref="Logger"/> which sends all received messages to the host process,

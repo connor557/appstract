@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace AppStract.Server
+namespace AppStract.Engine
 {
   /// <summary>
   /// Handles a request for starting the exit procedure of the current process.

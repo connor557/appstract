@@ -23,7 +23,7 @@
 
 using System;
 
-namespace AppStract.Server
+namespace AppStract.Engine
 {
   /// <summary>
   /// Defines methods to terminate a process.

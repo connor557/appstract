@@ -28,7 +28,7 @@ using AppStract.Core.Virtualization.Engine.Registry;
 using AppStract.Utilities.Extensions;
 using ValueType = AppStract.Core.Virtualization.Engine.Registry.ValueType;
 
-namespace AppStract.Server.Engine.Registry.Data
+namespace AppStract.Engine.Engine.Registry.Data
 {
   /// <summary>
   /// Database for all the keys known by the virtual registry.

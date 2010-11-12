@@ -24,7 +24,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace AppStract.Server.Engine.Hooking
+namespace AppStract.Engine.Engine.Hooking
 {
   /// <summary>
   /// Abstract class representing a type able to provide API hooks.

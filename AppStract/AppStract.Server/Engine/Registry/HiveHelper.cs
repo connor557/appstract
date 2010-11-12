@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Win32;
 
-namespace AppStract.Server.Engine.Registry
+namespace AppStract.Engine.Engine.Registry
 {
   /// <summary>
   /// Provides helper methods for actions related to registry hives.

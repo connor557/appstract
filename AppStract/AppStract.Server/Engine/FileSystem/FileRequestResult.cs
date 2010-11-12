@@ -23,7 +23,7 @@
 
 using AppStract.Core.Virtualization.Engine.FileSystem;
 
-namespace AppStract.Server.Engine.FileSystem
+namespace AppStract.Engine.Engine.FileSystem
 {
   /// <summary>
   /// Wraps a <see cref="FileRequest"/> and the data resulting from handling that <see cref="FileRequest"/>.

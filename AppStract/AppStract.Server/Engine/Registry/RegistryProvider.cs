@@ -26,7 +26,7 @@ using AppStract.Core.Virtualization.Engine;
 using AppStract.Core.Virtualization.Engine.Registry;
 using AppStract.Utilities.Observables;
 
-namespace AppStract.Server.Engine.Registry
+namespace AppStract.Engine.Engine.Registry
 {
   /// <summary>
   /// The default implementation of <see cref="IRegistryProvider"/>, providing a virtualized Windows registry.

@@ -28,7 +28,7 @@ using AppStract.Core.Virtualization.Engine.Registry;
 using AppStract.Utilities.Extensions;
 using ValueType = AppStract.Core.Virtualization.Engine.Registry.ValueType;
 
-namespace AppStract.Server.Engine.Hooking
+namespace AppStract.Engine.Engine.Hooking
 {
   public partial class RegistryHookProvider
   {
