@@ -118,9 +118,9 @@
     <Compile Include="Utilities\Observables\ObservableQueueTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AppStract.Core\AppStract.Core.csproj">
+    <ProjectReference Include="..\AppStract.Core\AppStract.Host.csproj">
       <Project>{73CC3214-9CAD-4723-BBBB-79BE7482E639}</Project>
-      <Name>AppStract.Core</Name>
+      <Name>AppStract.Host</Name>
     </ProjectReference>
     <ProjectReference Include="..\AppStract.Inject\AppStract.Inject.csproj">
       <Project>{35F16113-D3A5-4D1A-AFCB-F778D5197D4E}</Project>
