@@ -98,7 +98,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Engine\EngineException.cs" />
+    <Compile Include="EngineException.cs" />
     <Compile Include="Engine\VirtualizationEngine.cs" />
     <Compile Include="Engine\FileSystem\FileRequestResult.cs" />
     <Compile Include="Engine\FileSystem\HostFileSystem.cs" />
@@ -122,7 +122,6 @@
     <Compile Include="Engine\FileSystem\VirtualFolder.cs" />
     <Compile Include="Engine\FileSystem\FileSystemProvider.cs" />
     <Compile Include="GuestCore.cs" />
-    <Compile Include="GuestException.cs" />
     <Compile Include="Engine\Hooking\HookData.cs" />
     <Compile Include="Engine\Hooking\HookingException.cs" />
     <Compile Include="Engine\Hooking\HookManager.cs" />
