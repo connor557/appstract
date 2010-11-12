@@ -21,22 +21,13 @@
 
 #endregion
 
-namespace AppStract.Core.System.Logging
+namespace AppStract.Utilities.Logging
 {
-  /// <summary>
-  /// A <see cref="Logger"/> which ignores all received messages.
-  /// </summary>
-  public class NullLogger : Logger
+  public enum LogType
   {
-
-    public NullLogger()
-    {
-      _logType = LogType.Null;
-    }
-
-    protected override void Write(string message)
-    {
-      return;
-    }
+    Other,
+    Console,
+    File,
+    Null
   }
 }

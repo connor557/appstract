@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Timers;
 #endif
 using AppStract.Core.System.IPC;
-using AppStract.Core.System.Logging;
+using AppStract.Utilities.Logging;
 
 namespace AppStract.Server
 {

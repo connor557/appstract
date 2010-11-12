@@ -24,8 +24,8 @@
 using System;
 using System.Windows.Forms;
 using AppStract.Core;
-using AppStract.Core.System.Logging;
 using AppStract.Utilities.Helpers;
+using AppStract.Utilities.Logging;
 
 namespace AppStract.Manager
 {

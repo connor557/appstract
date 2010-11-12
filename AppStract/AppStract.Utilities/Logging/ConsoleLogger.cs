@@ -21,16 +21,27 @@
 
 #endregion
 
-namespace AppStract.Core.System.Logging
+using System;
+
+namespace AppStract.Utilities.Logging
 {
-  public enum LogLevel
+  /// <summary>
+  /// A <see cref="Logger"/> which writes all received messages to the console window.
+  /// </summary>
+  public class ConsoleLogger : Logger
   {
-    None = 0,
-    Critical = 1,
-    Error = 2,
-    Warning = 3,
-    Information = 4,
-    Debug = 5,
-    All = int.MaxValue
+
+    #region Constructors
+
+    public ConsoleLogger()
+      : base(LogType.Console, LogLevel.All, Console.Out)
+    { }
+
+    public ConsoleLogger(LogLevel logLevel)
+      : base(LogType.Console, logLevel, Console.Out)
+    { }
+
+    #endregion
+
   }
 }

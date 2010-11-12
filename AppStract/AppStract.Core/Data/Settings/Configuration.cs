@@ -21,7 +21,7 @@
 
 #endregion
 
-using AppStract.Core.System.Logging;
+using AppStract.Utilities.Logging;
 
 namespace AppStract.Core.Data.Settings
 {

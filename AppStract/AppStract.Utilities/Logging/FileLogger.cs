@@ -23,7 +23,7 @@
 
 using System.IO;
 
-namespace AppStract.Core.System.Logging
+namespace AppStract.Utilities.Logging
 {
   /// <summary>
   /// A <see cref="Logger"/> which writes all received messages to a file.

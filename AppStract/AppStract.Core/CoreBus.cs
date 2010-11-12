@@ -23,7 +23,7 @@
 
 using AppStract.Core.Data.Settings;
 using AppStract.Core.System;
-using AppStract.Core.System.Logging;
+using AppStract.Utilities.Logging;
 
 namespace AppStract.Core
 {

@@ -24,7 +24,7 @@
 using System;
 using System.Threading;
 
-namespace AppStract.Core.System.Logging
+namespace AppStract.Utilities.Logging
 {
   /// <summary>
   /// Represents a message that needs to be written to the log.

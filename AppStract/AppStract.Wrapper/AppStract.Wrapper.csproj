@@ -105,6 +105,10 @@
       <Project>{4944058E-49BF-4CF8-968D-D905731EC728}</Project>
       <Name>AppStract.Engine</Name>
     </ProjectReference>
+    <ProjectReference Include="..\AppStract.Utilities\AppStract.Utilities.csproj">
+      <Project>{29578947-FFF4-4A0A-9C75-AE3C5E03F746}</Project>
+      <Name>AppStract.Utilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="AppStract.Wrapper.Signature.snk" />

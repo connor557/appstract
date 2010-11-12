@@ -122,13 +122,6 @@
     <Compile Include="System\Runtime.cs" />
     <Compile Include="System\GAC\GacException.cs" />
     <Compile Include="System\GAC\GacManager.cs" />
-    <Compile Include="System\Logging\ConsoleLogger.cs" />
-    <Compile Include="System\Logging\FileLogger.cs" />
-    <Compile Include="System\Logging\Logger.cs" />
-    <Compile Include="System\Logging\LogLevel.cs" />
-    <Compile Include="System\Logging\LogType.cs" />
-    <Compile Include="System\Logging\LogMessage.cs" />
-    <Compile Include="System\Logging\NullLogger.cs" />
     <Compile Include="CoreBus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CoreException.cs" />
