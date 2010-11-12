@@ -97,9 +97,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AppStract.Core\AppStract.Core.csproj">
+    <ProjectReference Include="..\AppStract.Core\AppStract.Host.csproj">
       <Project>{73CC3214-9CAD-4723-BBBB-79BE7482E639}</Project>
-      <Name>AppStract.Core</Name>
+      <Name>AppStract.Host</Name>
     </ProjectReference>
     <ProjectReference Include="..\AppStract.Server\AppStract.Server.csproj">
       <Project>{4944058E-49BF-4CF8-968D-D905731EC728}</Project>

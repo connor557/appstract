@@ -8,8 +8,8 @@
     <ProjectGuid>{73CC3214-9CAD-4723-BBBB-79BE7482E639}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AppStract.Core</RootNamespace>
-    <AssemblyName>AppStract.Core</AssemblyName>
+    <RootNamespace>AppStract.Host</RootNamespace>
+    <AssemblyName>AppStract.Host</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>

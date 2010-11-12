@@ -22,7 +22,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Manager", "AppStr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Utilities", "AppStract.Utilities\AppStract.Utilities.csproj", "{29578947-FFF4-4A0A-9C75-AE3C5E03F746}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Core", "AppStract.Core\AppStract.Core.csproj", "{73CC3214-9CAD-4723-BBBB-79BE7482E639}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Host", "AppStract.Core\AppStract.Host.csproj", "{73CC3214-9CAD-4723-BBBB-79BE7482E639}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Server", "AppStract.Server\AppStract.Server.csproj", "{4944058E-49BF-4CF8-968D-D905731EC728}"
 EndProject
