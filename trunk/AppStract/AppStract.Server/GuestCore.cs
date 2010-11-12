@@ -201,7 +201,7 @@ namespace AppStract.Server
     {
       lock (_syncRoot)
         if (!_initialized)
-          throw new GuestException("GuestCore must be initialized before the virtualization engine can be started.");
+          throw new EngineException("GuestCore must be initialized before the virtualization engine can be started.");
       try
       {
         _engine.StartEngine();

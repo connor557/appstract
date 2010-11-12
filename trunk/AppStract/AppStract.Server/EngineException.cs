@@ -24,13 +24,13 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace AppStract.Server.Engine
+namespace AppStract.Server
 {
   /// <summary>
   /// Represents errors that occur in the virtualization engine.
   /// </summary>
   [Serializable]
-  public class EngineException : GuestException
+  public class EngineException : Exception
   {
 
     #region Constructors
@@ -50,5 +50,6 @@ namespace AppStract.Server.Engine
       : base(info, ctxt) { }
 
     #endregion
+
   }
 }

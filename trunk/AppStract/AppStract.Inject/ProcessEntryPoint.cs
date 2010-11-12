@@ -68,7 +68,7 @@ namespace AppStract.Inject
       GuestCore.Initialize(sync);
       // Validate connection.
       if (!GuestCore.Connected)
-        throw new GuestException("Failed to validate the inter-process connection while initializing the guest's virtual environment.");
+        throw new EngineException("Failed to validate the inter-process connection while initializing the guest's virtual environment.");
     }
 
     /// <summary>
