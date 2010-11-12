@@ -156,11 +156,10 @@ namespace AppStract.Core.Data.Settings
         new[]
           {
             "EasyHook.dll",
-            "AppStract.Core.dll",
-            "AppStract.Host.exe",
+            "AppStract.Host.dll",
             "AppStract.Inject.dll",
             "AppStract.Manager.exe",
-            "AppStract.Server.dll",
+            "AppStract.Engine.dll",
             "AppStract.Utilities.dll"
           });
       GacCleanUpInsuranceFolder = CoreBus.Runtime.StartUpDirectory + @"\GAC";
