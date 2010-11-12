@@ -85,11 +85,11 @@ namespace AppStract.Server.Engine.Hooking
           phkResult = UIntPtr.Zero;
           return NativeResultCode.InvalidHandle;
         }
-        using (GuestCore.Engine.GetEngineProcessingSpace())
+        using (EngineCore.Engine.GetEngineProcessingSpace())
         {
           uint hSubKey;
           var resultCode = _registry.OpenKey(handle, subKey, out hSubKey);
-          GuestCore.Log.Debug(@"OpenKey({0}\\{1}) => {2}", hKey, subKey,
+          EngineCore.Log.Debug(@"OpenKey({0}\\{1}) => {2}", hKey, subKey,
                               resultCode == NativeResultCode.Success ? hSubKey.ToString() : resultCode.ToString());
           phkResult = new UIntPtr(hSubKey);
           return resultCode;
@@ -133,12 +133,12 @@ namespace AppStract.Server.Engine.Hooking
           SafeWrite(RegCreationDisposition.NoKeyCreated, ref lpdwDisposition);
           return NativeResultCode.InvalidHandle;
         }
-        using (GuestCore.Engine.GetEngineProcessingSpace())
+        using (EngineCore.Engine.GetEngineProcessingSpace())
         {
           uint phkResultHandle;
           RegCreationDisposition creationDisposition;
           var resultCode = _registry.CreateKey(handle, lpSubKey, out phkResultHandle, out creationDisposition);
-          GuestCore.Log.Debug("CreateKey(HKey={0} NewSubKey={1}) => {2}",
+          EngineCore.Log.Debug("CreateKey(HKey={0} NewSubKey={1}) => {2}",
                               hKey, lpSubKey, resultCode == NativeResultCode.Success
                                                 ? creationDisposition + " HKey=" + phkResultHandle
                                                 : resultCode.ToString());
@@ -158,10 +158,10 @@ namespace AppStract.Server.Engine.Hooking
         uint handle;
         if (!TryParse(hKey, out handle))
           return NativeResultCode.InvalidHandle;
-        using (GuestCore.Engine.GetEngineProcessingSpace())
+        using (EngineCore.Engine.GetEngineProcessingSpace())
         {
           var resultCode = _registry.CloseKey(handle);
-          GuestCore.Log.Debug("CloseKey(HKey={0}) => {1}", handle, resultCode);
+          EngineCore.Log.Debug("CloseKey(HKey={0}) => {1}", handle, resultCode);
           return resultCode;
         }
       }
@@ -202,11 +202,11 @@ namespace AppStract.Server.Engine.Hooking
         uint handle;
         if (!TryParse(hKey, out handle))
           return NativeResultCode.InvalidHandle;
-        using (GuestCore.Engine.GetEngineProcessingSpace())
+        using (EngineCore.Engine.GetEngineProcessingSpace())
         {
           VirtualRegistryValue virtualRegistryValue;
           var resultCode = _registry.QueryValue(handle, lpValueName, out virtualRegistryValue);
-          GuestCore.Log.Debug("QueryValue(HKey={0} ValueName={1}) => {2}",
+          EngineCore.Log.Debug("QueryValue(HKey={0} ValueName={1}) => {2}",
                               handle, lpValueName, resultCode);
           if (resultCode != NativeResultCode.Success)
             return resultCode;
@@ -246,12 +246,12 @@ namespace AppStract.Server.Engine.Hooking
         uint handle;
         if (!TryParse(hKey, out handle))
           return NativeResultCode.InvalidHandle;
-        using (GuestCore.Engine.GetEngineProcessingSpace())
+        using (EngineCore.Engine.GetEngineProcessingSpace())
         {
           var data = lpData.Read<byte[]>(cbData);
           var registryValue = new VirtualRegistryValue(lpValueName, data, dwType);
           var resultCode = _registry.SetValue(handle, registryValue);
-          GuestCore.Log.Debug("SetValue(HKey={0} Name={1} Type={2}) => {3}",
+          EngineCore.Log.Debug("SetValue(HKey={0} Name={1} Type={2}) => {3}",
                               handle, lpValueName, dwType, resultCode);
           return resultCode;
         }

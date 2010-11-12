@@ -61,11 +61,11 @@ namespace AppStract.Server.Engine.Hooking
         try
         {
           installHook(hook.GetTargetEntryPoint(), hook.Handler, hook.Callback);
-          GuestCore.Log.Debug("Installed API hook: " + hook);
+          EngineCore.Log.Debug("Installed API hook: " + hook);
         }
         catch (Exception e)
         {
-          GuestCore.Log.Error("Failed to install API hook: " + hook, e);
+          EngineCore.Log.Error("Failed to install API hook: " + hook, e);
           throw new HookingException("Failed to install API hook.", hook, e);
         }
       }

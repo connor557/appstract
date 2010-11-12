@@ -107,14 +107,14 @@ namespace AppStract.Server
     /// <param name="message"></param>
     protected override void Write(LogMessage message)
     {
-      message.Prefix = "Guest " + GuestCore.ProcessId;
+      message.Prefix = "Guest " + EngineCore.ProcessId;
 #if !SYNCLOG
       lock (_syncRoot)
         _queue.Enqueue(message);
 #else
       try
       {
-        using (GuestCore.Engine.GetEngineProcessingSpace())
+        using (EngineCore.Engine.GetEngineProcessingSpace())
           _serverReporter.ReportMessage(message);
       }
       catch
@@ -144,7 +144,7 @@ namespace AppStract.Server
       }
       try
       {
-        using (GuestCore.Engine.GetEngineProcessingSpace())
+        using (EngineCore.Engine.GetEngineProcessingSpace())
           _serverReporter.ReportMessage(msgs);
       }
       catch

@@ -65,9 +65,9 @@ namespace AppStract.Inject
       // Connect to server.
       IProcessSynchronizer sync = RemoteHooking.IpcConnectClient<ProcessSynchronizerInterface>(inChannelName).ProcessSynchronizer;
       // Initialize the guest's core.
-      GuestCore.Initialize(sync);
+      EngineCore.Initialize(sync);
       // Validate connection.
-      if (!GuestCore.Connected)
+      if (!EngineCore.Connected)
         throw new EngineException("Failed to validate the inter-process connection while initializing the guest's virtual environment.");
     }
 
@@ -100,8 +100,8 @@ namespace AppStract.Inject
     /// <br />
     /// The Run() method should return if you want the injected library needs to be unloaded.
     /// Unhandled exceptions ARE NOT redirected automatically.
-    /// As the connection to the host is established in <see cref="GuestCore.Initialize"/>,
-    /// errors should be reported using <see cref="GuestCore.Log"/>.
+    /// As the connection to the host is established in <see cref="EngineCore.Initialize"/>,
+    /// errors should be reported using <see cref="EngineCore.Log"/>.
     /// </remarks>
     /// <param name="inContext">Information about the environment in which the library main method has been invoked, used by the EasyHook library.</param>
     /// <param name="channelName">The name of the inter-process communication channel to connect to, used by the EasyHook library.</param>
@@ -118,9 +118,9 @@ namespace AppStract.Inject
       }
       catch (Exception e)
       {
-        GuestCore.Log.Critical("An unexpected exception occured.", e);
+        EngineCore.Log.Critical("An unexpected exception occured.", e);
         // Exit code 1067 = ERROR_PROCESS_ABORTED "The process terminated unexpectedly."
-        if (!GuestCore.TerminateProcess(1067, ExitMethod.Request | ExitMethod.Kill))
+        if (!EngineCore.TerminateProcess(1067, ExitMethod.Request | ExitMethod.Kill))
           throw new ApplicationException("An unexpected fatal exception occured.", e);
       }
     }
@@ -133,8 +133,8 @@ namespace AppStract.Inject
     /// <br />
     /// The Run() method should return if you want the injected library needs to be unloaded.
     /// Unhandled exceptions ARE NOT redirected automatically.
-    /// As the connection to the host is established in <see cref="GuestCore.Initialize"/>,
-    /// errors should be reported using <see cref="GuestCore.Log"/>.
+    /// As the connection to the host is established in <see cref="EngineCore.Initialize"/>,
+    /// errors should be reported using <see cref="EngineCore.Log"/>.
     /// </remarks>
     /// <param name="inContext">Information about the environment in which the library main method has been invoked, used by the EasyHook library.</param>
     /// <param name="channelName">The name of the inter-process communication channel to connect to, used by the EasyHook library.</param>
@@ -149,12 +149,12 @@ namespace AppStract.Inject
         Directory.SetCurrentDirectory(Path.GetDirectoryName(wrappedProcessExecutable));
         // Run the main method of the wrapped process.
         string[] arguments = args.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-        GuestCore.Log.Debug("Invoking main method of targeted guest... using #{0} method parameters{1}",
+        EngineCore.Log.Debug("Invoking main method of targeted guest... using #{0} method parameters{1}",
                             arguments.Length, arguments.Length == 0 ? "" : ": " + args);
         var exitCode = AssemblyHelper.RunMainMethod(wrappedProcessExecutable, arguments.Length == 0 ? null : arguments);
-        GuestCore.Log.Message("Target main method returned exitcode " + exitCode);
+        EngineCore.Log.Message("Target main method returned exitcode " + exitCode);
         // First attempt a clean shutdown, then try a forced shutdown.
-        GuestCore.TerminateProcess(exitCode, ExitMethod.Request | ExitMethod.Kill);
+        EngineCore.TerminateProcess(exitCode, ExitMethod.Request | ExitMethod.Kill);
       }
 
       catch (Exception e)
@@ -163,9 +163,9 @@ namespace AppStract.Inject
         if (Debugger.IsAttached)
           Debugger.Break();
 #endif
-        GuestCore.Log.Critical("An unexpected exception occured.", e);
+        EngineCore.Log.Critical("An unexpected exception occured.", e);
         // Exit code 1067 = ERROR_PROCESS_ABORTED "The process terminated unexpectedly."
-        if (!GuestCore.TerminateProcess(1067, ExitMethod.Request | ExitMethod.Kill))
+        if (!EngineCore.TerminateProcess(1067, ExitMethod.Request | ExitMethod.Kill))
           throw new ApplicationException("An unexpected fatal exception occured.", e);
       }
     }
@@ -190,10 +190,10 @@ namespace AppStract.Inject
       if (Thread.CurrentThread.Name == null)
         Thread.CurrentThread.Name = "EntryPoint";
       // Validate the connection.
-      if (!GuestCore.Connected)
+      if (!EngineCore.Connected)
         return; // Return silently, can't log
       // Start the virtualization engine.
-      GuestCore.StartVirtualizationEngine();
+      EngineCore.StartVirtualizationEngine();
     }
 
     /// <summary>
@@ -204,7 +204,7 @@ namespace AppStract.Inject
       while (true)
       {
         Thread.Sleep(500);
-        if (!GuestCore.Connected)
+        if (!EngineCore.Connected)
           return;
       }
     }

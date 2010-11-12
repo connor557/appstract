@@ -121,7 +121,7 @@
     <Compile Include="Engine\FileSystem\VirtualEnvironment.cs" />
     <Compile Include="Engine\FileSystem\VirtualFolder.cs" />
     <Compile Include="Engine\FileSystem\FileSystemProvider.cs" />
-    <Compile Include="GuestCore.cs" />
+    <Compile Include="EngineCore.cs" />
     <Compile Include="Engine\Hooking\HookData.cs" />
     <Compile Include="Engine\Hooking\HookingException.cs" />
     <Compile Include="Engine\Hooking\HookManager.cs" />

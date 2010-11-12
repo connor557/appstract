@@ -48,14 +48,14 @@ namespace AppStract.Wrapper
     private static int Main(string[] args)
     {
       AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-      GuestCore.ExitRequestRaised += ExitRequestEventHandler;
+      EngineCore.ExitRequestRaised += ExitRequestEventHandler;
       while (!_exit)
       {
         Thread.Sleep(500);
-        if (GuestCore.Initialized && !GuestCore.Connected)
+        if (EngineCore.Initialized && !EngineCore.Connected)
           break;
       }
-      GuestCore.Log.Debug("Wrapper process terminates with exit code " + _exitCode);
+      EngineCore.Log.Debug("Wrapper process terminates with exit code " + _exitCode);
       return _exitCode;
     }
 
@@ -66,14 +66,14 @@ namespace AppStract.Wrapper
     /// <param name="e"></param>
     private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
-      GuestCore.Log.Critical("Target process threw an unhandled exception.", e.ExceptionObject);
+      EngineCore.Log.Critical("Target process threw an unhandled exception.", e.ExceptionObject);
       // Not sure if the following is necessary since the process is already dying from the unhandled exception
       _exitCode = -1;
       _exit = true;
     }
 
     /// <summary>
-    /// Eventhandler for the <see cref="GuestCore.ExitRequestRaised"/> event.
+    /// Eventhandler for the <see cref="EngineCore.ExitRequestRaised"/> event.
     /// </summary>
     /// <param name="exitCode"></param>
     /// <returns></returns>

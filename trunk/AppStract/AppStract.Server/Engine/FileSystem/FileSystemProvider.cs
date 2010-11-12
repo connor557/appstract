@@ -87,12 +87,12 @@ namespace AppStract.Server.Engine.FileSystem
       // Get the type of virtualization that needs to be applied.
       VirtualizationType virtualizationType;
       if (!_engineRules.HasRule(request.Path, out virtualizationType))
-        GuestCore.Log.Warning("No known engine rule for \"{0}\"", request.Path);
+        EngineCore.Log.Warning("No known engine rule for \"{0}\"", request.Path);
       if (virtualizationType == VirtualizationType.Transparent)
         return request.Path;
       // Redirect the call.
       var redirectedPath = _virtualEnvironment.RedirectRequest(request);
-      GuestCore.Log.Debug("FileSystem Redirection: \"{0}\" => \"{1}\"", request.Path, redirectedPath);
+      EngineCore.Log.Debug("FileSystem Redirection: \"{0}\" => \"{1}\"", request.Path, redirectedPath);
       return redirectedPath;
     }
 

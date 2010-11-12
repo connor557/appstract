@@ -149,7 +149,7 @@ namespace AppStract.Server.Engine
       _flushInterval = 500;
       _registrySyncObject = new object();
       _flushSyncObject = new object();
-      GuestCore.OnProcessExit += GuestCore_OnProcessExit;
+      EngineCore.OnProcessExit += GuestCore_OnProcessExit;
     }
 
     #endregion
@@ -173,7 +173,7 @@ namespace AppStract.Server.Engine
         _registryQueue.Clear();
       }
       // Then the copy is synchronized to the server.
-      using (GuestCore.Engine.GetEngineProcessingSpace())
+      using (EngineCore.Engine.GetEngineProcessingSpace())
         _synchronizer.SyncRegistryActions(regActions);
     }
 
@@ -204,7 +204,7 @@ namespace AppStract.Server.Engine
     }
 
     /// <summary>
-    /// Eventhandler for <see cref="GuestCore.OnProcessExit"/>.
+    /// Eventhandler for <see cref="EngineCore.OnProcessExit"/>.
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
@@ -256,7 +256,7 @@ namespace AppStract.Server.Engine
 
     public void Dispose()
     {
-      GuestCore.OnProcessExit -= GuestCore_OnProcessExit;
+      EngineCore.OnProcessExit -= GuestCore_OnProcessExit;
     }
 
     #endregion
@@ -265,7 +265,7 @@ namespace AppStract.Server.Engine
 
     public FileSystemRuleCollection GetFileSystemEngineRules()
     {
-      //using (GuestCore.Engine.GetEngineProcessingSpace())
+      //using (EngineCore.Engine.GetEngineProcessingSpace())
         return _loader.GetFileSystemEngineRules();
     }
 
@@ -275,7 +275,7 @@ namespace AppStract.Server.Engine
 
     public RegistryRuleCollection GetRegistryEngineRules()
     {
-      //using (GuestCore.Engine.GetEngineProcessingSpace())
+      //using (EngineCore.Engine.GetEngineProcessingSpace())
         return _loader.GetRegistryEngineRules();
     }
 
@@ -285,7 +285,7 @@ namespace AppStract.Server.Engine
         throw new ArgumentNullException("keyList");
       keyList.Clear();
       IEnumerable<VirtualRegistryKey> keys;
-      //using (GuestCore.Engine.GetEngineProcessingSpace())
+      //using (EngineCore.Engine.GetEngineProcessingSpace())
         keys = _loader.LoadRegistry();
       foreach (var key in keys)
         keyList.Add(key.Handle, key);

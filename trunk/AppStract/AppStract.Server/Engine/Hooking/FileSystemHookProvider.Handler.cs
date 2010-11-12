@@ -81,7 +81,7 @@ namespace AppStract.Server.Engine.Hooking
           Path = fileName,
           ResourceType = ResourceType.File
         };
-        using (GuestCore.Engine.GetEngineProcessingSpace())
+        using (EngineCore.Engine.GetEngineProcessingSpace())
         {
           var virtualPath = _fileSystem.GetVirtualPath(request);
           return HostFileSystem.NativeAPI.CreateFile(virtualPath, desiredAccess, shareMode, securityAttributes,
@@ -102,7 +102,7 @@ namespace AppStract.Server.Engine.Hooking
           Path = fileName,
           ResourceType = ResourceType.File
         };
-        using (GuestCore.Engine.GetEngineProcessingSpace())
+        using (EngineCore.Engine.GetEngineProcessingSpace())
         {
           var virtualPath = _fileSystem.GetVirtualPath(request);
           return HostFileSystem.NativeAPI.DeleteFile(virtualPath);
@@ -123,7 +123,7 @@ namespace AppStract.Server.Engine.Hooking
           Path = fileName,
           ResourceType = ResourceType.Directory
         };
-        using (GuestCore.Engine.GetEngineProcessingSpace())
+        using (EngineCore.Engine.GetEngineProcessingSpace())
         {
           var virtualPath = _fileSystem.GetVirtualPath(request);
           return HostFileSystem.NativeAPI.CreateDirectory(virtualPath, securityAttributes);
@@ -143,7 +143,7 @@ namespace AppStract.Server.Engine.Hooking
           Path = pathName,
           ResourceType = ResourceType.Directory
         };
-        using (GuestCore.Engine.GetEngineProcessingSpace())
+        using (EngineCore.Engine.GetEngineProcessingSpace())
         {
           var virtualPath = _fileSystem.GetVirtualPath(request);
           return HostFileSystem.NativeAPI.RemoveDirectory(virtualPath);
@@ -165,7 +165,7 @@ namespace AppStract.Server.Engine.Hooking
           Path = fileName,
           ResourceType = ResourceType.Library
         };
-        using (GuestCore.Engine.GetEngineProcessingSpace())
+        using (EngineCore.Engine.GetEngineProcessingSpace())
         {
           var virtualPath = _fileSystem.GetVirtualPath(request);
           return HostFileSystem.NativeAPI.LoadLibraryEx(virtualPath, file, flags);
@@ -191,7 +191,7 @@ namespace AppStract.Server.Engine.Hooking
         if (tempPath == null)
           return 0;
         string path;
-        using (GuestCore.Engine.GetEngineProcessingSpace())
+        using (EngineCore.Engine.GetEngineProcessingSpace())
         {
           var request = new FileRequest { Path = System.IO.Path.GetTempPath() };
           path = _fileSystem.GetVirtualPath(request);
