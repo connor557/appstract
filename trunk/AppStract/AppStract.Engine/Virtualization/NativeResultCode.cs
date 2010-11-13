@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace AppStract.Engine
+namespace AppStract.Engine.Virtualization
 {
   /// <summary>
   /// Static error codes resulting from native API calls.

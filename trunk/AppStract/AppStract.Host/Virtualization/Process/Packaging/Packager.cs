@@ -24,7 +24,7 @@
 using System;
 using System.Threading;
 using AppStract.Host.Data.Application;
-using AppStract.Engine;
+using AppStract.Engine.Virtualization;
 using AppStract.Engine.Configuration;
 
 namespace AppStract.Host.Virtualization.Process.Packaging

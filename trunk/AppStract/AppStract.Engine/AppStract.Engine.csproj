@@ -119,7 +119,7 @@
     <Compile Include="Data\Databases\ParameterGenerator.cs" />
     <Compile Include="Data\Databases\RegistryDatabase.cs" />
     <Compile Include="EngineException.cs" />
-    <Compile Include="NativeResultCode.cs" />
+    <Compile Include="Virtualization\NativeResultCode.cs" />
     <Compile Include="Virtualization\FileSystem\FileCreationDisposition.cs" />
     <Compile Include="Virtualization\FileSystem\FileRequest.cs" />
     <Compile Include="Configuration\FileSystemRuleCollection.cs" />
