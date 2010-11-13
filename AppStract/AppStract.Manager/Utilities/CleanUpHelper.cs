@@ -35,8 +35,8 @@ namespace AppStract.Manager.Utilities
     {
       InitializeComponent();
       foreach (var insurance
-        in CleanUpInsurance.LoadFromSystem(CoreBus.Configuration.Application.GacCleanUpInsuranceFolder,
-                                           CoreBus.Configuration.Application.GacCleanUpInsuranceRegistryKey))
+        in CleanUpInsurance.LoadFromSystem(HostCore.Configuration.Application.GacCleanUpInsuranceFolder,
+                                           HostCore.Configuration.Application.GacCleanUpInsuranceRegistryKey))
         _listInsurances.Items.Add(insurance, true);
     }
 

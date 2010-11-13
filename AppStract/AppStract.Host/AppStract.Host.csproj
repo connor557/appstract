@@ -13,7 +13,7 @@
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>AppStract.Core.Signature.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>AppStract.Host.Signature.snk</AssemblyOriginatorKeyFile>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
@@ -112,9 +112,9 @@
     <Compile Include="System\Runtime.cs" />
     <Compile Include="System\GAC\GacException.cs" />
     <Compile Include="System\GAC\GacManager.cs" />
-    <Compile Include="CoreBus.cs" />
+    <Compile Include="HostCore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="CoreException.cs" />
+    <Compile Include="HostException.cs" />
     <Compile Include="Data\Settings\AppConfig.cs" />
     <Compile Include="Data\Settings\Configuration.cs" />
     <Compile Include="Data\Settings\UserConfig.cs" />
@@ -133,7 +133,7 @@
     <Compile Include="Data\Application\FileType.cs" />
     <Compile Include="Virtualization\Process\VirtualProcessException.cs" />
     <Compile Include="Virtualization\Process\VirtualizedProcess.cs" />
-    <Compile Include="CoreManager.cs" />
+    <Compile Include="HostManager.cs" />
     <Compile Include="System\IPC\ProcessSynchronizerInterface.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -151,7 +151,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="AppStract.Core.Signature.snk" />
+    <None Include="AppStract.Host.Signature.snk" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

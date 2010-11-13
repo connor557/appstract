@@ -130,7 +130,7 @@ namespace AppStract.Host.Data.Settings
       }
       catch (Exception ex)
       {
-        CoreBus.Log.Error("Could not load the application configuration.", ex);
+        HostCore.Log.Error("Could not load the application configuration.", ex);
       }
       var r = new AppConfig();
       r.LoadDefaults();
@@ -162,10 +162,10 @@ namespace AppStract.Host.Data.Settings
             "AppStract.Engine.dll",
             "AppStract.Utilities.dll"
           });
-      GacCleanUpInsuranceFolder = CoreBus.Runtime.StartUpDirectory + @"\GAC";
+      GacCleanUpInsuranceFolder = HostCore.Runtime.StartUpDirectory + @"\GAC";
       GacCleanUpInsuranceRegistryKey = @"Software\AppStract";
       GacInstallerDescription
-        = InstallerDescription.CreateForFile("AppStract Server", CoreBus.Runtime.RunningExecutable);
+        = InstallerDescription.CreateForFile("AppStract Server", HostCore.Runtime.RunningExecutable);
     }
 
     #endregion

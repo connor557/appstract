@@ -42,7 +42,7 @@ namespace AppStract.UnitTesting.Core
       {
         File.Delete(ApplicationDataXmlFile);
       } catch { }
-      CoreManager.InitializeCore();
+      HostManager.InitializeCore();
     }
 
     [TestFixtureTearDown]

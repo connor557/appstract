@@ -93,9 +93,9 @@ namespace AppStract.Host.Data.Settings
     public static void SaveConfiguration(Configuration configuration)
     {
       if (!AppConfig.SaveTo(configuration.Application, _appConfigFile))
-        CoreBus.Log.Warning("Unable to save the application configuration.");
+        HostCore.Log.Warning("Unable to save the application configuration.");
       if (!UserConfig.SaveTo(configuration.User, _userConfigFile))
-        CoreBus.Log.Warning("Unable to save the user configuration.");
+        HostCore.Log.Warning("Unable to save the user configuration.");
     }
 
     #endregion
@@ -108,7 +108,7 @@ namespace AppStract.Host.Data.Settings
     /// <param name="logLevel"></param>
     public void SetLogLevel(LogLevel logLevel)
     {
-      CoreBus.Log.LogLevel = logLevel;
+      HostCore.Log.LogLevel = logLevel;
     }
 
     /// <summary>
@@ -128,15 +128,15 @@ namespace AppStract.Host.Data.Settings
     /// <param name="filename"></param>
     public void SetLogOutput(LogType logType, string filename)
     {
-      if (CoreBus.Log.Type == logType)
+      if (HostCore.Log.Type == logType)
         return;
       if (logType == LogType.Null)
-        CoreBus.Log = new NullLogger();
+        HostCore.Log = new NullLogger();
       else if (logType == LogType.Console)
-        CoreBus.Log = new ConsoleLogger(CoreBus.Log.LogLevel);
+        HostCore.Log = new ConsoleLogger(HostCore.Log.LogLevel);
       else if (logType == LogType.File)
-        CoreBus.Log = FileLogger.CreateLogService(CoreBus.Log.LogLevel,
-                                                  filename ?? CoreBus.Configuration.User.LogFile);
+        HostCore.Log = FileLogger.CreateLogService(HostCore.Log.LogLevel,
+                                                  filename ?? HostCore.Configuration.User.LogFile);
     }
 
     #endregion

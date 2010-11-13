@@ -31,7 +31,7 @@ using AppStract.Utilities.Logging;
 
 namespace AppStract.Host
 {
-  public static class CoreManager
+  public static class HostManager
   {
 
     #region Variables
@@ -42,11 +42,11 @@ namespace AppStract.Host
 
     #region Constructors
 
-    static CoreManager()
+    static HostManager()
     {
-      /// Binding this event might cause a SecurityException.
-      /// This exception is not nested in a catch clause
-      /// because it indicates that the process is running with insufficient privileges.
+      // Binding this event might cause a SecurityException.
+      // This exception is not nested in a catch clause
+      // because it indicates that the process is running with insufficient privileges.
       AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
     }
 
@@ -61,21 +61,21 @@ namespace AppStract.Host
     public static event EventHandler Exiting;
 
     /// <summary>
-    /// Initializes the <see cref="CoreBus"/> 
-    /// and it's <see cref="CoreBus.Configuration"/> and <see cref="CoreBus.Log"/>.
+    /// Initializes the <see cref="HostCore"/> 
+    /// and it's <see cref="HostCore.Configuration"/> and <see cref="HostCore.Log"/>.
     /// </summary>
     public static void InitializeCore()
     {
 #if DEBUG
-      CoreBus.Log = new ConsoleLogger();
+      HostCore.Log = new ConsoleLogger();
       EasyHook.Config.Log = new EasyHookLogService();
 #else
-      /// How to initialize the log service without configuration?
-      /// How to initialize the configuration without logservice?
+      // How to initialize the log service without configuration?
+      // How to initialize the configuration without logservice?
       throw new NotImplementedException();
 #endif
-      CoreBus.Runtime = Runtime.Load();
-      CoreBus.Configuration = Configuration.LoadConfiguration();
+      HostCore.Runtime = Runtime.Load();
+      HostCore.Configuration = Configuration.LoadConfiguration();
     }
 
     /// <summary>
@@ -84,8 +84,8 @@ namespace AppStract.Host
     /// <exception cref="FileNotFoundException">
     /// A <see cref="FileNotFoundException"/> is thrown if the <paramref name="applicationDataFile"/> can not be found.
     /// </exception>
-    /// <exception cref="CoreException">
-    /// A <see cref="CoreException"/> is thrown if the process can't be started.
+    /// <exception cref="HostException">
+    /// A <see cref="HostException"/> is thrown if the process can't be started.
     /// </exception>
     /// <param name="applicationDataFile">
     /// The file to load the <see cref="ApplicationData"/> from,
@@ -97,7 +97,7 @@ namespace AppStract.Host
         throw new FileNotFoundException("Unable to locate the virtual application's datafile.", applicationDataFile);
       var data = ApplicationData.Load(applicationDataFile);
       if (data == null)
-        throw new CoreException("\"" + applicationDataFile + "\""
+        throw new HostException("\"" + applicationDataFile + "\""
                                 + " could not be found or contains invalid data while trying"
                                 + " to start a new process based on this file.");
       var workingDirectory = new ApplicationFile(Path.GetDirectoryName(applicationDataFile));
@@ -126,17 +126,17 @@ namespace AppStract.Host
 
       public void Error(string message)
       {
-        CoreBus.Log.Error("[EasyHook] " + message);
+        HostCore.Log.Error("[EasyHook] " + message);
       }
 
       public void Warning(string message)
       {
-        CoreBus.Log.Warning("[EasyHook] " + message);
+        HostCore.Log.Warning("[EasyHook] " + message);
       }
 
       public void Information(string message)
       {
-        CoreBus.Log.Message("[EasyHook] " + message);
+        HostCore.Log.Message("[EasyHook] " + message);
       }
 
       #endregion

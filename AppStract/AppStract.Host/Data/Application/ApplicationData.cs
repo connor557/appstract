@@ -100,7 +100,7 @@ namespace AppStract.Host.Data.Application
       }
       catch (Exception e)
       {
-        CoreBus.Log.Warning("Failed to save instance of ApplicationData to " + filename, e);
+        HostCore.Log.Warning("Failed to save instance of ApplicationData to " + filename, e);
         return false;
       }
     }
@@ -119,7 +119,7 @@ namespace AppStract.Host.Data.Application
       }
       catch (Exception e)
       {
-        CoreBus.Log.Warning("Failed to load an instance of ApplicationData from " + filename, e);
+        HostCore.Log.Warning("Failed to load an instance of ApplicationData from " + filename, e);
         return null;
       }
     }

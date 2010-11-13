@@ -31,7 +31,7 @@ namespace AppStract.Host.System.GAC
   /// Represents errors that occur when performing actions on the local system's Global Assembly Cache.
   /// </summary>
   [Serializable]
-  public class GacException : CoreException
+  public class GacException : HostException
   {
 
     #region Constructors

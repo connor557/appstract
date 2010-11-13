@@ -21,35 +21,47 @@
 
 #endregion
 
-using System;
-using System.Runtime.Serialization;
+using AppStract.Host.Data.Settings;
+using AppStract.Host.System;
+using AppStract.Utilities.Logging;
 
 namespace AppStract.Host
 {
   /// <summary>
-  /// Represents errors that occur in the application's core.
+  /// The static core class of AppStract,
+  /// used as a communication bus to the different core components.
   /// </summary>
-  [Serializable]
-  public class CoreException : Exception
+  public static class HostCore
   {
 
-    #region Constructors
+    #region Properties
 
-    public CoreException()
-    { }
+    /// <summary>
+    /// The current instance's configuration.
+    /// </summary>
+    public static Configuration Configuration
+    {
+      get; set;
+    }
 
-    public CoreException(string message)
-      : base(message)
-    { }
+    /// <summary>
+    /// The current instance's runtime information.
+    /// </summary>
+    public static Runtime Runtime
+    {
+      get; set;
+    }
 
-    public CoreException(string message, Exception innerException)
-      : base (message, innerException)
-    { }
-
-    protected CoreException(SerializationInfo info, StreamingContext ctxt)
-      : base(info, ctxt) { }
+    /// <summary>
+    /// The current instance's log service.
+    /// </summary>
+    public static Logger Log
+    {
+      get; set;
+    }
 
     #endregion
 
   }
 }
+ 

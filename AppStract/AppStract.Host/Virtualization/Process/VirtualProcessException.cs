@@ -30,7 +30,7 @@ namespace AppStract.Host.Virtualization.Process
   /// Represents errors related to a <see cref="VirtualizedProcess"/>.
   /// </summary>
   [Serializable]
-  public class VirtualProcessException : CoreException
+  public class VirtualProcessException : HostException
   {
 
     #region Constructors

@@ -42,7 +42,7 @@ namespace AppStract.UnitTesting.Core.Databases
         File.Delete(DbConstants.DatabaseFile);
       }
       catch { }
-      CoreManager.InitializeCore();
+      HostManager.InitializeCore();
     }
 
     [TearDown]
