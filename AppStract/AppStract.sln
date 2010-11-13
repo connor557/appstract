@@ -38,8 +38,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.UnitTesting", "Ap
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Utilities.GUI", "AppStract.Utilities.GUI\AppStract.Utilities.GUI.csproj", "{3421E153-CCA5-4819-9907-02340B8EB11B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStract.Common", "AppStract.Common\AppStract.Common.csproj", "{1E1E0374-782E-4001-89E5-1A03065DEDE6}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -163,15 +161,6 @@ Global
 		{3421E153-CCA5-4819-9907-02340B8EB11B}.UnitTesting|Any CPU.Build.0 = Release|Any CPU
 		{3421E153-CCA5-4819-9907-02340B8EB11B}.UnitTesting|x86.ActiveCfg = UnitTesting|x86
 		{3421E153-CCA5-4819-9907-02340B8EB11B}.UnitTesting|x86.Build.0 = UnitTesting|x86
-		{1E1E0374-782E-4001-89E5-1A03065DEDE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1E1E0374-782E-4001-89E5-1A03065DEDE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1E1E0374-782E-4001-89E5-1A03065DEDE6}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{1E1E0374-782E-4001-89E5-1A03065DEDE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1E1E0374-782E-4001-89E5-1A03065DEDE6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1E1E0374-782E-4001-89E5-1A03065DEDE6}.Release|x86.ActiveCfg = Release|Any CPU
-		{1E1E0374-782E-4001-89E5-1A03065DEDE6}.UnitTesting|Any CPU.ActiveCfg = Release|Any CPU
-		{1E1E0374-782E-4001-89E5-1A03065DEDE6}.UnitTesting|Any CPU.Build.0 = Release|Any CPU
-		{1E1E0374-782E-4001-89E5-1A03065DEDE6}.UnitTesting|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
