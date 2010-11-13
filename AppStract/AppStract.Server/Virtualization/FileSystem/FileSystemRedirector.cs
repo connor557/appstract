@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using AppStract.Core.Virtualization.Engine.FileSystem;
 using AppStract.Utilities.Extensions;
 
 namespace AppStract.Engine.Virtualization.FileSystem

@@ -24,10 +24,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using AppStract.Core.Data.Databases;
-using AppStract.Core.Virtualization.Engine.FileSystem;
-using AppStract.Core.Virtualization.Engine.Registry;
-using AppStract.Core.System.IPC;
+using AppStract.Engine.Configuration;
+using AppStract.Engine.Data.Connection;
+using AppStract.Engine.Data.Databases;
+using AppStract.Engine.Virtualization.FileSystem;
+using AppStract.Engine.Virtualization.Registry;
 using AppStract.Utilities.Observables;
 
 namespace AppStract.Engine.Virtualization
@@ -40,7 +41,7 @@ namespace AppStract.Engine.Virtualization
   /// When <see cref="AutoFlush"/> is set to true, queries are flushed every time <see cref="FlushInterval"/> passes.
   /// <br />
   /// If the <see cref="SynchronizationBus"/> detects that the process is queried to shut down,
-  /// the queues are automatically flushed to the <see cref="ProcessSynchronizer"/> of the host process.
+  /// the queues are automatically flushed to the <see cref="IProcessSynchronizer"/> of the host process.
   /// </remarks>
   internal sealed class SynchronizationBus : IDisposable, IFileSystemSynchronizer, IRegistrySynchronizer
   {

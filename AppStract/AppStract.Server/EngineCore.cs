@@ -24,7 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using AppStract.Core.System.IPC;
+using AppStract.Engine.Data.Connection;
 using AppStract.Engine.Virtualization;
 using AppStract.Utilities.Logging;
 using EasyHook;
@@ -193,8 +193,8 @@ namespace AppStract.Engine
     /// - <see cref="EngineCore"/> signals the termination of the current process, using <see cref="TerminateProcess"/>.
     /// - An <see cref="EngineException"/> is thrown if the process can't be terminated.
     /// </exception>
-    /// <exception cref="GuestException">
-    /// A <see cref="GuestException"/> is thrown if <see cref="Initialize"/> hasn't been called
+    /// <exception cref="EngineException">
+    /// A <see cref="EngineException"/> is thrown if <see cref="Initialize"/> hasn't been called
     /// before installing the hooks.
     /// </exception>
     public static void StartVirtualizationEngine()

@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using AppStract.Engine.Data.Connection;
 
 namespace AppStract.Core.System.IPC
 {

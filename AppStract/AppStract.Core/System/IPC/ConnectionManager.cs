@@ -22,6 +22,7 @@
 #endregion
 
 using System.Runtime.Remoting;
+using AppStract.Engine.Data.Connection;
 using EasyHook;
 
 namespace AppStract.Core.System.IPC

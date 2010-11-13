@@ -95,10 +95,46 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\External Libraries\System.Data.SQLite.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\EngineRule.cs" />
+    <Compile Include="Configuration\EngineRuleCollection.cs" />
+    <Compile Include="Configuration\VirtualizationType.cs" />
+    <Compile Include="Data\Connection\IProcessSynchronizer.cs" />
+    <Compile Include="Data\Connection\IResourceLoader.cs" />
+    <Compile Include="Data\Connection\IServerReporter.cs" />
+    <Compile Include="Data\Connection\ISynchronizer.cs" />
+    <Compile Include="Data\Databases\BuildItemFromQueryData.cs" />
+    <Compile Include="Data\Databases\Database.cs" />
+    <Compile Include="Data\Databases\DatabaseAction.cs" />
+    <Compile Include="Data\Databases\DatabaseActionType.cs" />
+    <Compile Include="Data\Databases\DatabaseException.cs" />
+    <Compile Include="Data\Databases\IIndexUser.cs" />
+    <Compile Include="Data\Databases\IndexGenerator.cs" />
+    <Compile Include="Data\Databases\IndexRange.cs" />
+    <Compile Include="Data\Databases\ParameterGenerator.cs" />
+    <Compile Include="Data\Databases\RegistryDatabase.cs" />
     <Compile Include="EngineException.cs" />
+    <Compile Include="NativeResultCode.cs" />
+    <Compile Include="Virtualization\FileSystem\FileCreationDisposition.cs" />
+    <Compile Include="Virtualization\FileSystem\FileRequest.cs" />
+    <Compile Include="Configuration\FileSystemRuleCollection.cs" />
+    <Compile Include="Virtualization\FileSystem\IFileSystemProvider.cs" />
+    <Compile Include="Virtualization\FileSystem\IFileSystemSynchronizer.cs" />
+    <Compile Include="Virtualization\FileSystem\ResourceType.cs" />
+    <Compile Include="Virtualization\Registry\IRegistryProvider.cs" />
+    <Compile Include="Virtualization\Registry\IRegistrySynchronizer.cs" />
+    <Compile Include="Virtualization\Registry\RegAccessRights.cs" />
+    <Compile Include="Virtualization\Registry\RegCreationDisposition.cs" />
+    <Compile Include="Configuration\RegistryRuleCollection.cs" />
+    <Compile Include="Virtualization\Registry\RegOption.cs" />
+    <Compile Include="Virtualization\Registry\ValueType.cs" />
+    <Compile Include="Virtualization\Registry\VirtualRegistryKey.cs" />
+    <Compile Include="Virtualization\Registry\VirtualRegistryValue.cs" />
     <Compile Include="Virtualization\VirtualizationEngine.cs" />
     <Compile Include="Virtualization\FileSystem\FileRequestResult.cs" />
     <Compile Include="Virtualization\FileSystem\HostFileSystem.cs" />
@@ -136,10 +172,6 @@
     <Compile Include="Virtualization\Registry\RegistryProvider.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AppStract.Core\AppStract.Host.csproj">
-      <Project>{73CC3214-9CAD-4723-BBBB-79BE7482E639}</Project>
-      <Name>AppStract.Host</Name>
-    </ProjectReference>
     <ProjectReference Include="..\AppStract.Utilities\AppStract.Utilities.csproj">
       <Project>{29578947-FFF4-4A0A-9C75-AE3C5E03F746}</Project>
       <Name>AppStract.Utilities</Name>

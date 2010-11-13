@@ -24,9 +24,10 @@
 using System;
 using System.Collections.Generic;
 using AppStract.Core.Data.Application;
-using AppStract.Core.Data.Databases;
-using AppStract.Core.Virtualization.Engine.FileSystem;
-using AppStract.Core.Virtualization.Engine.Registry;
+using AppStract.Engine.Configuration;
+using AppStract.Engine.Data.Connection;
+using AppStract.Engine.Data.Databases;
+using AppStract.Engine.Virtualization.Registry;
 using AppStract.Utilities.Logging;
 
 namespace AppStract.Core.System.IPC

@@ -23,8 +23,7 @@
 
 using System;
 using System.IO;
-using AppStract.Core.Virtualization.Engine;
-using AppStract.Core.Virtualization.Engine.FileSystem;
+using AppStract.Engine.Configuration;
 
 namespace AppStract.Engine.Virtualization.FileSystem
 {

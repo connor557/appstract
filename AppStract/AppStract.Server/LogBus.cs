@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using System.Timers;
 #endif
-using AppStract.Core.System.IPC;
+using AppStract.Engine.Data.Connection;
 using AppStract.Utilities.Logging;
 
 namespace AppStract.Engine

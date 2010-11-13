@@ -21,8 +21,6 @@
 
 #endregion
 
-using AppStract.Core.Virtualization.Engine.FileSystem;
-
 namespace AppStract.Engine.Virtualization.FileSystem
 {
   /// <summary>

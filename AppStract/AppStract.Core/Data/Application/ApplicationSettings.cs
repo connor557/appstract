@@ -22,8 +22,7 @@
 #endregion
 
 using System;
-using AppStract.Core.Virtualization.Engine.FileSystem;
-using AppStract.Core.Virtualization.Engine.Registry;
+using AppStract.Engine.Configuration;
 
 namespace AppStract.Core.Data.Application
 {

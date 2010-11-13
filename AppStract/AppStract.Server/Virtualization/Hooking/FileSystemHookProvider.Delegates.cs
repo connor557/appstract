@@ -23,7 +23,6 @@
 
 using System;
 using System.Runtime.InteropServices;
-using AppStract.Core.Virtualization.Engine.FileSystem;
 using AppStract.Engine.Virtualization.FileSystem;
 
 namespace AppStract.Engine.Virtualization.Hooking

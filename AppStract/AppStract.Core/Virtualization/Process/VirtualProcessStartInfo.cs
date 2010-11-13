@@ -24,8 +24,7 @@
 using System;
 using System.IO;
 using AppStract.Core.Data.Application;
-using AppStract.Core.Virtualization.Engine.FileSystem;
-using AppStract.Core.Virtualization.Engine.Registry;
+using AppStract.Engine.Configuration;
 
 namespace AppStract.Core.Virtualization.Process
 {

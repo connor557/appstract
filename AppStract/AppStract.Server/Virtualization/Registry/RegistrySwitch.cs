@@ -23,9 +23,8 @@
 
 using System;
 using System.Collections.Generic;
-using AppStract.Core.Data.Databases;
-using AppStract.Core.Virtualization.Engine;
-using AppStract.Core.Virtualization.Engine.Registry;
+using AppStract.Engine.Configuration;
+using AppStract.Engine.Data.Databases;
 using AppStract.Engine.Virtualization.Registry.Data;
 using Microsoft.Win32;
 
