@@ -22,7 +22,7 @@
 #endregion
 
 using System.Windows.Forms;
-using AppStract.Core.Data.Application;
+using AppStract.Host.Data.Application;
 using AppStract.Manager.Utilities.ApplicationConfiguration;
 
 namespace AppStract.Manager.Utilities

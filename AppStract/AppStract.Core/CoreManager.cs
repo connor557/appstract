@@ -23,13 +23,13 @@
 
 using System;
 using System.IO;
-using AppStract.Core.Data.Application;
-using AppStract.Core.Data.Settings;
-using AppStract.Core.System;
-using AppStract.Core.Virtualization.Process;
+using AppStract.Host.Data.Application;
+using AppStract.Host.Data.Settings;
+using AppStract.Host.System;
+using AppStract.Host.Virtualization.Process;
 using AppStract.Utilities.Logging;
 
-namespace AppStract.Core
+namespace AppStract.Host
 {
   public static class CoreManager
   {

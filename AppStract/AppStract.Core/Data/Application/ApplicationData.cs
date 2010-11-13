@@ -26,7 +26,7 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using AppStract.Utilities.Helpers;
 
-namespace AppStract.Core.Data.Application
+namespace AppStract.Host.Data.Application
 {
   [Serializable]
   public sealed class ApplicationData : ISerializable

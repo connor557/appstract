@@ -23,7 +23,7 @@
 
 using AppStract.Utilities.Logging;
 
-namespace AppStract.Core.Data.Settings
+namespace AppStract.Host.Data.Settings
 {
   /// <summary>
   /// Holds all configuration variables.

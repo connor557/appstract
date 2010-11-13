@@ -24,7 +24,7 @@
 using System;
 using System.IO;
 using System.Linq;
-using AppStract.Core;
+using AppStract.Host;
 using AppStract.Engine.Data.Databases;
 using NUnit.Framework;
 

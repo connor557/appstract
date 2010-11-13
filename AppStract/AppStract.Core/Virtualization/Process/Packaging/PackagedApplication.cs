@@ -23,11 +23,11 @@
 
 using System.Collections.Generic;
 
-namespace AppStract.Core.Virtualization.Process.Packaging
+namespace AppStract.Host.Virtualization.Process.Packaging
 {
   /// <summary>
   /// Represents a packaged application. The data can be used to create an instance of
-  /// <see cref="AppStract.Core.Data.Application.ApplicationData"/> with.
+  /// <see cref="AppStract.Host.Data.Application.ApplicationData"/> with.
   /// </summary>
   public class PackagedApplication
   {

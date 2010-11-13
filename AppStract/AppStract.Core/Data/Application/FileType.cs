@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace AppStract.Core.Data.Application
+namespace AppStract.Host.Data.Application
 {
   public enum FileType
   {

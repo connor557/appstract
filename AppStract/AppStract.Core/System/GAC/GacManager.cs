@@ -25,12 +25,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using AppStract.Core.Data.Application;
+using AppStract.Host.Data.Application;
 using AppStract.Utilities.ManagedFusion;
 using AppStract.Utilities.ManagedFusion.Insuring;
 using SystemProcess = System.Diagnostics.Process;
 
-namespace AppStract.Core.System.GAC
+namespace AppStract.Host.System.GAC
 {
   /// <summary>
   /// Manages the local system's Global Assembly Cache by registering and unregistering assemblies

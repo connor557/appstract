@@ -24,7 +24,7 @@
 using System;
 using System.Xml.Serialization;
 
-namespace AppStract.Core.Data.Application
+namespace AppStract.Host.Data.Application
 {
   /// <summary>
   /// Stores files associated to an application.

@@ -29,7 +29,7 @@ using System.Xml.Serialization;
 using AppStract.Utilities.Helpers;
 using AppStract.Utilities.Extensions;
 
-namespace AppStract.Core.Data.Application
+namespace AppStract.Host.Data.Application
 {
   [Serializable]
   public sealed class ApplicationFile : ISerializable, IXmlSerializable

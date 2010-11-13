@@ -24,7 +24,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace AppStract.Core.System.GAC
+namespace AppStract.Host.System.GAC
 {
 
   /// <summary>

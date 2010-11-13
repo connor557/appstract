@@ -24,7 +24,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace AppStract.Core.Virtualization.Process
+namespace AppStract.Host.Virtualization.Process
 {
   /// <summary>
   /// Represents errors related to a <see cref="VirtualizedProcess"/>.

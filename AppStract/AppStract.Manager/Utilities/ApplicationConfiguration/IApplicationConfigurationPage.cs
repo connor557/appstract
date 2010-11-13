@@ -21,7 +21,7 @@
 
 #endregion
 
-using AppStract.Core.Data.Application;
+using AppStract.Host.Data.Application;
 
 namespace AppStract.Manager.Utilities.ApplicationConfiguration
 {

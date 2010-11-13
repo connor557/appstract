@@ -24,7 +24,7 @@
 using System;
 using AppStract.Engine.Configuration;
 
-namespace AppStract.Core.Data.Application
+namespace AppStract.Host.Data.Application
 {
   [Serializable]
   public sealed class ApplicationSettings

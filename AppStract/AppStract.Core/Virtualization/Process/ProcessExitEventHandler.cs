@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace AppStract.Core.Virtualization.Process
+namespace AppStract.Host.Virtualization.Process
 {
 
   /// <summary>
