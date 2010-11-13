@@ -24,7 +24,7 @@
 using System;
 using AppStract.Engine.Data.Connection;
 
-namespace AppStract.Host.System.IPC
+namespace AppStract.Host.Virtualization.Connection
 {
   /// <summary>
   /// Enables access to an instance of <see cref="IProcessSynchronizer"/> across application domain boundaries.
