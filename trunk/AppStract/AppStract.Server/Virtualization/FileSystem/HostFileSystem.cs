@@ -25,7 +25,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
-using AppStract.Core.Virtualization.Engine.FileSystem;
 using HostRegistry = Microsoft.Win32.Registry;
 
 namespace AppStract.Engine.Virtualization.FileSystem

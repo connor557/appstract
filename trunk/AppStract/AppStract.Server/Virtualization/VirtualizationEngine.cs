@@ -22,7 +22,7 @@
 #endregion
 
 using System;
-using AppStract.Core.System.IPC;
+using AppStract.Engine.Data.Connection;
 using AppStract.Engine.Virtualization.FileSystem;
 using AppStract.Engine.Virtualization.Hooking;
 using AppStract.Engine.Virtualization.Registry;

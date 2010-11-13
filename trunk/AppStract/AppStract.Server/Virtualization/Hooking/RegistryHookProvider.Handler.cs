@@ -23,10 +23,9 @@
 
 using System;
 using System.Runtime.InteropServices;
-using AppStract.Core.Virtualization.Engine;
-using AppStract.Core.Virtualization.Engine.Registry;
+using AppStract.Engine.Virtualization.Registry;
 using AppStract.Utilities.Extensions;
-using ValueType = AppStract.Core.Virtualization.Engine.Registry.ValueType;
+using ValueType = AppStract.Engine.Virtualization.Registry.ValueType;
 
 namespace AppStract.Engine.Virtualization.Hooking
 {

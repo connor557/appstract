@@ -24,9 +24,7 @@
 using System;
 using System.Windows.Forms;
 using AppStract.Core.Data.Application;
-using AppStract.Core.Virtualization.Engine;
-using AppStract.Core.Virtualization.Engine.FileSystem;
-using AppStract.Core.Virtualization.Engine.Registry;
+using AppStract.Engine.Configuration;
 
 namespace AppStract.Manager.Utilities.ApplicationConfiguration
 {

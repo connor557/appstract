@@ -109,16 +109,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\Databases\DatabaseException.cs" />
-    <Compile Include="Data\Databases\ParameterGenerator.cs" />
-    <Compile Include="Data\Databases\BuildItemFromQueryData.cs" />
-    <Compile Include="Data\Databases\Database.cs" />
-    <Compile Include="Data\Databases\DatabaseAction.cs" />
-    <Compile Include="Data\Databases\DatabaseActionType.cs" />
-    <Compile Include="Data\Databases\IIndexUser.cs" />
-    <Compile Include="Data\Databases\IndexGenerator.cs" />
-    <Compile Include="Data\Databases\IndexRange.cs" />
-    <Compile Include="Data\Databases\RegistryDatabase.cs" />
     <Compile Include="System\Runtime.cs" />
     <Compile Include="System\GAC\GacException.cs" />
     <Compile Include="System\GAC\GacManager.cs" />
@@ -129,47 +119,28 @@
     <Compile Include="Data\Settings\Configuration.cs" />
     <Compile Include="Data\Settings\UserConfig.cs" />
     <Compile Include="System\IPC\ConnectionManager.cs" />
-    <Compile Include="Virtualization\Engine\EngineRule.cs" />
-    <Compile Include="Virtualization\Engine\EngineRuleCollection.cs" />
-    <Compile Include="Virtualization\Engine\FileSystem\FileCreationDisposition.cs" />
-    <Compile Include="Virtualization\Engine\FileSystem\FileRequest.cs" />
-    <Compile Include="Virtualization\Engine\FileSystem\FileSystemRuleCollection.cs" />
-    <Compile Include="Virtualization\Engine\NativeResultCode.cs" />
-    <Compile Include="Virtualization\Engine\VirtualizationType.cs" />
-    <Compile Include="Virtualization\Engine\Registry\RegistryRuleCollection.cs" />
     <Compile Include="Virtualization\Process\Packaging\PackageException.cs" />
     <Compile Include="Virtualization\Process\Packaging\Packager.cs" />
     <Compile Include="Virtualization\Process\Packaging\PackagedApplication.cs" />
     <Compile Include="Virtualization\Process\Packaging\PackagingProcess.cs" />
     <Compile Include="Virtualization\Process\ProcessExitEventHandler.cs" />
     <Compile Include="Virtualization\Process\VirtualProcessStartInfo.cs" />
-    <Compile Include="Virtualization\Engine\FileSystem\IFileSystemSynchronizer.cs" />
-    <Compile Include="Virtualization\Engine\Registry\IRegistrySynchronizer.cs" />
-    <Compile Include="System\IPC\IProcessSynchronizer.cs" />
-    <Compile Include="System\IPC\IResourceLoader.cs" />
-    <Compile Include="System\IPC\IServerReporter.cs" />
-    <Compile Include="System\IPC\ISynchronizer.cs" />
     <Compile Include="System\IPC\ProcessSynchronizer.cs" />
     <Compile Include="Data\Application\ApplicationData.cs" />
     <Compile Include="Data\Application\ApplicationFile.cs" />
     <Compile Include="Data\Application\ApplicationFiles.cs" />
     <Compile Include="Data\Application\ApplicationSettings.cs" />
-    <Compile Include="Virtualization\Engine\FileSystem\ResourceType.cs" />
-    <Compile Include="Virtualization\Engine\FileSystem\IFileSystemProvider.cs" />
     <Compile Include="Data\Application\FileType.cs" />
     <Compile Include="Virtualization\Process\VirtualProcessException.cs" />
     <Compile Include="Virtualization\Process\VirtualizedProcess.cs" />
-    <Compile Include="Virtualization\Engine\Registry\IRegistryProvider.cs" />
-    <Compile Include="Virtualization\Engine\Registry\RegCreationDisposition.cs" />
-    <Compile Include="Virtualization\Engine\Registry\RegOption.cs" />
-    <Compile Include="Virtualization\Engine\Registry\RegAccessRights.cs" />
-    <Compile Include="Virtualization\Engine\Registry\ValueType.cs" />
-    <Compile Include="Virtualization\Engine\Registry\VirtualRegistryKey.cs" />
-    <Compile Include="Virtualization\Engine\Registry\VirtualRegistryValue.cs" />
     <Compile Include="CoreManager.cs" />
     <Compile Include="System\IPC\ProcessSynchronizerInterface.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AppStract.Server\AppStract.Engine.csproj">
+      <Project>{4944058E-49BF-4CF8-968D-D905731EC728}</Project>
+      <Name>AppStract.Engine</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AppStract.Utilities\AppStract.Utilities.csproj">
       <Project>{29578947-FFF4-4A0A-9C75-AE3C5E03F746}</Project>
       <Name>AppStract.Utilities</Name>

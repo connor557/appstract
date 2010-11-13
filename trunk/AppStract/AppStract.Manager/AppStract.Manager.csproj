@@ -277,6 +277,10 @@
       <Project>{73CC3214-9CAD-4723-BBBB-79BE7482E639}</Project>
       <Name>AppStract.Host</Name>
     </ProjectReference>
+    <ProjectReference Include="..\AppStract.Server\AppStract.Engine.csproj">
+      <Project>{4944058E-49BF-4CF8-968D-D905731EC728}</Project>
+      <Name>AppStract.Engine</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AppStract.Utilities.GUI\AppStract.Utilities.GUI.csproj">
       <Project>{3421E153-CCA5-4819-9907-02340B8EB11B}</Project>
       <Name>AppStract.Utilities.GUI</Name>

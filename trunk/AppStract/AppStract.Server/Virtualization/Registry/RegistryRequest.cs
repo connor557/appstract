@@ -21,7 +21,7 @@
 
 #endregion
 
-using AppStract.Core.Virtualization.Engine;
+using AppStract.Engine.Configuration;
 using Microsoft.Win32;
 
 namespace AppStract.Engine.Virtualization.Registry

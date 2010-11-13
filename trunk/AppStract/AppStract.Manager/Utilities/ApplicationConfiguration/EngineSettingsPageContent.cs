@@ -23,7 +23,7 @@
 
 using System;
 using System.Windows.Forms;
-using AppStract.Core.Virtualization.Engine;
+using AppStract.Engine.Configuration;
 
 namespace AppStract.Manager.Utilities.ApplicationConfiguration
 {

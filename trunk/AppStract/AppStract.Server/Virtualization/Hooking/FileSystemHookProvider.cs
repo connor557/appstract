@@ -22,7 +22,7 @@
 #endregion
 
 using System.Collections.Generic;
-using AppStract.Core.Virtualization.Engine.FileSystem;
+using AppStract.Engine.Virtualization.FileSystem;
 
 namespace AppStract.Engine.Virtualization.Hooking
 {
