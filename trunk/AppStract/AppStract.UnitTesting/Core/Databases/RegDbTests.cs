@@ -26,7 +26,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using AppStract.Core;
+using AppStract.Host;
 using AppStract.Engine.Data.Databases;
 using AppStract.Engine.Virtualization.Registry;
 using NUnit.Framework;

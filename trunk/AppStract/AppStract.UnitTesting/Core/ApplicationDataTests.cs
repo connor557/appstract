@@ -22,8 +22,8 @@
 #endregion
 
 using System.IO;
-using AppStract.Core;
-using AppStract.Core.Data.Application;
+using AppStract.Host;
+using AppStract.Host.Data.Application;
 using NUnit.Framework;
 
 namespace AppStract.UnitTesting.Core

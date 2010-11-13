@@ -21,11 +21,11 @@
 
 #endregion
 
-using AppStract.Core.Data.Settings;
-using AppStract.Core.System;
+using AppStract.Host.Data.Settings;
+using AppStract.Host.System;
 using AppStract.Utilities.Logging;
 
-namespace AppStract.Core
+namespace AppStract.Host
 {
   /// <summary>
   /// The static core class of AppStract,

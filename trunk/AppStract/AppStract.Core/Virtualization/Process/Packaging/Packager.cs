@@ -23,11 +23,11 @@
 
 using System;
 using System.Threading;
-using AppStract.Core.Data.Application;
+using AppStract.Host.Data.Application;
 using AppStract.Engine;
 using AppStract.Engine.Configuration;
 
-namespace AppStract.Core.Virtualization.Process.Packaging
+namespace AppStract.Host.Virtualization.Process.Packaging
 {
   /// <summary>
   /// Class able to package an application.

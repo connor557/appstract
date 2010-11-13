@@ -23,10 +23,10 @@
 
 using System;
 using System.IO;
-using AppStract.Core.Data.Application;
+using AppStract.Host.Data.Application;
 using AppStract.Engine.Configuration;
 
-namespace AppStract.Core.Virtualization.Process
+namespace AppStract.Host.Virtualization.Process
 {
   /// <summary>
   /// Specifies a set of values that are used when starting a <see cref="VirtualizedProcess"/>.

@@ -26,7 +26,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
-using AppStract.Core.System.IPC;
+using AppStract.Host.System.IPC;
 using AppStract.Engine;
 using AppStract.Engine.Data.Connection;
 using AppStract.Utilities.Helpers;

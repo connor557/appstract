@@ -27,7 +27,7 @@ using System.IO;
 using AppStract.Utilities.Helpers;
 using AppStract.Utilities.ManagedFusion;
 
-namespace AppStract.Core.Data.Settings
+namespace AppStract.Host.Data.Settings
 {
   [Serializable]
   public class AppConfig

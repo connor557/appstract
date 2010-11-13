@@ -24,9 +24,9 @@
 using System;
 using System.IO;
 using System.Threading;
-using AppStract.Core.Data.Application;
-using AppStract.Core.System.GAC;
-using AppStract.Core.System.IPC;
+using AppStract.Host.Data.Application;
+using AppStract.Host.System.GAC;
+using AppStract.Host.System.IPC;
 using AppStract.Engine;
 using AppStract.Engine.Data.Connection;
 using AppStract.Utilities.Helpers;
@@ -34,7 +34,7 @@ using EasyHook;
 using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
 using SystemProcess = System.Diagnostics.Process;
 
-namespace AppStract.Core.Virtualization.Process
+namespace AppStract.Host.Virtualization.Process
 {
   /// <summary>
   /// Provides access to local virtualized processes.

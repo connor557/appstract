@@ -24,7 +24,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace AppStract.Core
+namespace AppStract.Host
 {
   /// <summary>
   /// Represents errors that occur in the application's core.

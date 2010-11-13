@@ -23,11 +23,11 @@
 
 using System;
 using System.Collections.Generic;
-using AppStract.Core.Data.Application;
-using AppStract.Core.System.IPC;
+using AppStract.Host.Data.Application;
+using AppStract.Host.System.IPC;
 using AppStract.Engine.Data.Connection;
 
-namespace AppStract.Core.Virtualization.Process.Packaging
+namespace AppStract.Host.Virtualization.Process.Packaging
 {
   /// <summary>
   /// Derived from <see cref="VirtualizedProcess"/>

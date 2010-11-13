@@ -25,7 +25,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
-namespace AppStract.Core.System
+namespace AppStract.Host.System
 {
   /// <summary>
   /// Provides information about the current application instance's runtime.

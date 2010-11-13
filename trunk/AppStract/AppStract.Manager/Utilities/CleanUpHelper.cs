@@ -23,7 +23,7 @@
 
 using System;
 using System.Windows.Forms;
-using AppStract.Core;
+using AppStract.Host;
 using AppStract.Utilities.ManagedFusion.Insuring;
 
 namespace AppStract.Manager.Utilities

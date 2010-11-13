@@ -28,11 +28,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("AppStract.Core")]
+[assembly: AssemblyTitle("AppStract.Host")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Simon Allaeys")]
-[assembly: AssemblyProduct("AppStract.Core")]
+[assembly: AssemblyProduct("AppStract.Host")]
 [assembly: AssemblyCopyright("Copyright © Simon Allaeys 2009")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

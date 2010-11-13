@@ -23,9 +23,9 @@
 
 using System;
 using System.Windows.Forms;
-using AppStract.Core;
-using AppStract.Core.Data.Application;
-using AppStract.Core.Virtualization.Process.Packaging;
+using AppStract.Host;
+using AppStract.Host.Data.Application;
+using AppStract.Host.Virtualization.Process.Packaging;
 using AppStract.Manager.Utilities;
 using AppStract.Utilities.GUI;
 

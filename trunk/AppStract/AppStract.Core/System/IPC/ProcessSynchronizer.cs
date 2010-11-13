@@ -23,14 +23,14 @@
 
 using System;
 using System.Collections.Generic;
-using AppStract.Core.Data.Application;
+using AppStract.Host.Data.Application;
 using AppStract.Engine.Configuration;
 using AppStract.Engine.Data.Connection;
 using AppStract.Engine.Data.Databases;
 using AppStract.Engine.Virtualization.Registry;
 using AppStract.Utilities.Logging;
 
-namespace AppStract.Core.System.IPC
+namespace AppStract.Host.System.IPC
 {
   /// <summary>
   /// Provides a way of data synchronization between multiple processes.
