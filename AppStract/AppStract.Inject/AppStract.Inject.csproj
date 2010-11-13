@@ -97,11 +97,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AppStract.Core\AppStract.Host.csproj">
+    <ProjectReference Include="..\AppStract.Host\AppStract.Host.csproj">
       <Project>{73CC3214-9CAD-4723-BBBB-79BE7482E639}</Project>
       <Name>AppStract.Host</Name>
     </ProjectReference>
-    <ProjectReference Include="..\AppStract.Server\AppStract.Engine.csproj">
+    <ProjectReference Include="..\AppStract.Engine\AppStract.Engine.csproj">
       <Project>{4944058E-49BF-4CF8-968D-D905731EC728}</Project>
       <Name>AppStract.Engine</Name>
     </ProjectReference>
