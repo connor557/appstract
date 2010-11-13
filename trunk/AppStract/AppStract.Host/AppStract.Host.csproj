@@ -137,7 +137,7 @@
     <Compile Include="System\IPC\ProcessSynchronizerInterface.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AppStract.Server\AppStract.Engine.csproj">
+    <ProjectReference Include="..\AppStract.Engine\AppStract.Engine.csproj">
       <Project>{4944058E-49BF-4CF8-968D-D905731EC728}</Project>
       <Name>AppStract.Engine</Name>
     </ProjectReference>
