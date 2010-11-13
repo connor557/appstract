@@ -118,14 +118,14 @@
     <Compile Include="Data\Settings\AppConfig.cs" />
     <Compile Include="Data\Settings\Configuration.cs" />
     <Compile Include="Data\Settings\UserConfig.cs" />
-    <Compile Include="System\IPC\ConnectionManager.cs" />
+    <Compile Include="Virtualization\Connection\ConnectionManager.cs" />
     <Compile Include="Virtualization\Process\Packaging\PackageException.cs" />
     <Compile Include="Virtualization\Process\Packaging\Packager.cs" />
     <Compile Include="Virtualization\Process\Packaging\PackagedApplication.cs" />
     <Compile Include="Virtualization\Process\Packaging\PackagingProcess.cs" />
     <Compile Include="Virtualization\Process\ProcessExitEventHandler.cs" />
     <Compile Include="Virtualization\Process\VirtualProcessStartInfo.cs" />
-    <Compile Include="System\IPC\ProcessSynchronizer.cs" />
+    <Compile Include="Virtualization\Connection\ProcessSynchronizer.cs" />
     <Compile Include="Data\Application\ApplicationData.cs" />
     <Compile Include="Data\Application\ApplicationFile.cs" />
     <Compile Include="Data\Application\ApplicationFiles.cs" />
@@ -134,7 +134,7 @@
     <Compile Include="Virtualization\Process\VirtualProcessException.cs" />
     <Compile Include="Virtualization\Process\VirtualizedProcess.cs" />
     <Compile Include="HostManager.cs" />
-    <Compile Include="System\IPC\ProcessSynchronizerInterface.cs" />
+    <Compile Include="Virtualization\Connection\ProcessSynchronizerInterface.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppStract.Engine\AppStract.Engine.csproj">

@@ -24,7 +24,7 @@
 using System;
 using System.Collections.Generic;
 using AppStract.Host.Data.Application;
-using AppStract.Host.System.IPC;
+using AppStract.Host.Virtualization.Connection;
 using AppStract.Engine.Data.Connection;
 
 namespace AppStract.Host.Virtualization.Process.Packaging

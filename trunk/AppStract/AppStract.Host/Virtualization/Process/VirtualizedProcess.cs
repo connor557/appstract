@@ -26,7 +26,7 @@ using System.IO;
 using System.Threading;
 using AppStract.Host.Data.Application;
 using AppStract.Host.System.GAC;
-using AppStract.Host.System.IPC;
+using AppStract.Host.Virtualization.Connection;
 using AppStract.Engine;
 using AppStract.Engine.Data.Connection;
 using AppStract.Utilities.Helpers;
