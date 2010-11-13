@@ -71,7 +71,7 @@ namespace AppStract.Host.Data.Settings
       }
       catch (Exception ex)
       {
-        CoreBus.Log.Error("Could not load the user configuration.", ex);
+        HostCore.Log.Error("Could not load the user configuration.", ex);
       }
       var r = new UserConfig();
       r.LoadDefaults();

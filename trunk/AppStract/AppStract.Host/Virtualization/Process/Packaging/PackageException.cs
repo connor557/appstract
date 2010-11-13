@@ -30,7 +30,7 @@ namespace AppStract.Host.Virtualization.Process.Packaging
   /// Represents an error related to the packaging of an application.
   /// </summary>
   [Serializable]
-  public class PackageException : CoreException
+  public class PackageException : HostException
   {
 
     #region Constructors

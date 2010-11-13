@@ -106,18 +106,18 @@ namespace AppStract.Host.System.IPC
 
     public void ReportMessage(LogMessage message)
     {
-      CoreBus.Log.Log(message);
+      HostCore.Log.Log(message);
     }
 
     public void ReportMessage(IEnumerable<LogMessage> messages)
     {
       foreach (var message in messages)
-        CoreBus.Log.Log(message);
+        HostCore.Log.Log(message);
     }
 
     public LogLevel GetRequiredLogLevel()
     {
-      return CoreBus.Log.LogLevel;
+      return HostCore.Log.LogLevel;
     }
 
     #endregion

@@ -38,7 +38,7 @@ namespace AppStract.Manager.Packaging
 
     public static void Start()
     {
-      CoreBus.Log.Message("Starting wizard to create a new application package.");
+      HostCore.Log.Message("Starting wizard to create a new application package.");
       PreConfigurationState preConfigurationState;
       ApplicationData applicationData;
       do
@@ -56,9 +56,9 @@ namespace AppStract.Manager.Packaging
       PackagedApplication packagedApplication;
       if (!RunPackagingSequence(preConfigurationState, applicationData, out packagedApplication))
         return;
-      CoreBus.Log.Message("Successfully constructed a package for: " + preConfigurationState.InstallerExecutable);
+      HostCore.Log.Message("Successfully constructed a package for: " + preConfigurationState.InstallerExecutable);
       var applicationDataFile = System.IO.Path.Combine(preConfigurationState.InstallerOutputDestination,
-                                                       CoreBus.Configuration.Application.DefaultApplicationDataFile);
+                                                       HostCore.Configuration.Application.DefaultApplicationDataFile);
       if (!RunPostWizard(packagedApplication, applicationDataFile))
       {
         MessageBox.Show("Failed to create an application data file for the packaged application.",
@@ -70,7 +70,7 @@ namespace AppStract.Manager.Packaging
       }
       // Start the application, if requested.
       if (preConfigurationState.Autostart)
-        CoreManager.StartProcess(applicationDataFile);
+        HostManager.StartProcess(applicationDataFile);
     }
 
     #endregion
@@ -117,7 +117,7 @@ namespace AppStract.Manager.Packaging
       }
       catch (Exception ex)
       {
-        CoreBus.Log.Error("Packaging failed", ex);
+        HostCore.Log.Error("Packaging failed", ex);
         MessageReporter.Show(FormatMessageFor(ex) + "\r\nCheck the log files or the extended information for troubleshooting.",
                              "Packaging failed!", ex, MessageBoxButtons.OK, MessageBoxIcon.Error);
         // ToDo: Clean up first!

@@ -131,7 +131,7 @@ namespace AppStract.Host.Virtualization.Process
       _startInfo = startInfo;
       _connection = new ConnectionManager(processSynchronizer);
       _gacManager = new GacManager(startInfo.Files.Executable.FileName,
-                                   CoreBus.Configuration.Application.LibsToShare);
+                                   HostCore.Configuration.Application.LibsToShare);
     }
 
     #endregion
@@ -189,7 +189,7 @@ namespace AppStract.Host.Virtualization.Process
           throw new VirtualProcessException("FileType " + _startInfo.Files.Executable.Type +
                                             " can't be used to start a process with.");
       }
-      CoreBus.Log.Message("A virtualized process with PID {0} has been succesfully created for {1}.",
+      HostCore.Log.Message("A virtualized process with PID {0} has been succesfully created for {1}.",
                               _process.Id, _startInfo.Files.Executable.FileName);
     }
 
@@ -206,7 +206,7 @@ namespace AppStract.Host.Virtualization.Process
     {
       int processId;
       // Get the location of the library to inject
-      string libraryLocation = CoreBus.Configuration.Application.LibtoInject;
+      string libraryLocation = HostCore.Configuration.Application.LibtoInject;
       if (!File.Exists(libraryLocation))
         throw new FileNotFoundException("Unable to locate the library to inject.", libraryLocation);
       RemoteHooking.CreateAndInject(
@@ -222,7 +222,7 @@ namespace AppStract.Host.Virtualization.Process
         // Extra parameters being passed to the injected library entry points Run() and Initialize()
         _connection.ChannelName);
       // The process has been created, set the _process variable.
-      _process = SystemProcess.GetProcessById(processId, CoreBus.Runtime.CurrentProcess.MachineName);
+      _process = SystemProcess.GetProcessById(processId, HostCore.Runtime.CurrentProcess.MachineName);
       _process.EnableRaisingEvents = true;
       _process.Exited += Process_Exited;
     }
@@ -238,8 +238,8 @@ namespace AppStract.Host.Virtualization.Process
     private void WrapAndInject()
     {
       // Get the location of the files needed.
-      var wrapperLocation = CoreBus.Configuration.Application.WrapperExecutable;
-      var libraryLocation = CoreBus.Configuration.Application.LibtoInject;
+      var wrapperLocation = HostCore.Configuration.Application.WrapperExecutable;
+      var libraryLocation = HostCore.Configuration.Application.LibtoInject;
       if (!File.Exists(wrapperLocation))
         throw new FileNotFoundException("Unable to locate the wrapper executable.", wrapperLocation);
       if (!File.Exists(libraryLocation))
@@ -274,7 +274,7 @@ namespace AppStract.Host.Virtualization.Process
       catch (Exception e)
       {
         if (!_process.HasExited) _process.Kill();
-        CoreBus.Log.Critical("Injection procedure failed.", e);
+        HostCore.Log.Critical("Injection procedure failed.", e);
         throw;
       }
       // Hide wrapper console window.
@@ -292,14 +292,14 @@ namespace AppStract.Host.Virtualization.Process
     {
       if (Thread.CurrentThread.Name == null)
         Thread.CurrentThread.Name = "Guest Finalizer";
-      CoreBus.Log.Message("Guest process' Exited event is called");
+      HostCore.Log.Message("Guest process' Exited event is called");
       if (!_process.HasExited)
         return;
       _hasExited = true;
       NativeResultCode exitCode;
       if (!ParserHelper.TryParseEnum(_process.ExitCode, out exitCode)
           || exitCode != NativeResultCode.Success)
-        CoreBus.Log.Error("Guest process exited with code [{0}] {1} and message: {2}",
+        HostCore.Log.Error("Guest process exited with code [{0}] {1} and message: {2}",
                           _process.ExitCode, exitCode,
                           _process.StartInfo.RedirectStandardError
                             ? _process.StandardError.ReadToEnd()

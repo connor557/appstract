@@ -95,7 +95,7 @@ namespace AppStract.Host.Virtualization.Process.Packaging
                                        + _connection.ProcessSynchronizer.GetType());
       var executables = new List<string>();
       // ToDo: Acquire a list of possible startup executables
-      CoreBus.Log.Critical("Unable to find a list of executables!");
+      HostCore.Log.Critical("Unable to find a list of executables!");
       return executables;
     }
 

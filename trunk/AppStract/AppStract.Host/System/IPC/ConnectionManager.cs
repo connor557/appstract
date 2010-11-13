@@ -68,15 +68,15 @@ namespace AppStract.Host.System.IPC
     /// <summary>
     /// Name of the remoting-channel connecting the guest process to the server process.
     /// </summary>
-    /// <exception cref="CoreException">
-    /// A <see cref="CoreException"/> is thrown if the channel name is requested while there is no connection initialized.
+    /// <exception cref="HostException">
+    /// A <see cref="HostException"/> is thrown if the channel name is requested while there is no connection initialized.
     /// </exception>
     public string ChannelName
     {
       get
       {
         if (!_connected)
-          throw new CoreException("The resources have to be initialized before a channel name can be provided.");
+          throw new HostException("The resources have to be initialized before a channel name can be provided.");
         return _channelName;
       }
     }

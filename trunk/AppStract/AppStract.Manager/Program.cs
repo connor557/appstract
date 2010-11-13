@@ -46,7 +46,7 @@ namespace AppStract.Manager
     {
       System.Threading.Thread.CurrentThread.Name = "Main";
       var parser = new CommandlineParser(args);
-      CoreManager.InitializeCore();
+      HostManager.InitializeCore();
 #if !DEBUG
       try
       {
@@ -54,9 +54,9 @@ namespace AppStract.Manager
       if (parser.HasDefinitions)
       {
         ConfigureFromArgs(parser);
-        CoreManager.StartProcess(parser.IsDefined(CommandlineOption.ApplicationDataFile)
+        HostManager.StartProcess(parser.IsDefined(CommandlineOption.ApplicationDataFile)
                                    ? parser.GetOption(CommandlineOption.ApplicationDataFile)
-                                   : CoreBus.Configuration.Application.DefaultApplicationDataFile);
+                                   : HostCore.Configuration.Application.DefaultApplicationDataFile);
       }
       else
       {
@@ -95,21 +95,21 @@ namespace AppStract.Manager
         if (ParserHelper.TryParseEnum(argParser.GetOption(CommandlineOption.LogOutput), out type))
         {
           if (argParser.IsDefined(CommandlineOption.LogFile))
-            CoreBus.Configuration.SetLogOutput(type, argParser.GetOption(CommandlineOption.LogFile));
+            HostCore.Configuration.SetLogOutput(type, argParser.GetOption(CommandlineOption.LogFile));
           else
-            CoreBus.Configuration.SetLogOutput(type);
+            HostCore.Configuration.SetLogOutput(type);
         }
       }
       else if (argParser.IsDefined(CommandlineOption.LogFile)
-               && CoreBus.Log.Type == LogType.File)
+               && HostCore.Log.Type == LogType.File)
       {
-        CoreBus.Configuration.SetLogOutput(LogType.File, argParser.GetOption(CommandlineOption.LogFile));
+        HostCore.Configuration.SetLogOutput(LogType.File, argParser.GetOption(CommandlineOption.LogFile));
       }
       if (argParser.IsDefined(CommandlineOption.LogLevel))
       {
         LogLevel logLevel;
         if (ParserHelper.TryParseEnum(argParser.GetOption(CommandlineOption.LogLevel), out logLevel))
-          CoreBus.Configuration.SetLogLevel(logLevel);
+          HostCore.Configuration.SetLogLevel(logLevel);
       }
       if (argParser.IsDefined(CommandlineOption.ShowWindow))
       {

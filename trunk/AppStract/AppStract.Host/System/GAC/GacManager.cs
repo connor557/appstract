@@ -124,7 +124,7 @@ namespace AppStract.Host.System.GAC
     {
       var gacAssemblies = new List<AssemblyName>();
       var otherBinDir = Path.GetDirectoryName(_otherAppExe.FileName).ToUpperInvariant();
-      var thisBinDir = CoreBus.Runtime.StartUpDirectory.ToUpperInvariant();
+      var thisBinDir = HostCore.Runtime.StartUpDirectory.ToUpperInvariant();
       var sameBinDir = otherBinDir == thisBinDir;
       foreach (var file in _sharedAssemblies)
       {
@@ -156,11 +156,11 @@ namespace AppStract.Host.System.GAC
         if (_gacRegistered) return;
         var assemblies = DetermineGacAssemblies();
         // First insure the removal of those assemblies.
-        var insuranceData = new InsuranceData(CoreBus.Configuration.Application.GacInstallerDescription,
-                                              CoreBus.Configuration.User.GacCleanUpInsuranceFlags,
-                                              CoreBus.Configuration.Application.GacCleanUpInsuranceFolder,
-                                              CoreBus.Configuration.Application.GacCleanUpInsuranceRegistryKey,
-                                              CoreBus.Configuration.Application.WatcherExecutable);
+        var insuranceData = new InsuranceData(HostCore.Configuration.Application.GacInstallerDescription,
+                                              HostCore.Configuration.User.GacCleanUpInsuranceFlags,
+                                              HostCore.Configuration.Application.GacCleanUpInsuranceFolder,
+                                              HostCore.Configuration.Application.GacCleanUpInsuranceRegistryKey,
+                                              HostCore.Configuration.Application.WatcherExecutable);
         _insurance = CleanUpInsurance.CreateInsurance(insuranceData, assemblies);
         GC.ReRegisterForFinalize(this);
         // Then install the assemblies.
