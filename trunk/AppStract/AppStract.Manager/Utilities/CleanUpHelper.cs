@@ -22,6 +22,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Windows.Forms;
 using AppStract.Host;
 using AppStract.Utilities.ManagedFusion.Insuring;
@@ -49,22 +50,18 @@ namespace AppStract.Manager.Utilities
       Close();
     }
 
-    private void _btnCancel_Click(object sender, EventArgs e)
+    private void Cancel(object sender, EventArgs e)
     {
       DialogResult = DialogResult.Cancel;
       Close();
     }
 
-    private void _btnCleanSelected_Click(object sender, EventArgs e)
+    private void CleanSelected(object sender, EventArgs e)
     {
       var indices = new int[_listInsurances.CheckedIndices.Count];
       _listInsurances.CheckedIndices.CopyTo(indices, 0);
-      foreach (var item in _listInsurances.CheckedItems)
-      {
-        var insurance = item as CleanUpInsurance;
-        if (insurance != null)
-          insurance.Dispose(true);
-      }
+      foreach (var insurance in _listInsurances.CheckedItems.OfType<CleanUpInsurance>().Where(i => i != null))
+        insurance.Dispose(true);
       MessageBox.Show("Selected items are cleaned.", "Done!", MessageBoxButtons.OK);
       DialogResult = DialogResult.OK;
       Close();

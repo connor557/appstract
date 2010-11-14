@@ -294,7 +294,7 @@ namespace AppStract.Utilities.ManagedFusion.Insuring
           || _insuranceRegistryKey.MachineId != LocalMachine.Identifier)
         return;
       bool deleteTree;
-      using (var key = Registry.CurrentUser.OpenSubKey(_data.TrackingRegistryKey))
+      using (var key = Registry.CurrentUser.OpenSubKey(_data.TrackingRegistryKey, true))
       {
         if (key == null) return;
         var subKeys = key.GetSubKeyNames();
@@ -362,13 +362,13 @@ namespace AppStract.Utilities.ManagedFusion.Insuring
       // - Enumerate all files, while trying to find matching registrykeys
       foreach (var file in files)
       {
-        var key = keys.FirstOrDefault(k => file.InsuranceIdentifier.Equals(k.InsuranceIdentifier));
+        var insuranceFile = file;
+        var key = keys.FirstOrDefault(k => insuranceFile.InsuranceIdentifier.Equals(k.InsuranceIdentifier));
         keys.Remove(key);
         result.Add(new CleanUpInsurance(file, key, null));
       }
       // - Now enumerate the keys that didn't match to a file.
-      foreach (var key in keys)
-        result.Add(new CleanUpInsurance(null, key, null));
+      result.AddRange(keys.Select(key => new CleanUpInsurance(null, key, null)));
       return result;
     }
 
