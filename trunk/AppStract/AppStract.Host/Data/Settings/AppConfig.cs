@@ -160,7 +160,8 @@ namespace AppStract.Host.Data.Settings
             "AppStract.Inject.dll",
             "AppStract.Manager.exe",
             "AppStract.Engine.dll",
-            "AppStract.Utilities.dll"
+            "AppStract.Utilities.dll",
+            "System.Data.SQLite.dll"
           });
       GacCleanUpInsuranceFolder = HostCore.Runtime.StartUpDirectory + @"\GAC";
       GacCleanUpInsuranceRegistryKey = @"Software\AppStract";

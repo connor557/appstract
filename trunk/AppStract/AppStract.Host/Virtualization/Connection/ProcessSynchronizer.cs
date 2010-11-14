@@ -27,7 +27,6 @@ using AppStract.Host.Data.Application;
 using AppStract.Engine.Configuration;
 using AppStract.Engine.Data.Connection;
 using AppStract.Engine.Data.Databases;
-using AppStract.Engine.Virtualization.Registry;
 using AppStract.Utilities.Logging;
 
 namespace AppStract.Host.Virtualization.Connection
@@ -39,35 +38,17 @@ namespace AppStract.Host.Virtualization.Connection
   {
 
     #region Variables
-
-    /// <summary>
-    /// The root as used by the file system.
-    /// </summary>
-    private readonly string _fileSystemRoot;
+    
     /// <summary>
     /// The collection of engine rules to apply on the file system virtualization engine.
     /// </summary>
     private readonly FileSystemRuleCollection _fsRuleCollection;
     /// <summary>
-    /// The <see cref="RegistryDatabase"/> used by the current instance.
-    /// </summary>
-    private readonly RegistryDatabase _registryDatabase;
-    /// <summary>
     /// The collection of engine rules to apply on the registry virtualization engine.
     /// </summary>
     private readonly RegistryRuleCollection _regRuleCollection;
 
-    #endregion
-
-    #region Properties
-
-    /// <summary>
-    /// Gets the <see cref="RegistryDatabase"/> used by the current instance.
-    /// </summary>
-    public RegistryDatabase RegistryDatabase
-    {
-      get { return _registryDatabase; }
-    }
+    private readonly IDictionary<DataResourceType, string> _connectionStrings;
 
     #endregion
 
@@ -88,9 +69,11 @@ namespace AppStract.Host.Virtualization.Connection
         throw new ArgumentException("The root location specified for the file system is not valid.", "fileSystemRoot");
       if (registryDatabaseFile.Type != FileType.Database)
         throw new ArgumentException("The filename specified for the registry database is not valid.", "registryDatabaseFile");
-      _registryDatabase = RegistryDatabase.CreateDefaultDatabase(registryDatabaseFile.FileName);
-      _registryDatabase.Initialize();
-      _fileSystemRoot = fileSystemRoot.FileName;
+      _connectionStrings = new Dictionary<DataResourceType, string>(2)
+                             {
+                               {DataResourceType.RegistryDatabaseFile, registryDatabaseFile.FileName},
+                               {DataResourceType.FileSystemRoot, fileSystemRoot.FileName}
+                             };
       _fsRuleCollection = fileSystemRuleCollection;
       _regRuleCollection = registryRuleCollection;
     }
@@ -122,20 +105,11 @@ namespace AppStract.Host.Virtualization.Connection
 
     #endregion
 
-    #region ISynchronizer Members
+    #region IConfigurationProvider Members
 
-    public void SyncRegistryActions(IEnumerable<DatabaseAction<VirtualRegistryKey>> actions)
+    public IDictionary<DataResourceType, string> ConnectionStrings
     {
-      _registryDatabase.EnqueueAction(actions);
-    }
-
-    #endregion
-
-    #region IResourceLoader Members
-
-    public string FileSystemRoot
-    {
-      get { return _fileSystemRoot; }
+      get { return _connectionStrings; }
     }
 
     public FileSystemRuleCollection GetFileSystemEngineRules()
@@ -148,13 +122,6 @@ namespace AppStract.Host.Virtualization.Connection
       return _regRuleCollection;
     }
 
-    public IEnumerable<VirtualRegistryKey> LoadRegistry()
-    {
-      var keys = _registryDatabase.ReadAll();
-      return keys;
-    }
-
     #endregion
-
   }
 }
