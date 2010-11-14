@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.Threading;
 using AppStract.Utilities.Extensions;
 
-namespace AppStract.Engine.Data.Databases
+namespace AppStract.Utilities.Data
 {
   /// <summary>
   /// Generates indices to be used in a database.

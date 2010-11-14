@@ -22,12 +22,13 @@
 #endregion
 
 using System;
+using System.Data;
 using System.Runtime.Serialization;
 
-namespace AppStract.Engine.Data.Databases
+namespace AppStract.Utilities.Data
 {
   [Serializable]
-  public class DatabaseException : EngineException
+  public class DatabaseException : DataException
   {
 
     #region Constructors

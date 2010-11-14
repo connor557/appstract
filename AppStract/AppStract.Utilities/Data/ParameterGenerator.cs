@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace AppStract.Engine.Data.Databases
+namespace AppStract.Utilities.Data
 {
   /// <summary>
   /// Generates unique names for parameters.

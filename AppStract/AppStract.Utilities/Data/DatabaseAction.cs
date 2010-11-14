@@ -23,7 +23,7 @@
 
 using System;
 
-namespace AppStract.Engine.Data.Databases
+namespace AppStract.Utilities.Data
 {
   /// <summary>
   /// Represents an action that needs to be performed on a <see cref="Database{T}"/>.

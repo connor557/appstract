@@ -21,7 +21,7 @@
 
 #endregion
 
-namespace AppStract.Engine.Data.Databases
+namespace AppStract.Utilities.Data
 {
   /// <summary>
   /// <see cref="IIndexUser"/> is an interface that must be implemented by classes

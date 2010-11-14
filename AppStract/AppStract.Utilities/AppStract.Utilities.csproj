@@ -95,10 +95,22 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\External Libraries\System.Data.SQLite.dll</HintPath>
+    </Reference>
     <Reference Include="System.Management" />
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\BuildItemFromQueryData.cs" />
+    <Compile Include="Data\Database.cs" />
+    <Compile Include="Data\DatabaseAction.cs" />
+    <Compile Include="Data\DatabaseActionType.cs" />
+    <Compile Include="Data\DatabaseException.cs" />
+    <Compile Include="Data\IIndexUser.cs" />
+    <Compile Include="Data\IndexGenerator.cs" />
+    <Compile Include="Data\IndexRange.cs" />
+    <Compile Include="Data\ParameterGenerator.cs" />
     <Compile Include="Extensions\ExceptionExtensions.cs" />
     <Compile Include="Extensions\IntPtrExtensions.cs" />
     <Compile Include="Extensions\ReaderWriterLockSlimExtensions.cs" />
