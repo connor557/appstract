@@ -95,7 +95,8 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.SQLite">
+    <Reference Include="System.Data.SQLite, Version=1.0.60.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\External Libraries\System.Data.SQLite.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
@@ -109,15 +110,6 @@
     <Compile Include="Data\Connection\IProcessSynchronizer.cs" />
     <Compile Include="Data\Connection\IConfigurationProvider.cs" />
     <Compile Include="Data\Connection\IServerReporter.cs" />
-    <Compile Include="Data\Databases\BuildItemFromQueryData.cs" />
-    <Compile Include="Data\Databases\Database.cs" />
-    <Compile Include="Data\Databases\DatabaseAction.cs" />
-    <Compile Include="Data\Databases\DatabaseActionType.cs" />
-    <Compile Include="Data\Databases\DatabaseException.cs" />
-    <Compile Include="Data\Databases\IIndexUser.cs" />
-    <Compile Include="Data\Databases\IndexGenerator.cs" />
-    <Compile Include="Data\Databases\IndexRange.cs" />
-    <Compile Include="Data\Databases\ParameterGenerator.cs" />
     <Compile Include="Data\Databases\RegistryDatabase.cs" />
     <Compile Include="EngineException.cs" />
     <Compile Include="Virtualization\NativeResultCode.cs" />

@@ -27,9 +27,10 @@ using System.Data;
 using System.Data.SQLite;
 using System.Text;
 using System.Threading;
+using AppStract.Utilities.Logging;
 using AppStract.Utilities.Observables;
 
-namespace AppStract.Engine.Data.Databases
+namespace AppStract.Utilities.Data
 {
   /// <summary>
   /// Base class for database interfaces using SQLite.
@@ -95,6 +96,14 @@ namespace AppStract.Engine.Data.Databases
       get { return _connectionString; }
     }
 
+    /// <summary>
+    /// Gets the log service.
+    /// </summary>
+    protected Logger Log
+    {
+      get; private set;
+    }
+
     #endregion
 
     #region Constructors
@@ -122,10 +131,17 @@ namespace AppStract.Engine.Data.Databases
 
     /// <summary>
     /// Initializes the database.
-    /// If the SQLite file doesn't exist yet, it is created.
-    /// If the tables don't exist yet, they are created.
+    /// Must be called before being able to use any other functionality.
     /// </summary>
-    public abstract void Initialize();
+    /// <exception cref="DatabaseException">
+    /// A <see cref="DatabaseException"/> is thrown if the connectionstring is invalid.
+    /// -0R-
+    /// A <see cref="DatabaseException"/> is thrown if initialization failed.
+    /// </exception>
+    public void Initialize()
+    {
+      Log = DoInitialize() ?? new NullLogger();
+    }
 
     /// <summary>
     /// Reads the complete database to an <see cref="IEnumerable{T}"/>.
@@ -160,6 +176,16 @@ namespace AppStract.Engine.Data.Databases
     #region Protected Methods
 
     /// <summary>
+    /// Initializes the database.
+    /// If the SQLite file doesn't exist yet, it is created.
+    /// If the tables don't exist yet, they are created.
+    /// </summary>
+    /// <returns>
+    /// The log service to use for writing messages.
+    /// </returns>
+    protected abstract Logger DoInitialize();
+
+    /// <summary>
     /// Returns whether the table with the specified <paramref name="tableName"/> exists.
     /// </summary>
     /// <exception cref="ArgumentNullException">
@@ -185,6 +211,7 @@ namespace AppStract.Engine.Data.Databases
     /// </param>
     protected bool TableExists(string tableName, string creationQuery)
     {
+      //System.Diagnostics.Debugger.Break();
       if (tableName == null)
         throw new ArgumentNullException("tableName");
       // Determine if an UpgradeableReadLock must be entered and exited by the current method call
@@ -204,17 +231,17 @@ namespace AppStract.Engine.Data.Databases
           }
           catch (SQLiteException)
           {
-            EngineCore.Log.Debug("[Database] Failed to verify existance of table \"{0}\"", tableName);
+            Log.Debug("[Database] Failed to verify existance of table \"{0}\"", tableName);
             // Create the table?
             if (creationQuery != null)
             {
               command = new SQLiteCommand(creationQuery, connection);
               if (ExecuteCommand(command) && TableExists(tableName))
               {
-                EngineCore.Log.Debug("[Database] Created table \"{0}\"", tableName);
+                Log.Debug("[Database] Created table \"{0}\"", tableName);
                 return true;
               }
-              EngineCore.Log.Error("[Database] Failed to create table \"{0}\" with the following query: {1}",
+              Log.Error("[Database] Failed to create table \"{0}\" with the following query: {1}",
                                 tableName, creationQuery);
             }
             return false;
@@ -411,7 +438,7 @@ namespace AppStract.Engine.Data.Databases
       }
       catch (DatabaseException ex)
       {
-        EngineCore.Log.Error("[Database] Failed to flush to database [" + _connectionString + "]", ex);
+        Log.Error("[Database] Failed to flush to database [" + _connectionString + "]", ex);
       }
     }
 
@@ -521,7 +548,7 @@ namespace AppStract.Engine.Data.Databases
       }
       catch (Exception e)
       {
-        EngineCore.Log.Debug("Failed to execute an SQL statement against the database.", e);
+        Log.Debug("Failed to execute an SQL statement against the database.", e);
         return false;
       }
       finally
@@ -607,10 +634,9 @@ namespace AppStract.Engine.Data.Databases
       {
         Flush(true);
       }
-      // Catch all exceptions in order to avoid unexcepted exceptions to slip through.
       catch (Exception e)
       {
-        EngineCore.Log.Error("Failed to flush to database", e);
+        Log.Error("Failed to flush to database during Dispose", e);
       }
     }
 

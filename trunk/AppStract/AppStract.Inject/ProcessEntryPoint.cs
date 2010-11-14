@@ -26,7 +26,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
-using AppStract.Host.Virtualization.Connection;
+using AppStract.Host.Virtualization.Connection; // ToDo: Remove dependency to AppStract.Host
 using AppStract.Engine;
 using AppStract.Engine.Data.Connection;
 using AppStract.Utilities.Helpers;

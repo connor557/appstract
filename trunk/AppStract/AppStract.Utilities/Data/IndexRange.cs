@@ -23,7 +23,7 @@
 
 using System;
 
-namespace AppStract.Engine.Data.Databases
+namespace AppStract.Utilities.Data
 {
   /// <summary>
   /// Defines a range of indices.

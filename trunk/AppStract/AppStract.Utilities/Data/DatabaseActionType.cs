@@ -23,7 +23,7 @@
 
 using System;
 
-namespace AppStract.Engine.Data.Databases
+namespace AppStract.Utilities.Data
 {
   /// <summary>
   /// Specifies the type of action to take for the database-call.

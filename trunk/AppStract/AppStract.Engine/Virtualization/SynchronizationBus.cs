@@ -29,6 +29,7 @@ using AppStract.Engine.Data.Connection;
 using AppStract.Engine.Data.Databases;
 using AppStract.Engine.Virtualization.FileSystem;
 using AppStract.Engine.Virtualization.Registry;
+using AppStract.Utilities.Data;
 using AppStract.Utilities.Observables;
 
 namespace AppStract.Engine.Virtualization

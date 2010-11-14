@@ -23,7 +23,7 @@
 
 using System.Data;
 
-namespace AppStract.Engine.Data.Databases
+namespace AppStract.Utilities.Data
 {
 
   /// <summary>

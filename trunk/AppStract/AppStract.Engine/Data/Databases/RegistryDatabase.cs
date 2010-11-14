@@ -27,7 +27,9 @@ using System.Data;
 using System.Data.SQLite;
 using System.IO;
 using AppStract.Engine.Virtualization.Registry;
+using AppStract.Utilities.Data;
 using AppStract.Utilities.Helpers;
+using AppStract.Utilities.Logging;
 using ValueType = AppStract.Engine.Virtualization.Registry.ValueType;
 
 namespace AppStract.Engine.Data.Databases
@@ -97,7 +99,7 @@ namespace AppStract.Engine.Data.Databases
     /// Returns a <see cref="RegistryDatabase"/> using the default connectionstring.
     /// </summary>
     /// <remarks>
-    /// <see cref="Initialize"/> must be called on the returned instance before being able to use it,
+    /// <see cref="Database{T}.Initialize"/> must be called on the returned instance before being able to use it,
     /// just as with any other instance of <see cref="RegistryDatabase"/>.
     /// </remarks>
     /// <param name="filename">The path of the file to use as data source.</param>
@@ -108,42 +110,11 @@ namespace AppStract.Engine.Data.Databases
     }
 
     /// <summary>
-    /// Initializes the database.
-    /// Must be called before being able to use any other functionality.
-    /// </summary>
-    /// <exception cref="DatabaseException">
-    /// A <see cref="DatabaseException"/> is thrown if the connectionstring is invalid.
-    /// -0R-
-    /// A <see cref="DatabaseException"/> is thrown if initialization failed.
-    /// </exception>
-    public override void Initialize()
-    {
-      var index = _connectionString.IndexOf("data source=");
-      if (index == -1)
-        throw new DatabaseException("The database's connection string is invalid.");
-      // The string "data source=" contains 12 characters
-      var filename = _connectionString.Substring(index + 12, _connectionString.IndexOf(';') - 12);
-      if (!File.Exists(filename))
-        File.Create(filename).Close();
-      var creationQuery = string.Format("CREATE TABLE {0} ({1} INTEGER PRIMARY KEY, {2} TEXT);",
-                                        _DatabaseKeyTable, _DatabaseKeyHandle, _DatabaseKeyName);
-      if (!TableExists(_DatabaseKeyTable, creationQuery))
-        throw new DatabaseException("Unable to create table\"" + _DatabaseKeyTable
-                                    + "\" with the following query: " + creationQuery);
-      creationQuery = string.Format("CREATE TABLE {0} ({1} TEXT, {2} INTEGER, {3} BLOB, {4} TEXT);",
-                                    _DatabaseValueTable, _DatabaseValueName, _DatabaseValueKey, _DatabaseValueValue,
-                                    _DatabaseValueType);
-      if (!TableExists(_DatabaseValueTable, creationQuery))
-        throw new DatabaseException("Unable to create table\"" + _DatabaseValueTable
-                                    + "\" with the following query: " + creationQuery);
-    }
-
-    /// <summary>
     /// Reads the complete database to an <see cref="IEnumerable{T}"/>.
     /// </summary>
     /// <exception cref="DatabaseException">
     /// A <see cref="DatabaseException"/> is thrown if the databasefile can't be read.
-    /// This might be caused because <see cref="Initialize"/> is not called before this call.
+    /// A possible cause is that <see cref="Database{T}.Initialize"/> is not called before this call.
     /// </exception>
     /// <returns></returns>
     public override IEnumerable<VirtualRegistryKey> ReadAll()
@@ -196,6 +167,29 @@ namespace AppStract.Engine.Data.Databases
     #endregion
 
     #region Protected Methods
+
+    protected override Logger DoInitialize()
+    {
+      var index = _connectionString.IndexOf("data source=");
+      if (index == -1)
+        throw new DatabaseException("The database's connection string is invalid.");
+      // The string "data source=" contains 12 characters
+      var filename = _connectionString.Substring(index + 12, _connectionString.IndexOf(';') - 12);
+      if (!File.Exists(filename))
+        File.Create(filename).Close();
+      var creationQuery = string.Format("CREATE TABLE {0} ({1} INTEGER PRIMARY KEY, {2} TEXT);",
+                                        _DatabaseKeyTable, _DatabaseKeyHandle, _DatabaseKeyName);
+      if (!TableExists(_DatabaseKeyTable, creationQuery))
+        throw new DatabaseException("Unable to create table\"" + _DatabaseKeyTable
+                                    + "\" with the following query: " + creationQuery);
+      creationQuery = string.Format("CREATE TABLE {0} ({1} TEXT, {2} INTEGER, {3} BLOB, {4} TEXT);",
+                                    _DatabaseValueTable, _DatabaseValueName, _DatabaseValueKey, _DatabaseValueValue,
+                                    _DatabaseValueType);
+      if (!TableExists(_DatabaseValueTable, creationQuery))
+        throw new DatabaseException("Unable to create table\"" + _DatabaseValueTable
+                                    + "\" with the following query: " + creationQuery);
+      return EngineCore.Log;
+    }
 
     protected override bool ItemExists(VirtualRegistryKey item)
     {
