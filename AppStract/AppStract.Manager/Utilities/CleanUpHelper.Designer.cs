@@ -82,7 +82,7 @@ namespace AppStract.Manager.Utilities
       this._btnCleanSelected.TabIndex = 2;
       this._btnCleanSelected.Text = "Clean selected items";
       this._btnCleanSelected.UseVisualStyleBackColor = true;
-      this._btnCleanSelected.Click += new System.EventHandler(this._btnCleanSelected_Click);
+      this._btnCleanSelected.Click += new System.EventHandler(this.CleanSelected);
       // 
       // _btnCancel
       // 
@@ -92,7 +92,7 @@ namespace AppStract.Manager.Utilities
       this._btnCancel.TabIndex = 3;
       this._btnCancel.Text = "Cancel";
       this._btnCancel.UseVisualStyleBackColor = true;
-      this._btnCancel.Click += new System.EventHandler(this._btnCancel_Click);
+      this._btnCancel.Click += new System.EventHandler(this.Cancel);
       // 
       // FrmCleanUp
       // 
