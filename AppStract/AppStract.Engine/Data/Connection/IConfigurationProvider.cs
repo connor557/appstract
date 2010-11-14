@@ -22,22 +22,35 @@
 #endregion
 
 using System.Collections.Generic;
-using AppStract.Engine.Data.Databases;
-using AppStract.Engine.Virtualization.Registry;
+using AppStract.Engine.Configuration;
 
 namespace AppStract.Engine.Data.Connection
 {
   /// <summary>
-  /// Interface for interprocess data synchronization.
+  /// Provides the configuration data needed by the virtualization engine in order to be initializable.
   /// </summary>
-  public interface ISynchronizer
+  public interface IConfigurationProvider
   {
 
     /// <summary>
-    /// Commits the specified <see cref="DatabaseAction{T}"/>s to the registry database.
+    /// Gets the collection of connection strings associated to the available <see cref="DataResourceType"/> members.
     /// </summary>
-    /// <param name="actions">Actions to commit.</param>
-    void SyncRegistryActions(IEnumerable<DatabaseAction<VirtualRegistryKey>> actions);
+    IDictionary<DataResourceType, string> ConnectionStrings
+    {
+      get;
+    }
+
+    /// <summary>
+    /// Gets the engine rules to apply on the file system virtualization engine.
+    /// </summary>
+    /// <returns></returns>
+    FileSystemRuleCollection GetFileSystemEngineRules();
+
+    /// <summary>
+    /// Gets the engine rules to apply on the registry virtualization engine.
+    /// </summary>
+    /// <returns></returns>
+    RegistryRuleCollection GetRegistryEngineRules();
 
   }
 }

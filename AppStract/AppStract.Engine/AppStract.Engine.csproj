@@ -104,10 +104,11 @@
     <Compile Include="Configuration\EngineRule.cs" />
     <Compile Include="Configuration\EngineRuleCollection.cs" />
     <Compile Include="Configuration\VirtualizationType.cs" />
+    <Compile Include="Data\Connection\ConnectionDataException.cs" />
+    <Compile Include="Data\Connection\DataResourceType.cs" />
     <Compile Include="Data\Connection\IProcessSynchronizer.cs" />
-    <Compile Include="Data\Connection\IResourceLoader.cs" />
+    <Compile Include="Data\Connection\IConfigurationProvider.cs" />
     <Compile Include="Data\Connection\IServerReporter.cs" />
-    <Compile Include="Data\Connection\ISynchronizer.cs" />
     <Compile Include="Data\Databases\BuildItemFromQueryData.cs" />
     <Compile Include="Data\Databases\Database.cs" />
     <Compile Include="Data\Databases\DatabaseAction.cs" />

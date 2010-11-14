@@ -130,21 +130,21 @@ namespace AppStract.Engine.Virtualization
     /// <summary>
     /// Initializes a new instance of <see cref="VirtualizationEngine"/>.
     /// </summary>
-    /// <param name="resourceSynchronizer">
-    /// The <see cref="ISynchronizer"/> to use for synchronization between the current (guest) process and the host process.
-    /// </param>
-    /// <param name="resourceLoader">
-    /// The <see cref="IResourceLoader"/> to use for loading the required resources.
+    /// <param name="configurationProvider">
+    /// The <see cref="IConfigurationProvider"/> to use for loading the required resources.
     /// </param>
     /// <returns></returns>
-    public static VirtualizationEngine InitializeEngine(ISynchronizer resourceSynchronizer, IResourceLoader resourceLoader)
+    public static VirtualizationEngine InitializeEngine(IConfigurationProvider configurationProvider)
     {
-      var syncBus = new SynchronizationBus(resourceSynchronizer, resourceLoader);
+      var syncBus = new SynchronizationBus(configurationProvider);
       var engine = new VirtualizationEngine(syncBus);
-      var fileSystemProvider = new FileSystemProvider(syncBus, resourceLoader.FileSystemRoot);
-      var registryProvider = new RegistryProvider(syncBus);
-      engine._hookManager.RegisterHookProvider(new FileSystemHookProvider(fileSystemProvider));
-      engine._hookManager.RegisterHookProvider(new RegistryHookProvider(registryProvider));
+      if (!configurationProvider.ConnectionStrings.ContainsKey(DataResourceType.FileSystemRoot))
+        throw new ConnectionDataException();
+      var fsProvider = new FileSystemProvider(configurationProvider.ConnectionStrings[DataResourceType.FileSystemRoot],
+                                              configurationProvider.GetFileSystemEngineRules());
+      var regProvider = new RegistryProvider(syncBus);
+      engine._hookManager.RegisterHookProvider(new FileSystemHookProvider(fsProvider));
+      engine._hookManager.RegisterHookProvider(new RegistryHookProvider(regProvider));
       return engine;
     }
 

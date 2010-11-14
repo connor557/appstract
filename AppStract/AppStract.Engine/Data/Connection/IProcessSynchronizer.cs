@@ -27,12 +27,12 @@ namespace AppStract.Engine.Data.Connection
 {
   /// <summary>
   /// Interface offering complete support for data synchronization between multiple processes.
-  /// Wraps <see cref="IServerReporter"/>, <see cref="ISynchronizer"/>, and <see cref="IResourceLoader"/>.
+  /// Wraps <see cref="IServerReporter"/> and <see cref="IConfigurationProvider"/>.
   /// </summary>
   /// <remarks>
   /// Classes implementing the <see cref="IProcessSynchronizer"/> interface must be marked with the <see cref="SerializableAttribute"/>.
   /// </remarks>
-  public interface IProcessSynchronizer : IServerReporter, ISynchronizer, IResourceLoader
+  public interface IProcessSynchronizer : IServerReporter, IConfigurationProvider
   {
   }
 }

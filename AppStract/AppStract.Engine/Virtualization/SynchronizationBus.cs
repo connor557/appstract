@@ -49,23 +49,11 @@ namespace AppStract.Engine.Virtualization
     #region Variables
 
     /// <summary>
-    /// The <see cref="IResourceLoader"/> to use for loading the resources.
+    /// The <see cref="IConfigurationProvider"/> to use for loading the resources.
     /// </summary>
-    private readonly IResourceLoader _loader;
-    /// <summary>
-    /// The <see cref="ISynchronizer"/> to use for synchronization
-    /// between the current guest process and the host process.
-    /// </summary>
-    private readonly ISynchronizer _synchronizer;
-    /// <summary>
-    /// The <see cref="Queue{T}"/> containing all waiting <see cref="DatabaseAction{T}"/>s
-    /// to send  to the registry database.
-    /// </summary>
-    private readonly Queue<DatabaseAction<VirtualRegistryKey>> _registryQueue;
-    /// <summary>
-    /// The object to lock when performing actions on <see cref="_registryQueue"/>.
-    /// </summary>
-    private readonly object _registrySyncObject;
+    private readonly IConfigurationProvider _loader;
+
+    private readonly RegistryDatabase _regDatabase;
     /// <summary>
     /// The object to lock when performing actions
     /// related to <see cref="_flushInterval"/> and/or <see cref="_autoFlush"/>.
@@ -134,21 +122,21 @@ namespace AppStract.Engine.Virtualization
     /// <summary>
     /// Initializes a new instance of <see cref="SynchronizationBus"/>.
     /// </summary>
-    /// <param name="resourceSynchronizer">
-    /// The <see cref="ISynchronizer"/> to use for synchronization
-    /// between the current guest process and the host process.
+    /// <param name="configurationProvider">
+    /// The <see cref="IConfigurationProvider"/> to use for configuring the bus.
     /// </param>
-    /// <param name="resourceLoader">
-    /// The <see cref="IResourceLoader"/> to use for loading the resources.
-    /// </param>
-    public SynchronizationBus(ISynchronizer resourceSynchronizer, IResourceLoader resourceLoader)
+    public SynchronizationBus(IConfigurationProvider configurationProvider)
     {
-      _synchronizer = resourceSynchronizer;
-      _loader = resourceLoader;
-      _registryQueue = new Queue<DatabaseAction<VirtualRegistryKey>>();
+      _loader = configurationProvider;
+      if (configurationProvider.ConnectionStrings.ContainsKey(DataResourceType.RegistryDatabase))
+        _regDatabase = new RegistryDatabase(configurationProvider.ConnectionStrings[DataResourceType.RegistryDatabase]);
+      else if (configurationProvider.ConnectionStrings.ContainsKey(DataResourceType.RegistryDatabaseFile))
+        _regDatabase = RegistryDatabase.CreateDefaultDatabase(configurationProvider.ConnectionStrings[DataResourceType.RegistryDatabaseFile]);
+      else
+        throw new ConnectionDataException();
+      _regDatabase.Initialize();
       _autoFlush = false;
       _flushInterval = 500;
-      _registrySyncObject = new object();
       _flushSyncObject = new object();
       EngineCore.OnProcessExit += GuestCore_OnProcessExit;
     }
@@ -158,24 +146,11 @@ namespace AppStract.Engine.Virtualization
     #region Public Methods
 
     /// <summary>
-    /// Flushes all enqueued items to the <see cref="ProcessSynchronizer"/> 
+    /// Flushes all enqueued items to the <see cref="IProcessSynchronizer"/> 
     /// attached to the current <see cref="SynchronizationBus"/> instance.
     /// </summary>
     public void Flush()
     {
-      // In the current system, only registry-changes are flushed.
-      // First, a copy is made of the queue before clearing it.
-      DatabaseAction<VirtualRegistryKey>[] regActions;
-      lock (_registrySyncObject)
-      {
-        if (_registryQueue.Count == 0)
-          return;
-        regActions = _registryQueue.ToArray();
-        _registryQueue.Clear();
-      }
-      // Then the copy is synchronized to the server.
-      using (EngineCore.Engine.GetEngineProcessingSpace())
-        _synchronizer.SyncRegistryActions(regActions);
     }
 
     #endregion
@@ -223,8 +198,7 @@ namespace AppStract.Engine.Virtualization
     /// <param name="args"></param>
     private void Registry_ItemAdded(ICollection<KeyValuePair<uint, VirtualRegistryKey>> sender, KeyValuePair<uint, VirtualRegistryKey> item, EventArgs args)
     {
-      lock (_registrySyncObject)
-        _registryQueue.Enqueue(new DatabaseAction<VirtualRegistryKey>(item.Value, DatabaseActionType.Set));
+      _regDatabase.EnqueueAction(new DatabaseAction<VirtualRegistryKey>(item.Value, DatabaseActionType.Set));
     }
 
     /// <summary>
@@ -235,8 +209,7 @@ namespace AppStract.Engine.Virtualization
     /// <param name="args"></param>
     private void Registry_ItemChanged(ICollection<KeyValuePair<uint, VirtualRegistryKey>> sender, KeyValuePair<uint, VirtualRegistryKey> item, EventArgs args)
     {
-      lock (_registrySyncObject)
-        _registryQueue.Enqueue(new DatabaseAction<VirtualRegistryKey>(item.Value, DatabaseActionType.Set));
+      _regDatabase.EnqueueAction(new DatabaseAction<VirtualRegistryKey>(item.Value, DatabaseActionType.Set));
     }
 
     /// <summary>
@@ -247,8 +220,7 @@ namespace AppStract.Engine.Virtualization
     /// <param name="args"></param>
     private void Registry_ItemRemoved(ICollection<KeyValuePair<uint, VirtualRegistryKey>> sender, KeyValuePair<uint, VirtualRegistryKey> item, EventArgs args)
     {
-      lock (_registrySyncObject)
-        _registryQueue.Enqueue(new DatabaseAction<VirtualRegistryKey>(item.Value, DatabaseActionType.Remove));
+      _regDatabase.EnqueueAction(new DatabaseAction<VirtualRegistryKey>(item.Value, DatabaseActionType.Remove));
     }
 
     #endregion
@@ -276,8 +248,7 @@ namespace AppStract.Engine.Virtualization
 
     public RegistryRuleCollection GetRegistryEngineRules()
     {
-      //using (EngineCore.Engine.GetEngineProcessingSpace())
-        return _loader.GetRegistryEngineRules();
+      return _loader.GetRegistryEngineRules();
     }
 
     public void SynchronizeRegistryWith(ObservableDictionary<uint, VirtualRegistryKey> keyList)
@@ -285,9 +256,7 @@ namespace AppStract.Engine.Virtualization
       if (keyList == null)
         throw new ArgumentNullException("keyList");
       keyList.Clear();
-      IEnumerable<VirtualRegistryKey> keys;
-      //using (EngineCore.Engine.GetEngineProcessingSpace())
-        keys = _loader.LoadRegistry();
+      var keys = _regDatabase.ReadAll();
       foreach (var key in keys)
         keyList.Add(key.Handle, key);
       keyList.ItemAdded += Registry_ItemAdded;

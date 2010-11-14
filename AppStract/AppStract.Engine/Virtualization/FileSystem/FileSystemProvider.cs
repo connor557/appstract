@@ -52,18 +52,18 @@ namespace AppStract.Engine.Virtualization.FileSystem
     /// Initializes a new instance of <see cref="FileSystemProvider"/>,
     /// using the <paramref name="rootDirectory"/> specified as root.
     /// </summary>
-    /// <param name="dataSource">
-    /// The <see cref="IFileSystemSynchronizer"/> to use as data source for the already known file table entries.
-    /// </param>
     /// <param name="rootDirectory">
     /// The path to use as root directory.
     /// All filenames going in and out of the current <see cref="FileSystemProvider"/> should be interpreted as relatives to this path.
     /// </param>
-    public FileSystemProvider(IFileSystemSynchronizer dataSource, string rootDirectory)
+    /// <param name="engineRules">
+    /// The collection of engine rules to apply during the virtualization process.
+    /// </param>
+    public FileSystemProvider(string rootDirectory, FileSystemRuleCollection engineRules)
     {
       if (rootDirectory == null)
         throw new ArgumentNullException("rootDirectory");
-      _engineRules = dataSource.GetFileSystemEngineRules();
+      _engineRules = engineRules;
       _virtualEnvironment = new VirtualEnvironment(rootDirectory);
       _virtualEnvironment.Initialize();
     }

@@ -176,7 +176,7 @@ namespace AppStract.Engine
 #if !SYNCLOG
         _logBus.Enabled = true;
 #endif
-        _engine = VirtualizationEngine.InitializeEngine(processSynchronizer, processSynchronizer);
+        _engine = VirtualizationEngine.InitializeEngine(processSynchronizer);
         // Attach ProcessExit event handler.
         AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
         // Mark instance as initialized.
