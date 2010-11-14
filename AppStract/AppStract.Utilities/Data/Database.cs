@@ -360,7 +360,7 @@ namespace AppStract.Utilities.Data
     /// <param name="seed">The object to use for the generation of unique names.</param>
     /// <param name="item"></param>
     /// <returns></returns>
-    protected abstract void AppendDeleteQuery(SQLiteCommand command, ParameterGenerator seed, T item);
+    protected abstract void AppendDeleteQuery(IDbCommand command, ParameterGenerator seed, T item);
 
     /// <summary>
     /// Appends an insert-query for <paramref name="item"/> to <paramref name="command"/>.
@@ -371,7 +371,7 @@ namespace AppStract.Utilities.Data
     /// <param name="seed"></param>
     /// <param name="item"></param>
     /// <returns></returns>
-    protected abstract void AppendInsertQuery(SQLiteCommand command, ParameterGenerator seed, T item);
+    protected abstract void AppendInsertQuery(IDbCommand command, ParameterGenerator seed, T item);
 
     /// <summary>
     /// Appends an update-query for <paramref name="item"/> to <paramref name="command"/>.
@@ -382,7 +382,12 @@ namespace AppStract.Utilities.Data
     /// <param name="seed"></param>
     /// <param name="item"></param>
     /// <returns></returns>
-    protected abstract void AppendUpdateQuery(SQLiteCommand command, ParameterGenerator seed, T item);
+    protected abstract void AppendUpdateQuery(IDbCommand command, ParameterGenerator seed, T item);
+
+    protected static IDbDataParameter CreateParameter(string name, object value)
+    {
+      return new SQLiteParameter(name, value);
+    }
 
     /// <summary>
     /// Escapes a minimal set of characters by replacing them with their escape codes. 

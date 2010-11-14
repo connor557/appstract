@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SQLite;
 using System.IO;
 using AppStract.Engine.Virtualization.Registry;
 using AppStract.Utilities.Data;
@@ -130,7 +129,7 @@ namespace AppStract.Engine.Data.Databases
       {
         keys = Read(keyTables, keyColumns, BuildKeyFromReadAllQuery);
       }
-      catch (SQLiteException e)
+      catch (DataException e)
       {
         throw new DatabaseException("An exception occured while reading all entries from the database.", e);
       }
@@ -144,7 +143,7 @@ namespace AppStract.Engine.Data.Databases
         {
           values = Read(valueTables, valueColumns, valueConditionals, BuildValueFromReadAllQuery);
         }
-        catch (SQLiteException e)
+        catch (DataException e)
         {
           throw new DatabaseException("An exception occured while reading all entries from the database.", e);
         }
@@ -201,16 +200,16 @@ namespace AppStract.Engine.Data.Databases
       return items.Count != 0;
     }
 
-    protected override void AppendDeleteQuery(SQLiteCommand command, ParameterGenerator seed, VirtualRegistryKey item)
+    protected override void AppendDeleteQuery(IDbCommand command, ParameterGenerator seed, VirtualRegistryKey item)
     {
       var param = seed.Next();
       command.CommandText += string.Format("DELETE FROM {0} WHERE {1} = {2}; DELETE FROM {3} WHERE {4} = {2};",
                                            _DatabaseKeyTable, _DatabaseKeyHandle, param,
                                            _DatabaseValueTable, _DatabaseValueKey);
-      command.Parameters.AddWithValue(param, item.Handle);
+      command.Parameters.Add(CreateParameter(param, item.Handle));
     }
 
-    protected override void AppendInsertQuery(SQLiteCommand command, ParameterGenerator seed, VirtualRegistryKey item)
+    protected override void AppendInsertQuery(IDbCommand command, ParameterGenerator seed, VirtualRegistryKey item)
     {
       var paramHandle = seed.Next();
       var paramName = seed.Next();
@@ -219,13 +218,13 @@ namespace AppStract.Engine.Data.Databases
                                            _DatabaseKeyTable,
                                            _DatabaseKeyHandle, _DatabaseKeyName,
                                            paramHandle, paramName);
-      command.Parameters.AddWithValue(paramHandle, item.Handle);
-      command.Parameters.AddWithValue(paramName, item.Path);
+      command.Parameters.Add(CreateParameter(paramHandle, item.Handle));
+      command.Parameters.Add(CreateParameter(paramName, item.Path));
       // Append queries for insertion of the values.
       AppendInsertQueryForValues(command, seed, item.Handle, item.Values.Values);
     }
 
-    protected override void AppendUpdateQuery(SQLiteCommand command, ParameterGenerator seed, VirtualRegistryKey item)
+    protected override void AppendUpdateQuery(IDbCommand command, ParameterGenerator seed, VirtualRegistryKey item)
     {
       var paramHandle = seed.Next();
       var paramName = seed.Next();
@@ -234,13 +233,13 @@ namespace AppStract.Engine.Data.Databases
                                            _DatabaseKeyTable,
                                            _DatabaseKeyName, paramName,
                                            _DatabaseKeyHandle, paramHandle);
-      command.Parameters.AddWithValue(paramHandle, item.Handle);
-      command.Parameters.AddWithValue(paramName, item.Path);
+      command.Parameters.Add(CreateParameter(paramHandle, item.Handle));
+      command.Parameters.Add(CreateParameter(paramName, item.Path));
       // Delete all values. It's too complicated to use an update query.
       paramHandle = seed.Next();
       command.CommandText += string.Format("DELETE FROM {0} WHERE {1} = {2};",
                                            _DatabaseValueTable, _DatabaseValueKey, paramHandle);
-      command.Parameters.AddWithValue(paramHandle, item.Handle);
+      command.Parameters.Add(CreateParameter(paramHandle, item.Handle));
       // Now re-add all values.
       AppendInsertQueryForValues(command, seed, item.Handle, item.Values.Values);
     }
@@ -262,7 +261,7 @@ namespace AppStract.Engine.Data.Databases
       return new VirtualRegistryValue(dataRecord.GetString(1), data != null ? (byte[])data : null, valueType);
     }
 
-    private static void AppendInsertQueryForValues(SQLiteCommand command, ParameterGenerator seed, object keyHandle, IEnumerable<VirtualRegistryValue> values)
+    private static void AppendInsertQueryForValues(IDbCommand command, ParameterGenerator seed, object keyHandle, IEnumerable<VirtualRegistryValue> values)
     {
       foreach (var value in values)
       {
@@ -275,10 +274,10 @@ namespace AppStract.Engine.Data.Databases
                            _DatabaseValueTable,
                            _DatabaseValueKey, _DatabaseValueName, _DatabaseValueValue, _DatabaseValueType,
                            paramHandle, paramName, paramValue, paramType);
-        command.Parameters.AddWithValue(paramHandle, keyHandle);
-        command.Parameters.AddWithValue(paramName, value.Name);
-        command.Parameters.AddWithValue(paramValue, value.Data);
-        command.Parameters.AddWithValue(paramType, Enum.GetName(typeof(ValueType), value.Type));
+        command.Parameters.Add(CreateParameter(paramHandle, keyHandle));
+        command.Parameters.Add(CreateParameter(paramName, value.Name));
+        command.Parameters.Add(CreateParameter(paramValue, value.Data));
+        command.Parameters.Add(CreateParameter(paramType, Enum.GetName(typeof(ValueType), value.Type)));
       }
     }
 
