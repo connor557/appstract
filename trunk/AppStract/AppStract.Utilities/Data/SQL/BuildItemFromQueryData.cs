@@ -23,7 +23,7 @@
 
 using System.Data;
 
-namespace AppStract.Utilities.Data
+namespace AppStract.Utilities.Data.Sql
 {
 
   /// <summary>

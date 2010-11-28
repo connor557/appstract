@@ -27,6 +27,7 @@ using System.Data;
 using System.IO;
 using AppStract.Engine.Virtualization.Registry;
 using AppStract.Utilities.Data;
+using AppStract.Utilities.Data.Sql;
 using AppStract.Utilities.Helpers;
 using AppStract.Utilities.Logging;
 using ValueType = AppStract.Engine.Virtualization.Registry.ValueType;
@@ -36,7 +37,7 @@ namespace AppStract.Engine.Data.Databases
   /// <summary>
   /// Interface class for the registry database.
   /// </summary>
-  public class RegistryDatabase : Database<VirtualRegistryKey>
+  public class RegistryDatabase : SqLiteDatabase<VirtualRegistryKey>
   {
 
     #region Constants
@@ -105,7 +106,7 @@ namespace AppStract.Engine.Data.Databases
     /// <returns></returns>
     public static RegistryDatabase CreateDefaultDatabase(string filename)
     {
-      return new RegistryDatabase(string.Format(_DefaultConnectionStringFormat, filename));
+      return new RegistryDatabase(GetDefaultConnectionString(filename));
     }
 
     /// <summary>
@@ -167,13 +168,18 @@ namespace AppStract.Engine.Data.Databases
 
     #region Protected Methods
 
-    protected override Logger DoInitialize()
+    protected override Logger GetLogger()
     {
-      var index = _connectionString.IndexOf("data source=");
+      return EngineCore.Log;
+    }
+
+    protected override void DoInitialize()
+    {
+      var index = _connectionString.IndexOf("path=");
       if (index == -1)
         throw new DatabaseException("The database's connection string is invalid.");
-      // The string "data source=" contains 12 characters
-      var filename = _connectionString.Substring(index + 12, _connectionString.IndexOf(';') - 12);
+      // The string "Path=" contains 5 characters
+      var filename = _connectionString.Substring(index + 5, _connectionString.IndexOf(';') - 5);
       if (!File.Exists(filename))
         File.Create(filename).Close();
       var creationQuery = string.Format("CREATE TABLE {0} ({1} INTEGER PRIMARY KEY, {2} TEXT);",
@@ -187,7 +193,6 @@ namespace AppStract.Engine.Data.Databases
       if (!TableExists(_DatabaseValueTable, creationQuery))
         throw new DatabaseException("Unable to create table\"" + _DatabaseValueTable
                                     + "\" with the following query: " + creationQuery);
-      return EngineCore.Log;
     }
 
     protected override bool ItemExists(VirtualRegistryKey item)
@@ -248,20 +253,7 @@ namespace AppStract.Engine.Data.Databases
 
     #region Private Methods
 
-    private static VirtualRegistryKey BuildKeyFromReadAllQuery(IDataRecord dataRecord)
-    {
-      return new VirtualRegistryKey((uint) dataRecord.GetInt64(0), dataRecord.GetString(1));
-    }
-
-    private static VirtualRegistryValue BuildValueFromReadAllQuery(IDataRecord dataRecord)
-    {
-      ValueType valueType;
-      ParserHelper.TryParseEnum(dataRecord.GetString(3), out valueType);
-      var data = dataRecord.GetValue(2);
-      return new VirtualRegistryValue(dataRecord.GetString(1), data != null ? (byte[])data : null, valueType);
-    }
-
-    private static void AppendInsertQueryForValues(IDbCommand command, ParameterGenerator seed, object keyHandle, IEnumerable<VirtualRegistryValue> values)
+    private void AppendInsertQueryForValues(IDbCommand command, ParameterGenerator seed, object keyHandle, IEnumerable<VirtualRegistryValue> values)
     {
       foreach (var value in values)
       {
@@ -279,6 +271,19 @@ namespace AppStract.Engine.Data.Databases
         command.Parameters.Add(CreateParameter(paramValue, value.Data));
         command.Parameters.Add(CreateParameter(paramType, Enum.GetName(typeof(ValueType), value.Type)));
       }
+    }
+
+    private static VirtualRegistryKey BuildKeyFromReadAllQuery(IDataRecord dataRecord)
+    {
+      return new VirtualRegistryKey((uint) dataRecord.GetInt64(0), dataRecord.GetString(1));
+    }
+
+    private static VirtualRegistryValue BuildValueFromReadAllQuery(IDataRecord dataRecord)
+    {
+      ValueType valueType;
+      ParserHelper.TryParseEnum(dataRecord.GetString(3), out valueType);
+      var data = dataRecord.GetValue(2);
+      return new VirtualRegistryValue(dataRecord.GetString(1), data != null ? (byte[])data : null, valueType);
     }
 
     #endregion
