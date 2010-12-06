@@ -57,10 +57,10 @@ namespace AppStract.Utilities.Data.Sql
 
     #region Protected Methods
 
-    //protected static string GetDefaultConnectionString(string filename)
-    //{
-    //  return "Path=" + filename + "; Host={local}; Database=AppStract; User=AppStract; Password=AppStract; BootOrCreate=true";
-    //}
+    /// <summary>
+    /// Creates the actual database.
+    /// </summary>
+    protected abstract void CreateDatabase();
 
     /// <summary>
     /// Asserts the correctness of the connection string.

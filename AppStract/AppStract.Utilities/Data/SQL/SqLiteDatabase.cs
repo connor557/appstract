@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Data.Common;
 using System.Data.SQLite;
+using System.IO;
 
 namespace AppStract.Utilities.Data.Sql
 {
@@ -28,6 +29,16 @@ namespace AppStract.Utilities.Data.Sql
     #endregion
 
     #region Protected Methods
+
+    protected override void CreateDatabase()
+    {
+      var index = ConnectionString.IndexOf(';');
+      var filename = index > 0
+                       ? ConnectionString.Substring("Data Source=".Length, index)
+                       : ConnectionString.Substring("Data Source=".Length);
+      if (!File.Exists(filename))
+        File.Create(filename).Close();
+    }
 
     protected static string GetDefaultConnectionString(string filename)
     {
