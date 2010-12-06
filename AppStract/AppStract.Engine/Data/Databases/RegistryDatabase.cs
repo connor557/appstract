@@ -118,6 +118,7 @@ namespace AppStract.Engine.Data.Databases
     /// <returns></returns>
     public override IEnumerable<VirtualRegistryKey> ReadAll()
     {
+      System.Diagnostics.Debugger.Break();
       // Declare the constant parameters for the Read() method.
       var keyTables = new[] {_DatabaseKeyTable};
       var keyColumns = new[] {_DatabaseKeyHandle, _DatabaseKeyName};
@@ -129,7 +130,7 @@ namespace AppStract.Engine.Data.Databases
       {
         keys = Read(keyTables, keyColumns, BuildKeyFromReadAllQuery);
       }
-      catch (DataException e)
+      catch (DatabaseException e)
       {
         throw new DatabaseException("An exception occured while reading all entries from the database.", e);
       }
@@ -143,7 +144,7 @@ namespace AppStract.Engine.Data.Databases
         {
           values = Read(valueTables, valueColumns, valueConditionals, BuildValueFromReadAllQuery);
         }
-        catch (DataException e)
+        catch (DatabaseException e)
         {
           throw new DatabaseException("An exception occured while reading all entries from the database.", e);
         }
