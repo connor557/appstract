@@ -326,6 +326,7 @@
     <PostBuildEvent>xcopy "$(SolutionDir)External Libraries\EasyHook" "$(TargetDir)" /i /r /y
 xcopy "$(SolutionDir)External Libraries\sqlite3.dll" "$(TargetDir)" /i /r /y
 xcopy "$(SolutionDir)AppStract.Engine\$(OutDir)AppStract.Engine.dll" "$(TargetDir)" /i /r /y
+xcopy "$(SolutionDir)AppStract.Host\$(OutDir)AppStract.Host.dll" "$(TargetDir)" /i /r /y
 xcopy "$(SolutionDir)AppStract.Inject\$(OutDir)AppStract.Inject.dll" "$(TargetDir)" /i /r /y
 xcopy "$(SolutionDir)AppStract.Utilities\$(OutDir)AppStract.Utilities.dll" "$(TargetDir)" /i /r /y
 xcopy "$(SolutionDir)AppStract.Utilities.GUI\$(OutDir)AppStract.Utilities.GUI.dll" "$(TargetDir)" /i /r /y
