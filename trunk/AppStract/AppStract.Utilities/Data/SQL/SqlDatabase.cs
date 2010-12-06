@@ -272,6 +272,8 @@ namespace AppStract.Utilities.Data.Sql
         {
           try
           {
+            if (command.Connection.State != ConnectionState.Open)
+              command.Connection.Open();
             command.ExecuteReader().Close();
             return true;
           }
