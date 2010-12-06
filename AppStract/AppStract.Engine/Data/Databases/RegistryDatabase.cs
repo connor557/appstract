@@ -160,7 +160,7 @@ namespace AppStract.Engine.Data.Databases
     /// <returns></returns>
     public override string ToString()
     {
-      return "[RegistryDatabase] " + _connectionString;
+      return "[RegistryDatabase] " + ConnectionString;
     }
 
     #endregion
