@@ -118,7 +118,6 @@ namespace AppStract.Engine.Data.Databases
     /// <returns></returns>
     public override IEnumerable<VirtualRegistryKey> ReadAll()
     {
-      System.Diagnostics.Debugger.Break();
       // Declare the constant parameters for the Read() method.
       var keyTables = new[] {_DatabaseKeyTable};
       var keyColumns = new[] {_DatabaseKeyHandle, _DatabaseKeyName};
