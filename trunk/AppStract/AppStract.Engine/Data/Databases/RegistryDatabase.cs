@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using AppStract.Engine.Virtualization.Registry;
 using AppStract.Utilities.Data;
 using AppStract.Utilities.Data.Sql;
@@ -37,7 +36,7 @@ namespace AppStract.Engine.Data.Databases
   /// <summary>
   /// Interface class for the registry database.
   /// </summary>
-  public class RegistryDatabase : SqLiteDatabase<VirtualRegistryKey>
+  public class RegistryDatabase : SqlCeDatabase<VirtualRegistryKey>
   {
 
     #region Constants
@@ -175,13 +174,7 @@ namespace AppStract.Engine.Data.Databases
 
     protected override void DoInitialize()
     {
-      var index = _connectionString.IndexOf("path=");
-      if (index == -1)
-        throw new DatabaseException("The database's connection string is invalid.");
-      // The string "Path=" contains 5 characters
-      var filename = _connectionString.Substring(index + 5, _connectionString.IndexOf(';') - 5);
-      if (!File.Exists(filename))
-        File.Create(filename).Close();
+      CreateDatabase();
       var creationQuery = string.Format("CREATE TABLE {0} ({1} INTEGER PRIMARY KEY, {2} TEXT);",
                                         _DatabaseKeyTable, _DatabaseKeyHandle, _DatabaseKeyName);
       if (!TableExists(_DatabaseKeyTable, creationQuery))
