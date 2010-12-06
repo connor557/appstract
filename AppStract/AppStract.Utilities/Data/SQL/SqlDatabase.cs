@@ -268,7 +268,7 @@ namespace AppStract.Utilities.Data.Sql
       {
         if (requireLock)
           _sqliteLock.EnterUpgradeableReadLock();
-        using (var command = CreateCommand("SELECT * FROM \"" + tableName + "\" LIMIT 1"))
+        using (var command = CreateCommand("SELECT * FROM \"" + tableName + "\""))
         {
           try
           {
@@ -277,7 +277,7 @@ namespace AppStract.Utilities.Data.Sql
             command.ExecuteReader().Close();
             return true;
           }
-          catch (DbException)
+          catch (Exception)
           {
             Log.Debug("[Database] Failed to verify existance of table \"{0}\"", tableName);
             // Create the table?
