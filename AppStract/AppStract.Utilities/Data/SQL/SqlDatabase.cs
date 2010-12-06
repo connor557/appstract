@@ -20,7 +20,7 @@ namespace AppStract.Utilities.Data.Sql
     /// <summary>
     /// Lock to use while a connection to the database is open and used.
     /// </summary>
-    private readonly ReaderWriterLockSlim _sqliteLock;
+    private readonly ReaderWriterLockSlim _sqlLock;
 
     #endregion
 
@@ -49,7 +49,7 @@ namespace AppStract.Utilities.Data.Sql
         throw new ArgumentNullException("connectionString");
       AssertConnectionString(connectionString);
       _connectionString = connectionString;
-      _sqliteLock = new ReaderWriterLockSlim();
+      _sqlLock = new ReaderWriterLockSlim();
     }
 
     #endregion
@@ -141,7 +141,7 @@ namespace AppStract.Utilities.Data.Sql
       var entries = new List<TItemType>();
       try
       {
-        _sqliteLock.EnterReadLock();
+        _sqlLock.EnterReadLock();
         var query = BuildSelectQuery(tables, columns).ToString();
         using (var command = CreateCommand(query.EndsWith(";") ? query : query + ";"))
         {
@@ -159,7 +159,7 @@ namespace AppStract.Utilities.Data.Sql
       }
       finally
       {
-        _sqliteLock.ExitReadLock();
+        _sqlLock.ExitReadLock();
       }
       return entries;
     }
@@ -187,7 +187,7 @@ namespace AppStract.Utilities.Data.Sql
       var entries = new List<TItemType>();
       try
       {
-        _sqliteLock.EnterReadLock();
+        _sqlLock.EnterReadLock();
         var query = BuildSelectQuery(tables, columns, conditionals).ToString();
         using (var command = CreateCommand(query.EndsWith(";") ? query : query + ";"))
         {
@@ -205,7 +205,7 @@ namespace AppStract.Utilities.Data.Sql
       }
       finally
       {
-        _sqliteLock.ExitReadLock();
+        _sqlLock.ExitReadLock();
       }
       return entries;
     }
@@ -271,11 +271,11 @@ namespace AppStract.Utilities.Data.Sql
       if (tableName == null)
         throw new ArgumentNullException("tableName");
       // Determine if an UpgradeableReadLock must be entered and exited by the current method call
-      var requireLock = !_sqliteLock.IsUpgradeableReadLockHeld;
+      var requireLock = !_sqlLock.IsUpgradeableReadLockHeld;
       try
       {
         if (requireLock)
-          _sqliteLock.EnterUpgradeableReadLock();
+          _sqlLock.EnterUpgradeableReadLock();
         using (var command = CreateCommand("SELECT * FROM \"" + tableName + "\""))
         {
           try
@@ -309,7 +309,7 @@ namespace AppStract.Utilities.Data.Sql
       finally
       {
         if (requireLock)
-          _sqliteLock.ExitUpgradeableReadLock();
+          _sqlLock.ExitUpgradeableReadLock();
       }
     }
 
@@ -356,13 +356,13 @@ namespace AppStract.Utilities.Data.Sql
 
     /// <summary>
     /// Executes the given <paramref name="command"/> as a NonQuery.
-    /// This method acquires a writelock on <see cref="_sqliteLock"/>.
+    /// This method acquires a writelock on <see cref="_sqlLock"/>.
     /// </summary>
     /// <param name="command"></param>
     /// <returns></returns>
     private bool ExecuteCommand(IDbCommand command)
     {
-      _sqliteLock.EnterWriteLock();
+      _sqlLock.EnterWriteLock();
       try
       {
         if (command.Connection.State != ConnectionState.Open)
@@ -377,7 +377,7 @@ namespace AppStract.Utilities.Data.Sql
       }
       finally
       {
-        _sqliteLock.ExitWriteLock();
+        _sqlLock.ExitWriteLock();
       }
     }
 
