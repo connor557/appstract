@@ -118,9 +118,9 @@ namespace EasyHook
             }
 
 #if DEBUG
-            if (!WaitInfo.Completion.WaitOne(999999, false))
+            if (!WaitInfo.Completion.WaitOne(120000, false))
 #else
-            if (!WaitInfo.Completion.WaitOne(20000, false))
+            if (!WaitInfo.Completion.WaitOne(2000, false))
 #endif
                 throw new TimeoutException("Unable to wait for injection completion.");
 
