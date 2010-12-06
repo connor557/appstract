@@ -48,7 +48,7 @@ namespace AppStract.Engine.Data.Databases
     /// <summary>
     /// The name of the column in <see cref="_DatabaseKeyTable"/> which holds the identifiers of the known keys.
     /// </summary>
-    private const string _DatabaseKeyHandle = "id";
+    private const string _DatabaseKeyHandle = "identifier";
     /// <summary>
     /// The name of the column in <see cref="_DatabaseKeyTable"/> which holds the names of the known keys.
     /// </summary>
@@ -61,7 +61,7 @@ namespace AppStract.Engine.Data.Databases
     /// The name of the column in <see cref="_DatabaseValueTable"/> which holds for each known value
     /// the identifier of the key under which the value is stored.
     /// </summary>
-    private const string _DatabaseValueKey = "key";
+    private const string _DatabaseValueKey = "keyidentifier";
     /// <summary>
     /// The name of the column in <see cref="_DatabaseValueTable"/> which holds the names of the registry values.
     /// </summary>
@@ -175,12 +175,12 @@ namespace AppStract.Engine.Data.Databases
     protected override void DoInitialize()
     {
       CreateDatabase();
-      var creationQuery = string.Format("CREATE TABLE {0} ({1} INTEGER PRIMARY KEY, {2} TEXT);",
+      var creationQuery = string.Format("CREATE TABLE {0} ({1} INTEGER PRIMARY KEY, {2} NTEXT);",
                                         _DatabaseKeyTable, _DatabaseKeyHandle, _DatabaseKeyName);
       if (!TableExists(_DatabaseKeyTable, creationQuery))
         throw new DatabaseException("Unable to create table\"" + _DatabaseKeyTable
                                     + "\" with the following query: " + creationQuery);
-      creationQuery = string.Format("CREATE TABLE {0} ({1} TEXT, {2} INTEGER, {3} BLOB, {4} TEXT);",
+      creationQuery = string.Format("CREATE TABLE {0} ({1} NTEXT, {2} INTEGER, {3} BINARY, {4} NTEXT);",
                                     _DatabaseValueTable, _DatabaseValueName, _DatabaseValueKey, _DatabaseValueValue,
                                     _DatabaseValueType);
       if (!TableExists(_DatabaseValueTable, creationQuery))
