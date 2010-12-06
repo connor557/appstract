@@ -36,13 +36,13 @@ namespace AppStract.Utilities.Data.Sql
 
     protected override void AssertConnectionString(string connectionString)
     {
-      if (!_connectionString.ToLowerInvariant().Contains("path="))
+      if (!connectionString.ToLowerInvariant().Contains("path="))
         throw new DatabaseException("The connectionstring must at least specify a data source: " + connectionString);
     }
 
-    protected override DbCommand CreateCommand(string connectionString, string command)
+    protected override DbCommand CreateCommand(string command)
     {
-      return new DeveelDbConnection(_connectionString).CreateCommand(command);
+      return new DeveelDbConnection(ConnectionString).CreateCommand(command);
     }
 
     protected override IDbDataParameter CreateParameter(string name, object value)
