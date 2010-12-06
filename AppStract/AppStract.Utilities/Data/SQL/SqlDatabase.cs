@@ -16,7 +16,7 @@ namespace AppStract.Utilities.Data.Sql
     /// The connectionstring used to connect to the SQLite database.
     /// Contains only lower cased characters.
     /// </summary>
-    protected readonly string _connectionString;
+    private readonly string _connectionString;
     /// <summary>
     /// Lock to use while a connection to the database is open and used.
     /// </summary>
@@ -47,8 +47,7 @@ namespace AppStract.Utilities.Data.Sql
     {
       if (string.IsNullOrEmpty(connectionString))
         throw new ArgumentNullException("connectionString");
-      if (!connectionString.Contains("Path="))
-        throw new ArgumentException("The connectionstring must at least specify a data source.", "connectionString");
+      AssertConnectionString(connectionString);
       _connectionString = connectionString;
       _sqliteLock = new ReaderWriterLockSlim();
     }
@@ -65,16 +64,19 @@ namespace AppStract.Utilities.Data.Sql
     /// <summary>
     /// Asserts the correctness of the connection string.
     /// </summary>
+    /// <remarks>
+    /// The method is called from the <see cref="SqlDatabase{T}"/> class' constructor,
+    /// therefore the implementation should not depend on any variables set in the derived class' constructor.
+    /// </remarks>
     /// <param name="connectionString"></param>
     protected abstract void AssertConnectionString(string connectionString);
 
     /// <summary>
-    /// Creates a command for the given connection and command string.
+    /// Creates a command for the given command string.
     /// </summary>
-    /// <param name="connectionString">The connection string to open a connection to the database with.</param>
     /// <param name="command">The initial command string.</param>
     /// <returns></returns>
-    protected abstract DbCommand CreateCommand(string connectionString, string command);
+    protected abstract DbCommand CreateCommand(string command);
 
     /// <summary>
     /// Creates a parameter that can be added to any command returned by <see cref="CreateCommand"/>.
@@ -141,7 +143,7 @@ namespace AppStract.Utilities.Data.Sql
       {
         _sqliteLock.EnterReadLock();
         var query = BuildSelectQuery(tables, columns).ToString();
-        using (var command = CreateCommand(_connectionString, query.EndsWith(";") ? query : query + ";"))
+        using (var command = CreateCommand(query.EndsWith(";") ? query : query + ";"))
         {
           command.Connection.Open();
           using (var reader = command.ExecuteReader())
@@ -183,7 +185,7 @@ namespace AppStract.Utilities.Data.Sql
       {
         _sqliteLock.EnterReadLock();
         var query = BuildSelectQuery(tables, columns, conditionals).ToString();
-        using (var command = CreateCommand(_connectionString, query.EndsWith(";") ? query : query + ";"))
+        using (var command = CreateCommand(query.EndsWith(";") ? query : query + ";"))
         {
           command.Connection.Open();
           using (var reader = command.ExecuteReader())
@@ -202,7 +204,7 @@ namespace AppStract.Utilities.Data.Sql
 
     protected override void Write(IEnumerator<DatabaseAction<T>> items)
     {
-      using (var command = CreateCommand(_connectionString, ""))
+      using (var command = CreateCommand(""))
       {
         var seed = new ParameterGenerator();
         while (items.MoveNext())
@@ -267,7 +269,7 @@ namespace AppStract.Utilities.Data.Sql
       {
         if (requireLock)
           _sqliteLock.EnterUpgradeableReadLock();
-        using (var command = CreateCommand(_connectionString, "SELECT * FROM \"" + tableName + "\" LIMIT 1"))
+        using (var command = CreateCommand("SELECT * FROM \"" + tableName + "\" LIMIT 1"))
         {
           try
           {
@@ -280,7 +282,7 @@ namespace AppStract.Utilities.Data.Sql
             // Create the table?
             if (creationQuery != null)
             {
-              using (var creationCommand = CreateCommand(_connectionString, creationQuery))
+              using (var creationCommand = CreateCommand(creationQuery))
               {
                 if (ExecuteCommand(creationCommand) && TableExists(tableName))
                 {

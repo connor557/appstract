@@ -47,13 +47,13 @@ namespace AppStract.Utilities.Data.Sql
 
     protected override void AssertConnectionString(string connectionString)
     {
-      if (!_connectionString.ToLowerInvariant().Contains("data source="))
+      if (!connectionString.ToLowerInvariant().Contains("data source="))
         throw new DatabaseException("The connectionstring must at least specify a data source: " + connectionString);
     }
 
-    protected override DbCommand CreateCommand(string connectionString, string command)
+    protected override DbCommand CreateCommand(string command)
     {
-      return new SQLiteCommand(command, new SQLiteConnection(_connectionString));
+      return new SQLiteCommand(command, new SQLiteConnection(ConnectionString));
     }
 
     protected override IDbDataParameter CreateParameter(string name, object value)
