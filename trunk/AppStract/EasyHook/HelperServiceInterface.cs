@@ -118,7 +118,7 @@ namespace EasyHook
             }
 
 #if DEBUG
-            if (WaitInfo.Completion.WaitOne(999999, false))
+            if (!WaitInfo.Completion.WaitOne(999999, false))
 #else
             if (!WaitInfo.Completion.WaitOne(20000, false))
 #endif
