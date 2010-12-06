@@ -260,7 +260,6 @@ namespace AppStract.Utilities.Data.Sql
     /// </param>
     protected bool TableExists(string tableName, string creationQuery)
     {
-      System.Diagnostics.Debugger.Break();
       if (tableName == null)
         throw new ArgumentNullException("tableName");
       // Determine if an UpgradeableReadLock must be entered and exited by the current method call
