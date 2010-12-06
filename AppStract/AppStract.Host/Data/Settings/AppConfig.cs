@@ -156,12 +156,10 @@ namespace AppStract.Host.Data.Settings
         new[]
           {
             "EasyHook.dll",
+            "AppStract.Engine.dll",
             "AppStract.Host.dll",
             "AppStract.Inject.dll",
-            "AppStract.Manager.exe",
-            "AppStract.Engine.dll",
-            "AppStract.Utilities.dll",
-            "System.Data.SQLite.dll"
+            "AppStract.Utilities.dll"
           });
       GacCleanUpInsuranceFolder = HostCore.Runtime.StartUpDirectory + @"\GAC";
       GacCleanUpInsuranceRegistryKey = @"Software\AppStract";
