@@ -153,6 +153,10 @@ namespace AppStract.Utilities.Data.Sql
           }
         }
       }
+      catch(Exception e)
+      {
+        throw new DatabaseException("Read query failed", e);
+      }
       finally
       {
         _sqliteLock.ExitReadLock();
@@ -194,6 +198,10 @@ namespace AppStract.Utilities.Data.Sql
               entries.Add(itemBuilder(reader));
           }
         }
+      }
+      catch (Exception e)
+      {
+        throw new DatabaseException("Read query failed", e);
       }
       finally
       {
