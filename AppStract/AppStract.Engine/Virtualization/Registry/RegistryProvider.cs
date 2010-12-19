@@ -34,7 +34,14 @@ namespace AppStract.Engine.Virtualization.Registry
 
     #region Variables
 
-    private readonly RegistrySwitch _switch;
+    /// <summary>
+    /// The datasource of the curren provider.
+    /// </summary>
+    private readonly IRegistrySynchronizer _dataSource;
+    /// <summary>
+    /// The instance deciding which virtual registry to use for specific requests.
+    /// </summary>
+    private RegistrySwitch _switch;
 
     #endregion
 
@@ -48,14 +55,23 @@ namespace AppStract.Engine.Virtualization.Registry
     /// </param>
     public RegistryProvider(IRegistrySynchronizer dataSource)
     {
+      _dataSource = dataSource;
+    }
+
+    #endregion
+
+    #region IVirtualizationProvider Members
+
+    public void Initialize()
+    {
       var indexGenerator = new IndexGenerator();
       // Reserve the first 20 indices for static virtual keys.
       indexGenerator.ExcludedRanges.Add(new IndexRange(0, 20));
       // Reserved indices for registry rootkeys.
       indexGenerator.ExcludedRanges.Add(new IndexRange(0x80000000, 0x80000006));
+      var engineRules = _dataSource.GetRegistryEngineRules();
       var knownKeys = new ObservableDictionary<uint, VirtualRegistryKey>();
-      dataSource.SynchronizeRegistryWith(knownKeys);
-      var engineRules = dataSource.GetRegistryEngineRules();
+      _dataSource.SynchronizeRegistryWith(knownKeys);
       _switch = new RegistrySwitch(indexGenerator, knownKeys, engineRules);
     }
 

@@ -31,6 +31,36 @@ namespace AppStract.Engine.Virtualization.Hooking
   public abstract class HookHandler
   {
 
+    #region Properties
+
+    /// <summary>
+    /// Gets the underlying virtualization provider.
+    /// </summary>
+    private readonly IVirtualizationProvider _provider;
+
+    #endregion
+
+    #region Constructors
+
+    protected HookHandler(IVirtualizationProvider provider)
+    {
+      _provider = provider;
+    }
+
+    #endregion
+
+    #region Public Methods
+
+    /// <summary>
+    /// Initializes the current handler.
+    /// </summary>
+    public void Initialize()
+    {
+      _provider.Initialize();
+    }
+
+    #endregion
+
     #region Protected Methods
 
     /// <summary>

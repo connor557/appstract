@@ -206,7 +206,7 @@ namespace AppStract.Engine.Virtualization.Hooking
     /// <summary>
     /// All hooks that must be installed in the guest process.
     /// </summary>
-    private readonly ICollection<HookProvider> _hookProviders;
+    private readonly ICollection<IHookProvider> _hookProviders;
     /// <summary>
     /// The hooks that are currently installed in the guest process.
     /// </summary>
@@ -249,7 +249,7 @@ namespace AppStract.Engine.Virtualization.Hooking
         throw new ApplicationException("There is already a running HookManager for the current process.");
       _isInstantiated = true;
       _acl = new HookAccessControlList();
-      _hookProviders = new List<HookProvider>();
+      _hookProviders = new List<IHookProvider>();
       _installedHooks = new List<LocalHook>();
       _syncRoot = new object();
     }
@@ -269,16 +269,19 @@ namespace AppStract.Engine.Virtualization.Hooking
       EngineCore.Log.Debug("Invoking API hook installation procedure.");
       lock (_syncRoot)
         foreach (var hookProvider in _hookProviders)
+        {
+          hookProvider.Initialize();
           hookProvider.InstallHooks(InstallHook);
+        }
       EngineCore.Log.Debug("Finished API hook installation.");
     }
 
     /// <summary>
-    /// Registers a <see cref="HookProvider"/> to the current <see cref="HookManager"/>.
+    /// Registers a <see cref="HookProvider{T}"/> to the current <see cref="HookManager"/>.
     /// The registered provider will be able to provide API hooks when <see cref="InstallHooks"/> is called.
     /// </summary>
     /// <param name="hookProvider"></param>
-    public void RegisterHookProvider(HookProvider hookProvider)
+    public void RegisterHookProvider(IHookProvider hookProvider)
     {
       lock (_syncRoot)
         if (!_hookProviders.Contains(hookProvider))

@@ -21,15 +21,18 @@
 
 #endregion
 
-namespace AppStract.Engine.Virtualization.FileSystem
+namespace AppStract.Engine.Virtualization
 {
   /// <summary>
-  /// Provides access to the virtual file system.
+  /// The <see cref="IVirtualizationProvider"/> interface defines all methods common to components providing virtualization logics.
   /// </summary>
-  public interface IFileSystemProvider : IVirtualizationProvider
+  public interface IVirtualizationProvider
   {
 
-    string GetVirtualPath(FileRequest request);
+    /// <summary>
+    /// Initializes the provider.
+    /// </summary>
+    void Initialize();
 
   }
 }

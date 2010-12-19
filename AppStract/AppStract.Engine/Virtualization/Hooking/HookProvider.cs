@@ -29,25 +29,47 @@ namespace AppStract.Engine.Virtualization.Hooking
   /// <summary>
   /// Abstract class representing a type able to provide API hooks.
   /// </summary>
-  public abstract class HookProvider
+  public abstract class HookProvider<THandler> : IHookProvider
+    where THandler : HookHandler
   {
 
-    #region Public Types
+    #region Properties
 
     /// <summary>
-    /// Represents the method able to install an API hook.
+    /// Gets the instance handling all intercepted API calls.
     /// </summary>
-    /// <param name="targetEntryPoint">The target entry point that should be hooked.</param>
-    /// <param name="hookHandler">A handler with the same signature as the original entry point.</param>
-    /// <param name="callback">An uninterpreted callback.</param>
-    public delegate void HookInstaller(IntPtr targetEntryPoint, Delegate hookHandler, object callback);
+    protected THandler Handler
+    {
+      get; private set;
+    }
 
     #endregion
 
-    #region Public Members
+    #region Constructors
 
     /// <summary>
-    /// Installs all hooks known by the current <see cref="HookProvider"/>.
+    /// Initializes the hook provider with the given <see cref="HookHandler"/>.
+    /// </summary>
+    /// <param name="handler">The instance to use for handling intercepted API calls.</param>
+    protected HookProvider(THandler handler)
+    {
+      Handler = handler;
+    }
+
+    #endregion
+
+    #region IHookProvider Members
+
+    /// <summary>
+    /// Initializes the current provider.
+    /// </summary>
+    public void Initialize()
+    {
+      Handler.Initialize();
+    }
+
+    /// <summary>
+    /// Installs all hooks known by the current <see cref="HookProvider{T}"/>.
     /// </summary>
     /// <exception cref="HookingException">
     /// A <see cref="HookingException"/> is thrown if the installation of any of the API hooks fails.
@@ -76,7 +98,7 @@ namespace AppStract.Engine.Virtualization.Hooking
     #region Protected Members
     
     /// <summary>
-    /// Returns all data needed for installing the API hooks provided by the current <see cref="HookProvider"/>.
+    /// Returns all data needed for installing the API hooks provided by the current <see cref="HookProvider{T}"/>.
     /// </summary>
     /// <returns></returns>
     protected abstract IEnumerable<HookData> GetHooks();
