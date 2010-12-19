@@ -129,12 +129,12 @@ namespace AppStract.Engine.Virtualization
     public SynchronizationBus(IConfigurationProvider configurationProvider)
     {
       _loader = configurationProvider;
-      if (configurationProvider.ConnectionStrings.ContainsKey(DataResourceType.RegistryDatabase))
-        _regDatabase = new RegistryDatabase(configurationProvider.ConnectionStrings[DataResourceType.RegistryDatabase]);
-      else if (configurationProvider.ConnectionStrings.ContainsKey(DataResourceType.RegistryDatabaseFile))
-        _regDatabase = RegistryDatabase.CreateDefaultDatabase(configurationProvider.ConnectionStrings[DataResourceType.RegistryDatabaseFile]);
+      if (configurationProvider.ConnectionStrings.ContainsKey(ConfigurationDataType.RegistryDatabase))
+        _regDatabase = new RegistryDatabase(configurationProvider.ConnectionStrings[ConfigurationDataType.RegistryDatabase]);
+      else if (configurationProvider.ConnectionStrings.ContainsKey(ConfigurationDataType.RegistryDatabaseFile))
+        _regDatabase = RegistryDatabase.CreateDefaultDatabase(configurationProvider.ConnectionStrings[ConfigurationDataType.RegistryDatabaseFile]);
       else
-        throw new ConnectionDataException();
+        throw new ConfigurationDataException(ConfigurationDataType.RegistryDatabase);
       _regDatabase.Initialize();
       _autoFlush = false;
       _flushInterval = 500;
