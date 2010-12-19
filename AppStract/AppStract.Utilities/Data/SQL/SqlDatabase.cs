@@ -439,7 +439,13 @@ namespace AppStract.Utilities.Data.Sql
       queryString.Append(" WHERE ");
       // Add the conditions.
       foreach (var condition in conditions)
-        queryString.Append(condition.Key + " = \"" + condition.Value + "\" AND ");
+      {
+        queryString.Append(condition.Key + " = ");
+        queryString.Append(condition.Value.GetType().IsValueType
+                             ? condition.Value
+                             : "\"" + condition.Value + "\"");
+        queryString.Append(" AND ");
+      }
       if (queryString.ToString().EndsWith(" AND "))
         queryString.Remove(queryString.Length - 5, 5);
       else
