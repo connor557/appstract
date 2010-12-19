@@ -26,7 +26,7 @@ namespace AppStract.Engine.Virtualization.Registry
   /// <summary>
   /// Provides access to the virtual registry.
   /// </summary>
-  public interface IRegistryProvider
+  public interface IRegistryProvider : IVirtualizationProvider
   {
 
     /// <summary>

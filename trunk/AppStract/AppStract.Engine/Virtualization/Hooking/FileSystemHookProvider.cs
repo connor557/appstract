@@ -29,7 +29,7 @@ namespace AppStract.Engine.Virtualization.Hooking
   /// <summary>
   /// Provides all API hooks regarding the file system.
   /// </summary>
-  public partial class FileSystemHookProvider : HookProvider
+  public partial class FileSystemHookProvider : HookProvider<FileSystemHookHandler>
   {
 
     #region Variables
@@ -41,7 +41,7 @@ namespace AppStract.Engine.Virtualization.Hooking
     /// <summary>
     /// The <see cref="HookHandler"/> containing all methods needed by the API hooks.
     /// </summary>
-    private readonly Handler _hookHandler;
+    private readonly FileSystemHookHandler _hookHandler;
 
     #endregion
 
@@ -52,9 +52,10 @@ namespace AppStract.Engine.Virtualization.Hooking
     /// </summary>
     /// <param name="fileSystemProvider">The <see cref="IFileSystemProvider"/> to use for the processing of intercepted API calls.</param>
     public FileSystemHookProvider(IFileSystemProvider fileSystemProvider)
+      : base(new FileSystemHookHandler(fileSystemProvider))
     {
       _callback = fileSystemProvider;
-      _hookHandler = new Handler(fileSystemProvider);
+      _hookHandler = new FileSystemHookHandler(fileSystemProvider);
     }
 
     #endregion

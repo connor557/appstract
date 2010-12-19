@@ -65,6 +65,14 @@ namespace AppStract.Engine.Virtualization.FileSystem
         throw new ArgumentNullException("rootDirectory");
       _engineRules = engineRules;
       _virtualEnvironment = new VirtualEnvironment(rootDirectory);
+    }
+
+    #endregion
+
+    #region IVirtualizationProvider Members
+
+    public void Initialize()
+    {
       _virtualEnvironment.Initialize();
     }
 
