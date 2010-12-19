@@ -33,9 +33,9 @@ namespace AppStract.Engine.Data.Connection
   {
 
     /// <summary>
-    /// Gets the collection of connection strings associated to the available <see cref="DataResourceType"/> members.
+    /// Gets the collection of connection strings associated to the available <see cref="ConfigurationDataType"/> members.
     /// </summary>
-    IDictionary<DataResourceType, string> ConnectionStrings
+    IDictionary<ConfigurationDataType, string> ConnectionStrings
     {
       get;
     }

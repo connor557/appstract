@@ -101,8 +101,8 @@
     <Compile Include="Configuration\EngineRule.cs" />
     <Compile Include="Configuration\EngineRuleCollection.cs" />
     <Compile Include="Configuration\VirtualizationType.cs" />
-    <Compile Include="Data\Connection\ConnectionDataException.cs" />
-    <Compile Include="Data\Connection\DataResourceType.cs" />
+    <Compile Include="Data\Connection\ConfigurationDataException.cs" />
+    <Compile Include="Data\Connection\ConfigurationDataType.cs" />
     <Compile Include="Data\Connection\IProcessSynchronizer.cs" />
     <Compile Include="Data\Connection\IConfigurationProvider.cs" />
     <Compile Include="Data\Connection\IServerReporter.cs" />

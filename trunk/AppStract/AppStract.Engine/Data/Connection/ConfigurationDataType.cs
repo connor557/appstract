@@ -23,7 +23,10 @@
 
 namespace AppStract.Engine.Data.Connection
 {
-  public enum DataResourceType
+  /// <summary>
+  /// Represents a type of configuration data.
+  /// </summary>
+  public enum ConfigurationDataType
   {
     /// <summary>
     /// The root directory as used by the file system.

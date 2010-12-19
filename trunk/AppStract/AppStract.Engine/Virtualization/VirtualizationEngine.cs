@@ -138,9 +138,9 @@ namespace AppStract.Engine.Virtualization
     {
       var syncBus = new SynchronizationBus(configurationProvider);
       var engine = new VirtualizationEngine(syncBus);
-      if (!configurationProvider.ConnectionStrings.ContainsKey(DataResourceType.FileSystemRoot))
-        throw new ConnectionDataException();
-      var fsProvider = new FileSystemProvider(configurationProvider.ConnectionStrings[DataResourceType.FileSystemRoot],
+      if (!configurationProvider.ConnectionStrings.ContainsKey(ConfigurationDataType.FileSystemRoot))
+        throw new ConfigurationDataException(ConfigurationDataType.FileSystemRoot);
+      var fsProvider = new FileSystemProvider(configurationProvider.ConnectionStrings[ConfigurationDataType.FileSystemRoot],
                                               configurationProvider.GetFileSystemEngineRules());
       var regProvider = new RegistryProvider(syncBus);
       engine._hookManager.RegisterHookProvider(new FileSystemHookProvider(fsProvider));
