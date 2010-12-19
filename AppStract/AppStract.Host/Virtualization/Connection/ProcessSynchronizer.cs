@@ -48,7 +48,7 @@ namespace AppStract.Host.Virtualization.Connection
     /// </summary>
     private readonly RegistryRuleCollection _regRuleCollection;
 
-    private readonly IDictionary<DataResourceType, string> _connectionStrings;
+    private readonly IDictionary<ConfigurationDataType, string> _connectionStrings;
 
     #endregion
 
@@ -69,10 +69,10 @@ namespace AppStract.Host.Virtualization.Connection
         throw new ArgumentException("The root location specified for the file system is not valid.", "fileSystemRoot");
       if (registryDatabaseFile.Type != FileType.Database)
         throw new ArgumentException("The filename specified for the registry database is not valid.", "registryDatabaseFile");
-      _connectionStrings = new Dictionary<DataResourceType, string>(2)
+      _connectionStrings = new Dictionary<ConfigurationDataType, string>(2)
                              {
-                               {DataResourceType.RegistryDatabaseFile, registryDatabaseFile.FileName},
-                               {DataResourceType.FileSystemRoot, fileSystemRoot.FileName}
+                               {ConfigurationDataType.RegistryDatabaseFile, registryDatabaseFile.FileName},
+                               {ConfigurationDataType.FileSystemRoot, fileSystemRoot.FileName}
                              };
       _fsRuleCollection = fileSystemRuleCollection;
       _regRuleCollection = registryRuleCollection;
@@ -107,7 +107,7 @@ namespace AppStract.Host.Virtualization.Connection
 
     #region IConfigurationProvider Members
 
-    public IDictionary<DataResourceType, string> ConnectionStrings
+    public IDictionary<ConfigurationDataType, string> ConnectionStrings
     {
       get { return _connectionStrings; }
     }
