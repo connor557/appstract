@@ -23,6 +23,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using AppStract.Host.Data.Application;
 using AppStract.Host.Virtualization.Connection;
 using AppStract.Engine.Data.Connection;
@@ -84,19 +86,18 @@ namespace AppStract.Host.Virtualization.Process.Packaging
     /// <returns></returns>
     public IEnumerable<string> GetExecutables()
     {
-      if (!HasExited)
-        return new List<string>(0);
-      var ps = _connection.ProcessSynchronizer as ProcessSynchronizer;
-      if (ps == null) // Should never occur.
-        throw new InvalidCastException("An unexpected exception occured in the application workflow."
-                                       + " Expected object of type "
-                                       + typeof(ProcessSynchronizer)
-                                       + " but received an object of type "
-                                       + _connection.ProcessSynchronizer.GetType());
-      var executables = new List<string>();
-      // ToDo: Acquire a list of possible startup executables
-      HostCore.Log.Critical("Unable to find a list of executables!");
-      return executables;
+      try
+      {
+        var root = _connection.ProcessSynchronizer.ConnectionStrings[ConfigurationDataType.FileSystemRoot];
+        var executables = Directory.GetFiles(root, @"*.exe", SearchOption.AllDirectories);
+        if (executables.Length == 0)
+          HostCore.Log.Critical("Unable to retrieve a list of executables!");
+        return executables.Select(value => value.Substring(root.Length));
+      }
+      catch
+      {
+        return new string[0];
+      }
     }
 
     #endregion
