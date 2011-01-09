@@ -81,8 +81,9 @@ namespace AppStract.Engine.Virtualization.Hooking
       using (EngineCore.Engine.GetEngineProcessingSpace())
       {
         var virtualPath = _fileSystem.GetVirtualPath(request);
-        return HostFileSystem.NativeAPI.CreateFile(virtualPath, desiredAccess, shareMode, securityAttributes,
-                                                   creationDisposition, flagsAndAttributes, templateFile);
+        return HostFileSystem.NativeMethods.CreateFile(
+          virtualPath, desiredAccess, shareMode, securityAttributes,
+          creationDisposition, flagsAndAttributes, templateFile);
       }
     }
 
@@ -102,7 +103,7 @@ namespace AppStract.Engine.Virtualization.Hooking
       using (EngineCore.Engine.GetEngineProcessingSpace())
       {
         var virtualPath = _fileSystem.GetVirtualPath(request);
-        return HostFileSystem.NativeAPI.DeleteFile(virtualPath);
+        return HostFileSystem.NativeMethods.DeleteFile(virtualPath);
       }
     }
 
@@ -123,7 +124,7 @@ namespace AppStract.Engine.Virtualization.Hooking
       using (EngineCore.Engine.GetEngineProcessingSpace())
       {
         var virtualPath = _fileSystem.GetVirtualPath(request);
-        return HostFileSystem.NativeAPI.CreateDirectory(virtualPath, securityAttributes);
+        return HostFileSystem.NativeMethods.CreateDirectory(virtualPath, securityAttributes);
       }
     }
 
@@ -143,7 +144,7 @@ namespace AppStract.Engine.Virtualization.Hooking
       using (EngineCore.Engine.GetEngineProcessingSpace())
       {
         var virtualPath = _fileSystem.GetVirtualPath(request);
-        return HostFileSystem.NativeAPI.RemoveDirectory(virtualPath);
+        return HostFileSystem.NativeMethods.RemoveDirectory(virtualPath);
       }
     }
 
@@ -165,7 +166,7 @@ namespace AppStract.Engine.Virtualization.Hooking
       using (EngineCore.Engine.GetEngineProcessingSpace())
       {
         var virtualPath = _fileSystem.GetVirtualPath(request);
-        return HostFileSystem.NativeAPI.LoadLibraryEx(virtualPath, file, flags);
+        return HostFileSystem.NativeMethods.LoadLibraryEx(virtualPath, file, flags);
       }
     }
 
