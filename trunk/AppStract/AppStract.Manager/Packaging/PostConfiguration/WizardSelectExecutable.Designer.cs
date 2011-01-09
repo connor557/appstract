@@ -61,6 +61,7 @@ namespace AppStract.Manager.Packaging.PostConfiguration
       // 
       this._listBoxItems.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this._listBoxItems.FormattingEnabled = true;
+      this._listBoxItems.HorizontalScrollbar = true;
       this._listBoxItems.Location = new System.Drawing.Point(38, 102);
       this._listBoxItems.Name = "_listBoxItems";
       this._listBoxItems.Size = new System.Drawing.Size(378, 286);
