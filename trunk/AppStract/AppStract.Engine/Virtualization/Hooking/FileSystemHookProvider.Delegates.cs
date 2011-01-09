@@ -43,7 +43,7 @@ namespace AppStract.Engine.Virtualization.Hooking
           string fileName,
           FileAccessRightFlags desiredAccess,
           FileShareModeFlags shareMode,
-          NativeSecurityAttributes securityAttributes,
+          IntPtr securityAttributes,
           FileCreationDisposition creationDisposition,
           FileFlagsAndAttributes flagsAndAttributes,
           IntPtr templateFile
@@ -54,7 +54,7 @@ namespace AppStract.Engine.Virtualization.Hooking
           string fileName,
           FileAccessRightFlags desiredAccess,
           FileShareModeFlags shareMode,
-          NativeSecurityAttributes securityAttributes,
+          IntPtr securityAttributes,
           FileCreationDisposition creationDisposition,
           FileFlagsAndAttributes flagsAndAttributes,
           IntPtr templateFile
