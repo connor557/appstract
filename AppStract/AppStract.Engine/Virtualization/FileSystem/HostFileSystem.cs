@@ -62,7 +62,7 @@ namespace AppStract.Engine.Virtualization.FileSystem
           string fileName,
           FileAccessRightFlags desiredAccess,
           FileShareModeFlags shareMode,
-          NativeSecurityAttributes securityAttributes,
+          IntPtr securityAttributes,
           FileCreationDisposition creationDisposition,
           FileFlagsAndAttributes flagsAndAttributes,
           IntPtr templateFile);

@@ -69,7 +69,7 @@ namespace AppStract.Engine.Virtualization.Hooking
     /// <param name="templateFile"></param>
     /// <returns></returns>
     public IntPtr CreateFile(string fileName, FileAccessRightFlags desiredAccess, FileShareModeFlags shareMode,
-                               NativeSecurityAttributes securityAttributes, FileCreationDisposition creationDisposition,
+                               IntPtr securityAttributes, FileCreationDisposition creationDisposition,
                                FileFlagsAndAttributes flagsAndAttributes, IntPtr templateFile)
     {
       var request = new FileRequest
@@ -82,7 +82,7 @@ namespace AppStract.Engine.Virtualization.Hooking
       {
         var virtualPath = _fileSystem.GetVirtualPath(request);
         return HostFileSystem.NativeAPI.CreateFile(virtualPath, desiredAccess, shareMode, securityAttributes,
-                                    creationDisposition, flagsAndAttributes, templateFile);
+                                                   creationDisposition, flagsAndAttributes, templateFile);
       }
     }
 
