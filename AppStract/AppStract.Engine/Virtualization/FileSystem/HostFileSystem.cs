@@ -40,7 +40,7 @@ namespace AppStract.Engine.Virtualization.FileSystem
     /// <summary>
     /// Defines native file management functions.
     /// </summary>
-    public static class NativeAPI
+    public static class NativeMethods
     {
 
       /// <summary>
