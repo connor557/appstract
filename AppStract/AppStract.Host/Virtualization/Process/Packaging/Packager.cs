@@ -134,8 +134,7 @@ namespace AppStract.Host.Virtualization.Process.Packaging
       data.Settings.RegistryEngineRuleCollection = RegistryRuleCollection.GetDefaultRuleCollection();
       data.Files.RootDirectory = new ApplicationFile(".");
       data.Files.Executable = new ApplicationFile(executable);
-      if (data.Files.Executable.Type != FileType.Assembly_Managed
-          && data.Files.Executable.Type != FileType.Assembly_Native)
+      if (data.Files.Executable.Type != FileType.Executable)
         throw new ArgumentException("The value specified for the executable is invalid.", "executable");
       data.Files.RegistryDatabase = new ApplicationFile(_dbRegistry);
       return data;

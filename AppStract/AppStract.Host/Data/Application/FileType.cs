@@ -23,12 +23,30 @@
 
 namespace AppStract.Host.Data.Application
 {
+  /// <summary>
+  /// The <see cref="FileType"/> enum represents the type of a filesystem object.
+  /// </summary>
   public enum FileType
   {
+    /// <summary>
+    /// The object is a file.
+    /// </summary>
     File,
-    Assembly_Native,
-    Assembly_Managed,
+    /// <summary>
+    /// The object is an executable.
+    /// </summary>
+    Executable,
+    /// <summary>
+    /// The object is a library.
+    /// </summary>
+    Library,
+    /// <summary>
+    /// The object is a database file.
+    /// </summary>
     Database,
+    /// <summary>
+    /// The object is a directory.
+    /// </summary>
     Directory
   }
 }

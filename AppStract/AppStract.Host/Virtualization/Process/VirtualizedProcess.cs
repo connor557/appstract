@@ -177,17 +177,16 @@ namespace AppStract.Host.Virtualization.Process
       _connection.Connect();
       _hasExited = false;
       // Start the process.
-      switch (_startInfo.Files.Executable.Type)
+      switch (_startInfo.Files.Executable.GetLibraryType())
       {
-        case FileType.Assembly_Native:
+        case LibraryType.Native:
           CreateAndInject();
           break;
-        case FileType.Assembly_Managed:
+        case LibraryType.Managed:
           WrapAndInject();
           break;
         default:  // Should never happen!
-          throw new VirtualProcessException("FileType " + _startInfo.Files.Executable.Type +
-                                            " can't be used to start a process with.");
+          throw new VirtualProcessException("Unable to start a virtualization engine for " + _startInfo.Files.Executable.FileName);
       }
       HostCore.Log.Message("A virtualized process with PID {0} has been succesfully created for {1}.",
                               _process.Id, _startInfo.Files.Executable.FileName);
