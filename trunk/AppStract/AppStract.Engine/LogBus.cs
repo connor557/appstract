@@ -114,6 +114,13 @@ namespace AppStract.Engine
 #else
       try
       {
+#if DEBUG
+        if (System.Diagnostics.Debugger.IsAttached)
+        {
+          System.Diagnostics.Debug.WriteLine(FormatLogMessage(message));
+          return;
+        }
+#endif
         using (EngineCore.Engine.GetEngineProcessingSpace())
           _serverReporter.ReportMessage(message);
       }
