@@ -113,7 +113,7 @@ namespace AppStract.Host.Virtualization.Process.Packaging
       _process.Exited += Process_Exited;
       WaitHandle.WaitAll(new[] { _waitHandle });
       if (!_succeeded)
-        throw new PackageException("Packaging of " + _startInfo + " did not succeed.");
+        throw new PackageException("Packaging of " + _startInfo.Files.Executable.FileName + " did not succeed.");
       return _result;
     }
 
