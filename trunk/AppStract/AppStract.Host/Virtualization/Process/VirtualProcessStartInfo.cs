@@ -144,8 +144,7 @@ namespace AppStract.Host.Virtualization.Process
         throw new ArgumentNullException("data", "The data argument or one of its properties is null.");
       if (workingDirectory == null)
         throw new ArgumentNullException("workingDirectory", "The workingDirectory argument is null.");
-      if (data.Files.Executable.Type != FileType.Assembly_Managed
-          && data.Files.Executable.Type != FileType.Assembly_Native)
+      if (data.Files.Executable.Type != FileType.Executable)
         throw new ArgumentException("The ApplicationData specified contains an illegal value for the main executable.",
                                     "data");
       if (data.Files.RegistryDatabase.Type != FileType.Database)

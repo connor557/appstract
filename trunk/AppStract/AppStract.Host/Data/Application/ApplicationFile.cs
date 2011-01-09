@@ -90,6 +90,25 @@ namespace AppStract.Host.Data.Application
     }
 
     /// <summary>
+    /// Gets the library type for the current file.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// An <see cref="InvalidOperationException"/> is thrown if <see cref="Type"/> does not match
+    /// <see cref="FileType.Executable"/> nor <see cref="FileType.Library"/>.
+    /// </exception>
+    /// <returns>The <see cref="LibraryType"/> for the current file.</returns>
+    public LibraryType GetLibraryType()
+    {
+      if (_type != FileType.Library && _type != FileType.Executable)
+        throw new InvalidOperationException("Unable to determine libary type on a file of type " + _type);
+      if (!File.Exists(_file))
+        return LibraryType.Undetermined;
+      return AssemblyHelper.IsManagedAssembly(_file)
+               ? LibraryType.Managed
+               : LibraryType.Native;
+    }
+
+    /// <summary>
     /// Returns a string representation of the current <see cref="ApplicationFile"/>.
     /// </summary>
     /// <returns></returns>
@@ -120,20 +139,16 @@ namespace AppStract.Host.Data.Application
     private static FileType GetFileType(string filename)
     {
       filename = filename.ToLowerInvariant();
-      if (filename == "" || filename.IsComposedOf(new[] {'.', '\\'}) || Directory.Exists(filename))
+      if (filename == "" || filename.IsComposedOf(new[] {'.', '\\'})
+        || filename.EndsWith("" + Path.DirectorySeparatorChar) || Directory.Exists(filename))
         return FileType.Directory;
       if (filename.EndsWith(".db3"))
         return FileType.Database;
-      if (filename.EndsWithAny(new[] {".exe", ".dll"}))
-      {
-        if (!File.Exists(filename))
-          throw new FileNotFoundException(
-            "The assembly specified does not exist, making it impossible to retrieve its FileType.",
-            filename);
-        return AssemblyHelper.IsManagedAssembly(filename)
-                 ? FileType.Assembly_Managed
-                 : FileType.Assembly_Native;
-      }
+      if (filename.EndsWith(".exe"))
+        return FileType.Executable;
+      if (filename.EndsWith(".dll"))
+        return FileType.Library;
+      // Else
       return FileType.File;
     }
 

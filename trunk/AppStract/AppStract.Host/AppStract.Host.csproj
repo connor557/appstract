@@ -120,6 +120,7 @@
     <Compile Include="Data\Application\ApplicationFiles.cs" />
     <Compile Include="Data\Application\ApplicationSettings.cs" />
     <Compile Include="Data\Application\FileType.cs" />
+    <Compile Include="Data\Application\LibraryType.cs" />
     <Compile Include="Virtualization\Process\VirtualProcessException.cs" />
     <Compile Include="Virtualization\Process\VirtualizedProcess.cs" />
     <Compile Include="HostManager.cs" />

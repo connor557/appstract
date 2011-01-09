@@ -77,14 +77,13 @@ namespace AppStract.Host.System.GAC
     {
       _gacSyncRoot = new object();
       _otherAppExe = new ApplicationFile(otherAppExe);
-      if (_otherAppExe.Type != FileType.Assembly_Managed
-          && _otherAppExe.Type != FileType.Assembly_Native)
+      if (_otherAppExe.Type != FileType.Executable)
         throw new GacException("\"" + _otherAppExe.FileName + "\" is no valid executable.");
       _sharedAssemblies = new List<ApplicationFile>();
       foreach (var sharedAssembly in sharedAssemblies)
       {
         var file = new ApplicationFile(sharedAssembly);
-        if (file.Type == FileType.Assembly_Managed)
+        if (file.Type == FileType.Library)
           _sharedAssemblies.Add(file);
       }
     }
@@ -120,7 +119,7 @@ namespace AppStract.Host.System.GAC
     /// <exception cref="GacException">
     /// A <see cref="GacException"/> is thrown if one of the files is not a .NET assembly with valid metadata, like a strong name.
     /// </exception>
-    private List<AssemblyName> DetermineGacAssemblies()
+    private IEnumerable<AssemblyName> DetermineGacAssemblies()
     {
       var gacAssemblies = new List<AssemblyName>();
       var otherBinDir = Path.GetDirectoryName(_otherAppExe.FileName).ToUpperInvariant();
@@ -128,7 +127,8 @@ namespace AppStract.Host.System.GAC
       var sameBinDir = otherBinDir == thisBinDir;
       foreach (var file in _sharedAssemblies)
       {
-        if (file.Type != FileType.Assembly_Managed)
+        var type = file.GetLibraryType();
+        if (type != LibraryType.Managed)
           continue;
         var dir = Path.GetDirectoryName(file.FileName).ToUpperInvariant();
         if (sameBinDir && dir == otherBinDir)
