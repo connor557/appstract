@@ -31,6 +31,9 @@ using AppStract.Utilities.Extensions;
 
 namespace AppStract.Host.Data.Application
 {
+  /// <summary>
+  /// The <see cref="ApplicationFile"/> class describes any file used by the AppStract application.
+  /// </summary>
   [Serializable]
   public sealed class ApplicationFile : ISerializable, IXmlSerializable
   {
@@ -44,11 +47,17 @@ namespace AppStract.Host.Data.Application
 
     #region Properties
 
+    /// <summary>
+    /// Gets the <see cref="FileType"/> matching <see cref="FileName"/>.
+    /// </summary>
     public FileType Type
     {
       get { return _type; }
     }
 
+    /// <summary>
+    /// Gets or sets the <see cref="FileName"/> of the described file.
+    /// </summary>
     public string FileName
     {
       get { return _file; }
@@ -111,7 +120,7 @@ namespace AppStract.Host.Data.Application
     /// <summary>
     /// Returns a string representation of the current <see cref="ApplicationFile"/>.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A string formatted like "[<see cref="Type"/>] <see cref="FileName"/>"</returns>
     public override string ToString()
     {
       return "[" + Type + "] " + FileName; 
@@ -124,16 +133,6 @@ namespace AppStract.Host.Data.Application
     /// <summary>
     /// Returns the <see cref="FileType"/> for the filename specified.
     /// </summary>
-    /// <exception cref="FileNotFoundException">
-    /// A <see cref="FileNotFoundException"/> is thrown if the filename is identified as an assembly
-    /// while the associated file does not exist.
-    /// It's not possible to retrieve the <see cref="FileType"/> of a non-existing assembly.
-    /// </exception>
-    /// <remarks>
-    /// The <paramref name="filename"/> specified is identified as an assembly
-    /// if it's not a directory
-    /// and if it ends with ".exe" or ".dll".
-    /// </remarks>
     /// <param name="filename">The file to determine the <see cref="FileType"/> of.</param>
     /// <returns>The <see cref="FileType"/> of the <paramref name="filename"/> specified.</returns>
     private static FileType GetFileType(string filename)
